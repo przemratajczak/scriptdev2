@@ -16,7 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Archavon_The_Stone_Watcher
-SD%Complete: 0%
+SD%Author: Fixed by Bear
+SD%Complete: 100%
 SDComment:
 SDCategory: Vault of Archavon
 EndScriptData */
@@ -37,7 +38,10 @@ enum
     SPELL_IMPALE_DMG_N                      = 58666,
     SPELL_IMPALE_DMG_H                      = 60882,
     SPELL_IMPALE_STUN                       = 50839,
-    SPELL_BERSERK                           = 47008
+    SPELL_BERSERK                           = 47008,
+
+    SPELL_CRUSH = 60895,
+    SPELL_CRUSH_H = 58963,
 };
 
 struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
@@ -62,13 +66,16 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
     uint32 m_uiRockShardTimer;
     bool m_bRLRockShard;
     Unit* m_pRockShardsTarget;
-    uint32 m_uiCrushingLeapTimer;
-    Unit* m_pCrushingLeapTarget;
-    bool m_bCrushingLeapInProgress;
-    uint32 m_uiCrushingLeapSecureTimer;
+    //uint32 m_uiCrushingLeapTimer;
+    //Unit* m_pCrushingLeapTarget;
+    //bool m_bCrushingLeapInProgress;
+    //uint32 m_uiCrushingLeapSecureTimer;
+    uint32 m_uiCloudTimer;
     uint32 m_uiStompTimer;
     uint32 m_uiImpaleAfterStompTimer;
     bool m_bImpaleInProgress;
+
+    uint32 m_uiCrush_2Timer;
 
     void Reset()
     {
@@ -81,13 +88,15 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
         m_uiRockShardTimer = 0;
         m_bRLRockShard = true;
         m_pRockShardsTarget = NULL;
-        m_uiCrushingLeapTimer = 30000;
-        m_pCrushingLeapTarget = NULL;
-        m_bCrushingLeapInProgress = false;
-        m_uiCrushingLeapSecureTimer = 2000;
+        //m_uiCrushingLeapTimer = 10000;
+        //m_pCrushingLeapTarget = NULL;
+        //m_bCrushingLeapInProgress = false;
+        //m_uiCrushingLeapSecureTimer = 2000;
         m_uiStompTimer = 45000;
         m_uiImpaleAfterStompTimer = 1000;
         m_bImpaleInProgress = false;
+
+        m_uiCrush_2Timer = 30000;
 
         if(m_pInstance)
             m_pInstance->SetData(TYPE_ARCHAVON, NOT_STARTED);
@@ -119,6 +128,36 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
         else
             m_uiEvadeCheckCooldown -= uiDiff;
 
+               
+        if (m_uiCrush_2Timer < uiDiff)
+        {
+            ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+            if (tList.empty())
+                return;                                         // No point continuing if empty threatlist.
+
+            std::list<Unit*> targets;
+
+            for (ThreatList::const_iterator itr = tList.begin();itr != tList.end(); ++itr)
+            {
+                Unit* pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
+
+                // Only alive players
+                if (pUnit && pUnit->isAlive() && pUnit->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(pUnit);
+            }
+
+            if (targets.empty())
+                return;                                         // No targets added for some reason. No point continuing.
+
+            targets.sort(ObjectDistanceOrder(m_creature));      // Sort players by distance.
+            targets.resize(1);                                  // Only need closest target.
+            Unit* target = targets.front();                     // Get the first target.
+
+            // Add threat equivalent to threat on victim.
+            m_creature->AddThreat(target, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+            DoCastSpellIfCan(target, m_bIsRegularMode ? SPELL_CRUSH : SPELL_CRUSH_H, true);
+        }
+
         if (m_bImpaleInProgress)
         {
             if (m_uiImpaleAfterStompTimer < uiDiff)
@@ -137,7 +176,7 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
             }
         }
 
-        if (m_bCrushingLeapInProgress)
+        /*if (m_bCrushingLeapInProgress)
         {
             if (m_pCrushingLeapTarget)
             {
@@ -155,15 +194,14 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
             if ((m_uiCrushingLeapSecureTimer < uiDiff) || (m_pCrushingLeapTarget && m_creature->IsWithinDist(m_pCrushingLeapTarget, 5.0f)))
             {
                 m_creature->getThreatManager().addThreat(m_pCrushingLeapTarget, -100000000.0f);
-                m_creature->SetSpeedRate(MOVE_RUN, m_fDefaultMoveSpeed);
-                DoCastSpellIfCan(m_pCrushingLeapTarget, m_bIsRegularMode ? SPELL_CRUSHING_LEAP_N : SPELL_CRUSHING_LEAP_H, true);
+                //DoCastSpellIfCan(m_pCrushingLeapTarget, m_bIsRegularMode ? SPELL_CRUSHING_LEAP_N : SPELL_CRUSHING_LEAP_H, true);
                 m_bCrushingLeapInProgress = false;
             }
             else
                 m_uiCrushingLeapSecureTimer -= uiDiff;
 
             return;
-        }
+        }*/
 
         if (m_bRockShardsInProgress)
         {
@@ -206,14 +244,15 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
         else
             m_uiRockShardsTimer -= uiDiff;
 
-        if (m_uiCrushingLeapTimer < uiDiff)
+
+        /*if (m_uiCrushingLeapTimer < uiDiff)
         {
             ThreatList const& tList = m_creature->getThreatManager().getThreatList();
             std::list<Unit*> lTargets;
             for (ThreatList::const_iterator itr = tList.begin();itr != tList.end(); ++itr)
             {
                 Unit *pTemp = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
-                if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER && !m_creature->IsWithinDist(pTemp, 10.0f) && m_creature->IsWithinDist(pTemp, 80.0f))
+                if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER && !m_creature->IsWithinDist(pTemp, 80.0f) && m_creature->IsWithinDist(pTemp, 80.0f))
                     lTargets.push_back(pTemp);
             }
             m_pCrushingLeapTarget = NULL;
@@ -226,7 +265,7 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
                 {
                     m_creature->MonsterSay(m_pCrushingLeapTarget->GetName(), LANG_UNIVERSAL);
                     m_creature->getThreatManager().addThreat(m_pCrushingLeapTarget, 100000000.0f);
-                    m_creature->SetSpeedRate(MOVE_RUN, m_fDefaultMoveSpeed*10.0f);
+                    DoCastSpellIfCan(m_pCrushingLeapTarget, m_bIsRegularMode ? SPELL_CRUSH_2 : SPELL_CRUSH_3, true);
                     m_bCrushingLeapInProgress = true;
                     m_uiCrushingLeapSecureTimer = 2000;
                 }
@@ -235,7 +274,8 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
             return;
         }
         else
-            m_uiCrushingLeapTimer -= uiDiff;
+            m_uiCrushingLeapTimer -= uiDiff;*/
+
 
         if (m_uiStompTimer < uiDiff)
         {

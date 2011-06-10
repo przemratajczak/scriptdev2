@@ -16,6 +16,7 @@
 
 /* ScriptData
 SDName: boss_koralon
+SDAuthor: Fixed by Bear
 SD%Complete: 100%
 SDComment: 
 SDCategory: Vault of Archavon
@@ -41,6 +42,7 @@ EndScriptData */
 #define SPELL_CINDER               66684
 #define SPELL_CINDER_H             67332
 
+
 struct MANGOS_DLL_DECL boss_koralonAI : public ScriptedAI
 {
     boss_koralonAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -53,6 +55,7 @@ struct MANGOS_DLL_DECL boss_koralonAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegular;
     bool m_bIsBB;
+    bool m_MeteorFists;
     uint32 m_uiBurningBreathTimer;
     uint32 m_uiMeteorFistsTimer;
     uint32 m_uiFlamesTimer;
@@ -126,7 +129,8 @@ struct MANGOS_DLL_DECL boss_koralonAI : public ScriptedAI
 
         if(m_uiMeteorFistsTimer < diff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_METEOR_FISTS_EFF);
+            m_creature->MonsterTextEmote("Koralon the Flame Watcher casts Meteor Fists!", 0, true);
+            DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegular ? SPELL_METEOR_FISTS : SPELL_METEOR_FISTS_H);
             m_uiMeteorFistsTimer = 45000;
         }
         else m_uiMeteorFistsTimer -= diff;

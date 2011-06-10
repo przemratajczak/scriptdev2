@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Toravon the Ice Watcher
-SDAuthor: Lutik
+SDAuthor: Lutik/ Fixed by Bear
 SD%Complete: 100%
 SDComment:
 SDCategory: Vault of Archavon
@@ -27,15 +27,18 @@ EndScriptData */
 
 enum
 {
-    SPELL_WHITEOUT          = 72034,
-    SPELL_WHITEOUT_H        = 72096,
-    SPELL_FREEZING_GROUND   = 72090,
-    SPELL_FREEZING_GROUND_H = 72104,
-    SPELL_FROZEN_MALLET     = 71993,
+    //Toravon
+    SP_WHITEOUT             = 72034,
+    H_SP_WHITEOUT           = 72096,
+    WHITEOUT_VISUAL         = 72036,  //Visual for Whiteout
+    SP_FREEZING_GROUND      = 72090,
+    H_SP_FREEZING_GROUND    = 72104,
+    SP_FROZEN_MALLET        = 71993,
 
-    FROZEN_ORB_AURA         = 72081,
-
-    CR_FROZEN_ORB           = 38456
+    //Frozen Orb
+    FROZEN_ORB_AURA         = 72081,  //Dmg
+    SPELL_FROZEN_ORB_AURA   = 72067,  //Visual
+    CR_FROZEN_ORB           = 38456,  //Adds Frozen Orb
 };
 
 
@@ -51,17 +54,20 @@ struct MANGOS_DLL_DECL boss_toravonAI : public ScriptedAI
 
     bool m_bIsRegularMode;
     ScriptedInstance *m_pInstance;
-
+   
     int m_iOrbsNum;
+    bool WhiteoutVisual;
     uint32 m_uiWhiteoutTimer;
     uint32 m_uiOrbsTimer;
     uint32 m_uiFreezeTimer;
 
     void Reset()
     {
-        m_uiWhiteoutTimer = 40000;
+        m_uiWhiteoutTimer = 36000;
         m_uiOrbsTimer = 15000;
         m_uiFreezeTimer = 20000 + rand()%5000;
+
+        WhiteoutVisual = false; 
 
         if(m_pInstance)
             m_pInstance->SetData(TYPE_TORAVON, NOT_STARTED);
@@ -69,7 +75,7 @@ struct MANGOS_DLL_DECL boss_toravonAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoCastSpellIfCan(m_creature, SPELL_FROZEN_MALLET);
+        DoCastSpellIfCan(m_creature, SP_FROZEN_MALLET);
 
         if(m_pInstance)
             m_pInstance->SetData(TYPE_TORAVON, IN_PROGRESS);
@@ -83,7 +89,8 @@ struct MANGOS_DLL_DECL boss_toravonAI : public ScriptedAI
 
     void JustSummoned(Creature *pOrb)
     {
-        pOrb->CastSpell(pOrb, FROZEN_ORB_AURA, false);
+        pOrb->CastSpell(pOrb, FROZEN_ORB_AURA, true);
+        pOrb->CastSpell(pOrb, SPELL_FROZEN_ORB_AURA, true);
         pOrb->SetInCombatWithZone();
     }
 
@@ -92,13 +99,12 @@ struct MANGOS_DLL_DECL boss_toravonAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if(m_uiWhiteoutTimer < diff)
+        if(m_uiWhiteoutTimer < diff) //Cast 2.5sec
         {
-            DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_WHITEOUT : SPELL_WHITEOUT_H);
-            m_uiWhiteoutTimer = 40000;
-        }
-        else
-            m_uiWhiteoutTimer -= diff;
+            DoCast(m_creature, m_bIsRegularMode ? SP_WHITEOUT : H_SP_WHITEOUT);
+            DoCast(m_creature, WHITEOUT_VISUAL, true);
+            m_uiWhiteoutTimer = 36000;
+        }else m_uiWhiteoutTimer -= diff;
 
         if(m_uiOrbsTimer < diff)
         {
@@ -108,17 +114,16 @@ struct MANGOS_DLL_DECL boss_toravonAI : public ScriptedAI
                     m_creature->SummonCreature(CR_FROZEN_ORB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
             }
             m_uiOrbsTimer = 40000;
-        }
-        else
-            m_uiOrbsTimer -= diff;
+        }else m_uiOrbsTimer -= diff;   
 
         if(m_uiFreezeTimer < diff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_FREEZING_GROUND);
-            m_uiFreezeTimer = 20000 + rand()%5000;
-        }
-        else
-            m_uiFreezeTimer -= diff;
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            {
+               DoCastSpellIfCan(pTarget,  m_bIsRegularMode ? SP_FREEZING_GROUND : H_SP_FREEZING_GROUND);
+               m_uiFreezeTimer = 20000 + rand()%5000;
+            }
+        }else m_uiFreezeTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

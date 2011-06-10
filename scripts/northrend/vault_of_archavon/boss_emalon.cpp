@@ -162,6 +162,7 @@ struct MANGOS_DLL_DECL npc_tempest_minionAI : public ScriptedAI
                 DoResetThreat();
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     m_creature->GetMotionMaster()->MoveChase(pTarget);
+
             }
             else
                 m_uiRespawnTimer -= uiDiff;
