@@ -92,15 +92,6 @@ struct MANGOS_DLL_DECL boss_patchwerkAI : public ScriptedAI
             return;
 
         m_pInstance->SetData(TYPE_PATCHWERK, IN_PROGRESS);
-
-        // call all creatures in area
-        if (!m_pInstance->lPatchwerkAreaMobs.empty())
-            for (GUIDList::iterator itr = m_pInstance->lPatchwerkAreaMobs.begin(); itr != m_pInstance->lPatchwerkAreaMobs.end(); ++itr)
-            {
-                Creature* pCreature = m_creature->GetMap()->GetCreature(*itr);
-                if (pCreature && pCreature->isAlive() && !pCreature->isInCombat() && pCreature->AI())
-                    pCreature->AI()->AttackStart(pWho);
-            }
     }
 
     void JustReachedHome()

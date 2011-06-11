@@ -181,8 +181,8 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_KELTHUZAD, DONE);
 
-            if (m_uiCantGetEnoughCounter >= 18)
-                m_pInstance->SetData(TYPE_ACHI_CANT_GET_ENOUGH, DONE);
+            //if (m_uiCantGetEnoughCounter >= 18)
+            //   m_pInstance->SetData(TYPE_ACHI_CANT_GET_ENOUGH, DONE);
         }
     }
 

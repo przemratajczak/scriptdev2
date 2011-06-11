@@ -257,7 +257,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_SAPPHIRON, DONE);
             if (m_bHundredClub)
-                m_pInstance->SetData(TYPE_ACHI_HUNDRED_CLUB, DONE);
+                m_pInstance->SetData(m_bIsRegularMode ? ACHIEV_CRIT_HUNDRED_CLUB_N : ACHIEV_CRIT_HUNDRED_CLUB_H, DONE);
         }
     }
 

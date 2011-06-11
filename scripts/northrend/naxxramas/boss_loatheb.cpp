@@ -69,8 +69,8 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
         m_uiBerserkTimer = MINUTE*12*IN_MILLISECONDS;       // only in heroic, after 12min
         m_uiNecroticAuraCount = 0;
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ACHI_SPORE_LOSER, DONE);
+        //if (m_pInstance)
+        //    m_pInstance->SetData(TYPE_ACHI_SPORE_LOSER, DONE);
     }
 
     void Aggro(Unit* pWho)
@@ -102,8 +102,8 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
 
     void SummonedCreatureJustDied(Creature *pCreature)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ACHI_SPORE_LOSER, FAIL);
+        //if (m_pInstance)
+        //    m_pInstance->SetData(TYPE_ACHI_SPORE_LOSER, FAIL);
     }
 
     void UpdateAI(const uint32 uiDiff)

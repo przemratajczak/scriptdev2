@@ -110,36 +110,16 @@ struct MANGOS_DLL_DECL boss_razuviousAI : public ScriptedAI
         }
 
         if (m_pInstance)
-        {
-            for (GUIDList::iterator itr = m_pInstance->lUnderstudyGUID.begin(); itr != m_pInstance->lUnderstudyGUID.end(); ++itr)
-            {
-                if (Creature* pUnderstudy = m_pInstance->instance->GetCreature(*itr))
-                    pUnderstudy->AI()->AttackStart(pWho);
-            }
-
             m_pInstance->SetData(TYPE_RAZUVIOUS, IN_PROGRESS);
-        }
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
-        {
-            if (m_pInstance)
-            {
-                for (GUIDList::iterator itr = m_pInstance->lUnderstudyGUID.begin(); itr != m_pInstance->lUnderstudyGUID.end(); ++itr)
-                {
-                    Creature* pUnderstudy = m_pInstance->instance->GetCreature(*itr);
-                    if (pUnderstudy && !pUnderstudy->isAlive())
-                        pUnderstudy->Respawn();
-                }
-
-                m_pInstance->SetData(TYPE_RAZUVIOUS, FAIL);
-            }
-        }
+            m_pInstance->SetData(TYPE_RAZUVIOUS, FAIL);
     }
 
-    void MovementInform(uint32 uiMotionType, uint32 uiPointId)
+    /*void MovementInform(uint32 uiMotionType, uint32 uiPointId)
     {
         if (uiMotionType != WAYPOINT_MOTION_TYPE)
             return;
@@ -169,7 +149,7 @@ struct MANGOS_DLL_DECL boss_razuviousAI : public ScriptedAI
         // WaypointMovementGenerator() stops sending MovementInform() to AI
         if (uiPointId == 14)
             m_creature->GetMotionMaster()->Initialize();
-    }
+    }*/
 
     void UpdateAI(const uint32 uiDiff)
     {

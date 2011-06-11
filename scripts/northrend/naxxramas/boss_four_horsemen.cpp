@@ -225,7 +225,7 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
         SetCombatMovement(false);
         m_creature->GetMotionMaster()->MovePoint(CORNER_POINT, EngagePosition[2][0], EngagePosition[2][1], EngagePosition[2][2]);
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BLAUMEUX, IN_PROGRESS);
+            {} // m_pInstance->SetData(TYPE_BLAUMEUX, IN_PROGRESS);
     }
 
     void AttackedBy(Unit* pWho)
@@ -250,13 +250,13 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
         DoScriptText(SAY_BLAU_DEATH, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_SPIRIT_OF_BLAUMEUX, CAST_TRIGGERED);
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BLAUMEUX, DONE);
+            {} // m_pInstance->SetData(TYPE_BLAUMEUX, DONE);
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BLAUMEUX, NOT_STARTED);
+            {} // m_pInstance->SetData(TYPE_BLAUMEUX, NOT_STARTED);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -361,7 +361,7 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
         m_creature->GetMotionMaster()->MovePoint(CORNER_POINT, EngagePosition[1][0], EngagePosition[1][1], EngagePosition[1][2]);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_RIVENDARE, IN_PROGRESS);
+            {} // m_pInstance->SetData(TYPE_RIVENDARE, IN_PROGRESS);
     }
 
     void AttackedBy(Unit* pWho)
@@ -402,13 +402,13 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
         DoScriptText(SAY_RIVE_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_RIVENDARE, DONE);
+            {} // m_pInstance->SetData(TYPE_RIVENDARE, DONE);
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_RIVENDARE, NOT_STARTED);
+            {} // m_pInstance->SetData(TYPE_RIVENDARE, NOT_STARTED);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -491,7 +491,7 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
         m_creature->GetMotionMaster()->MovePoint(CORNER_POINT, EngagePosition[0][0], EngagePosition[0][1], EngagePosition[0][2]);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_THANE, IN_PROGRESS);
+            {} // m_pInstance->SetData(TYPE_THANE, IN_PROGRESS);
     }
 
     void AttackedBy(Unit* pWho)
@@ -533,13 +533,13 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_SPIRIT_OF_KORTHAZZ, CAST_TRIGGERED);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_THANE, DONE);
+            {} // m_pInstance->SetData(TYPE_THANE, DONE);
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
-           m_pInstance->SetData(TYPE_THANE, NOT_STARTED);
+           {} // m_pInstance->SetData(TYPE_THANE, NOT_STARTED);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -626,7 +626,7 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
         m_creature->GetMotionMaster()->MovePoint(CORNER_POINT, EngagePosition[3][0], EngagePosition[3][1], EngagePosition[3][2]);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_ZELIEK, IN_PROGRESS);
+            {} // m_pInstance->SetData(TYPE_ZELIEK, IN_PROGRESS);
     }
 
     void AttackedBy(Unit* pWho)
@@ -652,13 +652,13 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_SPIRIT_OF_ZELIEK, CAST_TRIGGERED);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_ZELIEK, DONE);
+            {} // m_pInstance->SetData(TYPE_ZELIEK, DONE);
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_ZELIEK, NOT_STARTED);
+            {} // m_pInstance->SetData(TYPE_ZELIEK, NOT_STARTED);
     }
 
     void UpdateAI(const uint32 uiDiff)
