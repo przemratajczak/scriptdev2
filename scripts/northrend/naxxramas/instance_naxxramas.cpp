@@ -235,7 +235,14 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
         case TYPE_FAERLINA:
             DoUseDoorOrButton(GO_ARAC_FAER_WEB);
             if (uiData == IN_PROGRESS)
+            {
+                if (Creature* pFaerlina = GetSingleCreatureFromStorage(NPC_FAERLINA))
+                    if (Unit* pVictim = pFaerlina->getVictim())
+                        for (GUIDList::const_iterator itr = m_lFaerlinaAddGUIDs.begin(); itr != m_lFaerlinaAddGUIDs.end(); ++itr)
+                            if (Creature* pUnderstudy = instance->GetCreature(*itr))
+                                pUnderstudy->AI()->AttackStart(pVictim);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_KNOCK_YOU_OUT, true);
+            }
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_ARAC_FAER_DOOR);
