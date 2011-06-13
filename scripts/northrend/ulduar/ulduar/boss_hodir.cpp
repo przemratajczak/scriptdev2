@@ -532,7 +532,7 @@ struct MANGOS_DLL_DECL npc_hodir_druidAI : public ScriptedAI
         return *iter;
     }
 
-    bool ListContains(GUIDList &plist, uint64 element)
+    bool ListContains(GUIDList &plist, ObjectGuid element)
     {
         if (plist.empty())
             return false;
@@ -599,7 +599,7 @@ struct MANGOS_DLL_DECL npc_hodir_shamanAI : public ScriptedAI
     void MoveInLineOfSight(Unit* pWho)
     {
         // friendly list
-        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetGUID()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
+        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetObjectGuid()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
             FriendlyList.push_back(pWho->GetGUID());
     }
 
@@ -631,7 +631,7 @@ struct MANGOS_DLL_DECL npc_hodir_shamanAI : public ScriptedAI
         return *iter;
     }
 
-    bool ListContains(GUIDList &plist, uint64 element)
+    bool ListContains(GUIDList &plist, ObjectGuid element)
     {
         if (plist.empty())
             return false;
@@ -728,7 +728,7 @@ struct MANGOS_DLL_DECL npc_hodir_mageAI : public ScriptedAI
         return *iter;
     }
 
-    bool ListContains(GUIDList &plist, uint64 element)
+    bool ListContains(GUIDList &plist, ObjectGuid element)
     {
         if (plist.empty())
             return false;
@@ -834,7 +834,7 @@ struct MANGOS_DLL_DECL npc_hodir_priestAI : public ScriptedAI
         return *iter;
     }
 
-    bool ListContains(GUIDList &plist, uint64 element)
+    bool ListContains(GUIDList &plist, ObjectGuid element)
     {
         if (plist.empty())
             return false;

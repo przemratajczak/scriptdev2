@@ -990,7 +990,7 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
 
             for (GUIDList::const_iterator itr = m_lIronDwarvesAchievList.begin(); itr != m_lIronDwarvesAchievList.end(); ++itr)
             {
-                if (pTarget && (*itr) == pTarget->GetGUID())
+                if (pTarget && (*itr) == pTarget->GetObjectGuid())
                     return true;
             }
             break;
@@ -1000,7 +1000,7 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
 
             for (GUIDList::const_iterator itr = m_lIronDwarvesAchievList.begin(); itr != m_lIronDwarvesAchievList.end(); ++itr)
             {
-                if (pTarget && (*itr) == pTarget->GetGUID())
+                if (pTarget && (*itr) == pTarget->GetObjectGuid())
                     return true;
             }
             break;

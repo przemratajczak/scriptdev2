@@ -33,9 +33,7 @@ enum
     SPELL_ECK_BITE                            = 55813,
     SPELL_ECK_SPRING                          = 55815,
     SPELL_ECK_BERSERK                         = 55816,
-    SPELL_ECK_RESIDUE                         = 55817,
-    NPC_RUIN_DWELLER                          = 29920
-    
+    SPELL_ECK_RESIDUE                         = 55817    
 };
 
 struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
@@ -72,7 +70,6 @@ struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
            m_pInstance->SetData(TYPE_ECK, NOT_STARTED);
 
         ChangeState(true);
-        RespawnAdds();
     }
 
     void ChangeState(bool bOriginal)
@@ -91,18 +88,6 @@ struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
         }
     }
 
-    void RespawnAdds()
-    {
-         GetCreatureListWithEntryInGrid(lEckAdds, m_creature, NPC_RUIN_DWELLER, 100.0f);
-          for (std::list<Creature*>::const_iterator i = lEckAdds.begin(); i != lEckAdds.end(); i++){
-              if (*i)
-              {
-                     if((*i)->isDead()) 
-                        (*i)->Respawn();
-              }
-          }
-    }
-
     void Aggro(Unit* pWho)
     {
        // DoScriptText(SAY_AGGRO, m_creature);
@@ -115,7 +100,6 @@ struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
         if(m_pInstance)
            m_pInstance->SetData(TYPE_ECK, NOT_STARTED);
         ChangeState(true);
-        RespawnAdds();
     }
 
     void JustDied(Unit* pKiller)
@@ -132,21 +116,6 @@ struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
     
     void UpdateAI(const uint32 uiDiff)
     {
-        if(!m_bIsVisible)
-        {
-            if(m_uiVisible_Timer < uiDiff)
-            {
-                if(m_pInstance->GetData(TYPE_ECK) == SPECIAL)
-                {
-                    ChangeState(false);
-                    m_bIsVisible=true;
-                }
-                else m_uiVisible_Timer=5000;
-
-            }
-            else m_uiVisible_Timer -= uiDiff;
-        }
-
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 

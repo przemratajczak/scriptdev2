@@ -133,7 +133,10 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
         if (Creature* pCreature = GetSingleCreatureFromStorage(NPC_KERISTRASZA))
         {
             if (pCreature->isAlive())
+            {
                 pCreature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
+                pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            }
         }
     }
 
@@ -146,67 +149,8 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
 
         m_strInstData = saveStream.str();
 
-        switch(uiType)
-        {
-            case TYPE_TELESTRA:
-                m_auiEncounter[0] = uiData;
-                if (uiData == DONE)
-                {
-                    if (GameObject* pGo = instance->GetGameObject(m_uiTelestrasContainmentSphereGUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-                }
-                break;
-            case TYPE_ANOMALUS:
-                m_auiEncounter[1] = uiData;
-                if (uiData == DONE)
-                {
-                    if (GameObject* pGo = instance->GetGameObject(m_uiAnomalusContainmentSphereGUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-                }
-                break;
-            case TYPE_ORMOROK:
-                m_auiEncounter[2] = uiData;
-                if (uiData == DONE)
-                {
-                    if (GameObject* pGo = instance->GetGameObject(m_uiOrmoroksContainmentSphereGUID))
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
-                }
-                break;
-            case TYPE_KERISTRASZA:
-                m_auiEncounter[3] = uiData;
-                break;
-            default:
-                error_log("SD2: Instance Nexus: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
-                break;
-        }
-
-        if (m_auiEncounter[0] == SPECIAL && m_auiEncounter[1] == SPECIAL && m_auiEncounter[2] == SPECIAL)
-        {
-            // release Keristrasza from her prison here
-            m_auiEncounter[3] = SPECIAL;
-
-            if (Creature* pCreature = instance->GetCreature(m_uiKeristrazaGUID))
-            {
-                if (pCreature->isAlive())
-                {
-                    pCreature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
-                    pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                }
-            }
-        }
-
-        if (uiData == DONE)
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
-            strInstData = saveStream.str();
-
-            SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
+        SaveToDB();
+        OUT_SAVE_INST_DATA_COMPLETE;
     }
 }
 

@@ -68,9 +68,6 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
             m_lPatchwerkAddGUIDs.push_back(pCreature->GetObjectGuid());
             break;
 
-        case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetObjectGuid()); break;
-        case NPC_TESLA_COIL:        m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid()); break;
-
         case NPC_NAXXRAMAS_FOLLOWER:
         case NPC_NAXXRAMAS_WORSHIPPER:
             m_lFaerlinaAddGUIDs.push_back(pCreature->GetObjectGuid());

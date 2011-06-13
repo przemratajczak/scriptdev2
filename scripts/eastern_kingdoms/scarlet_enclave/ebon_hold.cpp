@@ -1550,7 +1550,7 @@ enum mograine
     SPELL_CHAIN_HEAL                  = 33642,
     SPELL_THUNDER                     = 53630
 };
-
+/*
 struct Locations
 { 
     float x, y, z, o;
@@ -3092,7 +3092,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         }
     }
 
-    /************* HELPERS *************/
+    /************* HELPERS *************
 
     void JumpToNextStep(uint32 uiTimer)
     {
@@ -3413,6 +3413,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             debug_log("SD2: DoUpdateWorldState attempt send data but no players in map.");
     }
 };
+
 bool GossipHello_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreature)
 { 
     if (pCreature->isQuestGiver())
@@ -3438,7 +3439,7 @@ bool GossipSelect_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreat
             break;
     }
     return true;
-}
+}*/
 
 /*######
 ## npc orbaz, koltira, tassarian
@@ -3498,6 +3499,7 @@ struct MANGOS_DLL_DECL npc_koltira_orbaz_tassarian_dawn_of_lightAI : public Scri
         DoMeleeAttackIfReady();
     }
 };
+
 
 /*######
 ## Acherus Ghoul (29219)
@@ -3665,10 +3667,10 @@ struct MANGOS_DLL_DECL mob_warrior_of_the_frozen_wastesAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)
+/*CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)
 { 
      return new npc_highlord_darion_mograineAI(pCreature);
-}
+}*/
 
 CreatureAI* GetAI_npc_koltira_orbaz_tassarian_dawn_of_light(Creature* pCreature)
 {
@@ -3732,12 +3734,14 @@ void AddSC_ebon_hold()
     pNewScript->GetAI = &GetAI_mob_scarlet_ghoul;
     pNewScript->RegisterSelf();
 
+    /*
     pNewScript = new Script;
     pNewScript->Name = "npc_highlord_darion_mograine";
     pNewScript->GetAI = &GetAI_npc_highlord_darion_mograine;
     pNewScript->pGossipHello =  &GossipHello_npc_highlord_darion_mograine;
     pNewScript->pGossipSelect = &GossipSelect_npc_highlord_darion_mograine;
     pNewScript->RegisterSelf();
+    */
 
     pNewScript = new Script;
     pNewScript->Name = "mob_acherus_ghoul";

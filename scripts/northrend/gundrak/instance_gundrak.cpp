@@ -62,12 +62,15 @@ void instance_gundrak::OnCreatureCreate(Creature* pCreature)
         case NPC_SLADRAN:
         case NPC_ELEMENTAL:
         case NPC_COLOSSUS:
+        case NPC_MOORABI:
+        case NPC_ECK:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
-        case NPC_MOORABI:   m_uiMoorabiGUID   = pCreature->GetGUID(); break;
-        case NPC_ECK:       m_uiEckGUID       = pCreature->GetGUID(); break;
         case NPC_INVISIBLE_STALKER:
             m_luiStalkerGUIDs.push_back(pCreature->GetObjectGuid());
+            break;
+        case NPC_RUIN_DWELLER:
+            m_lEckDwellerGuids.push_back(pCreature->GetObjectGuid());
             break;
     }
 }
@@ -194,17 +197,14 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[TYPE_ECK] = uiData;
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_ECK_UNDERWATER_DOOR);
-            if (uiData == SPECIAL)
-                {
-                    ++m_uiEckAddsCounter;
-
-                    if (m_uiEckAddsCounter == 3)
-                        m_auiEncounter[TYPE_ECK] = uiData;
-                        
-                }
+            if (uiData == FAIL)
+                for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
+                    if (Creature* pDweller = instance->GetCreature(*itr))
+                        if (!pDweller->isAlive())
+                            pDweller->Respawn();
             break;
         case TYPE_ELEMENTAL:
-            m_uiElemental = uiData;
+            //m_uiElemental = uiData;
             break;
         default:
             error_log("SD2: Instance Gundrak: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
@@ -237,6 +237,25 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
         OUT_SAVE_INST_DATA_COMPLETE;
     }
 }
+
+void instance_gundrak::OnCreatureDeath(Creature* pCreature)
+{
+    if (pCreature->GetEntry() == NPC_RUIN_DWELLER)
+    {
+        for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
+            if (Creature* pDweller = instance->GetCreature(*itr))
+                if (pDweller->isAlive())
+                    return;
+
+        if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
+        {
+            pEck->SetVisibility(VISIBILITY_ON);
+            pEck->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            pEck->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+    }
+}
+
 
 uint32 instance_gundrak::GetData(uint32 uiType)
 {

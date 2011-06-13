@@ -112,7 +112,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     uint32 m_uiMortalStrike_Timer;
     uint32 m_uiSlam_Timer;
 
-    ObjectGuid m_aStormforgedLieutenantGuid[2];             // TODO - not filled yet.
+    GUIDList lLieutenants;
 
     void Reset()
     {
@@ -135,12 +135,12 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
         m_uiMortalStrike_Timer = 8000;
         m_uiSlam_Timer = 10000;
 
-        for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
-            if (Creature* pStormforgedLieutenant = m_creature->GetMap()->GetCreature(m_aStormforgedLieutenantGuid[i]))
+            if (Creature* pStormforgedLieutenant = m_creature->GetMap()->GetCreature(*itr))
             {
-                if (!pLieutenant->isAlive())
-                    pLieutenant->Respawn();
+                if (!pStormforgedLieutenant->isAlive())
+                    pStormforgedLieutenant->Respawn();
             }
         }
 
@@ -161,7 +161,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
             Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr);
             if (pLieutenant && pLieutenant->isAlive())
@@ -397,7 +397,7 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
             // move follow Bjarngrim
             if (m_pInstance && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
             {
-                if (Creature* pBjarngrim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_pInstance->GetSingleCreatureFromStorage(NPC_BJARNGRIM))
                 {
                     if (!bLieutenantLocked && pBjarngrim->AI())
                     {

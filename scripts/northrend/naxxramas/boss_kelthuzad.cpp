@@ -83,6 +83,8 @@ enum
     MAX_SOLDIER_COUNT                   = 71,
     MAX_ABOMINATION_COUNT               = 8,
     MAX_BANSHEE_COUNT                   = 8,
+
+    ACHIEV_REQ_KILLED_ABOMINATIONS      = 18
 };
 
 static float M_F_ANGLE = 0.2f;                              // to adjust for map rotation
@@ -130,7 +132,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     uint32 m_uiAbominationCount;
     uint32 m_uiSummonIntroTimer;
     uint32 m_uiIntroPackCount;
-    uint32 m_uiCantGetEnoughCounter; // achievement counter
+    uint32 m_uiKilledAbomination;
 
     GUIDSet m_lIntroMobsSet;
     GUIDSet m_lAddsSet;
@@ -147,7 +149,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         m_uiGuardiansCount      = 0;
         m_uiSummonIntroTimer    = 0;
         m_uiIntroPackCount      = 0;
-        m_uiCantGetEnoughCounter = 0;
+        m_uiKilledAbomination   = 0;
 
         m_uiPhase1Timer         = 228000;                   //Phase 1 lasts "3 minutes and 48 seconds"
         m_uiSoldierTimer        = 5000;
@@ -345,9 +347,6 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     {
         switch(pSummoned->GetEntry())
         {
-            case NPC_UNSTOPPABLE_ABOM:
-                if (m_uiPhase == PHASE_INTRO)
-                    m_uiCantGetEnoughCounter++;
             case NPC_GUARDIAN:
             case NPC_SOLDIER_FROZEN:
             case NPC_SOUL_WEAVER:
@@ -358,7 +357,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
 
                 ++m_uiKilledAbomination;
                 if (m_uiKilledAbomination >= ACHIEV_REQ_KILLED_ABOMINATIONS)
-                    m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_GET_ENOUGH, true);
+                    m_pInstance->SetSpecialAchievementCriteria(m_bIsRegularMode ? ACHIEV_CRIT_GET_ENOUGH_N : ACHIEV_CRIT_GET_ENOUGH_H, true);
 
                 break;
         }

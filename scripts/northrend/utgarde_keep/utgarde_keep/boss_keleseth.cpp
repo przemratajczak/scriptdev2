@@ -87,7 +87,7 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         if (!m_pInstance)
             return NULL;
 
-        if (Creature* pKeleseth = m_pInstance->GetSingleCreatureFromStorage(NPC_KELESETH)))
+        if (Creature* pKeleseth = m_pInstance->GetSingleCreatureFromStorage(NPC_KELESETH))
             return pKeleseth;
         else 
             return NULL;
