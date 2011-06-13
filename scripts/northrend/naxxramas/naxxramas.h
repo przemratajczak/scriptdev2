@@ -75,7 +75,7 @@ enum
     NPC_RAZUVIOUS               = 16061,
     NPC_UNDERSTUDY              = 16803,
 
-    //Patchwerk
+    // Patchwerk
     NPC_PATCHWERK               = 16028,
     NPC_PATCHWORK_GOLEM         = 16017,
     NPC_BILE_RETCHER            = 16018,
@@ -119,6 +119,10 @@ enum
     GO_PLAG_NOTH_EXIT_DOOR      = 181201,                   //exit, open when boss dead
     GO_PLAG_HEIG_ENTRY_DOOR     = 181202,
     GO_PLAG_HEIG_EXIT_DOOR      = 181203,                   //exit, open when boss dead
+    GO_HEIGAN_TRAP_AREA_1       = 181678,
+    GO_HEIGAN_TRAP_AREA_2       = 181676,
+    GO_HEIGAN_TRAP_AREA_3       = 181677,
+    GO_HEIGAN_TRAP_AREA_4       = 181679,
     GO_PLAG_LOAT_DOOR           = 181241,                   //encounter door
 
     // Military Quarter
