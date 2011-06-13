@@ -1284,6 +1284,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
         m_uiWaitForThrowTimer   = 3000;
         m_bWaitForThrow         = false;
         m_uiHarvesterGUID       = 0;
+
     }
 
     void MoveInLineOfSight(Unit *pWho)
@@ -1641,16 +1642,16 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
     // Dawn
     uint64 uiTirionGUID;
-    uint64 uiAlexandrosGUID;
-    uint64 uiDarionGUID;
-    uint64 uiKorfaxGUID;
-    uint64 uiMaxwellGUID;
-    uint64 uiEligorGUID;
-    uint64 uiLeonidGUID;
-    uint64 uiDukeGUID;
-    uint64 uiRayneGUID;
-    uint64 uiEarthshatterGUID;
-    uint64 uiDefenderGUID[ENCOUNTER_DEFENDER_NUMBER];
+
+
+
+
+
+
+
+
+
+
 
     // Death
     uint64 uiKoltiraGUID;

@@ -128,7 +128,7 @@ class MANGOS_DLL_DECL instance_sunken_temple : public ScriptedInstance
 
         bool ProcessStatueEvent(uint32 uiEventId);
 
-        const char* Save() { return strInstData.c_str(); }
+        const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
 
     protected:
@@ -136,7 +136,7 @@ class MANGOS_DLL_DECL instance_sunken_temple : public ScriptedInstance
         void DoUpdateFlamesFlags(bool bRestore);
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string strInstData;
+        std::string m_strInstData;
 
         uint8 m_uiProtectorsRemaining;                      // Jammalan door handling
         uint8 m_uiStatueCounter;                            // Atalarion Statue Event
@@ -145,14 +145,6 @@ class MANGOS_DLL_DECL instance_sunken_temple : public ScriptedInstance
         uint32 m_uiSupressorTimer;
         bool m_bIsFirstHakkarWave;
         bool m_bCanSummonBloodkeeper;
-
-        uint64 m_uiAtalarionGUID;
-        uint64 m_uiJammalanGUID;
-        uint64 m_uiShadeGUID;
-        uint64 m_uiJammalanBarrierGUID;
-        uint64 m_uiIdolOfHakkarGUID;
-        uint64 m_uiAvatarDoor1GUID;
-        uint64 m_uiAvatarDoor2GUID;
 
         GUIDList m_luiFlameGUIDs;
         GUIDList m_luiBigLightGUIDs;

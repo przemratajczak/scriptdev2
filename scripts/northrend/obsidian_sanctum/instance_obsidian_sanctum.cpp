@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -28,10 +28,11 @@ EndScriptData */
 0 - Sartharion
 */
 
-instance_obsidian_sanctum::instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap)
-{
-    Initialize();
-};
+instance_obsidian_sanctum::instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap),
+    m_uiAliveDragons(0)
+    {
+        Initialize();
+    }
 
 void instance_obsidian_sanctum::Initialize()
 {
@@ -57,22 +58,14 @@ void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
-        case NPC_SARTHARION:
-            m_uiSartharionGUID = pCreature->GetGUID();
-            break;
         //three dragons below set to active state once created.
         //we must expect bigger raid to encounter main boss, and then three dragons must be active due to grid differences
         case NPC_TENEBRON:
-            m_uiTenebronGUID = pCreature->GetGUID();
-            pCreature->SetActiveObjectState(true);
-            break;
         case NPC_SHADRON:
-            m_uiShadronGUID = pCreature->GetGUID();
-            pCreature->SetActiveObjectState(true);
-            break;
         case NPC_VESPERON:
-            m_uiVesperonGUID = pCreature->GetGUID();
             pCreature->SetActiveObjectState(true);
+        case NPC_SARTHARION:
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
         // trash mobs aggro when Sartharion is engaged
         case NPC_ONYX_BROOD_GENERAL:
@@ -92,26 +85,6 @@ void instance_obsidian_sanctum::SetData(uint32 uiType, uint32 uiData)
 uint32 instance_obsidian_sanctum::GetData(uint32 uiType)
 {
     return m_auiEncounter[uiType - 1];
-}
-
-uint64 instance_obsidian_sanctum::GetData64(uint32 uiData)
-{
-    switch(uiData)
-    {
-        case DATA_SARTHARION:
-            return m_uiSartharionGUID;
-        case DATA_TENEBRON:
-            return m_uiTenebronGUID;
-        case DATA_SHADRON:
-            return m_uiShadronGUID;
-        case DATA_VESPERON:
-            return m_uiVesperonGUID;
-        case DATA_ACOL_SHAD:
-            return m_uiAcolyteShadronGUID;
-        case DATA_ACOL_VESP:
-            return m_uiAcolyteVesperonGUID;
-    }
-    return 0;
 }
 
 bool instance_obsidian_sanctum::IsEncounterInProgress() const

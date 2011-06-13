@@ -125,7 +125,7 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        m_lSentryGUIDList.push_back(pSummoned->GetGUID());
+        m_lSentryGUIDList.push_back(pSummoned->GetObjectGuid());
         //pSummoned->AddThreat(m_creature);
         //pSummoned->AI()->AttackStart(m_creature);
     }

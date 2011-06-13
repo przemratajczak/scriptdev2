@@ -68,20 +68,15 @@ class MANGOS_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
  public:
     instance_obsidian_sanctum(Map* pMap);
 
-    GUIDList m_lTrashMobsGUIDlist;
-    GUIDList m_lEggsGUIDList;
-    GUIDList m_lWhelpsGUIDList;
-    GUIDList m_lBlazesGUIDList;
-    GUIDList m_lHitByVolcanoGUIDList;
-    uint64 m_uiAcolyteShadronGUID;
-    uint64 m_uiAcolyteVesperonGUID;
+        void SetData(uint32 uiType, uint32 uiData);
+        uint32 GetData(uint32 uiType);
 
-    void SetData(uint32 uiType, uint32 uiData);
-    uint32 GetData(uint32 uiType);
-    uint64 GetData64(uint32 uiData);
-    bool IsEncounterInProgress() const;
-    bool CheckConditionCriteriaMeet(Player const* pSource, uint32 uiMapId, uint32 uiInstanceConditionId);
-    bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 = 0);
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+
+    private:
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+
+        uint8 m_uiAliveDragons;
 };
 
 #endif

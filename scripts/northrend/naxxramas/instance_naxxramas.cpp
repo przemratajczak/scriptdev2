@@ -58,6 +58,9 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
 
+        case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetObjectGuid()); break;
+        case NPC_TESLA_COIL:        m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid()); break;
+
         case NPC_UNDERSTUDY: m_lRazuUnderstudyGUIDs.push_back(pCreature->GetObjectGuid()); break;
 
         case NPC_PATCHWORK_GOLEM:
@@ -239,8 +242,8 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
                 if (Creature* pFaerlina = GetSingleCreatureFromStorage(NPC_FAERLINA))
                     if (Unit* pVictim = pFaerlina->getVictim())
                         for (GUIDList::const_iterator itr = m_lFaerlinaAddGUIDs.begin(); itr != m_lFaerlinaAddGUIDs.end(); ++itr)
-                            if (Creature* pUnderstudy = instance->GetCreature(*itr))
-                                pUnderstudy->AI()->AttackStart(pVictim);
+                            if (Creature* pFaerlenaAdd = instance->GetCreature(*itr))
+                                pFaerlenaAdd->AI()->AttackStart(pVictim);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_KNOCK_YOU_OUT, true);
             }
             if (uiData == DONE)

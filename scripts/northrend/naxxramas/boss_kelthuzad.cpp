@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -178,12 +178,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         DespawnAdds();
 
         if (m_pInstance)
-        {
             m_pInstance->SetData(TYPE_KELTHUZAD, DONE);
-
-            //if (m_uiCantGetEnoughCounter >= 18)
-            //   m_pInstance->SetData(TYPE_ACHI_CANT_GET_ENOUGH, DONE);
-        }
     }
 
     void JustReachedHome()
@@ -271,7 +266,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         MaNGOS::NormalizeMapCoord(fY);
 
         uint32 uiNpcEntry = NPC_SOUL_WEAVER;
-        
+
         for(uint8 uiI = 0; uiI < 14; ++uiI)
         {
             if (uiI > 0)
@@ -317,7 +312,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 DoScriptText(EMOTE_GUARDIAN, m_creature);
 
-                m_lAddsSet.insert(pSummoned->GetGUID());
+                m_lAddsSet.insert(pSummoned->GetObjectGuid());
                 ++m_uiGuardiansCount;
 
                 pSummoned->SetInCombatWithZone();
@@ -328,10 +323,10 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             case NPC_SOUL_WEAVER:
             {
                 if (m_uiIntroPackCount < 7)
-                    m_lIntroMobsSet.insert(pSummoned->GetGUID());
+                    m_lIntroMobsSet.insert(pSummoned->GetObjectGuid());
                 else
                 {
-                    m_lAddsSet.insert(pSummoned->GetGUID());
+                    m_lAddsSet.insert(pSummoned->GetObjectGuid());
 
                     if (m_pInstance)
                     {
@@ -356,7 +351,15 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             case NPC_GUARDIAN:
             case NPC_SOLDIER_FROZEN:
             case NPC_SOUL_WEAVER:
-                m_lAddsSet.erase(pSummoned->GetGUID());
+                m_lAddsSet.erase(pSummoned->GetObjectGuid());
+                break;
+            case NPC_UNSTOPPABLE_ABOM:
+                m_lAddsSet.erase(pSummoned->GetObjectGuid());
+
+                ++m_uiKilledAbomination;
+                if (m_uiKilledAbomination >= ACHIEV_REQ_KILLED_ABOMINATIONS)
+                    m_pInstance->SetSpecialAchievementCriteria(TYPE_ACHIEV_GET_ENOUGH, true);
+
                 break;
         }
     }
