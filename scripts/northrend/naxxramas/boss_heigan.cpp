@@ -64,8 +64,9 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
+    int8 m_iDanceDirection;
     uint8 m_uiPhase;
-    uint8 m_uiPhaseEruption;
+    uint32 m_uiErruptionAreaId;
 
     uint32 m_uiFeverTimer;
     uint32 m_uiDisruptionTimer;
@@ -76,16 +77,19 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void ResetPhase()
     {
-        m_uiPhaseEruption = 0;
+        m_uiErruptionAreaId = 0;
         m_uiFeverTimer = 4000;
         m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
         m_uiDisruptionTimer = 5000;
         m_uiStartChannelingTimer = 1000;
         m_uiPhaseTimer = m_uiPhase == PHASE_GROUND ? 90000 : 45000;
+        m_uiErruptionAreaId = 0;
+        m_iDanceDirection = 1;
     }
 
     void Reset()
     {
+        m_iDanceDirection = 1;
         m_uiPhase = PHASE_GROUND;
         m_uiTauntTimer = urand(20000,60000);                // TODO, find information
         ResetPhase();
@@ -216,7 +220,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
         // Eruption
         if (m_uiEruptionTimer <= uiDiff)
         {
-            static int const m_auiMaxHeiganTraps[MAX_HEIGAN_TRAP_AREAS] =
+            /*static int const m_auiMaxHeiganTraps[MAX_HEIGAN_TRAP_AREAS] =
             {
                 m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_1), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_2), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_3), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_4)
             };
@@ -230,10 +234,20 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
                     if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetHeiganTrapData64(uiArea, i)))
                         pGo->Use(m_creature);
                 }
-            }
+            }*/
 
+            for (uint8 uiArea = 0; uiArea < MAX_HEIGAN_TRAP_AREAS-1; ++uiArea)
+            {
+                m_pInstance->ActivateHeiganTrapsInArea(m_uiErruptionAreaId, m_creature);
+                if (m_uiErruptionAreaId == 3)
+                    m_iDanceDirection = -1;
+                else if (!m_uiErruptionAreaId)
+                    m_iDanceDirection = 1;
+                m_uiErruptionAreaId += m_iDanceDirection;
+                if (m_uiPhase == PHASE_GROUND)
+                    break;
+            }
             m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
-            ++m_uiPhaseEruption;
         }
         else
             m_uiEruptionTimer -= uiDiff;
