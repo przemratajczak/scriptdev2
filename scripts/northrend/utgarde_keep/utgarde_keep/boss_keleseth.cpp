@@ -233,7 +233,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
     bool m_bSummonedAdds;
-    std::list<uint64> lAddsList;
+    GUIDList lAddsList;
 
     uint32 m_uiFrostTombTimer; 
     uint32 m_uiSummonTimer;
@@ -270,7 +270,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
     {
         if (!lAddsList.empty())
         {
-            for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
+            for(GUIDList::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
                 if (Creature* pCrearture = m_creature->GetMap()->GetCreature(*itr))
                     (pCrearture)->ForcedDespawn();
@@ -292,7 +292,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_FROST_TOMB)
             pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_FROST, true);
 
-        lAddsList.push_back(pSummoned->GetGUID());
+        lAddsList.push_back(pSummoned->GetObjectGuid());
     }
 
     void JustDied(Unit* pKiller)

@@ -363,7 +363,7 @@ bool GossipHello_npc_taunkale_refuge(Player* pPlayer, Creature* pCreature)
     if (pPlayer->GetQuestStatus(QUEST_BLOOD_OATH_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TAUNKA_REFUGEE_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_1, pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_1, pCreature->GetObjectGuid());
     return true;
 }
 
@@ -373,20 +373,20 @@ bool GossipSelect_npc_taunkale_refuge(Player* pPlayer, Creature* pCreature, uint
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TAUNKA_REFUGEE_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_2, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_2, pCreature->GetObjectGuid());
             break;
         case GOSSIP_ACTION_INFO_DEF+1:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TAUNKA_REFUGEE_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_3, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_3, pCreature->GetObjectGuid());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TAUNKA_REFUGEE_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_4, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(NPC_TEXT_4, pCreature->GetObjectGuid());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            pPlayer->KilledMonster(pCreature->GetCreatureInfo(), pCreature->GetGUID()); // should be done like this instead KilledMonsterCredit()
+            pPlayer->KilledMonster(pCreature->GetCreatureInfo(), pCreature->GetObjectGuid()); // should be done like this instead KilledMonsterCredit()
             if (GameObject* pCrate = GetClosestGameObjectWithEntry(pCreature, GO_RECOVERED_HORDE_ARMAMENTS, DEFAULT_VISIBILITY_DISTANCE))
             {
                 float fDestX, fDestY, fDestZ;
@@ -615,7 +615,7 @@ enum
 bool GossipHello_npc_ravaged_giant(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
 
     if(pPlayer->GetQuestStatus(QUEST_SLIM_PICKINGS ) == QUEST_STATUS_INCOMPLETE)
     {
@@ -648,7 +648,7 @@ struct MANGOS_DLL_DECL npc_vengeful_geistAI : public ScriptedAI
     {
         if(Creature* pVillager = GetClosestCreatureWithEntry(m_creature, NPC_TRAPPED_VILLAGER, 15.0f))
         { 
-            if(Player *pPlayer = m_creature->GetMap()->GetPlayer(pKiller->GetGUID()))
+            if(Player *pPlayer = m_creature->GetMap()->GetPlayer(pKiller->GetObjectGuid()))
             {
                 if(pPlayer->GetQuestStatus(QUEST_RESCUE_FROM_TOWN_SQUARE) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -710,12 +710,12 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
 {
     npc_inquisitor_hallardAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        m_uiMayorGodfreyGUID = 0;
+        m_uiMayorGodfreyGuid = 0;
         Reset();
     }
 
-    uint64 m_uiPlayerGUID;
-    uint64 m_uiMayorGodfreyGUID;
+    ObjectGuid m_uiPlayerGuid;
+    ObjectGuid m_uiMayorGodfreyGuid;
     uint32 m_uiEventTimer;
     bool m_bEventStarted;
     uint32 m_uiPhase;
@@ -723,7 +723,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPlayerGUID = 0;
+        m_uiPlayerGuid = 0;
         m_bEventStarted = false;
         m_uiPhase = 0;
         m_uiEventTimer = 2000;
@@ -735,7 +735,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
         {
             if (m_uiEventTimer < uiDiff)
             {
-                Creature* pGodfrey = m_creature->GetMap()->GetCreature(m_uiMayorGodfreyGUID);
+                Creature* pGodfrey = m_creature->GetMap()->GetCreature(m_uiMayorGodfreyGuid);
                 if (!pGodfrey)
                     EnterEvadeMode();
 
@@ -743,7 +743,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
                 {
                     case 0:
                         m_creature->SetFacingToObject(pGodfrey);
-                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
+                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
                             DoScriptText(HALLARD_SAY_1, m_creature, pPlayer);
                         m_uiEventTimer = 4000;
                         break;
@@ -863,7 +863,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
                         m_uiEventTimer = 10000;
                         break;
                     case 29:
-                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
+                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
                         {
                             m_creature->SetFacingToObject(pPlayer);
                             DoScriptText(HALLARD_SAY_15, m_creature, pPlayer);
@@ -872,7 +872,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
                         break;
                     case 30:
                         DoScriptText(HALLARD_SAY_16, m_creature); 
-                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
+                        if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
                             pPlayer->AreaExploredOrEventHappens(QUEST_RIGHTEOUS_SERMON);
                         m_creature->ForcedDespawn();
                         break;
@@ -900,9 +900,9 @@ bool QuestAccept_npc_inquisitor_hallard(Player* pPlayer, Creature* pCreature, co
             {
                 pCreature->GetMotionMaster()->MovePoint(0, 3801.38f , -679.13f , 213.73f );
                 pHallardAI->m_bEventStarted = true;
-                pHallardAI->m_uiPlayerGUID = (pPlayer->GetGUID());
+                pHallardAI->m_uiPlayerGuid = (pPlayer->GetObjectGuid());
                 if (Creature *pGodfrey = GetClosestCreatureWithEntry(pCreature, NPC_MAYOR_GODFREY, DEFAULT_VISIBILITY_DISTANCE))
-                    pHallardAI->m_uiMayorGodfreyGUID = pGodfrey->GetGUID();
+                    pHallardAI->m_uiMayorGodfreyGuid = pGodfrey->GetObjectGuid();
             }
         }
         break;

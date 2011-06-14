@@ -383,7 +383,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 //player and has mana
                 if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
-                    manaPositive.push_back(pTemp->GetGUID());
+                    manaPositive.push_back(pTemp->GetObjectGuid());
             }
         }
 

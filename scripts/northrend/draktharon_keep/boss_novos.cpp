@@ -108,7 +108,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     uint32 m_uiArcane_Timer;
     uint32 m_uiBlizzard_Timer;
     uint32 m_uiSummonTrollCorpse_Timer;
-    uint64 m_uiSummonTargetGUID[SUMMON_TARGETS_NO];
+    ObjectGuid m_uiSummonTargetGUID[SUMMON_TARGETS_NO];
 
     GUIDList lSummonGUIDs;
 
@@ -160,8 +160,8 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
         {
             if (Creature* pSummonTarget = m_creature->SummonCreature(NPC_NOVOS_SUMMON_TARGET, fNovosSummonerPosition[i][0], fNovosSummonerPosition[i][1], fNovosSummonerPosition[i][2], 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1))
             {
-                lSummonGUIDs.push_back(pSummonTarget->GetGUID());
-                m_uiSummonTargetGUID[i] = pSummonTarget->GetGUID();
+                lSummonGUIDs.push_back(pSummonTarget->GetObjectGuid());
+                m_uiSummonTargetGUID[i] = pSummonTarget->GetObjectGuid();
             }
         }
 
@@ -196,7 +196,7 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        lSummonGUIDs.push_back(pSummoned->GetGUID());
+        lSummonGUIDs.push_back(pSummoned->GetObjectGuid());
     }
 
     void SummonedCreatureJustDied(Creature* pSummoned)

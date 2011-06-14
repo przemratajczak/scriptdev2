@@ -186,7 +186,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        m_lCryptGuardList.push_back(pSummoned->GetGUID());
+        m_lCryptGuardList.push_back(pSummoned->GetObjectGuid());
         pSummoned->SetRespawnTime(WEEK);
         pSummoned->SetRespawnDelay(WEEK);
     }

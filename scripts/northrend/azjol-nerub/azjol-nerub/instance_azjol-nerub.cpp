@@ -104,7 +104,7 @@ void instance_azjol_nerub::OnCreatureDeath(Creature* pCreature)
             m_uiWatcherTimer = 5000;
     }
 
-    if (uiEntry == NPC_ANUBAR_CUSHER && pCreature->GetGUID() == m_uiCrusherGUID)
+    if (uiEntry == NPC_ANUBAR_CUSHER && pCreature->GetObjectGuid() == m_uiCrusherGUID)
     {
         SetData(TYPE_HADRONOX, SPECIAL);
         float fPosX, fPosY, fPosZ;
@@ -124,7 +124,7 @@ void instance_azjol_nerub::OnCreatureEnterCombat(Creature* pCreature)
     {
         // Creature enter combat is not equal to having a victim yet.
         if (!m_uiPlayerGUID && pCreature->getVictim())
-            m_uiPlayerGUID = pCreature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->GetGUID();
+            m_uiPlayerGUID = pCreature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself()->GetObjectGuid();
     }
 }
 

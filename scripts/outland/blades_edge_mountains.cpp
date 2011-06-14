@@ -399,7 +399,7 @@ struct MANGOS_DLL_DECL mob_cannon_chanellerAI : public Scripted_NoMovementAI
     bool Ridge;
     bool Razzan;
     bool Ruuan;
-    uint64 m_uiPLAYERGUID;
+    ObjectGuid m_uiPlayerGuid;
     uint32 m_uiLaunchTimer;
     uint32 m_uiPhaseTimer;
     uint8 Phase;
@@ -411,7 +411,7 @@ struct MANGOS_DLL_DECL mob_cannon_chanellerAI : public Scripted_NoMovementAI
         Razzan    = false;
         Ruuan     = false;
         IsRunning = false;
-        m_uiPLAYERGUID  = 0;
+        m_uiPlayerGuid  = 0;
         m_uiLaunchTimer = 12000;
         m_uiPhaseTimer  = 0;
         Phase = 0;
@@ -426,8 +426,8 @@ struct MANGOS_DLL_DECL mob_cannon_chanellerAI : public Scripted_NoMovementAI
     {
         if(pPlayer && pPlayer->isAlive())
         {
-            m_uiPLAYERGUID = pPlayer->GetGUID();
-            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPLAYERGUID);
+            m_uiPlayerGuid = pPlayer->GetObjectGuid();
+            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid);
             if(!IsRunning)
             {
                 if(Creature* pCharge = GetClosestCreatureWithEntry(m_creature, NPC_CHARGE, 100.0f))
@@ -479,7 +479,7 @@ struct MANGOS_DLL_DECL mob_cannon_chanellerAI : public Scripted_NoMovementAI
 
         if(m_uiLaunchTimer <= diff)
         {
-            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPLAYERGUID);
+            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid);
             if(Test && pPlayer)
             {
                 pPlayer->SetOrientation(5.10f);
@@ -524,19 +524,19 @@ bool GossipHello_npc_tally(Player* pPlayer, Creature* pCreature)
             {
                 if((pPlayer->GetQuestStatus(QUEST_ZEPHYRIUM) == QUEST_STATUS_INCOMPLETE) && !pPlayer->HasAura(SPELL_SOARING))
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ZEPHYRIUM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
 
                 if((pPlayer->GetQuestStatus(QUEST_RIDGE) == QUEST_STATUS_INCOMPLETE) && pPlayer->GetItemByEntry(ITEM_WAIVER) && !pPlayer->HasAura(SPELL_SOARING))
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RIDGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
 
                 if((pPlayer->GetQuestStatus(QUEST_RAZZAN) == QUEST_STATUS_INCOMPLETE) && !pPlayer->HasAura(SPELL_SOARING))
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZZAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
 
                 if((pPlayer->GetQuestStatus(QUEST_RUUAN) == QUEST_STATUS_INCOMPLETE) && !pPlayer->HasAura(SPELL_SOARING))
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RUUAN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
                 return true;
            }
        }

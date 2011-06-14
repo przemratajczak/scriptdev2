@@ -344,11 +344,11 @@ struct MANGOS_DLL_DECL npc_deacying_ghoulAI : public ScriptedAI
 {
     npc_deacying_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
-    uint64 m_uiPlayerGUID;
+    ObjectGuid m_uiPlayerGuid;
 
     void Reset()
     {
-        m_uiPlayerGUID = 0;
+        m_uiPlayerGuid = 0;
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
@@ -356,7 +356,7 @@ struct MANGOS_DLL_DECL npc_deacying_ghoulAI : public ScriptedAI
         if (pSpell->Id == SPELL_ATTRACT_GHOUL && pCaster->GetTypeId() == TYPEID_UNIT)
         {
             if (Player* pPlayer = m_creature->GetMap()->GetPlayer(((Creature*)pCaster)->GetCreatorGuid()))
-                m_uiPlayerGUID = pPlayer->GetGUID();
+                m_uiPlayerGuid = pPlayer->GetObjectGuid();
             SetCombatMovement(false);
             float fDestX, fDestY, fDestZ;
             pCaster->GetNearPoint(pCaster, fDestX, fDestY, fDestZ, pCaster->GetObjectBoundingRadius(), 4.0f, pCaster->GetAngle(m_creature));
@@ -375,7 +375,7 @@ struct MANGOS_DLL_DECL npc_deacying_ghoulAI : public ScriptedAI
         {
             m_creature->HandleEmote(EMOTE_ONESHOT_EAT);
             m_creature->ForcedDespawn(3000);
-            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
+            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
                 DoCastSpellIfCan(pPlayer, SPELL_KILL_KREDIT);
         }
     }

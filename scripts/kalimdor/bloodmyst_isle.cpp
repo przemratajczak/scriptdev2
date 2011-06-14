@@ -138,7 +138,7 @@ bool GOUse_go_sunhawk_portal_controller(Player* pPlayer, GameObject* pGo)
 
     for (std::list<GameObject*>::iterator itr = lControllers.begin(); itr != lControllers.end(); ++itr)
     {
-        if (*itr && (*itr)->isSpawned() && ((*itr)->GetGUID() != pGo->GetGUID()))
+        if (*itr && (*itr)->isSpawned() && ((*itr)->GetObjectGuid() != pGo->GetObjectGuid()))
             return false;
     }
 

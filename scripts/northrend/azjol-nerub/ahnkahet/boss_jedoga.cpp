@@ -113,8 +113,8 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
     bool m_bIsRegularMode;
     bool m_bSacrifice;
 
-    std::list<uint64>lInitiates;
-    std::list<uint64>lVolunteers;
+    GUIDList lInitiates;
+    GUIDList lVolunteers;
 
     uint32 m_uiThundershockTimer;
     uint32 m_uiCycloneStrikeTimer;
@@ -199,7 +199,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
         if (pSummoned->GetEntry() == NPC_TWILIGHT_INITIATE)
         {
-            lInitiates.remove(pSummoned->GetGUID());
+            lInitiates.remove(pSummoned->GetObjectGuid());
 
             if (lInitiates.empty())
             {
@@ -209,7 +209,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         }
         else if (pSummoned->GetEntry() == NPC_TWILIGHT_VOLUNTEER)
         {
-            lVolunteers.remove(pSummoned->GetGUID());
+            lVolunteers.remove(pSummoned->GetObjectGuid());
             m_bSacrifice = true;
         }
     }
@@ -231,11 +231,11 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         DespawnAdds(lVolunteers);
     }
 
-    void DespawnAdds(std::list<uint64>& List)
+    void DespawnAdds(GUIDList& List)
     {
         if (!List.empty())
         {
-            for (std::list<uint64>::iterator itr = List.begin(); itr != List.end(); ++itr)
+            for (GUIDList::iterator itr = List.begin(); itr != List.end(); ++itr)
             {
                 if (Creature* pSummon = m_creature->GetMap()->GetCreature(*itr))
                     pSummon->ForcedDespawn();
@@ -244,7 +244,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         }
     }
 
-    void SpawnAdds(std::list<uint64>& List, uint32 uiEntry)
+    void SpawnAdds(GUIDList& List, uint32 uiEntry)
     {
         if (Creature* pSummon = m_creature->SummonCreature(uiEntry, SpawnNode[7][0], SpawnNode[7][1], SpawnNode[7][2], 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
         {
@@ -256,7 +256,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
             pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             pSummon->GetMotionMaster()->MovePoint(uiPoint, x, y, z);
-            List.push_back(pSummon->GetGUID());
+            List.push_back(pSummon->GetObjectGuid());
         }
 
         if (Creature* pSummon = m_creature->SummonCreature(uiEntry, SpawnNode[6][0], SpawnNode[6][1], SpawnNode[6][2], 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
@@ -269,7 +269,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
             pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             pSummon->GetMotionMaster()->MovePoint(uiPoint, x, y, z);
-            List.push_back(pSummon->GetGUID());
+            List.push_back(pSummon->GetObjectGuid());
         }
     }
 
@@ -322,7 +322,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                             break;
                         case 6:
                             if (!lInitiates.empty())
-                                for (std::list<uint64>::iterator itr = lInitiates.begin(); itr != lInitiates.end(); ++itr)
+                                for (GUIDList::iterator itr = lInitiates.begin(); itr != lInitiates.end(); ++itr)
                                 {
                                     if (Unit* pUnit = m_creature->GetMap()->GetUnit(*itr))
                                         pUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -379,7 +379,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                         break;
                     case 3:
                         {
-                            std::list<uint64>::iterator itr = lVolunteers.begin();
+                            GUIDList::iterator itr = lVolunteers.begin();
                             advance(itr, (rand()% (lVolunteers.size())));
                             if (Creature* pVolunteer = m_creature->GetMap()->GetCreature(*itr))
                             {

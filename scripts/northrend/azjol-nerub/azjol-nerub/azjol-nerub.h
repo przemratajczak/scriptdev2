@@ -73,7 +73,7 @@ struct MANGOS_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         uint64 m_auiWatcherGUIDS[3];
         uint32 m_uiWatcherTimer;
 
-        uint64 m_uiCrusherGUID;
+        ObjectGuid m_uiCrusherGUID;
         uint64 m_uiHadronoxGUID;
         bool m_bFirstCrusher;
 };

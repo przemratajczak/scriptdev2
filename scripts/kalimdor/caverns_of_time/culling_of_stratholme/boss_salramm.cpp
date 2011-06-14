@@ -74,8 +74,8 @@ struct MANGOS_DLL_DECL boss_salrammAI : public ScriptedAI
      FleshTimer = (urand(7000, 9000));
      StealTimer = (urand(9000, 17000));
      SummonTimer = (urand(12000, 17000));
-     if(m_pInstance)
-        m_pInstance->SetData64(NPC_SALRAMM, m_creature->GetGUID());
+     if (m_pInstance)
+         m_pInstance->SetData64(NPC_SALRAMM, m_creature->GetObjectGuid());
    }
 
    void Aggro(Unit* who)

@@ -121,7 +121,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
     uint8 m_uiPhase;
     bool m_bIsGhostEvent;
     uint8 m_auiAncestorsOrder[4];
-    uint64 m_auiDummyCasterGUID[4];
+    ObjectGuid m_auiDummyCasterGUID[4];
 
     void Reset()
     {
@@ -286,7 +286,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                                     pDummyCaster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                     pDummyCaster->GetMap()->CreatureRelocation(pDummyCaster, pDummyCaster->GetPositionX(), pDummyCaster->GetPositionY(), pDummyCaster->GetPositionZ()+15.0f, 0);
                                     pDummyCaster->CastSpell(m_creature, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                                    m_auiDummyCasterGUID[m_uiPhase] = pDummyCaster->GetGUID();
+                                    m_auiDummyCasterGUID[m_uiPhase] = pDummyCaster->GetObjectGuid();
                                 }
                                 pAncestor->CastSpell(m_creature, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
                             }

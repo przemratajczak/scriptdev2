@@ -402,7 +402,7 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
                     if (!bLieutenantLocked && pBjarngrim->AI())
                     {
                         fAngle = ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.empty() ? 0.75* M_PI_F : 1.25* M_PI_F;
-                        ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.push_back(m_creature->GetGUID());                        
+                        ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.push_back(m_creature->GetObjectGuid());                        
                         bLieutenantLocked = true;
                     }
 

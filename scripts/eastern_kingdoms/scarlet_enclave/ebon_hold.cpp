@@ -1269,7 +1269,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     }
 
     uint64 m_uiCreatorGUID;
-    uint64 m_uiHarvesterGUID;
+    ObjectGuid m_uiHarvesterGUID;
 
     uint32 m_uiWaitForThrowTimer;
 
@@ -1291,11 +1291,11 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         if (!m_bWaitForThrow && pWho->GetEntry() == ENTRY_GOTHIK && m_creature->GetDistance(pWho) < 15.0f)
         {
-            m_uiHarvesterGUID = pWho->GetGUID();
+            m_uiHarvesterGUID = pWho->GetObjectGuid();
 
-            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID) )
+            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID))
             {
-                pOwner->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID() );
+                pOwner->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetObjectGuid());
                 // this will execute if m_creature survived Harvester's wrath
                 float x, y, z, o;
                 o = float(urand(53, 57))/10.0f;

@@ -615,15 +615,15 @@ bool GOUse_go_corkis_prison(Player* pPlayer, GameObject* pGo)
             switch (uiCorkiEntry)
             {
             case NPC_CORKI:
-                pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetGUID());
+                pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetObjectGuid());
                 DoScriptText(SAY_THANKS_1, pCorki);
                 break;
             case NPC_CORKI_GONE:
-                pPlayer->KilledMonsterCredit(NPC_CORKI_GONE, pCorki->GetGUID());
+                pPlayer->KilledMonsterCredit(NPC_CORKI_GONE, pCorki->GetObjectGuid());
                 DoScriptText(SAY_THANKS_2, pCorki);
                 break;
             case NPC_CORKI_CHOWAR:
-                pPlayer->KilledMonsterCredit(NPC_CORKI_EVENT, pCorki->GetGUID());
+                pPlayer->KilledMonsterCredit(NPC_CORKI_EVENT, pCorki->GetObjectGuid());
                 break;
             }
             pCorki->CastSpell(pCorki, SPELL_DESPAWN_SELF, false);
@@ -652,7 +652,7 @@ bool GOUse_go_warmaul_prison(Player* pPlayer, GameObject* pGo)
 
         if (Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_MAGHAR_PRISONER, INTERACTION_DISTANCE))
         {
-            pPlayer->CastedCreatureOrGO(NPC_MAGHAR_PRISONER, pCreature->GetGUID(), 32347);
+            pPlayer->CastedCreatureOrGO(NPC_MAGHAR_PRISONER, pCreature->GetObjectGuid(), 32347);
             switch(urand(0,2))
             {
                 case 0: DoScriptText(SAY_MAGHAR_THANKS_1, pCreature); break;
@@ -682,7 +682,7 @@ bool GOUse_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
         Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_TRAPPED_MAMMOTH, INTERACTION_DISTANCE);
         if(pCreature)
         {
-            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetGUID());
+            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetObjectGuid());
             pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
         }
     }
@@ -730,7 +730,7 @@ bool GOUse_go_gjalerbon_cage(Player* pPlayer, GameObject* pGo)
     {
             if(Creature *pPrisoner = GetClosestCreatureWithEntry(pPlayer, NPC_GJALERBON_PRISONER, 10))
             {
-                pPlayer->KilledMonsterCredit(NPC_GJALERBON_PRISONER, pPrisoner->GetGUID());
+                pPlayer->KilledMonsterCredit(NPC_GJALERBON_PRISONER, pPrisoner->GetObjectGuid());
                 pPrisoner->CastSpell(pPrisoner, SPELL_DESPAWN_SELF, false);
             }
     }
@@ -748,7 +748,7 @@ bool GOUse_go_large_gjalerbon_cage(Player* pPlayer, GameObject* pGo)
 
         for (std::list<Creature*>::iterator itr = lGjalerbronPrisoners.begin(); itr != lGjalerbronPrisoners.end(); ++itr)
         {
-                pPlayer->KilledMonsterCredit(NPC_GJALERBON_PRISONER, (*itr)->GetGUID());
+            pPlayer->KilledMonsterCredit(NPC_GJALERBON_PRISONER, (*itr)->GetObjectGuid());
                 (*itr)->CastSpell(*itr, SPELL_DESPAWN_SELF, false);
         }
             
@@ -778,7 +778,7 @@ bool GOUse_go_black_cage(Player* pPlayer, GameObject* pGo)
     {
         if(Creature *pAspirant = GetClosestCreatureWithEntry(pPlayer, NPC_CAPTIVE_ASPIRANT, 10.0f))
         {
-            pPlayer->KilledMonsterCredit(NPC_CAPTIVE_ASPIRANT, pAspirant->GetGUID());
+            pPlayer->KilledMonsterCredit(NPC_CAPTIVE_ASPIRANT, pAspirant->GetObjectGuid());
             DoScriptText(SAY_THANKS1, pAspirant);
             pAspirant->CastSpell(pAspirant, SPELL_SELF_DESPAWN, false);
             return true;
@@ -786,7 +786,7 @@ bool GOUse_go_black_cage(Player* pPlayer, GameObject* pGo)
 
         if(Creature *pKul = GetClosestCreatureWithEntry(pPlayer, NPC_KUL_THE_RECKLESS, 10.0f))
         {
-            pPlayer->KilledMonsterCredit(NPC_KUL_THE_RECKLESS, pKul->GetGUID());
+            pPlayer->KilledMonsterCredit(NPC_KUL_THE_RECKLESS, pKul->GetObjectGuid());
             DoScriptText(SAY_THANKS2, pKul);
             pKul->CastSpell(pKul, SPELL_SELF_DESPAWN, false);
             return true;

@@ -105,7 +105,7 @@ struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
            {
              if(Player* pPlayer = itr->getSource()) 
-               pPlayer->KilledMonsterCredit(31006, m_creature->GetGUID());
+                 pPlayer->KilledMonsterCredit(31006, m_creature->GetObjectGuid());
            }
          }
    }

@@ -415,7 +415,7 @@ struct MANGOS_DLL_DECL npc_rabid_bearAI : public ScriptedAI
 		{
 			if(GetClosestGameObjectWithEntry(m_creature, GO_BEAR_TRAP, 0.5f))
 			{
-				pPlayer->CastedCreatureOrGO((NPC_RABID_BEAR_CAPTURED), m_creature->GetGUID(),9437, true);
+                pPlayer->CastedCreatureOrGO((NPC_RABID_BEAR_CAPTURED), m_creature->GetObjectGuid(), 9437, true);
 				m_creature->setFaction(35);
 				m_creature->addUnitState(UNIT_STAT_STUNNED);
 				m_creature->DeleteThreatList();
