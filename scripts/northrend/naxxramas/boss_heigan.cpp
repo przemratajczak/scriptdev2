@@ -218,7 +218,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
             return;
 
         // Eruption
-        if (m_uiEruptionTimer <= uiDiff)
+        if (m_uiEruptionTimer < uiDiff)
         {
             /*static int const m_auiMaxHeiganTraps[MAX_HEIGAN_TRAP_AREAS] =
             {
@@ -236,17 +236,17 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
                 }
             }*/
 
-            for (uint8 uiArea = 0; uiArea < MAX_HEIGAN_TRAP_AREAS-1; ++uiArea)
+            for (uint8 uiArea = 0; uiArea < MAX_HEIGAN_TRAP_AREAS; ++uiArea)
             {
-                m_pInstance->ActivateHeiganTrapsInArea(m_uiErruptionAreaId, m_creature);
-                if (m_uiErruptionAreaId == 3)
-                    m_iDanceDirection = -1;
-                else if (!m_uiErruptionAreaId)
-                    m_iDanceDirection = 1;
-                m_uiErruptionAreaId += m_iDanceDirection;
-                if (m_uiPhase == PHASE_GROUND)
-                    break;
+                if ((m_uiPhase == PHASE_GROUND && m_uiErruptionAreaId == uiArea) || (m_uiPhase != PHASE_GROUND && m_uiErruptionAreaId != uiArea))
+                    m_pInstance->ActivateHeiganTrapsInArea(uiArea, m_creature);
             }
+            
+            if (m_uiErruptionAreaId == 3)
+                m_iDanceDirection = -1;
+            else if (!m_uiErruptionAreaId)
+                m_iDanceDirection = 1;
+            m_uiErruptionAreaId += m_iDanceDirection;
             m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
         }
         else
