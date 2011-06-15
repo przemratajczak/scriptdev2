@@ -248,7 +248,7 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if(Creature* pColossus = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_COLOSSUS)))
+        if(Creature* pColossus = m_pInstance->GetSingleCreatureFromStorage(NPC_COLOSSUS))
         {
             ((boss_colossusAI*)pColossus->AI())->EnterEvadeMode();
         }
@@ -257,10 +257,10 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (!m_bFirstMerge && m_creature->GetHealthPercent() < 50.0f && !(m_pInstance->GetData(TYPE_ELEMENTAL) == SPECIAL))
+        if (!m_bFirstMerge && m_pInstance && m_creature->GetHealthPercent() < 50.0f && !(m_pInstance->GetData(TYPE_ELEMENTAL) == SPECIAL))
         {
             m_bFirstMerge = true;
-            if (Creature* pColossus = m_pInstance->instance->GetCreature(ObjectGuid(m_pInstance->GetData64(NPC_COLOSSUS))))
+            if (Creature* pColossus = m_pInstance->GetSingleCreatureFromStorage(NPC_COLOSSUS))
             {
                 //((boss_colossusAI*)pColossus->AI())->Merge();}
                 m_creature->InterruptNonMeleeSpells(true);
@@ -276,8 +276,9 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        if(Creature* pColossus = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_COLOSSUS)))
-            pColossus->DealDamage(pColossus,pColossus->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        if (m_pInstance)
+            if (Creature* pColossus = m_pInstance->GetSingleCreatureFromStorage(NPC_COLOSSUS))
+                pColossus->DealDamage(pColossus,pColossus->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 
     void UpdateAI(const uint32 uiDiff)

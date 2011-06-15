@@ -87,7 +87,8 @@ struct MANGOS_DLL_DECL mob_sladran_constrictorAI : public ScriptedAI
         if (m_uiWrapTimer <= uiDiff)
         {
             if (m_pInstance)
-                m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_GRIP_OF_SLADRAN : SPELL_GRIP_OF_SLADRAN_H, false, 0, 0, ObjectGuid(m_pInstance->GetData64(NPC_SLADRAN)));
+                if (Creature* pSladran = m_pInstance->GetSingleCreatureFromStorage(NPC_SLADRAN))
+                    m_creature->CastSpell(m_creature->getVictim(), m_bIsRegularMode ? SPELL_GRIP_OF_SLADRAN : SPELL_GRIP_OF_SLADRAN_H, false, 0, 0, pSladran->GetObjectGuid());
             m_uiWrapTimer = 5000;
         }
         else m_uiWrapTimer -= uiDiff;

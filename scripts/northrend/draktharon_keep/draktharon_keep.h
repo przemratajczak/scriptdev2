@@ -52,7 +52,6 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
-        uint64 GetData64(uint32 uiType);
 
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);

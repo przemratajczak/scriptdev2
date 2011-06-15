@@ -57,7 +57,6 @@ enum Sounds
     SPELL_SACRIFICE_VISUAL   = 56133,
     SPELL_SACRIFICE_BEAM     = 56150,
 
-    NPC_JEDOGA_CONTROLLER    = 30181,
     NPC_TWILIGHT_INITIATE    = 30114,
     NPC_TWILIGHT_VOLUNTEER   = 30385,
 
@@ -139,7 +138,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
         if (m_pInstance)
         {
-            if (Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_CONTROLLER))
                 pController->RemoveAurasDueToSpell(SPELL_SACRIFICE_VISUAL);
         }
     }
@@ -349,7 +348,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                     return;
                 }
 
-                Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER));
+                Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_CONTROLLER);
                 if (!pController)
                 {
                     // this should not happen!
@@ -494,12 +493,12 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
 
         if (uiPointId == 7)
         {
-            if (Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_CONTROLLER))
                 {
                     m_creature->SetFacingToObject(pController);
                     m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
                     DoScriptText(SAY_VOLUNTEER_SACRIFICED, m_creature);
-                    if (Creature* pJedoga = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
+                    if (Creature* pJedoga = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_SHADOWSEEKER))
                     {
                         pJedoga->SetFacingToObject(m_creature);
                         pJedoga->CastSpell(m_creature, SPELL_SACRIFICE_BEAM, true);
@@ -508,7 +507,7 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
         }
         else
         {
-            if (Creature* pJedoga = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
+            if (Creature* pJedoga = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_SHADOWSEEKER))
             {
                 m_creature->SetFacingToObject(pJedoga);
                 m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);

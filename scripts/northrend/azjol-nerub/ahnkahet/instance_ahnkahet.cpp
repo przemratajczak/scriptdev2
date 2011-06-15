@@ -45,6 +45,7 @@ struct MANGOS_DLL_DECL instance_ahnkahet : public ScriptedInstance
             case NPC_ELDER_NADOX:
             case NPC_JEDOGA_SHADOWSEEKER:
             case NPC_TALDARAM:
+            case NPC_JEDOGA_CONTROLLER:
                 m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
                 break;
         }

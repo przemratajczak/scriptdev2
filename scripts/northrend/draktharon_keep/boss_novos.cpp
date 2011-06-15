@@ -340,7 +340,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
     void Reset() {}
     void JustSummoned(Creature* pSummoned)
     {
-        if (Creature* pNovos = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_NOVOS)))
+        if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
         {
             pNovos->AI()->JustSummoned(pSummoned);
             if (pNovos->getVictim())
@@ -350,7 +350,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
 
     void SummonedCreatureJustDied(Creature* pSummoned)
     {
-        if (Creature* pNovos = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_NOVOS)))
+        if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
             pNovos->AI()->SummonedCreatureJustDied(pSummoned);
     }
 
