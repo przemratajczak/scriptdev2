@@ -73,11 +73,8 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
         ObjectGuid m_auiRitualCrystalGUID[CRYSTAL_NUMBER];
 
         uint32 m_uiDreadAddsKilled;
-        bool m_bTrollgoreConsume;
-        // Novos the Summoner
-        uint64 m_uiNovosGUID;
-        uint64 m_uiNovosChannelTargetGUID;
         bool m_bNovosAddGrounded;
+        bool m_bTrollgoreConsume;
 };
 
 #endif
