@@ -402,14 +402,13 @@ extern void AddSC_instance_halls_of_stone();
 extern void AddSC_boss_iron_council();                      // ulduar, ulduar
 extern void AddSC_boss_algalon();
 extern void AddSC_boss_auriaya();
-extern void AddSC_boss_leviathan();
+// extern void AddSC_boss_leviathan();
 extern void AddSC_boss_freya();
 extern void AddSC_boss_vezax();
 extern void AddSC_boss_hodir();
 extern void AddSC_boss_ignis();
 extern void AddSC_boss_assembly_of_iron();
 extern void AddSC_boss_kologarn();
-// extern void AddSC_boss_leviathan();
 extern void AddSC_boss_mimiron();
 extern void AddSC_boss_razorscale();
 extern void AddSC_boss_thorim();
@@ -452,53 +451,10 @@ extern void AddSC_sholazar_basin();
 extern void AddSC_storm_peaks();
 extern void AddSC_zuldrak();
 
-extern void AddSC_instance_violet_hold();
-extern void AddSC_violet_hold();
-extern void AddSC_boss_cyanigosa();
-extern void AddSC_boss_moragg();
-extern void AddSC_boss_erekem();
-extern void AddSC_boss_xevozz();
-extern void AddSC_boss_ichoron();
-extern void AddSC_boss_zuramat();
-extern void AddSC_boss_lavanthor();
-//IceCrown Citadel
-extern void AddSC_instance_icecrown_spire();
-extern void AddSC_icecrown_spire();
-extern void AddSC_icecrown_teleporter();
-extern void AddSC_boss_lord_marrowgar();
-extern void AddSC_boss_lady_deathwhisper();
-extern void AddSC_boss_deathbringer_saurfang();
-extern void AddSC_boss_rotface();
-extern void AddSC_boss_festergut();
-extern void AddSC_boss_proffesor_putricide();
-extern void AddSC_blood_prince_council();
-extern void AddSC_boss_blood_queen_lanathel();
-extern void AddSC_boss_valithria_dreamwalker();
-extern void AddSC_boss_sindragosa();
-extern void AddSC_boss_lich_king_icc();
-
-extern void AddSC_instance_forge_of_souls();
-extern void AddSC_boss_devourer_of_souls();
-extern void AddSC_boss_bronjahm();
-extern void AddSC_forge_of_souls();
-
-extern void AddSC_instance_halls_of_reflection();
-extern void AddSC_halls_of_reflection();
-extern void AddSC_boss_falric();
-extern void AddSC_boss_marwyn();
-extern void AddSC_boss_lich_king_hr();
-
-extern void AddSC_instance_ruby_sanctum();                  // Ruby Sanctum
-extern void AddSC_ruby_sanctum();
-extern void AddSC_boss_halion();
-extern void AddSC_boss_ragefire();
-// extern void AddSC_boss_zarithian();
-extern void AddSC_boss_baltharus();
-
 // outland
 extern void AddSC_boss_exarch_maladaar();                   // auchindoun, auchenai_crypts
 extern void AddSC_boss_shirrak();
-extern void AddSC_boss_nexusprince_shaffar();               // auchindoun, mana_tombsextern void AddSC_boss_nexusprince_shaffar();               //auchindoun, mana_tombs
+extern void AddSC_boss_nexusprince_shaffar();               // auchindoun, mana_tombs
 extern void AddSC_boss_pandemonius();
 extern void AddSC_boss_anzu();                              // auchindoun, sethekk_halls
 extern void AddSC_boss_darkweaver_syth();
@@ -974,14 +930,13 @@ void AddScripts()
     AddSC_boss_iron_council();                              // ulduar, ulduar
     AddSC_boss_algalon();
     AddSC_boss_auriaya();
-    AddSC_boss_leviathan();
+    // AddSC_boss_leviathan();
     AddSC_boss_freya();
     AddSC_boss_vezax();
     AddSC_boss_hodir();
     AddSC_boss_ignis();
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
-    // AddSC_boss_leviathan();
     AddSC_boss_mimiron();
     AddSC_boss_razorscale();
     AddSC_boss_thorim();
@@ -1023,49 +978,6 @@ void AddScripts()
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
     AddSC_zuldrak();
-
-    AddSC_instance_violet_hold();
-    AddSC_boss_cyanigosa();
-    AddSC_boss_moragg();
-    AddSC_boss_erekem();
-    AddSC_boss_xevozz();
-    AddSC_boss_ichoron();
-    AddSC_boss_zuramat();
-    AddSC_boss_lavanthor();
-    AddSC_violet_hold();
-
-    // AddSC_instance_icecrown_spire();
-    AddSC_icecrown_spire();
-    AddSC_icecrown_teleporter();
-    AddSC_boss_lord_marrowgar();
-    AddSC_boss_lady_deathwhisper();
-    AddSC_boss_deathbringer_saurfang();
-    AddSC_boss_rotface();
-    AddSC_boss_festergut();
-    AddSC_boss_proffesor_putricide();
-    AddSC_blood_prince_council();
-    AddSC_boss_blood_queen_lanathel();
-    AddSC_boss_valithria_dreamwalker();
-    AddSC_boss_sindragosa();
-    AddSC_boss_lich_king_icc();
-
-    AddSC_instance_forge_of_souls();
-    AddSC_boss_devourer_of_souls();
-    AddSC_boss_bronjahm();
-    AddSC_forge_of_souls();
-
-    AddSC_instance_halls_of_reflection();
-    AddSC_halls_of_reflection();
-    AddSC_boss_falric();
-    AddSC_boss_marwyn();
-    AddSC_boss_lich_king_hr();
-
-    AddSC_instance_ruby_sanctum();                         // Ruby Sanctum
-    AddSC_ruby_sanctum();
-    AddSC_boss_halion();
-    AddSC_boss_ragefire();
-    //AddSC_boss_zarithian();
-    AddSC_boss_baltharus();
 
     // outland
     AddSC_boss_exarch_maladaar();                           // auchindoun, auchenai_crypts

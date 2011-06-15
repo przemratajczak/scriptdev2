@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL npc_gortok_orbAI : public ScriptedAI
                         m_bTimeToAct = false;
                         break;
                     case 3:
-                        if (Creature* pBoss = m_pInstance->instance->GetCreature(m_pInstance->GetData64(m_uiBossEntry)))
+                        if (Creature* pBoss = m_pInstance->GetSingleCreatureFromStorage(m_uiBossEntry))
                         {
                             pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_WAKEUP_GORTOK);
@@ -165,7 +165,7 @@ struct MANGOS_DLL_DECL npc_gortok_orbAI : public ScriptedAI
                         m_uiStepTimer = 10000;
                         break;
                     case 4:
-                        if (Creature* pBoss = m_pInstance->instance->GetCreature(m_pInstance->GetData64(m_uiBossEntry)))
+                        if (Creature* pBoss = m_pInstance->GetSingleCreatureFromStorage(m_uiBossEntry))
                         {
                             pBoss->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                             pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -224,22 +224,22 @@ struct MANGOS_DLL_DECL boss_gortokAI : public ScriptedAI
             m_pInstance->SetData(TYPE_GORTOK, NOT_STARTED);
 
             Creature* pTemp;
-            if ((pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_WORGEN))) && pTemp->isDead())
+            if ((pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_WORGEN)) && pTemp->isDead())
                 pTemp->Respawn();
-            if ((pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_RHINO))) && pTemp->isDead())
+            if ((pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_RHINO)) && pTemp->isDead())
                 pTemp->Respawn();
-            if ((pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_JORMUNGAR))) && pTemp->isDead())
+            if ((pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_JORMUNGAR)) && pTemp->isDead())
                 pTemp->Respawn();
-            if ((pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_FURLBORG))) && pTemp->isDead())
+            if ((pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_FURLBORG)) && pTemp->isDead())
                 pTemp->Respawn();
 
-            if (GameObject* pGo = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_STASIS_GENERATOR)))
+            if (GameObject* pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_STASIS_GENERATOR))
             {
                 pGo->SetGoState(GO_STATE_READY);
                 pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             }
 
-            if (Creature* pController = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STASIS_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_STASIS_CONTROLLER))
                 pController->ForcedDespawn();
         }
     }
@@ -336,7 +336,7 @@ struct MANGOS_DLL_DECL npc_furlborgAI : public ScriptedAI
         DoCast(m_creature, SPELL_FREEZE_ANIM);
 
         if (m_pInstance)
-            if (Creature* pGortok = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_GORTOK)))
+            if (Creature* pGortok = m_pInstance->GetSingleCreatureFromStorage(NPC_GORTOK))
                 if (pGortok->isAlive())
                     ((boss_gortokAI*)pGortok->AI())->Reset();
     }
@@ -358,7 +358,7 @@ struct MANGOS_DLL_DECL npc_furlborgAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pController = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STASIS_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_STASIS_CONTROLLER))
                 ((npc_gortok_orbAI*)pController->AI())->DoAction();
         }
     }
@@ -423,7 +423,7 @@ struct MANGOS_DLL_DECL npc_worgenAI : public ScriptedAI
         DoCast(m_creature, SPELL_FREEZE_ANIM);
 
         if (m_pInstance)
-            if (Creature* pGortok = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_GORTOK)))
+            if (Creature* pGortok = m_pInstance->GetSingleCreatureFromStorage(NPC_GORTOK))
                 if (pGortok->isAlive())
                     ((boss_gortokAI*)pGortok->AI())->Reset();
     }
@@ -445,7 +445,7 @@ struct MANGOS_DLL_DECL npc_worgenAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pController = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STASIS_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_STASIS_CONTROLLER))
                 ((npc_gortok_orbAI*)pController->AI())->DoAction();
         }
     }
@@ -510,7 +510,7 @@ struct MANGOS_DLL_DECL npc_rhinoAI : public ScriptedAI
         DoCast(m_creature, SPELL_FREEZE_ANIM);
 
         if (m_pInstance)
-            if (Creature* pGortok = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_GORTOK)))
+            if (Creature* pGortok = m_pInstance->GetSingleCreatureFromStorage(NPC_GORTOK))
                 if (pGortok->isAlive())
                     ((boss_gortokAI*)pGortok->AI())->Reset();
     }
@@ -532,7 +532,7 @@ struct MANGOS_DLL_DECL npc_rhinoAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pController = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STASIS_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_STASIS_CONTROLLER))
                 ((npc_gortok_orbAI*)pController->AI())->DoAction();
         }
     }
@@ -598,7 +598,7 @@ struct MANGOS_DLL_DECL npc_jormungarAI : public ScriptedAI
         DoCast(m_creature, SPELL_FREEZE_ANIM);
 
         if (m_pInstance)
-            if (Creature* pGortok = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_GORTOK)))
+            if (Creature* pGortok = m_pInstance->GetSingleCreatureFromStorage(NPC_GORTOK))
                 if (pGortok->isAlive())
                     ((boss_gortokAI*)pGortok->AI())->Reset();
     }
@@ -620,7 +620,7 @@ struct MANGOS_DLL_DECL npc_jormungarAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pController = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STASIS_CONTROLLER)))
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_STASIS_CONTROLLER))
                 ((npc_gortok_orbAI*)pController->AI())->DoAction();
         }
     }
@@ -668,8 +668,7 @@ bool GOUse_gortok_generator(Player* pPlayer, GameObject* pGo)
     {
         pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
         pGo->SetGoState(GO_STATE_ACTIVE);
-        if (Creature* pController = pGo->SummonCreature(NPC_STASIS_CONTROLLER, ORB_SPAWN_X, ORB_SPAWN_Y, ORB_Z, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
-            m_pInstance->SetData64(NPC_STASIS_CONTROLLER, pController->GetGUID());
+        Creature* pController = pGo->SummonCreature(NPC_STASIS_CONTROLLER, ORB_SPAWN_X, ORB_SPAWN_Y, ORB_Z, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
         m_pInstance->SetData(TYPE_GORTOK, IN_PROGRESS);
     }
     return true;

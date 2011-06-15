@@ -52,6 +52,7 @@ class MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
 
         void Initialize();
 
+        void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
         void SetData(uint32 uiType, uint32 uiData);
