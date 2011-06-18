@@ -46,13 +46,13 @@ enum
 bool GossipHello_npc_chromi_start(Player* pPlayer, Creature* pCreature)
 {
     if(pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
 
     ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
     if (pPlayer && pPlayer->GetQuestStatus(QUEST_DISPELLING_ILLUSIONS) == QUEST_STATUS_COMPLETE && pInstance && pInstance->GetData(TYPE_QUEST) == NOT_STARTED)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMI1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI1, pCreature->GetGUID()); 
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI1, pCreature->GetObjectGuid()); 
 
     return true; 
 }
@@ -63,14 +63,14 @@ bool GossipSelect_npc_chromi_start(Player* pPlayer, Creature* pCreature, uint32 
     {
        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMI2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2); 
 
-       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI2, pCreature->GetGUID()); 
+       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI2, pCreature->GetObjectGuid()); 
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2) 
     {
        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMI3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3); 
 
-       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI3, pCreature->GetGUID()); 
+       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI3, pCreature->GetObjectGuid()); 
     }
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+3) 
@@ -86,7 +86,7 @@ bool GossipSelect_npc_chromi_start(Player* pPlayer, Creature* pCreature, uint32 
             if (Item* pItem = pPlayer->StoreNewItemInInventorySlot(ITEM_ARCANE_DISRUPTOR, 1)) 
                 pPlayer->SendNewItem(pItem, 1, true, false); 
 
-       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI4, pCreature->GetGUID()); 
+       pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_CHROMI4, pCreature->GetObjectGuid()); 
     }
 
     return true;
@@ -186,7 +186,7 @@ struct MANGOS_DLL_DECL npc_mikeAI : public ScriptedAI
 
            if (who->GetTypeId() == TYPEID_PLAYER && m_creature->GetDistance2d(who) <= 15 && who->GetPositionZ() > 99.50f && m_uiPhase == 0)
            {
-             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, who->GetGUID());
+             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, who->GetObjectGuid());
              m_uiPhase = 1;
            }
     }
@@ -519,8 +519,8 @@ struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
               m_creature->SetStandState(UNIT_STAND_STATE_STAND);
               if(Creature* pTemp = m_pInstance->instance->GetCreature(m_uiPerelliGUID))
               {
-                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetGUID());
-                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
               }
               m_uiStepTimer = 3000;
               break;
@@ -658,7 +658,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
            case 4:
               m_uiMarthaGUID = m_pInstance->GetData64(NPC_MARTHA);
               if(Creature* pTemp = m_pInstance->instance->GetCreature(m_uiMarthaGUID))
-                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetGUID());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_JENA01, m_creature);
               m_uiStepTimer = 3000;
               break;
@@ -675,7 +675,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               {
                  pTemp->GetMotionMaster()->MovementExpired(false);
                  pTemp->GetMotionMaster()->MovePoint(0, 1636.721f, 725.88f, 113.561f);
-                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
               }
               m_uiStepTimer = 1000;
               break;
@@ -721,7 +721,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               break;
            case 14:
               if(Creature* pTemp = m_pInstance->instance->GetCreature(m_uiMarthaGUID))
-                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetGUID());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_JENA04, m_creature);
               m_uiStepTimer = 3000;
               break;
@@ -857,7 +857,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
               break;
            case 5:
               if(Creature* pTemp = m_pInstance->instance->GetCreature(m_uiDogGUID))
-                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetGUID());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_MALCOLM02, m_creature);
               m_uiStepTimer = 2000;
               break;
@@ -895,7 +895,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
            case 12:
               m_creature->SetStandState(UNIT_STAND_STATE_STAND);
               if(Creature* pTemp = m_pInstance->instance->GetCreature(m_uiDogGUID))
-                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetGUID());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_MALCOLM04, m_creature);
               m_uiStepTimer = 7000;
               break;

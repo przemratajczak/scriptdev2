@@ -1298,7 +1298,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                             {
                                 DoScriptText(SAY_TANK_ACTIVE, m_creature);
                                 pTank->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, CENTER_Z);
-                                m_uiTankGUID = pTank->GetGUID();
+                                m_uiTankGUID = pTank->GetObjectGuid();
                             }
                             else
                                 EnterEvadeMode();
@@ -1368,7 +1368,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                 if(m_uiUseLiftTimer < uiDiff)
                 {
                     if(GameObject* pLift = GetClosestGameObjectWithEntry(m_creature, GO_MIMIRON_ELEVATOR, DEFAULT_VISIBILITY_INSTANCE))
-                        m_pInstance->DoUseDoorOrButton(pLift->GetGUID());
+                        m_pInstance->DoUseDoorOrButton(pLift->GetObjectGuid());
                     m_uiUseLiftTimer = 60000;
                 }
                 else m_uiUseLiftTimer -= uiDiff;
@@ -1383,7 +1383,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                             pTorso->CastSpell(pTorso, SPELL_EMERGENCY_MODE, false);
                             m_bHasMoreHp        = true;
                             m_uiHpCheckTimer    = 1000;
-                            m_uiTorsoGUID = pTorso->GetGUID();
+                            m_uiTorsoGUID = pTorso->GetObjectGuid();
                         }
                         else
                         {
@@ -1437,7 +1437,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                             m_pInstance->SetData(TYPE_MIMIRON_PHASE, PHASE_AERIAL);
                             m_uiPhaseDelayTimer = 15000;
                         }
-                        m_uiHeadGUID = pHead->GetGUID();
+                        m_uiHeadGUID = pHead->GetObjectGuid();
                     }
                 }
                 else m_uiPhaseDelayTimer -= uiDiff;
@@ -1476,7 +1476,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                         if(pTank->isAlive())
                         {
                             pTank->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, CENTER_Z);
-                            m_uiTankGUID = pTank->GetGUID();
+                            m_uiTankGUID = pTank->GetObjectGuid();
                             m_bIsRobotReady = true;
                             m_uiRobotDelayTimer = 15000;
                         }
@@ -1496,13 +1496,13 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                     if(Creature* pTorso = m_creature->SummonCreature(NPC_VX001, CENTER_X, CENTER_Y, CENTER_Z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 7*DAY*IN_MILLISECONDS))
                     {
                         ((boss_vx001AI*)pTorso->AI())->SetPhase();
-                        m_uiTorsoGUID = pTorso->GetGUID();
+                        m_uiTorsoGUID = pTorso->GetObjectGuid();
                     }
 
                     if(Creature* pHead = m_creature->SummonCreature(NPC_AERIAL_UNIT, CENTER_X, CENTER_Y, CENTER_Z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 7*DAY*IN_MILLISECONDS))
                     {
                         ((boss_aerial_command_unitAI*)pHead->AI())->SetPhase();
-                        m_uiHeadGUID = pHead->GetGUID();
+                        m_uiHeadGUID = pHead->GetObjectGuid();
                     }
 
                     if(m_bIsHardMode)

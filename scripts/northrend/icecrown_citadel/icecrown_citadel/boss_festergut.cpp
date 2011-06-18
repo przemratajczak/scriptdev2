@@ -92,7 +92,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                  Unit* pTemp = doSummon(NPC_PUDDLE_STALKER,SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, TEMPSUMMON_MANUAL_DESPAWN);
                  if (pTemp)
                  {
-                     pPuddleStalkerGUID[i] = pTemp->GetGUID();
+                     pPuddleStalkerGUID[i] = pTemp->GetObjectGuid();
                      pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                      pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                  }

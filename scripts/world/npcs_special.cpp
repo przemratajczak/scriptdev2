@@ -2374,7 +2374,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
         {
             // we have no target, so look for the new one
             if (Unit *pTmp = m_creature->SelectRandomUnfriendlyTarget(0, 30.0f) )
-                m_uiTargetGuid = pTmp->GetGUID();
+                m_uiTargetGuid = pTmp->GetObjectGuid();
 
             pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
 
@@ -2412,7 +2412,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
                 {
                     DoCastSpellIfCan(pLeapTarget, SPELL_LEAP, CAST_TRIGGERED);
                     m_uiLeapTimer = 20000;
-                    m_uiTargetGuid = pLeapTarget->GetGUID();
+                    m_uiTargetGuid = pLeapTarget->GetObjectGuid();
                     m_creature->AI()->AttackStart(pLeapTarget);
                     return;
                 }

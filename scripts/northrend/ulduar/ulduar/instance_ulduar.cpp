@@ -738,7 +738,7 @@ bool instance_ulduar::CheckConditionCriteriaMeet(Player const* source, uint32 ma
     return false;
 }
 
-uint32 instance_ulduar::GetData(uint32 )
+uint32 instance_ulduar::GetData(uint32 uiType)
 {
     switch(uiType)
     {

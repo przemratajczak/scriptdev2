@@ -855,7 +855,7 @@ struct MANGOS_DLL_DECL boss_thorimAI : public ScriptedAI
 						if(Creature* pSif = m_creature->SummonCreature(NPC_SIF, m_creature->GetPositionX() + 10, m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 700000))
 						{
 							pSif->setFaction(35);
-							m_uiSifGUID = pSif->GetGUID();
+							m_uiSifGUID = pSif->GetObjectGuid();
 						}
 						++m_uiIntroStep;
 						m_uiIntroTimer = 9000;
@@ -1258,7 +1258,7 @@ struct MANGOS_DLL_DECL boss_runic_colossusAI : public ScriptedAI
         if (pWho->isTargetableForAttack() && pWho->isInAccessablePlaceFor(m_creature) &&
             !m_bIsSmash && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 70) && m_creature->IsWithinLOSInMap(pWho))
         {
-			m_uiSmashTargetGUID = pWho->GetGUID();
+			m_uiSmashTargetGUID = pWho->GetObjectGuid();
             m_creature->GetMotionMaster()->MoveIdle();
             m_bIsSmash = true;
         }

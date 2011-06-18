@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
         if(Creature* pAnimus = m_creature->SummonCreature(NPC_SARONITE_ANIMUS, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 900000))
         {
             pAnimus->SetInCombatWithZone();
-            m_uiAnimusGUID = pAnimus->GetGUID();
+            m_uiAnimusGUID = pAnimus->GetObjectGuid();
         }
 
         if (!lVapors.empty())
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
 
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if(pTarget && pTarget->isAlive() && !m_bHasSimphon && m_uiTargetGUID != i->getSource()->GetGUID())
+                if(pTarget && pTarget->isAlive() && !m_bHasSimphon && m_uiTargetGUID != i->getSource()->GetObjectGuid())
                 {
                     if (i->getSource()->isAlive() && pTarget->GetDistance2d(i->getSource()) < 10.0f)
                     {
@@ -298,7 +298,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
-                m_uiMarkTargetGUID = pTarget->GetGUID();
+                m_uiMarkTargetGUID = pTarget->GetObjectGuid();
                 DoCast(pTarget, SPELL_MARK_OF_FACELESS);
             }
             m_bHasMark = true;

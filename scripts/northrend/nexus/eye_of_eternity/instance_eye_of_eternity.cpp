@@ -34,13 +34,6 @@ Instance_eye_of_eternity::Instance_eye_of_eternity(Map* pMap) : ScriptedInstance
 void Instance_eye_of_eternity::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-    m_uiMalygosGUID = 0;
-    m_uiPlatformGUID = 0;
-    m_uiExitPortalGUID = 0;
-    m_uiFocusingIrisGUID = 0;
-    m_uiGiftGUID = 0;
-    m_uiHeartGUID = 0;
 }
 
 void Instance_eye_of_eternity::OnCreatureCreate(Creature* pCreature)
@@ -48,7 +41,7 @@ void Instance_eye_of_eternity::OnCreatureCreate(Creature* pCreature)
     switch(pCreature->GetEntry())
     {
         case NPC_MALYGOS:
-            m_uiMalygosGUID = pCreature->GetGUID();
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             pCreature->SetActiveObjectState(true);
             break;
     }
@@ -59,22 +52,14 @@ void Instance_eye_of_eternity::OnObjectCreate(GameObject* pGo)
     switch(pGo->GetEntry())
     {
         case GO_PLATFORM:
-            m_uiPlatformGUID = pGo->GetGUID();
-            break;
         case GO_EXIT_PORTAL:
-            m_uiExitPortalGUID = pGo->GetGUID();
-            break;
         case GO_FOCUSING_IRIS:
         case GO_FOCUSING_IRIS_H:
-            m_uiFocusingIrisGUID = pGo->GetGUID();
-            break;
         case GO_ALEXSTRASZAS_GIFT:
         case GO_ALEXSTRASZAS_GIFT_H:
-            m_uiGiftGUID = pGo->GetGUID();
-            break;
         case GO_HEART_OF_MAGIC:
         case GO_HEART_OF_MAGIC_H:
-            m_uiHeartGUID = pGo->GetGUID();
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
     }
 }
@@ -96,29 +81,29 @@ void Instance_eye_of_eternity::SetData(uint32 uiType, uint32 uiData)
         {
             if (uiData == NOT_STARTED)
             {
-                if (GameObject* pFocusingIris = instance->GetGameObject(m_uiFocusingIrisGUID))
+                if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(GO_FOCUSING_IRIS))
                 {
                     pFocusingIris->SetGoState(GO_STATE_READY);
                     pFocusingIris->SetPhaseMask(1, true);
                 }
-                if (GameObject* pExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
+                if (GameObject* pExitPortal = GetSingleGameObjectFromStorage(GO_EXIT_PORTAL))
                     pExitPortal->SetPhaseMask(1, true);
-                if (GameObject* pPlatform = instance->GetGameObject(m_uiPlatformGUID))
+                if (GameObject* pPlatform = GetSingleGameObjectFromStorage(GO_PLATFORM))
                     pPlatform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             }
             if (uiData == IN_PROGRESS)
             {
-                if (GameObject* pFocusingIris = instance->GetGameObject(m_uiFocusingIrisGUID))
+                if (GameObject* pFocusingIris = GetSingleGameObjectFromStorage(GO_FOCUSING_IRIS))
                     pFocusingIris->SetPhaseMask(2, true);
-                if (GameObject* pExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
+                if (GameObject* pExitPortal = GetSingleGameObjectFromStorage(GO_EXIT_PORTAL))
                     pExitPortal->SetPhaseMask(2, true);
             }
             if (uiData == DONE)
             {
-                if (GameObject* pExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
+                if (GameObject* pExitPortal = GetSingleGameObjectFromStorage(GO_EXIT_PORTAL))
                     pExitPortal->SetPhaseMask(1, true);
-                DoRespawnGameObject(m_uiGiftGUID, HOUR*IN_MILLISECONDS);
-                DoRespawnGameObject(m_uiHeartGUID, HOUR*IN_MILLISECONDS);
+                DoRespawnGameObject(GO_ALEXSTRASZAS_GIFT, HOUR*IN_MILLISECONDS);
+                DoRespawnGameObject(GO_HEART_OF_MAGIC, HOUR*IN_MILLISECONDS);
             }
             m_auiEncounter[0] = uiData;
             break;
@@ -171,18 +156,6 @@ uint32 Instance_eye_of_eternity::GetData(uint32 uiType)
     return 0;
 }
 
-uint64 Instance_eye_of_eternity::GetData64(uint32 uiData)
-{
-    switch(uiData)
-    {
-        case NPC_MALYGOS:
-            return m_uiMalygosGUID;
-        case GO_PLATFORM:
-            return m_uiPlatformGUID;
-    }
-    return 0;
-}
-
 bool Instance_eye_of_eternity::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
 {
     switch (uiCriteriaId)
@@ -190,16 +163,16 @@ bool Instance_eye_of_eternity::CheckAchievementCriteriaMeet(uint32 uiCriteriaId,
         case ACHIEV_CRIT_DENYING_THE_SCION_10:
             if (instance->IsRegularDifficulty())
             {
-                for (std::list<uint64>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
-                    if (pSource->GetGUID() == *i)
+                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
+                    if (pSource->GetObjectGuid().GetRawValue() == (*i).GetRawValue())
                         return true;
             }
             break;
         case ACHIEV_CRIT_DENYING_THE_SCION_25:
             if (!instance->IsRegularDifficulty())
             {
-                for (std::list<uint64>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
-                    if (pSource->GetGUID() == *i)
+                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
+                    if (pSource->GetObjectGuid().GetRawValue() == (*i).GetRawValue())
                         return true;
             }
             break;

@@ -192,7 +192,7 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
 
                 if (Creature* c = (Creature *)(*itr))
                 {
-                    m_lKaddrakGUIDList.push_back((*itr)->GetGUID());
+                    m_lKaddrakGUIDList.push_back((*itr)->GetObjectGuid());
                     if (c->isAlive())
                     {
                         if (uiPositionCounter == 0)
@@ -339,7 +339,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     if (!pCreature->isAlive())
                         pCreature->Respawn();
                     ((mob_tribuna_controllerAI*)pCreature->AI())->UpdateFacesList();
-                    m_uiControllerGUID = pCreature->GetGUID();
+                    m_uiControllerGUID = pCreature->GetObjectGuid();
                 }
                 break;
             case 13:
@@ -418,7 +418,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        m_lDwarfGUIDList.push_back(pSummoned->GetGUID());
+        m_lDwarfGUIDList.push_back(pSummoned->GetObjectGuid());
         pSummoned->SetRespawnDelay(7*DAY);
         pSummoned->AddThreat(m_creature, 0.0f);
         pSummoned->AI()->AttackStart(m_creature);
@@ -736,7 +736,7 @@ bool GossipHello_npc_brann_hos(Player* pPlayer, Creature* pCreature)
     if (m_pInstance->GetData(TYPE_BRANN) != DONE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-    pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(TEXT_ID_START, pCreature->GetObjectGuid());
 
     //pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_PROGRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
     //pPlayer->SEND_GOSSIP_MENU(TEXT_ID_PROGRESS, pCreature->GetObjectGuid());
