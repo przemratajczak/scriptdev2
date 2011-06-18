@@ -288,7 +288,6 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
-        uint64 GetData64(uint32 uiData);
 
         const char* Save();
         void Load(const char* chrIn);

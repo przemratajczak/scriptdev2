@@ -1261,14 +1261,14 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_bIsSpawned = false;
         fDist = (float)urand(1, 5);
-        m_uiCreatorGUID = m_creature->GetCreatorGuid().GetRawValue();
-        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID) )
+        m_uiCreatorGUID = m_creature->GetCreatorGuid();
+        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID))
             fAngle = m_creature->GetAngle(pOwner);
 
         Reset();
     }
 
-    uint64 m_uiCreatorGUID;
+    ObjectGuid m_uiCreatorGUID;
     ObjectGuid m_uiHarvesterGUID;
 
     uint32 m_uiWaitForThrowTimer;

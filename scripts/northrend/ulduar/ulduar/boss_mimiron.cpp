@@ -276,7 +276,7 @@ struct MANGOS_DLL_DECL boss_leviathan_mkAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+        if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
         {
             if(m_pInstance->GetData(TYPE_MIMIRON_PHASE) == PHASE_LEVIATHAN)
             {
@@ -461,7 +461,7 @@ struct MANGOS_DLL_DECL boss_leviathan_mkAI : public ScriptedAI
                 m_creature->SetHealth(m_creature->GetMaxHealth());
                 m_creature->GetMotionMaster()->MovePoint(0, PosTankHome[0], PosTankHome[1], CENTER_Z); 
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+                if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
                     DoScriptText(SAY_TANK_DEATH, pMimiron);
                 ++m_uiOutroStep;
                 m_uiOutroTimer = 12000;
@@ -556,7 +556,7 @@ struct MANGOS_DLL_DECL boss_vx001AI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+        if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
         {
             if(m_pInstance->GetData(TYPE_MIMIRON_PHASE) == PHASE_VX001)
             {
@@ -596,7 +596,7 @@ struct MANGOS_DLL_DECL boss_vx001AI : public ScriptedAI
         {
             if(m_pInstance->GetData(TYPE_MIMIRON_PHASE) == PHASE_VX001)
             {
-                if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+                if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
                     DoScriptText(SAY_TORSO_DEATH, pMimiron);
                 m_pInstance->SetData(TYPE_MIMIRON_PHASE, PHASE_TRANS_2);
                 m_pInstance->SetData(TYPE_VX001, DONE);
@@ -941,7 +941,7 @@ struct MANGOS_DLL_DECL boss_aerial_command_unitAI : public ScriptedAI
         {
             if(m_pInstance->GetData(TYPE_MIMIRON_PHASE) == PHASE_AERIAL)
             {
-                if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+                if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
                     DoScriptText(SAY_HEAD_DEATH, pMimiron);
                 m_pInstance->SetData(TYPE_MIMIRON_PHASE, PHASE_TRANS_3);
                 m_pInstance->SetData(TYPE_AERIAL_UNIT, DONE);
@@ -951,7 +951,7 @@ struct MANGOS_DLL_DECL boss_aerial_command_unitAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        if (Creature* pMimiron = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MIMIRON)))
+        if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
         {
             if(m_pInstance->GetData(TYPE_MIMIRON_PHASE) == PHASE_AERIAL)
             {
@@ -1145,9 +1145,9 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
     bool m_bIsIntro;
     bool m_bIsRobotReady;
 
-    uint64 m_uiTankGUID;
-    uint64 m_uiTorsoGUID;
-    uint64 m_uiHeadGUID;
+    ObjectGuid m_uiTankGUID;
+    ObjectGuid m_uiTorsoGUID;
+    ObjectGuid m_uiHeadGUID;
 
     bool m_bIsTankDead;
     bool m_bIsTorsoDead;
@@ -1177,7 +1177,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
         m_uiHeadGUID            = 0;
 
 		// reset button
-        if(GameObject* pButton = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_MIMIRON_BUTTON)))
+        if(GameObject* pButton = m_pInstance->GetSingleGameObjectFromStorage(GO_MIMIRON_BUTTON))
             pButton->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
 
 		// reset elevator
@@ -1192,7 +1192,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
             pHead->DealDamage(pHead, pHead->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
 		// reset tank
-        if (Creature* pTank = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_LEVIATHAN_MK)))
+        if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
         {
             if(pTank->isAlive())
                 pTank->AI()->EnterEvadeMode();
@@ -1277,7 +1277,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                         m_uiIntroTimer = 10000;
                         break;
                     case 3:
-                        if(GameObject* pButton = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_MIMIRON_BUTTON)))
+                        if(GameObject* pButton = m_pInstance->GetSingleGameObjectFromStorage(GO_MIMIRON_BUTTON))
                             pButton->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
                         if(m_bIsHardMode)
                         {
@@ -1292,7 +1292,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
                         }
                         break;
                     case 5:
-                        if (Creature* pTank = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_LEVIATHAN_MK)))
+                        if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
                         {
                             if(pTank->isAlive())
                             {
@@ -1471,7 +1471,7 @@ struct MANGOS_DLL_DECL boss_mimironAI : public ScriptedAI
             {
                 if(m_uiPhaseDelayTimer < uiDiff && !m_bIsRobotReady)
                 {
-                    if (Creature* pTank = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_LEVIATHAN_MK)))
+                    if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
                     {
                         if(pTank->isAlive())
                         {
@@ -1711,7 +1711,7 @@ struct MANGOS_DLL_DECL leviathan_turretAI : public ScriptedAI
 
         if(m_uiPlasmaBlastTimer < uiDiff)
         {
-            if (Creature* pTank = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_LEVIATHAN_MK)))
+            if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
             {
                 DoScriptText(EMOTE_PLASMA_BLAST, m_creature);
                 if (Unit* pTarget = pTank->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 0))
@@ -1723,7 +1723,7 @@ struct MANGOS_DLL_DECL leviathan_turretAI : public ScriptedAI
 
         if(m_uiNapalmShellTimer < uiDiff)
         {
-            if (Creature* pTank = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_LEVIATHAN_MK)))
+            if (Creature* pTank = m_pInstance->GetSingleCreatureFromStorage(NPC_LEVIATHAN_MK))
             {
                 if (Unit* pTarget = pTank->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
@@ -2117,7 +2117,7 @@ bool GOHello_go_red_button(Player* pPlayer, GameObject* pGo)
     if (!m_pInstance)
         return false;
 
-    if (Creature* pMimiron = pGo->GetMap()->GetCreature(m_pInstance->GetData64(NPC_MIMIRON)))
+    if (Creature* pMimiron = m_pInstance->GetSingleCreatureFromStorage(NPC_MIMIRON))
     {
         pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT); 
         pPlayer->CastSpell(pPlayer, SPELL_FLAMES_SUMMON, false);

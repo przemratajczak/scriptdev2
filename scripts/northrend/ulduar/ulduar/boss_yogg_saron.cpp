@@ -528,7 +528,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
                 m_uiKeepersActive += 1;
             }
 
-            if(Creature* pSara = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_SARA)))
+            if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
                 DoScriptText(SAY_AGGRO, pSara);
         }
     }
@@ -539,7 +539,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_YOGGSARON, NOT_STARTED);
 
-            if(Creature* pSara = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_SARA)))
+            if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
             {
                 if(!pSara->isAlive())
                     pSara->Respawn();
@@ -547,7 +547,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
                     pSara->AI()->EnterEvadeMode();
             }
 
-            if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+            if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
             {
                 if(!pYoggBrain->isAlive())
                     pYoggBrain->Respawn();
@@ -601,13 +601,13 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
 
         }
 
-        if(Creature* pSara = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(NPC_SARA)))
+        if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
         {
             if(pSara->isAlive())
                 pSara->DealDamage(pSara, pSara->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
-        if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+        if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
         {
             if(pYoggBrain->isAlive())
                 pYoggBrain->DealDamage(pYoggBrain, pYoggBrain->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -642,10 +642,10 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
 
 		m_uiSummonTimer = urand(15000, 20000);
 
-        if(Creature* pSara = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(NPC_SARA)))
+        if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
             pSara->ForcedDespawn();
 
-        if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+        if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
             pYoggBrain->DealDamage(pYoggBrain, pYoggBrain->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 
@@ -934,14 +934,14 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
     bool m_bIsVisionFinished;
     bool m_bHasShattered;
 
-    uint64 m_uiLichKingGUID;
-    uint64 m_uiChampionGUID;
-    uint64 m_uiGaronaGUID;
-    uint64 m_uiKingLlaneGUID;
-    uint64 m_uiNeltharionGUID;
-    uint64 m_uiMalygosGUID;
-    uint64 m_uiYseraGUID;
-    uint64 m_uiVoiceOfYoggGUID;
+    ObjectGuid m_uiLichKingGUID;
+    ObjectGuid m_uiChampionGUID;
+    ObjectGuid m_uiGaronaGUID;
+    ObjectGuid m_uiKingLlaneGUID;
+    ObjectGuid m_uiNeltharionGUID;
+    ObjectGuid m_uiMalygosGUID;
+    ObjectGuid m_uiYseraGUID;
+    ObjectGuid m_uiVoiceOfYoggGUID;
 
     void Reset()
     {
