@@ -328,38 +328,6 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         return 0;
     }
 
-    uint64 GetData64(uint32 uiData)
-    {
-        switch(uiData)
-        {
-            case NPC_FORRESTER: return m_uiForrestenGUID;
-            case NPC_JAMES: return m_uiJamesGUID;
-            case NPC_FRAS_FRASIABI: return m_uiFrasCiabiGUID;
-            case NPC_MAL_CORICS: return m_uiMalCoricsGUID;
-            case NPC_GRIAN_STONE: return m_uiGrianStoneGUID;
-            case NPC_ROGER: return m_uiRogerGUID;
-            case NPC_MORIGAN: return m_uiMoriganGUID;
-            case NPC_PERELLI: return m_uiPerelliGUID;
-            case NPC_JENA: return m_uiJenaGUID;
-            case NPC_MARTHA: return m_uiMarthaGUID;
-            case NPC_MALCOLM: return m_uiMalcolmGUID;
-            case NPC_DOG: return m_uiDogGUID;
-            case NPC_BARTLEBY: return m_uiBartlebyGUID;
-            case NPC_UTHER: return m_uiUtherGUID;
-            case NPC_ARTHAS: return m_uiArthasGUID;
-            case NPC_JAINA: return m_uiJainaGUID;
-            case NPC_SALRAMM: return m_uiSalrammGUID;
-            case NPC_MALGANIS: return m_uiMalganisGUID;
-            case GO_SHKAF_GATE: return m_uiShkafGateGUID;
-            case GO_MALGANIS_GATE1: return m_uiMalGate1GUID;
-            case GO_MALGANIS_GATE2: return m_uiMalGate2GUID;
-            case GO_MALGANIS_CHEST: return m_uiMalChestGUID;
-            case GO_EXIT: return m_uiExitGUID;
-        }
-
-        return 0;
-    }
-
     void Update(uint32 uiDiff)
     {
        if(m_auiEncounter[5] == IN_PROGRESS)
