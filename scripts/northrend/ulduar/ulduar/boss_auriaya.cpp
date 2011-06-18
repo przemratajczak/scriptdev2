@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL mob_sanctum_sentryAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_AURIAYA)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_AURIAYA))
             {
                 if (pTemp->isAlive())
                     pTemp->SetInCombatWithZone();
@@ -192,7 +192,7 @@ struct MANGOS_DLL_DECL mob_sanctum_sentryAI : public ScriptedAI
         {
             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
                 if (m_pInstance)
-                    if (Creature *pAuriaya = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_AURIAYA)))
+                    if (Creature *pAuriaya = m_pInstance->GetSingleCreatureFromStorage(NPC_AURIAYA))
                         m_creature->GetMotionMaster()->MoveFollow(pAuriaya, 5.0f, urand(60, 250)/100.0f);
             return;
         }
@@ -323,7 +323,7 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
 
     void JustSummoned(Creature *pCreature)
     {
-        m_lVoidZones.push_back(pCreature->GetGUID());
+        m_lVoidZones.push_back(pCreature->GetObjectGuid());
     }
 
     void UpdateAI(const uint32 diff)

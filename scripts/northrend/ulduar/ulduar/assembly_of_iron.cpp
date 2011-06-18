@@ -324,11 +324,11 @@ struct MANGOS_DLL_DECL boss_brundirAI : public ScriptedAI
         if (m_pInstance)
         {
             // if the others are dead then give loot
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             {
                 if (!pTemp->isAlive())
                 {
-                    if (Creature* p2Temp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+                    if (Creature* p2Temp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
                     {
                         if (!p2Temp->isAlive())
                         {
@@ -342,12 +342,12 @@ struct MANGOS_DLL_DECL boss_brundirAI : public ScriptedAI
             }
 
             // else make them full hp
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
             }
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
@@ -365,9 +365,9 @@ struct MANGOS_DLL_DECL boss_brundirAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STEELBREAKER)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             pTemp->SetInCombatWithZone();
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_MOLGEIM)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
             pTemp->SetInCombatWithZone();
 
         if(m_pInstance->GetData(TYPE_ASSEMBLY) != IN_PROGRESS)
@@ -376,12 +376,12 @@ struct MANGOS_DLL_DECL boss_brundirAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();
         }
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();
@@ -610,11 +610,11 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
         if (m_pInstance)
         {
             // if the others are dead then give loot
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             {
                 if (!pTemp->isAlive())
                 {
-                    if (Creature* p2Temp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+                    if (Creature* p2Temp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
                     {
                         if (!p2Temp->isAlive())
                         {
@@ -628,12 +628,12 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
             }
 
             // else make them full hp
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
             }
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
@@ -648,9 +648,9 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_BRUNDIR)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
             pTemp->SetInCombatWithZone();
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_STEELBREAKER)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
             pTemp->SetInCombatWithZone();
 
         if(m_pInstance->GetData(TYPE_ASSEMBLY) != IN_PROGRESS)
@@ -659,12 +659,12 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();
         }
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();
@@ -720,14 +720,14 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
             {
                 case 0:
                 {
-                    if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+                    if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
                         if (pTemp->isAlive())
                             pTarget = pTemp;
                     break;
                 }
                 case 1:
                 {
-                    if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_STEELBREAKER)))
+                    if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_STEELBREAKER))
                         if (pTemp->isAlive())
                             pTarget = pTemp;
                     break;
@@ -857,11 +857,11 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
         if (m_pInstance)
         {
             // if the others are dead then give loot
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
             {
                 if (!pTemp->isAlive())
                 {
-                    if (Creature* p2Temp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+                    if (Creature* p2Temp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
                     {
                         if (!p2Temp->isAlive())
                         {
@@ -875,12 +875,12 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
             }
 
             // else make them full hp
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
             }
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
             {
                 if (pTemp->isAlive())
                     pTemp->SetHealth(pTemp->GetMaxHealth());
@@ -899,16 +899,16 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
         Creature *pSource = m_creature;
 
         // aggro
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_MOLGEIM)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
             pTemp->SetInCombatWithZone();
-        if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_BRUNDIR)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
             pTemp->SetInCombatWithZone();
 
         switch (urand(0, 2))
         {
             case 0:
             {
-                if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_MOLGEIM)))
+                if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
                 {
                     pTemp->SetInCombatWithZone();
                     pSource = pTemp;
@@ -918,7 +918,7 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
             }
             case 1:
             {
-                if (Creature* pTemp = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_BRUNDIR)))
+                if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
                 {
                     pTemp->SetInCombatWithZone();
                     pSource = pTemp;
@@ -943,12 +943,12 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_MOLGEIM)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MOLGEIM))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();
         }
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_BRUNDIR)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_BRUNDIR))
         {
             if (!pTemp->isAlive())
                 pTemp->Respawn();

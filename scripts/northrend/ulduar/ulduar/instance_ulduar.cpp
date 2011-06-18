@@ -98,7 +98,6 @@ void instance_ulduar::OnCreatureCreate(Creature* pCreature)
             break;
         case NPC_LEVIATHAN:
         case NPC_IGNIS:
-        case NPC_IRON_CONSTRUCT:
         case NPC_RAZORSCALE:
         case NPC_COMMANDER:
         case NPC_XT002:
@@ -127,6 +126,9 @@ void instance_ulduar::OnCreatureCreate(Creature* pCreature)
         case NPC_MOLGEIM:
         case NPC_BRUNDIR:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+            break;
+        case NPC_IRON_CONSTRUCT:
+            m_lIronConstructsGUIDs.push_back(pCreature->GetObjectGuid());
             break;
 
         default: break;

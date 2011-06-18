@@ -278,7 +278,7 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
                     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     // Strength of the Creator stack decreasing hack
                     if (m_pInstance)
-                        if (Creature *pIgnis = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_IGNIS)) )
+                        if (Creature *pIgnis = m_pInstance->GetSingleCreatureFromStorage(NPC_IGNIS))
                         {
                             if (SpellAuraHolder *pHolder = pIgnis->GetSpellAuraHolder(SPELL_STRENGTH_OF_THE_CREATOR) )
                                 pHolder->SetStackAmount(pHolder->GetStackAmount()-1);

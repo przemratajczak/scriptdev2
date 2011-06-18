@@ -500,8 +500,8 @@ struct MANGOS_DLL_DECL npc_hodir_druidAI : public ScriptedAI
     void MoveInLineOfSight(Unit* pWho)
     {
         // friendly list
-        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetGUID()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
-            FriendlyList.push_back(pWho->GetGUID());
+        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetObjectGuid()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
+            FriendlyList.push_back(pWho->GetObjectGuid());
     }
 
     void AttackStart(Unit* pWho)
@@ -523,7 +523,7 @@ struct MANGOS_DLL_DECL npc_hodir_druidAI : public ScriptedAI
         //This should not appear!
         if (FriendlyList.empty()){
             spellTimer = 5000;
-            return m_creature->GetGUID();
+            return m_creature->GetObjectGuid();
         }
 
         GUIDList::iterator iter = FriendlyList.begin();
@@ -600,7 +600,7 @@ struct MANGOS_DLL_DECL npc_hodir_shamanAI : public ScriptedAI
     {
         // friendly list
         if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetObjectGuid()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
-            FriendlyList.push_back(pWho->GetGUID());
+            FriendlyList.push_back(pWho->GetObjectGuid());
     }
 
     void AttackStart(Unit* pWho)
@@ -622,7 +622,7 @@ struct MANGOS_DLL_DECL npc_hodir_shamanAI : public ScriptedAI
         //This should not appear!
         if (FriendlyList.empty()){
             spellTimer = 5000;
-            return m_creature->GetGUID();
+            return m_creature->GetObjectGuid();
         }
 
         GUIDList::iterator iter = FriendlyList.begin();
@@ -696,8 +696,8 @@ struct MANGOS_DLL_DECL npc_hodir_mageAI : public ScriptedAI
     void MoveInLineOfSight(Unit* pWho)
     {
         // friendly list
-        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetGUID()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
-            FriendlyList.push_back(pWho->GetGUID());
+        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetObjectGuid()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
+            FriendlyList.push_back(pWho->GetObjectGuid());
     }
 
     void AttackStart(Unit* pWho)
@@ -719,7 +719,7 @@ struct MANGOS_DLL_DECL npc_hodir_mageAI : public ScriptedAI
         //This should not appear!
         if (FriendlyList.empty()){
             spellTimer = 5000;
-            return m_creature->GetGUID();
+            return m_creature->GetObjectGuid();
         }
 
         GUIDList::iterator iter = FriendlyList.begin();
@@ -802,8 +802,8 @@ struct MANGOS_DLL_DECL npc_hodir_priestAI : public ScriptedAI
     void MoveInLineOfSight(Unit* pWho)
     {
         // friendly list
-        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetGUID()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
-            FriendlyList.push_back(pWho->GetGUID());
+        if (!m_creature->IsHostileTo(pWho) && !ListContains(FriendlyList, pWho->GetObjectGuid()) && pWho->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pWho, 40, true))
+            FriendlyList.push_back(pWho->GetObjectGuid());
     }
 
     void AttackStart(Unit* pWho)
@@ -825,7 +825,7 @@ struct MANGOS_DLL_DECL npc_hodir_priestAI : public ScriptedAI
         //This should not appear!
         if (FriendlyList.empty()){
             spellTimer = 5000;
-            return m_creature->GetGUID();
+            return m_creature->GetObjectGuid();
         }
 
         GUIDList::iterator iter = FriendlyList.begin();
