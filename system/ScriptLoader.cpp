@@ -399,15 +399,14 @@ extern void AddSC_boss_sjonnir();
 extern void AddSC_boss_krystallus();
 extern void AddSC_halls_of_stone();
 extern void AddSC_instance_halls_of_stone();
-extern void AddSC_boss_iron_council();                      // ulduar, ulduar
-extern void AddSC_boss_algalon();
+extern void AddSC_boss_algalon();                           // ulduar, ulduar
+extern void AddSC_boss_assembly_of_iron();
 extern void AddSC_boss_auriaya();
-// extern void AddSC_boss_leviathan();
+// extern void AddSC_boss_flame_leviathan();
 extern void AddSC_boss_freya();
 extern void AddSC_boss_vezax();
 extern void AddSC_boss_hodir();
 extern void AddSC_boss_ignis();
-extern void AddSC_boss_assembly_of_iron();
 extern void AddSC_boss_kologarn();
 extern void AddSC_boss_mimiron();
 extern void AddSC_boss_razorscale();
@@ -927,15 +926,14 @@ void AddScripts()
     AddSC_boss_krystallus();
     AddSC_halls_of_stone();
     AddSC_instance_halls_of_stone();
-    AddSC_boss_iron_council();                              // ulduar, ulduar
-    AddSC_boss_algalon();
+    AddSC_boss_algalon();                                   // ulduar, ulduar
+    AddSC_boss_assembly_of_iron();
     AddSC_boss_auriaya();
-    // AddSC_boss_leviathan();
+    // AddSC_boss_flame_leviathan();
     AddSC_boss_freya();
     AddSC_boss_vezax();
     AddSC_boss_hodir();
     AddSC_boss_ignis();
-    AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
     AddSC_boss_mimiron();
     AddSC_boss_razorscale();
