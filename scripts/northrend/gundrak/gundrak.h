@@ -73,6 +73,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
         void OnCreatureDeath(Creature* pCreature);
+        void OnPlayerEnter(Player* pPlayer);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);

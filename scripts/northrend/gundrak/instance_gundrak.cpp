@@ -59,11 +59,11 @@ void instance_gundrak::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
+        case NPC_ECK:
         case NPC_SLADRAN:
         case NPC_ELEMENTAL:
         case NPC_COLOSSUS:
         case NPC_MOORABI:
-        case NPC_ECK:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
         case NPC_INVISIBLE_STALKER:
@@ -197,11 +197,6 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[TYPE_ECK] = uiData;
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_ECK_UNDERWATER_DOOR);
-            if (uiData == FAIL)
-                for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
-                    if (Creature* pDweller = instance->GetCreature(*itr))
-                        if (!pDweller->isAlive())
-                            pDweller->Respawn();
             break;
         case TYPE_ELEMENTAL:
             //m_uiElemental = uiData;
@@ -248,13 +243,24 @@ void instance_gundrak::OnCreatureDeath(Creature* pCreature)
                     return;
 
         if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
-        {
             pEck->SetVisibility(VISIBILITY_ON);
-            pEck->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pEck->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        }
     }
 }
+
+// cant find now how to manage it in other way. cant do this through OnCreateureCreate because order of creature spawning is random
+void instance_gundrak::OnPlayerEnter(Player* pPlayer)
+{
+    for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
+        if (Creature* pDweller = instance->GetCreature(*itr))
+            if (pDweller->isAlive())
+                if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
+                    if (pEck->GetVisibility() == VISIBILITY_ON)
+                    {
+                        pEck->SetVisibility(VISIBILITY_OFF);
+                        return;
+                    }
+}
+
 
 
 uint32 instance_gundrak::GetData(uint32 uiType)
