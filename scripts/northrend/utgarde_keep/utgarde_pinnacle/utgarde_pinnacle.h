@@ -45,4 +45,25 @@ enum
     GO_HARPOON_LAUNCHER_3           = 192177
 };
 
+class MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
+{
+    public:
+        instance_pinnacle(Map* pMap);
+
+        void Initialize();
+
+        void OnCreatureCreate(Creature* pCreature);
+        void OnObjectCreate(GameObject* pGo);
+
+        void SetData(uint32 uiType, uint32 uiData);
+        uint32 GetData(uint32 uiType);
+
+        const char* Save() { return m_strInstData.c_str(); }
+        void Load(const char* chrIn);
+
+    private:
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        std::string m_strInstData;
+};
+
 #endif

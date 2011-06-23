@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL boss_eadricAI : public ScriptedAI
 			if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
 			{
 				DoCast(target, SPELL_HAMMER_OF_JUSTICE);
-				HammerTarget = target->GetGUID();
+				HammerTarget = target->GetObjectGuid();
 			}
             Hammer_Timer = m_bIsRegularMode ? 40000 : 15000;
         }else Hammer_Timer -= diff;

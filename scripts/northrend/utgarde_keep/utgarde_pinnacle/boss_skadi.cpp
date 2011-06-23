@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 //        m_creature->NearTeleportTo(SKADI_X, SKADI_Y, SKADI_Z, SKADI_O);
         if (m_pInstance)
         {
-            if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+            if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
             {
                 pGrauf->GetMotionMaster()->MoveTargetedHome();
                 pGrauf->RemoveSplineFlag(SPLINEFLAG_FLYING);
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SKADI, IN_PROGRESS);
         {
-            if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+            if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
             {
                 pGrauf->Respawn();
             }
@@ -258,7 +258,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+            if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
             {
                 m_uiMoveTimer = uiTime;
                 pGrauf->GetMap()->CreatureRelocation(pGrauf, fX, fY, fZ, pGrauf->GetAngle(fX, fY));
@@ -271,28 +271,30 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 	void ActivateHarpoons(bool Activate)
 	{
 
-        if(Activate)
+        if (m_pInstance)
         {
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_1)))
-                pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_2)))
-                pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_3)))
-                pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-        }
-        
-        if(!Activate)
-        {
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_1)))
-                pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_2)))
-                pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            
-            if(GameObject* pHarpoon = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(GO_HARPOON_LAUNCHER_3)))
-                pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            if(Activate)
+            {
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_1))
+                    pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_2))
+                    pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_3))
+                    pHarpoon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            }
+            else
+            {
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_1))
+                    pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_2))
+                    pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                
+                if(GameObject* pHarpoon = m_pInstance->GetSingleGameObjectFromStorage(GO_HARPOON_LAUNCHER_3))
+                    pHarpoon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            }
         }
     }
     void NextWp()
@@ -330,7 +332,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
                     case 2: DoScriptText(SAY_DRAKEBREATH_3, m_creature); break;
                 }
                 if (m_pInstance)
-                    if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+                    if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
                         pGrauf->CastSpell(pGrauf, SPELL_GRAUF_BREATH_R, false); 
                 m_uiBreathSide = urand(1, 2);
                 m_bIsSkadiMove = false;
@@ -376,7 +378,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
                 if (m_uiIntroTimer <= uiDiff)
                 {
                     if (m_pInstance)
-                        if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+                        if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
                         {
                             switch (m_uiIntroCount)
                             {
@@ -428,7 +430,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
                 {
                     BurnTrigger(m_uiBreathSide);
                     if (m_pInstance)
-                        if (Creature* pGrauf = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_GRAUF)))
+                        if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
                         {
                             MoveGrauf(pGrauf->GetPositionX()-10.0f, pGrauf->GetPositionY(), 113.717f, 700);
                             if (m_uiFireStack >= 12)
@@ -515,7 +517,7 @@ struct MANGOS_DLL_DECL boss_graufAI : public ScriptedAI
         {
             pCaster->DealDamage(m_creature, m_creature->GetMaxHealth()/4.9, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             if (m_pInstance)
-                if (Creature* pSkadi = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_SKADI)))
+                if (Creature* pSkadi = m_pInstance->GetSingleCreatureFromStorage(NPC_SKADI))
                 {
                     if (!m_bIsSpeechPause && m_creature->isAlive())
                     {
@@ -539,7 +541,7 @@ struct MANGOS_DLL_DECL boss_graufAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (Creature* pSkadi = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_SKADI)))
+            if (Creature* pSkadi = m_pInstance->GetSingleCreatureFromStorage(NPC_SKADI))
             {
                // pSkadi->ExitVehicle();
                 DoScriptText(SAY_DRAKE_DEATH, pSkadi);
@@ -592,7 +594,7 @@ bool GOUse_skadi_harpoon(Player* pPlayer, GameObject* pGo)
 bool GOUse_skadi_harpoon_launcher(Player* pPlayer, GameObject* pGo)
 {
     if (ScriptedInstance* m_pInstance = (ScriptedInstance*)pGo->GetInstanceData())
-        if (Creature* pSkadi = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_SKADI)))
+        if (Creature* pSkadi = m_pInstance->GetSingleCreatureFromStorage(NPC_SKADI))
             if (Creature* pDummyCaster = pGo->SummonCreature(1921, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000))
             {
                 pDummyCaster->SetDisplayId(MODEL_ID_INVISIBLE);

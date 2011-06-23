@@ -168,7 +168,7 @@ struct MANGOS_DLL_DECL boss_left_armAI : public ScriptedAI
         if (!m_pInstance || pKiller == m_creature)
             return;
 
-        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_KOLOGARN)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
         {
             DoScriptText(SAY_ARM_LOST_LEFT, pTemp);
             if (pTemp->isAlive())
@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
     uint32 m_uiStone_Grip_Timer;
     uint32 m_uiFreeDamage;
     uint32 m_uiMaxDamage;
-    uint64 m_uiGripTargetGUID[3];
+    ObjectGuid m_uiGripTargetGUID[3];
     uint8 m_uiMaxTargets;
 
     void Reset()
@@ -213,7 +213,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
         m_uiMaxDamage           = m_bIsRegularMode ? 100000 : 480000;
 
         for(int i = 0; i < m_uiMaxTargets; i++)
-            m_uiGripTargetGUID[i] = 0;
+            m_uiGripTargetGUID[i].Clear();
 
         DoCast(m_creature, SPELL_ARM_VISUAL);
     }
@@ -228,7 +228,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
         if (!m_pInstance || pKiller == m_creature)
             return;
 
-        if (Creature* pTemp = m_pInstance->instance->GetCreature( m_pInstance->GetData64(NPC_KOLOGARN)))
+        if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
         {
             DoScriptText(SAY_ARM_LOST_RIGHT, pTemp);
             if (pTemp->isAlive())
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
 
         for(int i = 0; i < m_uiMaxTargets; i++)
         {
-            if (Unit* pVictim = m_pInstance->instance->GetUnit( m_uiGripTargetGUID[i]))
+            if (Unit* pVictim = m_pInstance->instance->GetUnit(m_uiGripTargetGUID[i]))
             {
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
@@ -259,7 +259,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
             m_uiFreeDamage = 0;
             for(int i = 0; i < m_uiMaxTargets; i++)
             {
-                if (Unit* pVictim = m_pInstance->instance->GetUnit( m_uiGripTargetGUID[i]))
+                if (Unit* pVictim = m_pInstance->instance->GetUnit(m_uiGripTargetGUID[i]))
                 {
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
@@ -275,7 +275,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
               if (!m_creature->IsVehicle())
                 return;
 
-            if (Creature* pTemp = m_pInstance->instance->GetCreature( m_pInstance->GetData64(NPC_KOLOGARN)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN))
                 DoScriptText(SAY_GRAB, pTemp);
 
             DoScriptText(EMOTE_STONE_GRIP, m_creature);
@@ -286,7 +286,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 2 : 4))
                 {
                     DoCast(pTarget, m_bIsRegularMode ? SPELL_STONE_GRIP_GRAB : SPELL_STONE_GRIP_GRAB_H, true);
-                    m_uiGripTargetGUID[i] = pTarget->GetGUID();
+                    m_uiGripTargetGUID[i] = pTarget->GetObjectGuid();
                     //pTarget->EnterVehicle(m_creature->GetVehicleKit());
                 }
             }
@@ -624,11 +624,11 @@ struct MANGOS_DLL_DECL mob_kologarn_pit_kill_bunnyAI : public ScriptedAI
 {
     mob_kologarn_pit_kill_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_fPositionZ = m_creature->GetPositionZ();
         m_bBridgeLocked = false;
     }
-    InstanceData *m_pInstance;
+    ScriptedInstance *m_pInstance;
     float m_fPositionZ;
     bool m_bBridgeLocked;
     void Reset(){}
@@ -638,15 +638,15 @@ struct MANGOS_DLL_DECL mob_kologarn_pit_kill_bunnyAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                Creature *pKolo = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_KOLOGARN));
+                Creature *pKolo = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN);
                 if (!pKolo || pKolo && !pKolo->isAlive())
                 {
-                    if (GameObject *pGo = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_KOLOGARN_BRIDGE)))
+                    if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_KOLOGARN_BRIDGE))
                     {
                         pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                         pGo->SetGoState(GO_STATE_READY);
                     }
-                    if (Creature *pBridge = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_KOLOGARN_BRIDGE_DUMMY)))
+                    if (Creature *pBridge = m_pInstance->GetSingleCreatureFromStorage(NPC_KOLOGARN_BRIDGE_DUMMY))
                         pBridge->SetVisibility(VISIBILITY_ON);
                     m_bBridgeLocked = true;
                 }

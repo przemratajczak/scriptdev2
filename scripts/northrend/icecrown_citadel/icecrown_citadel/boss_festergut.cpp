@@ -74,8 +74,8 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
     ScriptedInstance *pInstance;
     bool intro;
     bool pet;
-    uint64 blightTargetGUID;
-//    uint64 pPuddleStalkerGUID[3];
+    ObjectGuid blightTargetGUID;
+//    ObjectGuid pPuddleStalkerGUID[3];
 
     void Reset()
     {
@@ -92,7 +92,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                  Unit* pTemp = doSummon(NPC_PUDDLE_STALKER,SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, TEMPSUMMON_MANUAL_DESPAWN);
                  if (pTemp)
                  {
-                     pPuddleStalkerGUID[i] = pTemp->GetGUID();
+                     pPuddleStalkerGUID[i] = pTemp->GetObjectGuid();
                      pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                      pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                  }
@@ -103,7 +103,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
             pBlightTarget->Respawn();
         if (pBlightTarget)
         {
-             blightTargetGUID = pBlightTarget->GetGUID();
+             blightTargetGUID = pBlightTarget->GetObjectGuid();
              pBlightTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
              pBlightTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
              doCast(SPELL_BLIGHT_VISUAL_1,pBlightTarget);
@@ -211,7 +211,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
 
         if (!pet) 
         {
-            if (Creature* pGuard = m_creature->GetMap()->GetCreature(pInstance->GetData64(NPC_STINKY)))
+            if (Creature* pGuard = pInstance->GetSingleCreatureFromStorage(NPC_STINKY))
                 if (!pGuard->isAlive())
                 {
                      pet = true;

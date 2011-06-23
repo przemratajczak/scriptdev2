@@ -121,7 +121,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
     uint8 m_uiPhase;
     bool m_bIsGhostEvent;
     uint8 m_auiAncestorsOrder[4];
-    uint64 m_auiDummyCasterGUID[4];
+    ObjectGuid m_auiDummyCasterGUID[4];
 
     void Reset()
     {
@@ -137,7 +137,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
     	for (uint8 i = 0; i < 4; ++i)
         {
             m_auiAncestorsOrder[i] = i;
-            if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][i])))
+            if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][i]))
                 pAncestor->RemoveAllAuras();
             if (Creature* pDummyCaster = m_pInstance->instance->GetCreature(m_auiDummyCasterGUID[i]))
                 pDummyCaster->ForcedDespawn();
@@ -179,7 +179,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
             {
                 if (Creature* pDummyCaster = m_pInstance->instance->GetCreature(m_auiDummyCasterGUID[m_uiPhase-1]))
                     pDummyCaster->ForcedDespawn();
-                if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]])))
+                if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]]))
                 {
                     pAncestor->RemoveAllAuras();
                     pAncestor->CastSpell(pAncestor, SPELL_SPIRIT_DIES, false);
@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         if (uiType == POINT_MOTION_TYPE && uiPointId == 0)
         {
             if (m_pInstance)
-                if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]])))
+                if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]]))
                 {
                     m_creature->SetFacingToObject(pAncestor);
                     m_creature->CastSpell(pAncestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT, true);
@@ -253,7 +253,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                             {
                                 if (Creature* pDummyCaster = m_pInstance->instance->GetCreature(m_auiDummyCasterGUID[m_uiPhase-1]))
                                     pDummyCaster->ForcedDespawn();
-                                if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]])))
+                                if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]]))
                                     pAncestor->CastSpell(pAncestor, SPELL_SPIRIT_DIES, false);
                                 SetDelay(2000);
                             }
@@ -261,14 +261,14 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                             break;
                         case 2:
                             if (m_uiPhase > 0)
-                                if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]])))
+                                if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase-1]]))
                                     pAncestor->RemoveAurasDueToSpell(Ancestors[1][m_auiAncestorsOrder[m_uiPhase-1]]);
                             m_creature->InterruptNonMeleeSpells(true);
                             m_creature->GetMotionMaster()->MovePoint(0, YmironPoints[m_auiAncestorsOrder[m_uiPhase]].x, YmironPoints[m_auiAncestorsOrder[m_uiPhase]].y, YmironPoints[m_auiAncestorsOrder[m_uiPhase]].z);
                             ++m_uiStep;
                             break;
                         case 4:
-                            if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]])))
+                            if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]]))
                             {
                                 pAncestor->CastSpell(pAncestor, Ancestors[1][m_auiAncestorsOrder[m_uiPhase]], false);
                                 pAncestor->CastSpell(pAncestor, SPELL_SPIRIT_EMERGE, true);
@@ -277,7 +277,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                             ++m_uiStep;
                             break;
                         case 5:
-                            if (Creature* pAncestor = m_pInstance->instance->GetCreature(m_pInstance->GetData64(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]])))
+                            if (Creature* pAncestor = m_pInstance->GetSingleCreatureFromStorage(Ancestors[0][m_auiAncestorsOrder[m_uiPhase]]))
                             {
                                 if (Creature* pDummyCaster = m_creature->SummonCreature(1921, pAncestor->GetPositionX(), pAncestor->GetPositionY(), pAncestor->GetPositionZ()+7.0f, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
                                 {
@@ -286,7 +286,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                                     pDummyCaster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                     pDummyCaster->GetMap()->CreatureRelocation(pDummyCaster, pDummyCaster->GetPositionX(), pDummyCaster->GetPositionY(), pDummyCaster->GetPositionZ()+15.0f, 0);
                                     pDummyCaster->CastSpell(m_creature, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                                    m_auiDummyCasterGUID[m_uiPhase] = pDummyCaster->GetGUID();
+                                    m_auiDummyCasterGUID[m_uiPhase] = pDummyCaster->GetObjectGuid();
                                 }
                                 pAncestor->CastSpell(m_creature, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
                             }

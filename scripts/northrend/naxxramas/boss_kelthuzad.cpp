@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -83,6 +83,8 @@ enum
     MAX_SOLDIER_COUNT                   = 71,
     MAX_ABOMINATION_COUNT               = 8,
     MAX_BANSHEE_COUNT                   = 8,
+
+    ACHIEV_REQ_KILLED_ABOMINATIONS      = 18
 };
 
 static float M_F_ANGLE = 0.2f;                              // to adjust for map rotation
@@ -130,7 +132,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     uint32 m_uiAbominationCount;
     uint32 m_uiSummonIntroTimer;
     uint32 m_uiIntroPackCount;
-    uint32 m_uiCantGetEnoughCounter; // achievement counter
+    uint32 m_uiKilledAbomination;
 
     GUIDSet m_lIntroMobsSet;
     GUIDSet m_lAddsSet;
@@ -147,7 +149,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         m_uiGuardiansCount      = 0;
         m_uiSummonIntroTimer    = 0;
         m_uiIntroPackCount      = 0;
-        m_uiCantGetEnoughCounter = 0;
+        m_uiKilledAbomination   = 0;
 
         m_uiPhase1Timer         = 228000;                   //Phase 1 lasts "3 minutes and 48 seconds"
         m_uiSoldierTimer        = 5000;
@@ -178,12 +180,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         DespawnAdds();
 
         if (m_pInstance)
-        {
             m_pInstance->SetData(TYPE_KELTHUZAD, DONE);
-
-            //if (m_uiCantGetEnoughCounter >= 18)
-            //   m_pInstance->SetData(TYPE_ACHI_CANT_GET_ENOUGH, DONE);
-        }
     }
 
     void JustReachedHome()
@@ -271,7 +268,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         MaNGOS::NormalizeMapCoord(fY);
 
         uint32 uiNpcEntry = NPC_SOUL_WEAVER;
-        
+
         for(uint8 uiI = 0; uiI < 14; ++uiI)
         {
             if (uiI > 0)
@@ -317,7 +314,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 DoScriptText(EMOTE_GUARDIAN, m_creature);
 
-                m_lAddsSet.insert(pSummoned->GetGUID());
+                m_lAddsSet.insert(pSummoned->GetObjectGuid());
                 ++m_uiGuardiansCount;
 
                 pSummoned->SetInCombatWithZone();
@@ -328,10 +325,10 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             case NPC_SOUL_WEAVER:
             {
                 if (m_uiIntroPackCount < 7)
-                    m_lIntroMobsSet.insert(pSummoned->GetGUID());
+                    m_lIntroMobsSet.insert(pSummoned->GetObjectGuid());
                 else
                 {
-                    m_lAddsSet.insert(pSummoned->GetGUID());
+                    m_lAddsSet.insert(pSummoned->GetObjectGuid());
 
                     if (m_pInstance)
                     {
@@ -350,13 +347,18 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
     {
         switch(pSummoned->GetEntry())
         {
-            case NPC_UNSTOPPABLE_ABOM:
-                if (m_uiPhase == PHASE_INTRO)
-                    m_uiCantGetEnoughCounter++;
             case NPC_GUARDIAN:
             case NPC_SOLDIER_FROZEN:
             case NPC_SOUL_WEAVER:
-                m_lAddsSet.erase(pSummoned->GetGUID());
+                m_lAddsSet.erase(pSummoned->GetObjectGuid());
+                break;
+            case NPC_UNSTOPPABLE_ABOM:
+                m_lAddsSet.erase(pSummoned->GetObjectGuid());
+
+                ++m_uiKilledAbomination;
+                if (m_uiKilledAbomination >= ACHIEV_REQ_KILLED_ABOMINATIONS)
+                    m_pInstance->SetSpecialAchievementCriteria(m_bIsRegularMode ? ACHIEV_CRIT_GET_ENOUGH_N : ACHIEV_CRIT_GET_ENOUGH_H, true);
+
                 break;
         }
     }
@@ -381,7 +383,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 //player and has mana
                 if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
-                    manaPositive.push_back(pTemp->GetGUID());
+                    manaPositive.push_back(pTemp->GetObjectGuid());
             }
         }
 

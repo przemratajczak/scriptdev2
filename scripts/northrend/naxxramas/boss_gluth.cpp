@@ -109,7 +109,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
     {
         pZombie->GetMotionMaster()->Clear();
         pZombie->GetMotionMaster()->MoveFollow(m_creature, 0.0f, 0.0f);
-        lZombies.push_back(pZombie->GetGUID());
+        lZombies.push_back(pZombie->GetObjectGuid());
     }
 
     void JustDied(Unit* pKiller)
@@ -174,7 +174,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
                     m_creature->SetHealth(m_creature->GetHealthPercent() < 95.0f ? 
                         (m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.05f) : m_creature->GetMaxHealth());
                     DoScriptText(EMOTE_DEVOURED_ZOMBIE, m_creature);
-                    lZombies.remove(pZombie->GetGUID());
+                    lZombies.remove(pZombie->GetObjectGuid());
                 }
             }
         } 

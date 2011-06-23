@@ -82,8 +82,8 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
     uint32 m_uiSimphonTimer;
     uint32 m_uiEndSimphonTimer;
     uint32 m_uiSummonAnimusTimer;
-    uint64 m_uiAnimusGUID;
-    uint64 m_uiMarkTargetGUID;
+    ObjectGuid m_uiAnimusGUID;
+    ObjectGuid m_uiMarkTargetGUID;
     uint32 m_uiMarkCheckTimer;
     uint32 m_uiMarkEndTimer;
 
@@ -111,8 +111,8 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
         m_uiCrashTimer          = 10000;
         m_uiSimphonTimer        = 1000;
         m_uiEndSimphonTimer     = 10000;
-        m_uiAnimusGUID          = 0;
-        m_uiMarkTargetGUID      = 0;
+        m_uiAnimusGUID.Clear();
+        m_uiMarkTargetGUID.Clear();
 
         lVapors.clear();
 
@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
         if(Creature* pAnimus = m_creature->SummonCreature(NPC_SARONITE_ANIMUS, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 900000))
         {
             pAnimus->SetInCombatWithZone();
-            m_uiAnimusGUID = pAnimus->GetGUID();
+            m_uiAnimusGUID = pAnimus->GetObjectGuid();
         }
 
         if (!lVapors.empty())
@@ -220,9 +220,9 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
 
 	// hacky way for the mark of the faceless, needs core support
 	// PLEASE REMOVE FOR REVISION!
-    void CheckForMark(uint64 m_uiTargetGUID)
+    void CheckForMark(ObjectGuid m_uiTargetGUID)
     {
-        if(m_uiTargetGUID == 0)
+        if(m_uiTargetGUID.GetRawValue() == 0)
             return;
 
         m_bHasSimphon = false;
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
 
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if(pTarget && pTarget->isAlive() && !m_bHasSimphon && m_uiTargetGUID != i->getSource()->GetGUID())
+                if(pTarget && pTarget->isAlive() && !m_bHasSimphon && m_uiTargetGUID.GetRawValue() != i->getSource()->GetObjectGuid().GetRawValue())
                 {
                     if (i->getSource()->isAlive() && pTarget->GetDistance2d(i->getSource()) < 10.0f)
                     {
@@ -298,7 +298,7 @@ struct MANGOS_DLL_DECL boss_vezaxAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
-                m_uiMarkTargetGUID = pTarget->GetGUID();
+                m_uiMarkTargetGUID = pTarget->GetObjectGuid();
                 DoCast(pTarget, SPELL_MARK_OF_FACELESS);
             }
             m_bHasMark = true;
@@ -368,7 +368,7 @@ struct MANGOS_DLL_DECL mob_saronite_animusAI : public ScriptedAI
     {
         if(m_pInstance)
         {
-            if (Creature* pVezax = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_VEZAX)))
+            if (Creature* pVezax = m_pInstance->GetSingleCreatureFromStorage(NPC_VEZAX))
             {
                 if (pVezax->isAlive())
                 {

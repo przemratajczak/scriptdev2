@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        lSummons.push_back(pSummoned->GetGUID());
+        lSummons.push_back(pSummoned->GetObjectGuid());
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)

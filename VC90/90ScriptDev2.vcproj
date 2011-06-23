@@ -3044,6 +3044,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\world\npc_companion_handler.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\world\npc_professions.cpp"
 					>
 				</File>
@@ -3057,10 +3061,6 @@
 				</File>
 				<File
 					RelativePath="..\scripts\world\spell_scripts.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\scripts\world\npc_companion_handler.cpp"
 					>
 				</File>
 			</Filter>

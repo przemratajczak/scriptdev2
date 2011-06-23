@@ -52,7 +52,6 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
-        uint64 GetData64(uint32 uiType);
 
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
@@ -63,21 +62,18 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
 
-        const char* Save() { return strInstData.c_str(); }
+        const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
         void ManageCrystals(uint32 action);
 
     protected:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-        uint64 m_auiRitualCrystalGUID[CRYSTAL_NUMBER];
-        std::string strInstData;
+        std::string m_strInstData;
+        ObjectGuid m_auiRitualCrystalGUID[CRYSTAL_NUMBER];
 
         uint32 m_uiDreadAddsKilled;
-        bool m_bTrollgoreConsume;
-        // Novos the Summoner
-        uint64 m_uiNovosGUID;
-        uint64 m_uiNovosChannelTargetGUID;
         bool m_bNovosAddGrounded;
+        bool m_bTrollgoreConsume;
 };
 
 #endif

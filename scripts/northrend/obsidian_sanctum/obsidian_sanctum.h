@@ -34,6 +34,10 @@ enum
     NPC_SHADRON                 = 30451,
     NPC_VESPERON                = 30449,
 
+    NPC_ACOLYTE_OF_VESPERON     = 31219, // spawns when fighting with Sartharion
+    NPC_DISCIPLE_OF_VESPERON    = 30858, // spawns when solo fighting
+    NPC_ACOLYTE_OF_SHADRON      = 31218, // spawns when fighting with Sartharion
+    NPC_DISCIPLE_OF_SHADRON     = 30688, // spawns when solo fighting
     // trash mobs
     NPC_ONYX_BROOD_GENERAL      = 30680,
     NPC_ONYX_BLAZE_MISTRESS     = 30681,
@@ -57,10 +61,10 @@ class MANGOS_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
 {
  protected:
     uint32 m_auiEncounter[MAX_ENCOUNTER];
-    uint64 m_uiSartharionGUID;
-    uint64 m_uiTenebronGUID;
-    uint64 m_uiShadronGUID;
-    uint64 m_uiVesperonGUID;
+    ObjectGuid m_uiSartharionGUID;
+    ObjectGuid m_uiTenebronGUID;
+    ObjectGuid m_uiShadronGUID;
+    ObjectGuid m_uiVesperonGUID;
 
     void Initialize();
     void OnCreatureCreate(Creature* pCreature);
@@ -73,12 +77,12 @@ class MANGOS_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
     GUIDList m_lWhelpsGUIDList;
     GUIDList m_lBlazesGUIDList;
     GUIDList m_lHitByVolcanoGUIDList;
-    uint64 m_uiAcolyteShadronGUID;
-    uint64 m_uiAcolyteVesperonGUID;
+    ObjectGuid m_uiAcolyteShadronGUID;
+    ObjectGuid m_uiAcolyteVesperonGUID;
 
     void SetData(uint32 uiType, uint32 uiData);
+    void SetAcolyteGuid(uint32 uiEntry, ObjectGuid guid);
     uint32 GetData(uint32 uiType);
-    uint64 GetData64(uint32 uiData);
     bool IsEncounterInProgress() const;
     bool CheckConditionCriteriaMeet(Player const* pSource, uint32 uiMapId, uint32 uiInstanceConditionId);
     bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 = 0);

@@ -761,7 +761,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                 //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                 Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-                Patients.push_back(Patient->GetGUID());
+                Patients.push_back(Patient->GetObjectGuid());
 
                 npc_injured_patientAI* pPatientAI = dynamic_cast<npc_injured_patientAI*>(Patient->AI());
 
@@ -1275,7 +1275,7 @@ bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
         {
             pPlayer->PrepareGossipMenu(pCreature,50195);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Take the letter>", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(5996, pCreature->GetObjectGuid());
             return true;
         }
     return false;
@@ -1622,7 +1622,6 @@ enum
 #define GOSSIP_LOST_THE_MASTERS_KEY      "I've lost my key to the Karazhan."
 #define GOSSIP_LOST_VIOLET_HOLD_KEY      "I've lost my key to the Violet Hold."
 
-
 bool GossipHello_npc_locksmith(Player* pPlayer, Creature* pCreature)
 {
 
@@ -1765,7 +1764,7 @@ struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
       if (m_creature->Attack(pWho, true))
         {
             if (owner)
-                 m_creature->CastSpell(m_creature, SPELL_CLONE_THREAT, true, NULL, NULL, owner->GetGUID());
+                 m_creature->CastSpell(m_creature, SPELL_CLONE_THREAT, true, NULL, NULL, owner->GetObjectGuid());
             m_creature->clearUnitState(UNIT_STAT_FOLLOW);
             m_creature->SetInCombatWith(pWho);
             pWho->SetInCombatWith(m_creature);
@@ -1799,10 +1798,10 @@ struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
             m_creature->ForcedDespawn();
 
         if (owner && !m_creature->HasAura(SPELL_CLONE_CASTER))
-            m_creature->CastSpell(m_creature, SPELL_CLONE_CASTER, true, NULL, NULL, owner->GetGUID());
+            m_creature->CastSpell(m_creature, SPELL_CLONE_CASTER, true, NULL, NULL, owner->GetObjectGuid());
 
         if (owner && !m_creature->HasAura(SPELL_CLONE_CASTER_1))
-            m_creature->CastSpell(m_creature, SPELL_CLONE_CASTER_1, true, NULL, NULL, owner->GetGUID());
+            m_creature->CastSpell(m_creature, SPELL_CLONE_CASTER_1, true, NULL, NULL, owner->GetObjectGuid());
 
         if (owner && owner->HasAura(SPELL_FROSTSHIELD) && !m_creature->HasAura(SPELL_FROSTSHIELD))
             m_creature->CastSpell(m_creature, SPELL_FROSTSHIELD, false);
@@ -1938,19 +1937,19 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
         m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-14.0f);
 
         m_bIsReady = false; 
-        m_uiCreatorGUID = m_creature->GetCreatorGuid();
+        m_uiCreatorGuid = m_creature->GetCreatorGuid();
 
         Reset();
     }
 
-    uint64 m_uiTargetGUID;
-    ObjectGuid m_uiCreatorGUID;
+    ObjectGuid m_uiTargetGuid;
+    ObjectGuid m_uiCreatorGuid;
     uint32 m_uiStrikeTimer;
     bool m_bIsReady;
 
     void Reset()
     {
-        m_uiTargetGUID = 0;
+        m_uiTargetGuid = 0;
         m_uiStrikeTimer = 0;
     }
 
@@ -1977,7 +1976,7 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
     void AttackStart(Unit *pWho)
     {
         if (pWho)
-            m_uiTargetGUID = pWho->GetGUID();
+            m_uiTargetGuid = pWho->GetObjectGuid();
 
         if (!m_bIsReady)
             return;
@@ -1990,7 +1989,7 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
         if (!m_bIsReady)
             return;
 
-        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
+        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGuid);
         if (!pOwner || !pOwner->IsInWorld())
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
@@ -2002,16 +2001,16 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
         // check if current target still exists and is attackable
         if (!pTarget)
         {
-            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
 
             if (!pTarget || !m_creature->CanInitiateAttack() || pTarget && (!pTarget->isTargetableForAttack() ||
             !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature)))
             {
                 // we have no target, so look for the new one
                 if (Unit *pTmp = m_creature->SelectRandomUnfriendlyTarget(0, GARGOYLE_STRIKE_RANGE) )
-                    m_uiTargetGUID = pTmp->GetGUID();
+                    m_uiTargetGuid = pTmp->GetObjectGuid();
 
-                pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+                pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
 
                 // now check again. if no target found then there is nothing to attack - start following the owner
                 if (!pTarget || !m_creature->CanInitiateAttack() || pTarget && (!pTarget->isTargetableForAttack() ||
@@ -2225,11 +2224,11 @@ CreatureAI* GetAI_npc_eye_of_kilrogg(Creature* pCreature)
 
 bool GossipHello_npc_experience_eliminator(Player* pPlayer, Creature* pCreature)
 {
-pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED) ? GOSSIP_ITEM_START_XP_GAIN : GOSSIP_ITEM_STOP_XP_GAIN,
-GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1,
-pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED) ? GOSSIP_CONFIRM_START_XP_GAIN : GOSSIP_CONFIRM_STOP_XP_GAIN, 100000, false);
+    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED) ? GOSSIP_ITEM_START_XP_GAIN : GOSSIP_ITEM_STOP_XP_GAIN,
+        GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1,
+    pPlayer->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED) ? GOSSIP_CONFIRM_START_XP_GAIN : GOSSIP_CONFIRM_STOP_XP_GAIN, 100000, false);
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
     return true;
 }
 
@@ -2272,8 +2271,8 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
         m_bIsSpawned = false;
         fDist = (m_creature->GetEntry() == ENTRY_AOTD_GHOUL) ? float(urand(1, 5) ) : PET_FOLLOW_DIST;
         fAngle = PET_FOLLOW_ANGLE;
-        m_uiCreatorGUID = m_creature->GetCreatorGuid();
-        if (Unit* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGUID) )
+        m_uiCreatorGuid = m_creature->GetCreatorGuid();
+        if (Unit* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGuid) )
             fAngle = m_creature->GetAngle(pOwner);
 
         Reset();
@@ -2281,8 +2280,8 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
 
     Unit* pTarget;
 
-    ObjectGuid m_uiCreatorGUID;
-    uint64 m_uiTargetGUID;
+    ObjectGuid m_uiCreatorGuid;
+    ObjectGuid m_uiTargetGuid;
 
     uint32 m_uiReadyTimer;
     uint32 m_uiClawTimer;
@@ -2298,7 +2297,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
     void Reset()
     {
         pTarget = NULL;
-        m_uiTargetGUID = 0;
+        m_uiTargetGuid = 0;
         m_uiReadyTimer = 4000;
         m_uiClawTimer = urand(3000, 5000);
         m_uiLeapTimer = urand(1000, 5000);
@@ -2357,7 +2356,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
             return;
         }
 
-        Unit* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGUID);
+        Unit* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGuid);
         if (!pOwner || !pOwner->IsInWorld())
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
@@ -2366,18 +2365,18 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
 
         // check if current target still exists and is atatckable
         if (m_creature->getVictim() )
-            m_uiTargetGUID = m_creature->getVictim()->GetGUID();
+            m_uiTargetGuid = m_creature->getVictim()->GetObjectGuid();
 
-        pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+        pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
 
         if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
         !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature))
         {
             // we have no target, so look for the new one
             if (Unit *pTmp = m_creature->SelectRandomUnfriendlyTarget(0, 30.0f) )
-                m_uiTargetGUID = pTmp->GetGUID();
+                m_uiTargetGuid = pTmp->GetObjectGuid();
 
-            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
 
             // now check again. if no target found then there is nothing to attack - start following the owner
             if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
@@ -2413,7 +2412,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
                 {
                     DoCastSpellIfCan(pLeapTarget, SPELL_LEAP, CAST_TRIGGERED);
                     m_uiLeapTimer = 20000;
-                    m_uiTargetGUID = pLeapTarget->GetGUID();
+                    m_uiTargetGuid = pLeapTarget->GetObjectGuid();
                     m_creature->AI()->AttackStart(pLeapTarget);
                     return;
                 }

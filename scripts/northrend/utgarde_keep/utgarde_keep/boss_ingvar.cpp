@@ -107,11 +107,11 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
     uint32 m_uiWoeStrikeTimer;
     uint32 m_uiShadowAxeTimer;
 
-    uint64 m_uiAnnylideGUID;
+    ObjectGuid m_uiAnnylideGuid;
 
     void Reset()
     {
-        if (Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGUID))
+        if (Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGuid))
             pAnnylide->ForcedDespawn();
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -126,7 +126,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         m_uiWoeStrikeTimer = 5000;
         m_uiShadowAxeTimer = urand(20000, 30000);
 
-        m_uiAnnylideGUID = 0;
+        m_uiAnnylideGuid = 0;
     }
 
     void Aggro(Unit* pWho)
@@ -178,7 +178,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         {
             pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pSummoned->SendMonsterMove(pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ() + 15.0f, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, 0); 
-            m_uiAnnylideGUID = pSummoned->GetGUID();
+            m_uiAnnylideGuid = pSummoned->GetObjectGuid();
         }
     }
 
@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         {
             if (m_uiEventTimer <= uiDiff)
             {
-                Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGUID);
+                Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGuid);
                 switch(m_uiSubevent)
                 {
                     case 0:

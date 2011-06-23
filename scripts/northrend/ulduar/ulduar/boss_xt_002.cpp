@@ -282,7 +282,7 @@ struct MANGOS_DLL_DECL mob_boombotAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                Creature *pXT = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_XT002));
+                Creature *pXT = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002);
                 if (pXT && m_creature->IsInRange(pXT, 0.0f, INTERACTION_DISTANCE))
                     DoCast(m_creature, SPELL_BOOM);
             }
@@ -321,7 +321,7 @@ struct MANGOS_DLL_DECL mob_scrap_botAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                Creature *pXT = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_XT002));
+                Creature *pXT = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002);
                 if (pXT && m_creature->IsInRange(pXT, 0.0f, INTERACTION_DISTANCE))
                 {
                     //DoCast(pXT, SPELL_SCRAP_REPAIR, true);
@@ -379,11 +379,14 @@ struct MANGOS_DLL_DECL mob_xtheartAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (!m_pInstance)
+            return;
+
         // despawns the creature if not killed in 30 secs
         if(m_uiDeathTimer < diff)
         {
             // pass damage to boss
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_XT002)))
+            if (Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_XT002))
             {
                 if (pTemp->isAlive())
                     pTemp->DealDamage(pTemp, m_uiTotalDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -440,7 +443,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
     bool m_bIsEnrage;
     bool m_bPhase2;
 
-    uint64 m_uiXtHeartGUID;
+    ObjectGuid m_uiXtHeartGUID;
 
     bool m_bIsHardMode;
     bool m_bCastLightBomb;
@@ -469,7 +472,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
         m_bPhase2               = false;
         m_bIsHardMode           = false;
 
-        m_uiXtHeartGUID         = 0;
+        m_uiXtHeartGUID.Clear();
         m_lScrapbotsGUIDList.clear();
         m_lBoombotsGUIDList.clear();
         m_lPummelerGUIDList.clear();
@@ -535,10 +538,10 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
         switch (pCreature->GetEntry())
         {
             case NPC_LIFESPARK:
-                m_lLifeSparkGUIDList.push_back(pCreature->GetGUID());
+                m_lLifeSparkGUIDList.push_back(pCreature->GetObjectGuid());
                 break;
             case NPC_VOIDZONE:
-                m_lVoidZoneGUIDList.push_back(pCreature->GetGUID());
+                m_lVoidZoneGUIDList.push_back(pCreature->GetObjectGuid());
                 break;
         }
     }
@@ -678,7 +681,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
 
                 if(Creature *Heart = m_creature->SummonCreature(NPC_HEART, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 900000))
                 {
-                    m_uiXtHeartGUID = Heart->GetGUID();
+                    m_uiXtHeartGUID = Heart->GetObjectGuid();
                     Heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
@@ -717,7 +720,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
                     {
                         pTemp->AddThreat(pTarget,0.0f);
                         pTemp->AI()->AttackStart(pTarget);
-                        m_lPummelerGUIDList.push_back(pTemp->GetGUID());
+                        m_lPummelerGUIDList.push_back(pTemp->GetObjectGuid());
                     }
                 }
                 m_uiPummellerCount += 1;
@@ -734,7 +737,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
                     DoCast(pTemp, SPELL_ENERGY_ORB, true);
                     pTemp->AddThreat(m_creature->getVictim(),1000.0f);
                     pTemp->AI()->AttackStart(m_creature->getVictim());
-                    m_lBoombotsGUIDList.push_back(pTemp->GetGUID());
+                    m_lBoombotsGUIDList.push_back(pTemp->GetObjectGuid());
                 }
                 m_uiBoombotCount += 1;
                 m_uiBoombotTimer = 4000;
@@ -753,7 +756,7 @@ struct MANGOS_DLL_DECL boss_xt002AI : public ScriptedAI
                             DoCast(pTemp, SPELL_ENERGY_ORB, true);
                         pTemp->GetMotionMaster()->Clear();
                         pTemp->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-                        m_lScrapbotsGUIDList.push_back(pTemp->GetGUID());
+                        m_lScrapbotsGUIDList.push_back(pTemp->GetObjectGuid());
                         m_uiScrapbotCount += 1;
                     }
                 }

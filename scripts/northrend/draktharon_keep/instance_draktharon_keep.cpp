@@ -26,8 +26,6 @@ EndScriptData */
 
 instance_draktharon_keep::instance_draktharon_keep(Map* pMap) : ScriptedInstance(pMap),
     m_uiDreadAddsKilled(0),
-    m_uiNovosGUID(0),
-    m_uiNovosChannelTargetGUID(0),
     m_bNovosAddGrounded(false),
     m_bTrollgoreConsume(true)
 {
@@ -44,11 +42,12 @@ void instance_draktharon_keep::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
-        case NPC_NOVOS: m_uiNovosGUID = pCreature->GetGUID(); break;
         case NPC_CRYSTAL_CHANNEL_TARGET:
             // channel target npc right above novos head
-            if (pCreature->GetDistance(-379.578f, -738.532f, 37.9125f) < INTERACTION_DISTANCE)
-                m_uiNovosChannelTargetGUID = pCreature->GetGUID();
+            if (pCreature->GetDistance(-379.578f, -738.532f, 37.9125f) > INTERACTION_DISTANCE)
+                break;
+        case NPC_NOVOS:
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
     }
 }
@@ -64,7 +63,7 @@ void instance_draktharon_keep::OnObjectCreate(GameObject* pGo)
             for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
                 if (!m_auiRitualCrystalGUID[i])
                 {
-                    m_auiRitualCrystalGUID[i] = pGo->GetGUID();
+                    m_auiRitualCrystalGUID[i] = pGo->GetObjectGuid();
                     break;
                 }
     }
@@ -141,7 +140,7 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
         std::ostringstream saveStream;
         saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
 
-        strInstData = saveStream.str();
+        m_strInstData = saveStream.str();
 
         SaveToDB();
         OUT_SAVE_INST_DATA_COMPLETE;
@@ -180,15 +179,6 @@ uint32 instance_draktharon_keep::GetData(uint32 uiType)
         case TYPE_THARONJA:  return m_auiEncounter[uiType];
         default:
             return 0;
-    }
-}
-
-uint64 instance_draktharon_keep::GetData64(uint32 uiType)
-{
-    switch(uiType)
-    {
-        case NPC_NOVOS:     return m_uiNovosGUID;
-        default:            return 0;
     }
 }
 
@@ -231,7 +221,7 @@ void instance_draktharon_keep::ManageCrystals(uint32 action)
                 if (GameObject* pCrystal = instance->GetGameObject(m_auiRitualCrystalGUID[i]))
                     if (Creature* pChannelTarget = GetClosestCreatureWithEntry(pCrystal, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
                     {
-                        if (Creature* pNovosChannelTarget = instance->GetCreature(m_uiNovosChannelTargetGUID))
+                        if (Creature* pNovosChannelTarget = GetSingleCreatureFromStorage(NPC_CRYSTAL_CHANNEL_TARGET))
                             pChannelTarget->CastSpell(pNovosChannelTarget, SPELL_CHANNEL_BEAM, true);
                         // hack
                         pChannelTarget->SetVisibility(VISIBILITY_ON);

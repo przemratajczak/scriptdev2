@@ -58,15 +58,15 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
 
+        case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetObjectGuid()); break;
+        case NPC_TESLA_COIL:        m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid()); break;
+
         case NPC_UNDERSTUDY: m_lRazuUnderstudyGUIDs.push_back(pCreature->GetObjectGuid()); break;
 
         case NPC_PATCHWORK_GOLEM:
         case NPC_BILE_RETCHER:
             m_lPatchwerkAddGUIDs.push_back(pCreature->GetObjectGuid());
             break;
-
-        case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetObjectGuid()); break;
-        case NPC_TESLA_COIL:        m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid()); break;
 
         case NPC_NAXXRAMAS_FOLLOWER:
         case NPC_NAXXRAMAS_WORSHIPPER:
@@ -77,6 +77,19 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
 
 void instance_naxxramas::OnObjectCreate(GameObject* pGo)
 {
+
+    // Heigan Traps - many entries, and never used again
+    if (pGo->GetEntry() >= 181510 && pGo->GetEntry() <= 181695)
+    {
+        if (((pGo->GetEntry() >= 181517) && (pGo->GetEntry() <= 181524)) || (pGo->GetEntry() == 181678))
+            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_1].push_back(pGo->GetObjectGuid());
+        else if (((pGo->GetEntry() >= 181510) && (pGo->GetEntry() <= 181516)) || ((pGo->GetEntry() >= 181525) && (pGo->GetEntry() <= 181531)) || (pGo->GetEntry() == 181533 || pGo->GetEntry() == 181676))
+            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_2].push_back(pGo->GetObjectGuid());
+        else if (((pGo->GetEntry() >= 181534) && (pGo->GetEntry() <= 181544)) || (pGo->GetEntry() == 181532) || (pGo->GetEntry() == 181677))
+            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_3].push_back(pGo->GetObjectGuid());
+        else if (((pGo->GetEntry() >= 181545) && (pGo->GetEntry() <= 181552)) || (pGo->GetEntry() == 181695))
+            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_4].push_back(pGo->GetObjectGuid());
+    }
     switch(pGo->GetEntry())
     {
         // Arachnid Quarter
@@ -239,8 +252,8 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
                 if (Creature* pFaerlina = GetSingleCreatureFromStorage(NPC_FAERLINA))
                     if (Unit* pVictim = pFaerlina->getVictim())
                         for (GUIDList::const_iterator itr = m_lFaerlinaAddGUIDs.begin(); itr != m_lFaerlinaAddGUIDs.end(); ++itr)
-                            if (Creature* pUnderstudy = instance->GetCreature(*itr))
-                                pUnderstudy->AI()->AttackStart(pVictim);
+                            if (Creature* pFaerlenaAdd = instance->GetCreature(*itr))
+                                pFaerlenaAdd->AI()->AttackStart(pVictim);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_KNOCK_YOU_OUT, true);
             }
             if (uiData == DONE)
@@ -530,6 +543,18 @@ bool instance_naxxramas::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Playe
         }
         default:
             return false;
+    }
+}
+
+void instance_naxxramas::ActivateHeiganTrapsInArea(uint8 AreaId, Unit* pUser)
+{
+    for (GUIDList::iterator itr = m_auiHeiganTrapsPerArea[AreaId].begin(); itr != m_auiHeiganTrapsPerArea[AreaId].end(); ++itr)
+    {
+        if (GameObject* pGo = pUser->GetMap()->GetGameObject(*itr))
+        {
+            pGo->Use(pUser);
+            pGo->SendGameObjectCustomAnim(pGo->GetObjectGuid(), 0);
+        }
     }
 }
 

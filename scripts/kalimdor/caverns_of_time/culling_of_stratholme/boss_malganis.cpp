@@ -105,7 +105,7 @@ struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
            {
              if(Player* pPlayer = itr->getSource()) 
-               pPlayer->KilledMonsterCredit(31006, m_creature->GetGUID());
+                 pPlayer->KilledMonsterCredit(31006, m_creature->GetObjectGuid());
            }
          }
    }
@@ -121,7 +121,7 @@ struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
       {
         KillCreditMalganis();
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        if (Creature* pArthas = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_ARTHAS)))
+        if (Creature* pArthas = m_pInstance->GetSingleCreatureFromStorage(NPC_ARTHAS))
            m_creature->SetInCombatWith(pArthas);
       }
       else

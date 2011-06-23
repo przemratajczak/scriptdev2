@@ -272,7 +272,7 @@ bool GOUse_go_heart_of_the_storm(Player* pPlayer, GameObject* pGo)
         {
             pNarvir->CastSpell(pPlayer, SPELL_STORMS_FURY, false);
 			pGo->DestroyForPlayer(pPlayer, false);
-            pPlayer->KilledMonsterCredit(NPC_OVERSEER_NARVIR, pNarvir->GetGUID() );
+            pPlayer->KilledMonsterCredit(NPC_OVERSEER_NARVIR, pNarvir->GetObjectGuid());
         }
     }
     return true;

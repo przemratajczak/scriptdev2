@@ -528,7 +528,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
                 m_uiKeepersActive += 1;
             }
 
-            if(Creature* pSara = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_SARA)))
+            if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
                 DoScriptText(SAY_AGGRO, pSara);
         }
     }
@@ -539,7 +539,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_YOGGSARON, NOT_STARTED);
 
-            if(Creature* pSara = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_SARA)))
+            if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
             {
                 if(!pSara->isAlive())
                     pSara->Respawn();
@@ -547,7 +547,7 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
                     pSara->AI()->EnterEvadeMode();
             }
 
-            if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+            if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
             {
                 if(!pYoggBrain->isAlive())
                     pYoggBrain->Respawn();
@@ -601,13 +601,13 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
 
         }
 
-        if(Creature* pSara = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(NPC_SARA)))
+        if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
         {
             if(pSara->isAlive())
                 pSara->DealDamage(pSara, pSara->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
-        if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+        if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
         {
             if(pYoggBrain->isAlive())
                 pYoggBrain->DealDamage(pYoggBrain, pYoggBrain->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -642,10 +642,10 @@ struct MANGOS_DLL_DECL boss_yogg_saronAI : public ScriptedAI
 
 		m_uiSummonTimer = urand(15000, 20000);
 
-        if(Creature* pSara = (Creature*)m_creature->GetMap()->GetUnit(m_pInstance->GetData64(NPC_SARA)))
+        if(Creature* pSara = m_pInstance->GetSingleCreatureFromStorage(NPC_SARA))
             pSara->ForcedDespawn();
 
-        if (Creature* pYoggBrain = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_YOGG_BRAIN)))
+        if (Creature* pYoggBrain = m_pInstance->GetSingleCreatureFromStorage(NPC_YOGG_BRAIN))
             pYoggBrain->DealDamage(pYoggBrain, pYoggBrain->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 
@@ -934,14 +934,14 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
     bool m_bIsVisionFinished;
     bool m_bHasShattered;
 
-    uint64 m_uiLichKingGUID;
-    uint64 m_uiChampionGUID;
-    uint64 m_uiGaronaGUID;
-    uint64 m_uiKingLlaneGUID;
-    uint64 m_uiNeltharionGUID;
-    uint64 m_uiMalygosGUID;
-    uint64 m_uiYseraGUID;
-    uint64 m_uiVoiceOfYoggGUID;
+    ObjectGuid m_uiLichKingGUID;
+    ObjectGuid m_uiChampionGUID;
+    ObjectGuid m_uiGaronaGUID;
+    ObjectGuid m_uiKingLlaneGUID;
+    ObjectGuid m_uiNeltharionGUID;
+    ObjectGuid m_uiMalygosGUID;
+    ObjectGuid m_uiYseraGUID;
+    ObjectGuid m_uiVoiceOfYoggGUID;
 
     void Reset()
     {
@@ -1057,12 +1057,12 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
                     {
                     case 0:
                         if(Creature* Garona = m_creature->SummonCreature(NPC_GARONA, PosGarona[0], PosGarona[1], PosGarona[2], PosGarona[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiGaronaGUID = Garona->GetGUID();
+                            m_uiGaronaGUID = Garona->GetObjectGuid();
                         if(Creature* KingLlane = m_creature->SummonCreature(NPC_KING_LLANE, PosKing[0], PosKing[1], PosKing[2], PosKing[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiKingLlaneGUID = KingLlane->GetGUID();
+                            m_uiKingLlaneGUID = KingLlane->GetObjectGuid();
                         if(Creature* VoiceOfYogg = m_creature->SummonCreature(NPC_VOICE_OF_YOGG_SARON, PosVoiceStormwind[0], PosVoiceStormwind[1], PosVoiceStormwind[2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
-                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetGUID();
+                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetObjectGuid();
                             VoiceOfYogg->SetDisplayId(11686);     // make invisible
                         }
                         for(uint8 i = 0; i < 8; i++)
@@ -1155,14 +1155,14 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
                     case 0:
                         m_creature->SummonCreature(NPC_ALEXSTRASZA, PosAlexstrasza[0], PosAlexstrasza[1], PosAlexstrasza[2], PosAlexstrasza[3], TEMPSUMMON_TIMED_DESPAWN, 60000);
                         if(Creature* Neltharion = m_creature->SummonCreature(NPC_NELTHARION, PosNeltharion[0], PosNeltharion[1], PosNeltharion[2], PosNeltharion[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiNeltharionGUID = Neltharion->GetGUID();
+                            m_uiNeltharionGUID = Neltharion->GetObjectGuid();
                         if(Creature* Malygos = m_creature->SummonCreature(NPC_MALYGOS, PosMalygos[0], PosMalygos[1], PosMalygos[2], PosMalygos[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiMalygosGUID = Malygos->GetGUID();
+                            m_uiMalygosGUID = Malygos->GetObjectGuid();
                         if(Creature* Ysera = m_creature->SummonCreature(NPC_YSERA, PosYsera[0], PosYsera[1], PosYsera[2], PosYsera[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiYseraGUID = Ysera->GetGUID();
+                            m_uiYseraGUID = Ysera->GetObjectGuid();
                         if(Creature* VoiceOfYogg = m_creature->SummonCreature(NPC_VOICE_OF_YOGG_SARON, PosVoiceDragon[0], PosVoiceDragon[1], PosVoiceDragon[2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
-                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetGUID();
+                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetObjectGuid();
                             VoiceOfYogg->SetVisibility(VISIBILITY_OFF);
                         }
                         for(uint8 i = 0; i < 10; i++)
@@ -1225,12 +1225,12 @@ struct MANGOS_DLL_DECL boss_brain_of_yogg_saronAI : public ScriptedAI
                     {
                     case 0:
                         if(Creature* LichKing = m_creature->SummonCreature(NPC_LICH_KING, PosLichKing[0], PosLichKing[1], PosLichKing[2], PosLichKing[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiLichKingGUID = LichKing->GetGUID();
+                            m_uiLichKingGUID = LichKing->GetObjectGuid();
                         if(Creature* Champion = m_creature->SummonCreature(NPC_IMMOLATED_CHAMPION, PosChampion[0], PosChampion[1], PosChampion[2], PosChampion[3], TEMPSUMMON_TIMED_DESPAWN, 60000))
-                            m_uiChampionGUID = Champion->GetGUID();
+                            m_uiChampionGUID = Champion->GetObjectGuid();
                         if(Creature* VoiceOfYogg = m_creature->SummonCreature(NPC_VOICE_OF_YOGG_SARON, PosVoiceIcecrown[0], PosVoiceIcecrown[1], PosVoiceIcecrown[2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
-                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetGUID();
+                            m_uiVoiceOfYoggGUID = VoiceOfYogg->GetObjectGuid();
                             VoiceOfYogg->SetVisibility(VISIBILITY_OFF);
                         }
                         for(uint8 i = 0; i < 9; i++)
@@ -1785,9 +1785,9 @@ struct MANGOS_DLL_DECL boss_saraAI : public ScriptedAI
                 if (m_uiBrainLinkTimer < uiDiff)
                 {
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        m_uiLinkTarget1GUID = pTarget->GetGUID();
+                        m_uiLinkTarget1GUID = pTarget->GetObjectGuid();
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        m_uiLinkTarget2GUID = pTarget->GetGUID();
+                        m_uiLinkTarget2GUID = pTarget->GetObjectGuid();
                     DoCast(m_creature, SPELL_BRAIN_LINK);
                     m_bIsBrainLink          = true;
                     m_uiBrainLinkEndTimer   = 30000;
@@ -2317,7 +2317,7 @@ struct MANGOS_DLL_DECL mob_constrictor_tentacleAI : public ScriptedAI
             {
 				// spell needs vehicles
                 //pTarget->CastSpell(pTarget, m_bIsRegularMode ? SPELL_SQUEEZE : SPELL_SQUEEZE_H, false);
-                m_uiVictimGUID = pTarget->GetGUID();
+                m_uiVictimGUID = pTarget->GetObjectGuid();
             }
             m_uiSqueezeTimer = 30000;
         }else m_uiSqueezeTimer -= uiDiff;

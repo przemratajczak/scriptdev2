@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: instance_pinnacle
-SD%Complete:
+SD%Complete: 25%
 SDComment:
 SDCategory: Utgarde Pinnacle
 EndScriptData */
@@ -24,274 +24,119 @@ EndScriptData */
 #include "precompiled.h"
 #include "utgarde_pinnacle.h"
 
-struct MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
+instance_pinnacle::instance_pinnacle(Map* pMap) : ScriptedInstance(pMap)
 {
-    instance_pinnacle(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    Initialize();
+}
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    std::string strInstData;
+void instance_pinnacle::Initialize()
+{
+    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+}
 
-    uint64 m_uiGortokGUID;
-    uint64 m_uiStasisGeneratorGUID;
-    uint64 m_uiOrbGUID;
-    uint64 m_uiRhinoGUID;
-    uint64 m_uiWorgenGUID;
-    uint64 m_uiFurlborgGUID;
-    uint64 m_uiJormungarGUID;
-    
-    uint64 m_uiHarpoonLauncher1GUID;
-    uint64 m_uiHarpoonLauncher2GUID;
-    uint64 m_uiHarpoonLauncher3GUID;
-
-    uint64 m_uiRanulfGUID;
-    uint64 m_uiHaldorGUID;
-    uint64 m_uiBjornGUID;
-    uint64 m_uiTorGUID;
-    uint64 m_uiYmironGUID;
-    uint64 m_uiYmironDoorGUID;
-
-    uint64 m_uiSkadiGUID;
-    uint64 m_uiGraufGUID;
-    uint64 m_uiSkadiDoorGUID;
-
-    void Initialize()
+void instance_pinnacle::OnCreatureCreate(Creature* pCreature)
+{
+    switch(pCreature->GetEntry())
     {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-        m_uiGortokGUID = 0;
-        m_uiStasisGeneratorGUID = 0;
-        m_uiOrbGUID = 0;
-        m_uiRhinoGUID = 0;
-        m_uiWorgenGUID = 0;
-        m_uiFurlborgGUID = 0;
-        m_uiJormungarGUID = 0;
-        
-        m_uiHarpoonLauncher1GUID = 0;
-        m_uiHarpoonLauncher2GUID = 0;
-        m_uiHarpoonLauncher3GUID = 0;
-
-        m_uiRanulfGUID = 0;
-        m_uiHaldorGUID = 0;
-        m_uiBjornGUID = 0;
-        m_uiTorGUID = 0;
-        m_uiYmironGUID = 0;
-        m_uiYmironDoorGUID = 0;
-
-        m_uiSkadiGUID = 0;
-        m_uiGraufGUID = 0;
-        m_uiSkadiDoorGUID = 0;
+        case NPC_STASIS_CONTROLLER:
+        case NPC_RHINO:
+        case NPC_WORGEN:
+        case NPC_GORTOK:
+        case NPC_FURLBORG:
+        case NPC_RANULF:
+        case NPC_HALDOR:
+        case NPC_BJORN:
+        case NPC_TOR:
+        case NPC_GRAUF:
+        case NPC_SKADI:
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+            break;
     }
+}
 
-    void OnCreatureCreate(Creature* pCreature)
+void instance_pinnacle::OnObjectCreate(GameObject* pGo)
+{
+    switch(pGo->GetEntry())
     {
-        switch (pCreature->GetEntry())
-        {
-            case NPC_RANULF:
-                m_uiRanulfGUID = pCreature->GetGUID();
-                break;
-            case NPC_HALDOR:
-                m_uiHaldorGUID = pCreature->GetGUID();
-                break;
-            case NPC_BJORN:
-                m_uiBjornGUID = pCreature->GetGUID();
-                break;
-            case NPC_TOR:
-                m_uiTorGUID = pCreature->GetGUID();
-                break;
-            case NPC_YMIRON:
-                m_uiYmironGUID = pCreature->GetGUID();
-                break;
-            case NPC_GORTOK:
-                m_uiGortokGUID = pCreature->GetGUID();
-                break;
-            case NPC_WORGEN:
-                m_uiWorgenGUID = pCreature->GetGUID();
-                break;
-            case NPC_JORMUNGAR:
-                m_uiJormungarGUID = pCreature->GetGUID();
-                break;
-            case NPC_FURLBORG:
-                m_uiFurlborgGUID = pCreature->GetGUID(); 
-               break;
-            case NPC_RHINO:
-                m_uiRhinoGUID = pCreature->GetGUID();
-                break;
-            case NPC_SKADI:
-                m_uiSkadiGUID = pCreature->GetGUID();
-                break;
-            case NPC_GRAUF:
-                m_uiGraufGUID = pCreature->GetGUID();
-                break;
-        }
+        case GO_DOOR_SKADI:
+            if (m_auiEncounter[TYPE_SKADI] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+        case GO_HARPOON_LAUNCHER_1:
+        case GO_HARPOON_LAUNCHER_2:
+        case GO_HARPOON_LAUNCHER_3:
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
     }
+}
 
-    void OnObjectCreate(GameObject* pGo)
+void instance_pinnacle::SetData(uint32 uiType, uint32 uiData)
+{
+    switch (uiType)
     {
-        switch(pGo->GetEntry())
-        {
-            case GO_DOOR_SKADI:
-                m_uiSkadiDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[2] == DONE)
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;
-            case GO_STASIS_GENERATOR:
-                m_uiStasisGeneratorGUID = pGo->GetGUID();
-                break;
-            case GO_DOOR_YMIRON:
-                m_uiYmironDoorGUID = pGo->GetGUID();
-                if (m_auiEncounter[3] == DONE)
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;
-            case GO_HARPOON_LAUNCHER_1:
-                m_uiHarpoonLauncher1GUID = pGo->GetGUID();
-                break;
-            case GO_HARPOON_LAUNCHER_2:
-                m_uiHarpoonLauncher2GUID = pGo->GetGUID();
-                break;
-            case GO_HARPOON_LAUNCHER_3:
-                m_uiHarpoonLauncher3GUID = pGo->GetGUID();
-                break;
-        }
-    }
+        case TYPE_SVALA:
+            m_auiEncounter[uiType] = uiData;
+            break;
+        case TYPE_GORTOK:
+            m_auiEncounter[uiType] = uiData;
+            break;
+        case TYPE_SKADI:
+            if (uiData == DONE)
+                DoUseDoorOrButton(GO_DOOR_SKADI);
 
-    void SetData(uint32 uiType, uint32 uiData)
-    {
-        debug_log("SD2: Instance Pinnacle: SetData received for type %u with data %u", uiType, uiData);
-
-        switch(uiType)
-        {
-            case TYPE_SVALA:
-                m_auiEncounter[0] = uiData;
-                break;
-            case TYPE_GORTOK:
-                m_auiEncounter[1] = uiData;
-                break;
-            case TYPE_SKADI:
-                if (uiData == DONE)
-                    DoUseDoorOrButton(m_uiSkadiDoorGUID);
-                m_auiEncounter[2] = uiData;
-                break;
-            case TYPE_YMIRON:
-                if (uiData == DONE)
-                    DoUseDoorOrButton(m_uiYmironDoorGUID);
-                m_auiEncounter[3] = uiData;
-                break;
-            default:
-                error_log("SD2: Instance Pinnacle: SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
-                break;
-        }
-
-        //saving also SPECIAL for this instance
-        if (uiData == DONE || uiData == SPECIAL)
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
-            strInstData = saveStream.str();
-
-            SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
-    }
-
-    uint32 GetData(uint32 uiType)
-    {
-        switch(uiType)
-        {
-            case TYPE_SVALA:
-                return m_auiEncounter[0];
-            case TYPE_GORTOK:
-                return m_auiEncounter[1];
-            case TYPE_SKADI:
-                return m_auiEncounter[2];
-            case TYPE_YMIRON:
-                return m_auiEncounter[3];
-        }
-
-        return 0;
-    }
-
-    void SetData64(uint32 uiData, uint64 uiGuid)
-    {
-        switch(uiData)
-        {
-            case NPC_STASIS_CONTROLLER:
-                m_uiOrbGUID = uiGuid;
-                break;
-        }
-    }
-
-    uint64 GetData64(uint32 uiType)
-    {
-        switch(uiType)
-        {
-            case NPC_RANULF:
-                return m_uiRanulfGUID;
-            case NPC_HALDOR:
-                return m_uiHaldorGUID;
-            case NPC_BJORN:
-                return m_uiBjornGUID;
-            case NPC_TOR:
-                return m_uiTorGUID;
-            case NPC_YMIRON:
-                return m_uiYmironGUID;
-            case NPC_STASIS_CONTROLLER:
-                return m_uiOrbGUID;
-            case NPC_GORTOK:
-                return m_uiGortokGUID;
-            case NPC_WORGEN:
-                return m_uiWorgenGUID;
-            case NPC_FURLBORG:
-                return m_uiFurlborgGUID;
-            case NPC_RHINO:
-                return m_uiRhinoGUID;
-            case NPC_JORMUNGAR:
-                return m_uiJormungarGUID;
-            case GO_STASIS_GENERATOR:
-                return m_uiStasisGeneratorGUID;
-            case NPC_SKADI:
-                return m_uiSkadiGUID;
-            case NPC_GRAUF:
-                return m_uiGraufGUID;
-            case GO_HARPOON_LAUNCHER_1:
-                return m_uiHarpoonLauncher1GUID;
-            case GO_HARPOON_LAUNCHER_2:
-                return m_uiHarpoonLauncher2GUID;
-            case GO_HARPOON_LAUNCHER_3:
-                return m_uiHarpoonLauncher3GUID;
-        }
-        return 0;
-    }
-
-    const char* Save()
-    {
-        return strInstData.c_str();
-    }
-
-    void Load(const char* chrIn)
-    {
-        if (!chrIn)
-        {
-            OUT_LOAD_INST_DATA_FAIL;
+            m_auiEncounter[uiType] = uiData;
+            break;
+        case TYPE_YMIRON:
+            m_auiEncounter[uiType] = uiData;
+            break;
+        default:
+            error_log("SD2: Instance Pinnacle: SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             return;
-        }
-
-        OUT_LOAD_INST_DATA(chrIn);
-
-        std::istringstream loadStream(chrIn);
-        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-        {
-            if (m_auiEncounter[i] == IN_PROGRESS)
-                m_auiEncounter[i] = NOT_STARTED;
-        }
-
-        OUT_LOAD_INST_DATA_COMPLETE;
     }
-};
+
+    // Saving also SPECIAL for this instance
+    if (uiData == DONE || uiData == SPECIAL)
+    {
+        OUT_SAVE_INST_DATA;
+
+        std::ostringstream saveStream;
+        saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+
+        m_strInstData = saveStream.str();
+
+        SaveToDB();
+        OUT_SAVE_INST_DATA_COMPLETE;
+    }
+}
+
+uint32 instance_pinnacle::GetData(uint32 uiType)
+{
+    if (uiType < MAX_ENCOUNTER)
+        return m_auiEncounter[uiType];
+
+    return 0;
+}
+
+void instance_pinnacle::Load(const char* chrIn)
+{
+    if (!chrIn)
+    {
+        OUT_LOAD_INST_DATA_FAIL;
+        return;
+    }
+
+    OUT_LOAD_INST_DATA(chrIn);
+
+    std::istringstream loadStream(chrIn);
+    loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
+
+    for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+    {
+        if (m_auiEncounter[i] == IN_PROGRESS)
+            m_auiEncounter[i] = NOT_STARTED;
+    }
+
+    OUT_LOAD_INST_DATA_COMPLETE;
+}
 
 InstanceData* GetInstanceData_instance_pinnacle(Map* pMap)
 {
@@ -300,10 +145,10 @@ InstanceData* GetInstanceData_instance_pinnacle(Map* pMap)
 
 void AddSC_instance_pinnacle()
 {
-    Script* newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "instance_pinnacle";
-    newscript->GetInstanceData = &GetInstanceData_instance_pinnacle;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "instance_pinnacle";
+    pNewScript->GetInstanceData = &GetInstanceData_instance_pinnacle;
+    pNewScript->RegisterSelf();
 }

@@ -401,7 +401,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
     }
 
     float WeaverPOSITION[MAX_WEAVERS][3];
-    uint64 WeaverGUID[MAX_WEAVERS];
+    ObjectGuid WeaverGuid[MAX_WEAVERS];
     uint32 m_uiCheckoutTimer;
     uint32 m_uiRuneEntry;
     uint32 m_uiEventTimer;
@@ -420,7 +420,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
         for (int i = 0; i < MAX_WEAVERS; ++i)
         {
             // if somehow overseer entered combat and than evaded before all weavers are dead and despawed (30sec from encounter)
-            if (Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGUID[i]))
+            if (Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGuid[i]))
             {
                 if (!pWeaver->isAlive())
                 {
@@ -436,7 +436,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
                 m_creature->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectBoundingRadius(), SPAWN_DISTANCE, (i*(6.20f/MAX_WEAVERS)));
                 if (Creature* pWeaver = m_creature->SummonCreature(MOB_RUNE_WEAVER, x, y, z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
                 {
-                    WeaverGUID[i] = pWeaver->GetGUID();
+                    WeaverGuid[i] = pWeaver->GetObjectGuid();
                     WeaverPOSITION[i][0] = x;
                     WeaverPOSITION[i][1] = y;
                     WeaverPOSITION[i][2] = z;                  
@@ -519,10 +519,10 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
         {
             for (int i = 0; i < MAX_WEAVERS; ++i)
             {
-                if (WeaverGUID[i] == 0)
+                if (!WeaverGuid[i])
                     continue;
 
-                Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGUID[i]);
+                Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGuid[i]);
                 // return weavers to orginal spawn point
                 if (pWeaver && pWeaver->isAlive())
                 {
@@ -594,14 +594,14 @@ struct MANGOS_DLL_DECL npc_venture_co_stragglerAI : public ScriptedAI
     npc_venture_co_stragglerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
         
 
-        uint64 uiPlayerGUID;
+        ObjectGuid m_uiPlayerGuid;
         uint32 uiRunAwayTimer;
         uint32 uiTimer;
         uint32 uiChopTimer;
 
         void Reset()
         {
-            uiPlayerGUID = 0;
+            m_uiPlayerGuid = 0;
             uiTimer = 0;
             uiChopTimer = urand(10000,12500);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -612,7 +612,7 @@ struct MANGOS_DLL_DECL npc_venture_co_stragglerAI : public ScriptedAI
         {
             if (uiRunAwayTimer <= uiDiff)
             {
-                if (Player *pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID))
+                if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
                 {
                     switch (uiTimer)
                     {
@@ -661,7 +661,7 @@ struct MANGOS_DLL_DECL npc_venture_co_stragglerAI : public ScriptedAI
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
                 m_creature->CombatStop(false);
-                uiPlayerGUID = pCaster->GetGUID();
+                m_uiPlayerGuid = pCaster->GetObjectGuid();
                 uiRunAwayTimer = 3500;
 		        m_creature->ForcedDespawn(7000);
             }

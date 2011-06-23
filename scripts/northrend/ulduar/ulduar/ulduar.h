@@ -175,33 +175,33 @@ enum
 
     // loot chests
     // Kologarn
-    GO_CACHE_OF_LIVING_STONE    = 195046,
+    GO_CACHE_OF_LIVING_STONE_N  = 195046,
     GO_CACHE_OF_LIVING_STONE_H	= 195047,
     // Hodir
-    GO_CACHE_OF_WINTER          = 194307,
+    GO_CACHE_OF_WINTER_N        = 194307,
     GO_CACHE_OF_WINTER_H        = 194308,
-    GO_CACHE_OF_RARE_WINTER     = 194200,
+    GO_CACHE_OF_RARE_WINTER_N   = 194200,
     GO_CACHE_OF_RARE_WINTER_H   = 194201,
     // Thorim
-    GO_CACHE_OF_STORMS          = 194312,
-    GO_CACHE_OF_RARE_STORMS     = 194313,
+    GO_CACHE_OF_STORMS_N        = 194312,
+    GO_CACHE_OF_RARE_STORMS_N   = 194313,
     GO_CACHE_OF_STORMS_H        = 194314,
     GO_CACHE_OF_RARE_STORMS_H   = 194315,
     // Alagon
     GO_GIFT_OF_OBSERVER_H       = 194821,
-    GO_GIFT_OF_OBSERVER         = 194822,
+    GO_GIFT_OF_OBSERVER_N       = 194822,
     GO_GIFT_OF_OBSERVER_HH      = 194823,   // unk
     // Freya -> each chest is for a mode
     // 10 man
-    GO_FREYA_GIFT               = 194324,//10 normal
-    GO_FREYA_GIFT_HARD          = 194327,//10 3 elders
+    GO_FREYA_GIFT_N             = 194324,//10 normal
+    GO_FREYA_GIFT_HARD_N        = 194327,//10 3 elders
     // 25 man
     GO_FREYA_GIFT_H             = 194328,//25 normal
-    GO_FREYA_GIFT_H_HARD        = 194331,//25 3 elders
+    GO_FREYA_GIFT_HARD_H        = 194331,//25 3 elders
     // Mimiron
-    GO_CACHE_OF_INOV            = 194789,
+    GO_CACHE_OF_INOV_N          = 194789,
     GO_CACHE_OF_INOV_H          = 194956,
-    GO_CACHE_OF_INOV_HARD       = 194957,
+    GO_CACHE_OF_INOV_HARD_N     = 194957,
     GO_CACHE_OF_INOV_HARD_H     = 194958,
 
     // doors
@@ -288,7 +288,6 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
-        uint64 GetData64(uint32 uiData);
 
         const char* Save();
         void Load(const char* chrIn);
@@ -297,8 +296,8 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
         bool CheckConditionCriteriaMeet(Player const* pSource, uint32 uiMapId, uint32 uiInstanceConditionId);
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 = 0);
 
-        void OpenDoor(uint64 guid);
-        void CloseDoor(uint64 guid);
+        void OpenDoor(uint32 m_uiDoorEntry);
+        void CloseDoor(uint32 m_uiDoorEntry);
         void DoOpenMadnessDoorIfCan();
         void OpenXtDoor();
         void CheckIronCouncil();
@@ -322,103 +321,6 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
     uint32 m_auiUlduarTeleporters[3];
     uint32 m_auiMiniBoss[6];
 
-	// boss phases which need to be used inside the instance script
-    uint32 m_uiMimironPhase;
-    uint32 m_uiYoggPhase;
-    uint32 m_uiVisionPhase;
-
-	// creature guids
-    uint64 m_uiLeviathanGUID;
-    uint64 m_uiIgnisGUID;
-    uint64 m_uiRazorscaleGUID;
-    uint64 m_uiCommanderGUID;
-    uint64 m_uiXT002GUID;
-    uint64 m_auiAssemblyGUIDs[3];
-    uint64 m_uiKologarnGUID;
-    uint64 m_uiKologarnBridgeDummyGUID;
-    uint64 m_uiAuriayaGUID;
-    uint64 m_uiMimironGUID;
-    uint64 m_uiHodirGUID;
-    uint64 m_uiThorimGUID;
-    uint64 m_uiFreyaGUID;
-    uint64 m_uiVezaxGUID;
-    uint64 m_uiYoggSaronGUID;
-    uint64 m_uiAlgalonGUID;
-    uint64 m_uiRightArmGUID;
-    uint64 m_uiLeftArmGUID;
-    uint64 m_uiFeralDefenderGUID;
-    uint64 m_uiElderBrightleafGUID;
-    uint64 m_uiElderStonebarkGUID;
-    uint64 m_uiElderIronbrachGUID;
-    uint64 m_uiSaroniteAnimusGUID;
-    uint64 m_uiRunicColossusGUID;
-    uint64 m_uiRuneGiantGUID;
-    uint64 m_uiJormungarGUID;
-    uint64 m_uiLeviathanMkGUID;
-    uint64 m_uiHodirImageGUID;
-    uint64 m_uiFreyaImageGUID;
-    uint64 m_uiThorimImageGUID;
-    uint64 m_uiMimironImageGUID;
-    uint64 m_uiSaraGUID;
-    uint64 m_uiYoggBrainGUID;
-
-    //doors & objects
-    // The siege
-    uint64 m_uiShieldWallGUID;
-    uint64 m_uiLeviathanGateGUID;
-    uint64 m_uiXT002GateGUID;
-    uint64 m_uiBrokenHarpoonGUID;
-    // Archivum
-    uint64 m_uiIronCouncilDoorGUID;
-    uint64 m_uiArchivumDoorGUID;
-    uint64 m_uiArchivumConsoleGUID;
-    uint64 m_uiUniverseFloorArchivumGUID;
-    // Celestial planetarium
-    uint64 m_uiCelestialDoorGUID;
-    uint64 m_uiCelestialConsoleGUID;
-    uint64 m_uiUniverseFloorCelestialGUID;
-    uint64 m_uiAzerothGlobeGUID;
-    // Kologarn
-    uint64 m_uiShatteredHallsDoorGUID;
-    uint64 m_uiKologarnBridgeGUID;
-    // Hodir
-    uint64 m_uiHodirEnterDoorGUID;
-    uint64 m_uiHodirWallGUID;
-    uint64 m_uiHodirExitDoorGUID;
-    // Mimiron
-    uint64 m_uiMimironTramGUID;
-    uint64 m_uiMimironButtonGUID;
-    uint64 m_uiMimironDoor1GUID;
-    uint64 m_uiMimironDoor2GUID;
-    uint64 m_uiMimironDoor3GUID;
-    uint64 m_uiMimironElevatorGUID;
-    uint64 m_uiMimironTelGUID[9];
-    // Thorim
-    uint64 m_uiArenaEnterDoorGUID;
-    uint64 m_uiArenaExitDoorGUID;
-    uint64 m_uiHallwayDoorGUID;
-    uint64 m_uiThorimEnterDoorGUID;
-    uint64 m_uiThorimLeverGUID;
-    // Prison
-    uint64 m_uiAncientGateGUID;
-    uint64 m_uiVezaxGateGUID;
-    uint64 m_uiYoggGateGUID;
-    uint64 m_uiBrainDoor1GUID;
-    uint64 m_uiBrainDoor2GUID;
-    uint64 m_uiBrainDoor3GUID;
-
-    // chests
-    uint64 m_uiKologarnLootGUID;
-    uint64 m_uiHodirLootGUID;
-    uint64 m_uiHodirRareLootGUID;
-    uint64 m_uiThorimLootGUID;
-    uint64 m_uiThorimRareLootGUID;
-    uint64 m_uiFreyaLootGUID;
-    uint64 m_uiFreyaLootHardGUID;
-    uint64 m_uiMimironLootGUID;
-    uint64 m_uiMimironHardLootGUID;
-    uint64 m_uiAlagonLootGUID;
-
     // achievements
     bool m_bQuickShave;
     bool m_bShattered;
@@ -433,6 +335,11 @@ class MANGOS_DLL_DECL instance_ulduar : public ScriptedInstance
     bool m_bRubbleRoll;
     bool m_bCatLady;
     bool m_bNineLives;
+
+    uint32 m_uiMimironPhase;
+    uint32 m_uiYoggPhase;
+    uint32 m_uiVisionPhase;
+
     GUIDList m_lIronDwarvesAchievList;
 };
 

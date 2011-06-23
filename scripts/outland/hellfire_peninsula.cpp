@@ -763,8 +763,8 @@ struct MANGOS_DLL_DECL npc_Vindicator_SedaiAI : public ScriptedAI
 
     uint8       Phase;
     uint32      TextTimer;
-    ObjectGuid  Escort1;
-    ObjectGuid  Escort2;
+    ObjectGuid  m_uiEscort1Guid;
+    ObjectGuid  m_uiEscort2Guid;
 
     void Reset()
     {
@@ -775,9 +775,9 @@ struct MANGOS_DLL_DECL npc_Vindicator_SedaiAI : public ScriptedAI
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
 
             if(Creature* pEscort1 = m_creature->SummonCreature(NPC_ESCORT, 226.950f, 4120.283f, 82.68f, m_creature->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 20000))
-                Escort1 = pEscort1->GetGUID();
+                m_uiEscort1Guid = pEscort1->GetObjectGuid();
             if(Creature* pEscort2 = m_creature->SummonCreature(NPC_ESCORT, 224.703f, 4117.889f, 82.19f, m_creature->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 20000))
-                Escort2 = pEscort2->GetGUID();
+                m_uiEscort2Guid = pEscort2->GetObjectGuid();
         }
     }
     void UpdateAI(const uint32 uiDiff)
@@ -786,8 +786,8 @@ struct MANGOS_DLL_DECL npc_Vindicator_SedaiAI : public ScriptedAI
         {
             if(m_creature->GetAreaId() == 3483) //Hellfire peninsula - it's useful when someone summon npc in other location ;)
             {
-                Creature* MagEscort1 = m_creature->GetMap()->GetCreature(Escort1);
-                Creature* MagEscort2 = m_creature->GetMap()->GetCreature(Escort2);
+                Creature* MagEscort1 = m_creature->GetMap()->GetCreature(m_uiEscort1Guid);
+                Creature* MagEscort2 = m_creature->GetMap()->GetCreature(m_uiEscort2Guid);
                 Creature* pKrun = GetClosestCreatureWithEntry(m_creature, NPC_KRUN, 200.0f);
 
             if(MagEscort1 && MagEscort2)

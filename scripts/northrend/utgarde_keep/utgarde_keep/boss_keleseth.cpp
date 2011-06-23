@@ -87,7 +87,7 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         if (!m_pInstance)
             return NULL;
 
-        if (Creature* pKeleseth = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_KELESETH)))
+        if (Creature* pKeleseth = m_pInstance->GetSingleCreatureFromStorage(NPC_KELESETH))
             return pKeleseth;
         else 
             return NULL;
@@ -198,8 +198,9 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
                 Creature* m_pKeleseth = GetKeleseth();
                 if (urand(0, 3))
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_DECREPIFY_H);
-                else if (m_pKeleseth && m_pKeleseth->isAlive() && !m_pKeleseth->HasAura(SPELL_BONE_ARMOR))
-                    DoCastSpellIfCan(m_pKeleseth, SPELL_BONE_ARMOR);
+                else if (m_pInstance && m_pInstance->GetData(TYPE_KELESETH) == IN_PROGRESS)
+                    if (Creature* pKeleseth = m_pInstance->GetSingleCreatureFromStorage(NPC_KELESETH))
+                        DoCastSpellIfCan(pKeleseth, SPELL_BONE_ARMOR);
             }
 
             m_uiCastTimer = urand(5000, 15000);
@@ -232,7 +233,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
     bool m_bSummonedAdds;
-    std::list<uint64> lAddsList;
+    GUIDList lAddsList;
 
     uint32 m_uiFrostTombTimer; 
     uint32 m_uiSummonTimer;
@@ -269,7 +270,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
     {
         if (!lAddsList.empty())
         {
-            for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
+            for(GUIDList::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
                 if (Creature* pCrearture = m_creature->GetMap()->GetCreature(*itr))
                     (pCrearture)->ForcedDespawn();
@@ -291,7 +292,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_FROST_TOMB)
             pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_FROST, true);
 
-        lAddsList.push_back(pSummoned->GetGUID());
+        lAddsList.push_back(pSummoned->GetObjectGuid());
     }
 
     void JustDied(Unit* pKiller)

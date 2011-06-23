@@ -45,6 +45,10 @@ enum
     TYPE_MAX_HEIGAN_TRAPS_2     = 19,
     TYPE_MAX_HEIGAN_TRAPS_3     = 20,
     TYPE_MAX_HEIGAN_TRAPS_4     = 21,
+    HEIGAN_TRAP_AREA_1          = 0,
+    HEIGAN_TRAP_AREA_2          = 1,
+    HEIGAN_TRAP_AREA_3          = 2,
+    HEIGAN_TRAP_AREA_4          = 3,
 
     MAX_SPECIAL_ACHIEV_CRITS    = 6,
 
@@ -233,6 +237,7 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         // Heigan
         uint64 GetHeiganTrapData64(uint8 uiAreaIndex, uint32 uiIndex);
+        void ActivateHeiganTrapsInArea(uint8 uiAreaIndex, Unit* pUser);
 
         // thaddius
         void GetThadTeslaCreatures(GUIDList &lList){ lList = m_lThadTeslaCoilList; };
@@ -260,7 +265,8 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         GUIDList m_lFaelinasAddsGUIDs;
 
-        std::vector<uint64> m_avuiHeiganTraps[MAX_HEIGAN_TRAP_AREAS];
+        std::vector<ObjectGuid> m_avuiHeiganTraps[MAX_HEIGAN_TRAP_AREAS];
+        GUIDList m_auiHeiganTrapsPerArea[MAX_HEIGAN_TRAP_AREAS];
 
         float m_fChamberCenterX;
         float m_fChamberCenterY;

@@ -78,14 +78,14 @@ struct MANGOS_DLL_DECL npc_razuunAI : public ScriptedAI
 
     uint8 m_uiPhase;
     uint32 m_uiTextTimer;
-    uint64 m_uiPlayerGUID;
+    ObjectGuid m_uiPlayerGuid;
     bool IsRunning;
 
     void Reset()
     {     
         m_uiPhase = 0;
         m_uiTextTimer = 4000;
-        m_uiPlayerGUID = 0;
+        m_uiPlayerGuid = 0;
         IsRunning = false;
         m_creature->SetVisibility(VISIBILITY_OFF);
     }
@@ -98,7 +98,7 @@ struct MANGOS_DLL_DECL npc_razuunAI : public ScriptedAI
             {
                 if(pDeathBringer && pDeathBringer->isAlive())
                 {
-                    m_uiPlayerGUID = pPlayer->GetGUID();
+                    m_uiPlayerGuid = pPlayer->GetObjectGuid();
                     m_uiPhase = 1;
                     IsRunning = true;
 
@@ -179,8 +179,8 @@ struct MANGOS_DLL_DECL npc_razuunAI : public ScriptedAI
                     m_uiPhase++;
                     break;
                 case 12:
-                    if(m_uiPlayerGUID != 0)
-                        m_creature->GetMap()->GetPlayer(m_uiPlayerGUID)->KilledMonsterCredit(NPC_IMAGE);
+                    if(Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
+                        pPlayer->KilledMonsterCredit(NPC_IMAGE);
 
                     m_uiPhase = 0;
                     IsRunning = false;

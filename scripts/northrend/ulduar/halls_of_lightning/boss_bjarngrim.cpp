@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -112,7 +112,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     uint32 m_uiMortalStrike_Timer;
     uint32 m_uiSlam_Timer;
 
-    std::list<uint64> lLieutenants;
+    GUIDList lLieutenants;
 
     void Reset()
     {
@@ -135,12 +135,12 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
         m_uiMortalStrike_Timer = 8000;
         m_uiSlam_Timer = 10000;
 
-        for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
-            if (Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr))
+            if (Creature* pStormforgedLieutenant = m_creature->GetMap()->GetCreature(*itr))
             {
-                if (!pLieutenant->isAlive())
-                    pLieutenant->Respawn();
+                if (!pStormforgedLieutenant->isAlive())
+                    pStormforgedLieutenant->Respawn();
             }
         }
 
@@ -161,7 +161,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
             Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr);
             if (pLieutenant && pLieutenant->isAlive())
@@ -382,9 +382,11 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            Creature* pBjarngrim = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM));
-            if (pBjarngrim && pBjarngrim->isAlive())
-                pBjarngrim->AI()->AttackStart(pWho);
+            if (Creature* pBjarngrim = m_pInstance->GetSingleCreatureFromStorage(NPC_BJARNGRIM))
+            {
+                if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
+                    pBjarngrim->AI()->AttackStart(pWho);
+            }
         }
     }
 
@@ -395,12 +397,12 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
             // move follow Bjarngrim
             if (m_pInstance && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
             {
-                if (Creature* pBjarngrim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_pInstance->GetSingleCreatureFromStorage(NPC_BJARNGRIM))
                 {
                     if (!bLieutenantLocked && pBjarngrim->AI())
                     {
                         fAngle = ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.empty() ? 0.75* M_PI_F : 1.25* M_PI_F;
-                        ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.push_back(m_creature->GetGUID());                        
+                        ((boss_bjarngrimAI*)pBjarngrim->AI())->lLieutenants.push_back(m_creature->GetObjectGuid());                        
                         bLieutenantLocked = true;
                     }
 
@@ -423,7 +425,7 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                if (Creature* pBjarngrim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_pInstance->GetSingleCreatureFromStorage(NPC_BJARNGRIM))
                 {
                     if (pBjarngrim->isAlive())
                         DoCastSpellIfCan(pBjarngrim, m_bIsRegularMode ? SPELL_RENEW_STEEL_N : SPELL_RENEW_STEEL_H);

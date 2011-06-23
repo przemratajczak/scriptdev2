@@ -670,14 +670,14 @@ struct MANGOS_DLL_DECL npc_king_ymironAI : public ScriptedAI
 {
     npc_king_ymironAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
     
-     uint64 uiPlayerGUID;
-	 uint64 uiSpeechTimer;
+     ObjectGuid m_uiPlayerGuid;
+	 uint32 uiSpeechTimer;
      bool bEventStarted;
 	 uint32 uiPhase;
 
      void Reset()
      {
-         uiPlayerGUID = 0;
+         m_uiPlayerGuid = 0;
          bEventStarted = false;
 		 uiPhase = 0;
 		 uiSpeechTimer = 2000;
@@ -693,7 +693,7 @@ struct MANGOS_DLL_DECL npc_king_ymironAI : public ScriptedAI
          {
              if(!bEventStarted)
              {
-			    uiPlayerGUID = pWho->GetGUID();
+                 m_uiPlayerGuid = pWho->GetObjectGuid();
                 bEventStarted = true;  
              }
          }
@@ -760,7 +760,7 @@ struct MANGOS_DLL_DECL npc_king_ymironAI : public ScriptedAI
                         case 18: DoScriptText(TEXT_EMOTE_3, m_creature); uiPhase++; uiSpeechTimer = 2000; break;
                         case 19: DoScriptText(KING_YMIRON_SAY_9, m_creature); uiPhase++; uiSpeechTimer = 5000; break;
                         case 20: { DoScriptText(KING_YMIRON_SAY_10, m_creature);
-								    if (Player *pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID))
+								    if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGuid))
 									{
 										pPlayer->AreaExploredOrEventHappens(QUEST_ANGUISH_NIFFLEVAR);
 								    }
