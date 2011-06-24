@@ -70,10 +70,37 @@ void instance_gundrak::OnCreatureCreate(Creature* pCreature)
             m_luiStalkerGUIDs.push_back(pCreature->GetObjectGuid());
             break;
         case NPC_RUIN_DWELLER:
-            m_lEckDwellerGuids.push_back(pCreature->GetObjectGuid());
+            if (pCreature->GetDistance(1636.49f, 931.74f, 107.75f) < 15.0f)
+                m_lEckDwellerGuids.push_back(pCreature->GetObjectGuid());
+            break;
+        case NPC_LIVING_MOJO:
+            if (pCreature->GetDistance(1672.96f, 743.488f, 143.338f) < 15.0f)
+                m_lLivingMojoGuids.push_back(pCreature->GetObjectGuid());
             break;
     }
 }
+
+void instance_gundrak::OnPlayerEnter(Player* pPlayer)
+{
+    if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
+        for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
+            if (Creature* pDweller = instance->GetCreature(*itr))
+                if (pDweller->isAlive())
+                {
+                    pEck->SetVisibility(VISIBILITY_OFF);
+                    break;
+                }
+
+    if (Creature* pColossus = GetSingleCreatureFromStorage(NPC_COLOSSUS))
+        for (GUIDList::const_iterator itr = m_lLivingMojoGuids.begin(); itr != m_lLivingMojoGuids.end(); ++itr)
+            if (Creature* pMojo = instance->GetCreature(*itr))
+                if (pMojo->isAlive())
+                {
+                    pColossus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    pColossus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    break;
+                }
+}    
 
 void instance_gundrak::OnObjectCreate(GameObject* pGo)
 {
@@ -198,9 +225,6 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_ECK_UNDERWATER_DOOR);
             break;
-        case TYPE_ELEMENTAL:
-            //m_uiElemental = uiData;
-            break;
         default:
             error_log("SD2: Instance Gundrak: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             return;
@@ -235,33 +259,61 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
 
 void instance_gundrak::OnCreatureDeath(Creature* pCreature)
 {
-    if (pCreature->GetEntry() == NPC_RUIN_DWELLER)
+    switch(pCreature->GetEntry())
     {
-        for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
-            if (Creature* pDweller = instance->GetCreature(*itr))
-                if (pDweller->isAlive())
-                    return;
+        case NPC_RUIN_DWELLER:
+            for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
+                if (Creature* pDweller = instance->GetCreature(*itr))
+                    if (pDweller->isAlive())
+                        return;
 
-        if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
-            pEck->SetVisibility(VISIBILITY_ON);
+            if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
+            {
+                pEck->SetVisibility(VISIBILITY_ON);
+                pEck->GetMotionMaster()->MovePoint(0, 1642.53f, 934.33f, 107.23f);
+            }
+            break;
+
+        case NPC_LIVING_MOJO:
+            if (!IsValidLivingMojo(pCreature->GetObjectGuid()))
+                return;
+
+            for (GUIDList::const_iterator itr = m_lLivingMojoGuids.begin(); itr != m_lLivingMojoGuids.end(); ++itr)
+                if (Creature* pMojo = instance->GetCreature(*itr))
+                    if (pMojo->isAlive())
+                        return;
+
+            if (Creature* pColossus = GetSingleCreatureFromStorage(NPC_COLOSSUS))
+            {
+                pColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                pColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                pColossus->RemoveAllAuras();
+            }
+            break;
     }
 }
 
-// cant find now how to manage it in other way. cant do this through OnCreateureCreate because order of creature spawning is random
-void instance_gundrak::OnPlayerEnter(Player* pPlayer)
+void instance_gundrak::OnCreatureEnterCombat(Creature* pCreature)
 {
-    for (GUIDList::const_iterator itr = m_lEckDwellerGuids.begin(); itr != m_lEckDwellerGuids.end(); ++itr)
-        if (Creature* pDweller = instance->GetCreature(*itr))
-            if (pDweller->isAlive())
-                if (Creature* pEck = GetSingleCreatureFromStorage(NPC_ECK))
-                    if (pEck->GetVisibility() == VISIBILITY_ON)
-                    {
-                        pEck->SetVisibility(VISIBILITY_OFF);
-                        return;
-                    }
+    if (pCreature->GetEntry() == NPC_LIVING_MOJO)
+    {
+        if (IsValidLivingMojo(pCreature->GetObjectGuid()))
+            // if mojo is in list move all members to merge with colossus
+            for (GUIDList::const_iterator iter = m_lLivingMojoGuids.begin(); iter != m_lLivingMojoGuids.end(); ++iter)
+                if (Creature* pMojo = instance->GetCreature(*iter))
+                    pMojo->AI()->EnterEvadeMode();
+
+        return;
+    }
 }
 
-
+bool instance_gundrak::IsValidLivingMojo(ObjectGuid callerGuid)
+{
+    for (GUIDList::iterator itr = m_lLivingMojoGuids.begin(); itr != m_lLivingMojoGuids.end(); ++itr)
+        if (*itr == callerGuid)
+            return true;
+    return false;
+}
 
 uint32 instance_gundrak::GetData(uint32 uiType)
 {

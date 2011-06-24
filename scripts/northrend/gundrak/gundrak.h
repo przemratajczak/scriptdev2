@@ -20,13 +20,12 @@ enum
     TYPE_COLOSSUS          = 2,
     TYPE_GALDARAH          = 3,
     TYPE_ECK               = 4,
-    TYPE_ELEMENTAL         = 15,
 
     NPC_SLADRAN            = 29304,
     NPC_MOORABI            = 29305,
     NPC_COLOSSUS           = 29307,
     NPC_ELEMENTAL          = 29573,
-    NPC_LIVIN_MOJO         = 29830,
+    NPC_LIVING_MOJO        = 29830,
     NPC_GALDARAH           = 29306,
     NPC_ECK                = 29932,
     NPC_INVISIBLE_STALKER  = 30298,                         // Caster and Target for visual spells on altar use
@@ -56,7 +55,7 @@ enum
 
     TIMER_VISUAL_ALTAR     = 3000,
     TIMER_VISUAL_BEAM      = 2500,
-    TIMER_VISUAL_KEY       = 2000,
+    TIMER_VISUAL_KEY       = 2000
 };
 
 typedef std::map<uint8, uint32> TypeTimerMap;
@@ -73,6 +72,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
         void OnCreatureDeath(Creature* pCreature);
+        void OnCreatureEnterCombat(Creature* pCreature);
         void OnPlayerEnter(Player* pPlayer);
 
         void SetData(uint32 uiType, uint32 uiData);
@@ -81,6 +81,8 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
         void Update(uint32 uiDiff);
+
+        bool IsValidLivingMojo(ObjectGuid callerGuid);
     protected:
         void DoAltarVisualEffect(uint8 uiType);
         uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -95,6 +97,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         GUIDVector m_vStalkerCasterGuids;
         GUIDVector m_vStalkerTargetGuids;
         GUIDList m_lEckDwellerGuids;
+        GUIDList m_lLivingMojoGuids;
 };
 
 #endif
