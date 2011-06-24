@@ -77,7 +77,7 @@ void instance_nexus::OnObjectCreate(GameObject* pGo)
 
 void instance_nexus::OnCreatureCreate(Creature* pCreature)
 {
-    if (pCreature->GetEntry() == NPC_KERISTRASZA)
+    if (pCreature->GetEntry() == NPC_KERISTRASZA || pCreature->GetEntry() == NPC_COMMANDER)
         m_mNpcEntryGuidStore[NPC_KERISTRASZA] = pCreature->GetObjectGuid();
 }
 
@@ -120,6 +120,8 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
         case TYPE_KERISTRASZA:
             m_auiEncounter[uiType] = uiData;
             break;
+        case TYPE_COMMANDER:
+            m_auiEncounter[uiType] = uiData;
         default:
             error_log("SD2: Instance Nexus: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             return;

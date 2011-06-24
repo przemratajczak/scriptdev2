@@ -2030,6 +2030,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\scripts\northrend\nexus\nexus\boss_commander.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\scripts\northrend\nexus\nexus\boss_keristrasza.cpp"
 							>
 						</File>

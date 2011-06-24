@@ -7,17 +7,20 @@
 
 enum
 {
-    MAX_ENCOUNTER                  = 4,
+    MAX_ENCOUNTER                  = 5,
 
     TYPE_TELESTRA                  = 0,
     TYPE_ANOMALUS                  = 1,
     TYPE_ORMOROK                   = 2,
     TYPE_KERISTRASZA               = 3,
+    TYPE_COMMANDER                 = 4,
 
     NPC_TELESTRA                   = 26731,
     NPC_ANOMALUS                   = 26763,
     NPC_ORMOROK                    = 26794,
     NPC_KERISTRASZA                = 26723,
+    NPC_COMMANDER_H                = 26798, // horde
+    NPC_COMMANDER_A                = 26796, // ally
 
     GO_CONTAINMENT_SPHERE_TELESTRA = 188526,
     GO_CONTAINMENT_SPHERE_ANOMALUS = 188527,
