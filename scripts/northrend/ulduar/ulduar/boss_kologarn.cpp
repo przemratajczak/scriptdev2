@@ -242,7 +242,6 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
             {
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
-                //pVictim->RemoveAurasDueToSpell(SPELL_STONE_GRIP_KILL_AURA);
                 pVictim->ExitVehicle();
             }
         }
@@ -265,7 +264,6 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
                 {
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
-                    //pVictim->RemoveAurasDueToSpell(SPELL_STONE_GRIP_KILL_AURA);
                     pVictim->ExitVehicle();
                 }
             }
