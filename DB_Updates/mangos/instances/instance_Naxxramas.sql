@@ -20,24 +20,24 @@ INSERT INTO creature_ai_scripts VALUES
 (1669801,16698,1,0,100,6,30000,30000,30000,30000,41,0,0,0,0,0,0,0,0,0,0,0,'Corpse Scarab - Force Despawn');
 
 ###################   boss_faerlina   ##########################################################
-/* restored orginal UDB 390 data broken by one of previous commits >.<
-DELETE FROM creature WHERE id IN (16506,16505,15953);
-INSERT INTO creature VALUES
-(127800,15953,533,3,1,15940,0,3353.25,-3620.1,261.08,4.72984,604800,0,0,2231200,85160,0,0),
-(106481,16505,533,2,1,0,0,3347.34,-3618.67,260.996,4.52093,3600,0,0,521320,58750,0,0),
-(106440,16505,533,2,1,0,0,3359.72,-3620.47,260.996,4.67408,3600,0,0,521320,58750,0,0),
-(128064,16506,533,3,1,16603,0,3350.26,-3619.11,261.08,4.67748,3600,0,0,83408,89790,0,0),
-(128063,16506,533,3,1,16603,0,3356.71,-3620.05,261.08,4.57276,3600,0,0,83408,89790,0,0),
-(128061,16506,533,3,1,16603,0,3362.66,-3620.97,261.08,4.57276,3600,0,0,83408,89790,0,0),
-(128062,16506,533,3,1,16603,0,3344.3,-3618.31,261.08,4.69494,3600,0,0,83408,89790,0,0);
+-- restored orginal UDB 390 data broken by one of previous commits >.<
+-- DELETE FROM creature WHERE id IN (16506,16505,15953);
+-- INSERT INTO creature VALUES
+-- (127800,15953,533,3,1,15940,0,3353.25,-3620.1,261.08,4.72984,604800,0,0,2231200,85160,0,0),
+-- (106481,16505,533,2,1,0,0,3347.34,-3618.67,260.996,4.52093,3600,0,0,521320,58750,0,0),
+-- (106440,16505,533,2,1,0,0,3359.72,-3620.47,260.996,4.67408,3600,0,0,521320,58750,0,0),
+-- (128064,16506,533,3,1,16603,0,3350.26,-3619.11,261.08,4.67748,3600,0,0,83408,89790,0,0),
+-- (128063,16506,533,3,1,16603,0,3356.71,-3620.05,261.08,4.57276,3600,0,0,83408,89790,0,0),
+-- (128061,16506,533,3,1,16603,0,3362.66,-3620.97,261.08,4.57276,3600,0,0,83408,89790,0,0),
+-- (128062,16506,533,3,1,16603,0,3344.3,-3618.31,261.08,4.69494,3600,0,0,83408,89790,0,0);
 
-DELETE FROM creature_addon where guid in (SELECT guid FROM creature WHERE id IN (16506,16505,15953));
-INSERT INTO creature_addon VALUES
-(127800,0,0,1,0,0,NULL),
-(128061,0,0,1,0,0,NULL),
-(128062,0,0,1,0,0,NULL),
-(128063,0,0,1,0,0,NULL),
-(128064,0,0,1,0,0,NULL); */
+-- DELETE FROM creature_addon where guid in (SELECT guid FROM creature WHERE id IN (16506,16505,15953));
+-- INSERT INTO creature_addon VALUES
+-- (127800,0,0,1,0,0,NULL),
+-- (128061,0,0,1,0,0,NULL),
+-- (128062,0,0,1,0,0,NULL),
+-- (128063,0,0,1,0,0,NULL),
+-- (128064,0,0,1,0,0,NULL);
 
 -- Naxxramas Worshipper
 DELETE FROM creature_ai_scripts WHERE id IN (1650503,1650513,1650612);
@@ -61,19 +61,19 @@ Spell1 = 54097,
 mechanic_immune_mask = mechanic_immune_mask &~1
 WHERE entry = 29274;
 
-DELETE FROM script_texts WHERE entry IN (-1999776,-1999775);
-INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
-(-1999776,'%s goes into a frenzy!',3,'Grand Widow Faerlina - EMOTE_FRENZY'),
-(-1999775,'%s is affected by Widow\'s Embrace!',3,'Grand Widow Faerlina - EMOTE_WIDOWS_EMBRACE');
+-- DELETE FROM script_texts WHERE entry IN (-1999776,-1999775);
+-- INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
+-- (-1999776,'%s goes into a frenzy!',3,'Grand Widow Faerlina - EMOTE_FRENZY'),
+-- (-1999775,'%s is affected by Widow\'s Embrace!',3,'Grand Widow Faerlina - EMOTE_WIDOWS_EMBRACE');
 
 ###################   boss_gluth  ##############################################################
 
-DELETE FROM script_texts WHERE entry IN (-1999781,-1999780,-1999779,-1533119);
-INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
-(-1999781, '%s deciamtes all nearby flesh',3,'Gluth - Decimated Players'),
-(-1999780, '%s devours all nearby zombies',2,'Gluth - Decimated Zombie'),
-(-1999779, '%s becomes enraged',3,'Gluth - Periodic Enrage'),
-(-1533119, '%s spots zombie to devour!',2,'Gluth - Spoted Zombie');
+-- DELETE FROM script_texts WHERE entry IN (-1999781,-1999780,-1999779,-1533119);
+-- INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
+-- (-1999781, '%s deciamtes all nearby flesh',3,'Gluth - Decimated Players'),
+-- (-1999780, '%s devours all nearby zombies',2,'Gluth - Decimated Zombie'),
+-- (-1999779, '%s becomes enraged',3,'Gluth - Periodic Enrage'),
+-- (-1533119, '%s spots zombie to devour!',2,'Gluth - Spoted Zombie');
 
 UPDATE creature_template SET speed_run = 0.8, ScriptName = 'mob_zombie_chow' WHERE entry IN (16360, 30303);
 
@@ -184,17 +184,17 @@ INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `pos
 ('9000020','33','3485.66','-5249.86','138.024','0','0','0','0','0','0','0','0','0','0','1.90514','0','0'),
 ('9000020','34','3492.75','-5259.76','138.11','0','0','0','0','0','0','0','0','0','0','5.33341','0','0');
 
-/* UDB 390 spawn
-DELETE FROM creature WHERE id = 15989;
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
-('133932','15989','533','3','1','16033','0','3522.39','-5236.78','137.709','4.50295','604800','0','0','4183500','0','0','0');*/
+-- UDB 390 spawn
+-- DELETE FROM creature WHERE id = 15989;
+-- INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+-- ('133932','15989','533','3','1','16033','0','3522.39','-5236.78','137.709','4.50295','604800','0','0','4183500','0','0','0');*/
 
-DELETE FROM script_texts WHERE entry IN (-1999768,-1999767,-1533083,-1533082);
-INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
-(-1999768, '%s lifts off into the air',3,'Sapphiron goes up'),
-(-1999767, '%s resumes to hit attacks',3,'Sapphiron returns to fight'),
-(-1533083, '%s enrages!',3,'sapphiron EMOTE_ENRAGE'),
-(-1533082,'%s takes in a deep breath...',3,'sapphiron EMOTE_BREATH');
+-- DELETE FROM script_texts WHERE entry IN (-1999768,-1999767,-1533083,-1533082);
+-- INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
+-- (-1999768, '%s lifts off into the air',3,'Sapphiron goes up'),
+-- (-1999767, '%s resumes to hit attacks',3,'Sapphiron returns to fight'),
+-- (-1533083, '%s enrages!',3,'sapphiron EMOTE_ENRAGE'),
+-- (-1533082,'%s takes in a deep breath...',3,'sapphiron EMOTE_BREATH');
 
 ####################   boss_kelthuzad    #########################################################
 
@@ -216,11 +216,10 @@ DELETE FROM `gameobject` WHERE `id` = 181640;
 INSERT INTO `gameobject`(`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
 (181640, 533, 3, 0, 3763.3999, -5116.2301, 146.0, 2.9552, 0.0, 0.0, 0.0, 0.0, 5, 100, 0);
 
-/*
 -- Arachnid Quarter::Worshippers and folowers
-DELETE FROM `creature` WHERE `id` IN (16506);
-UPDATE creature_template SET `minmana` ='58750', `maxmana` = '58750' WHERE `entry` IN (29273);
-*/
+-- DELETE FROM `creature` WHERE `id` IN (16506);
+-- UPDATE creature_template SET `minmana` ='58750', `maxmana` = '58750' WHERE `entry` IN (29273);
+
 
 ####################   boss_grobbulus    #########################################################
 
