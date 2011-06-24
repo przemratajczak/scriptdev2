@@ -77,7 +77,7 @@ void instance_nexus::OnObjectCreate(GameObject* pGo)
 
 void instance_nexus::OnCreatureCreate(Creature* pCreature)
 {
-    if (pCreature->GetEntry() == NPC_KERISTRASZA || pCreature->GetEntry() == NPC_COMMANDER)
+    if (pCreature->GetEntry() == NPC_KERISTRASZA || pCreature->GetEntry() == NPC_COMMANDER_H)
         m_mNpcEntryGuidStore[NPC_KERISTRASZA] = pCreature->GetObjectGuid();
 }
 
