@@ -284,7 +284,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
 			// this needs vehicles!
             for(int i = 0; i < m_uiMaxTargets; i++)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 0 : 0))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 2 : 4))
                 {
                     DoCast(pTarget, m_bIsRegularMode ? SPELL_STONE_GRIP_GRAB : SPELL_STONE_GRIP_GRAB_H, true);
                     m_uiGripTargetGUID[i] = pTarget->GetObjectGuid();
