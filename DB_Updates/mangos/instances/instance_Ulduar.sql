@@ -80,7 +80,7 @@ INSERT INTO `creature_ai_scripts` VALUES
 (3322103, 33221, 4, 0, 100, 6, 0, 0, 0, 0, 20, 0, 0, 0, 21, 0, 0, 0, 0, 0, 0, 0, "Scorch Trigger - Disable Combat Movement on Aggro");
 
 -- control vehicle auras
-DELETE FROM spell_script_target WHERE entry = 62708;
+DELETE FROM spell_script_target WHERE entry IN (62708, 62711);
 INSERT INTO spell_script_target VALUES
 (62708, 1, 33118),
 (62711, 1, 33118);

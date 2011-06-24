@@ -77,6 +77,7 @@ enum
     SPELL_STONE_GRIP_H			= 64292,
     SPELL_STONE_GRIP_VEH        = 62056,
     SPELL_STONE_GRIP_VEH_H      = 63985,
+    SPELL_STONE_GRIP_KILL_AURA  = 64708,
     //both
     SPELL_ARM_VISUAL			= 64753,
     //rubble
@@ -241,6 +242,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
             {
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                 pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
+                //pVictim->RemoveAurasDueToSpell(SPELL_STONE_GRIP_KILL_AURA);
                 pVictim->ExitVehicle();
             }
         }
@@ -263,6 +265,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
                 {
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP : SPELL_STONE_GRIP_H);
                     pVictim->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_STONE_GRIP_VEH : SPELL_STONE_GRIP_VEH_H);
+                    //pVictim->RemoveAurasDueToSpell(SPELL_STONE_GRIP_KILL_AURA);
                     pVictim->ExitVehicle();
                 }
             }
@@ -283,7 +286,7 @@ struct MANGOS_DLL_DECL boss_right_armAI : public ScriptedAI
 			// this needs vehicles!
             for(int i = 0; i < m_uiMaxTargets; i++)
             {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 2 : 4))
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, m_bIsRegularMode ? 0 : 0))
                 {
                     DoCast(pTarget, m_bIsRegularMode ? SPELL_STONE_GRIP_GRAB : SPELL_STONE_GRIP_GRAB_H, true);
                     m_uiGripTargetGUID[i] = pTarget->GetObjectGuid();
