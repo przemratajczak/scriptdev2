@@ -73,7 +73,10 @@ struct MANGOS_DLL_DECL mob_ahnkahar_eggAI : public ScriptedAI
     void JustSummoned(Creature* pSummoned)
     {
         if (pSummoned->GetEntry() == NPC_AHNKAHAR_GUARDIAN)
+        {
             DoScriptText(EMOTE_HATCH, m_creature);
+            pSummoned->CastSpell(pSummoned, SPELL_GUARDIAN_AURA, true);
+        }
 
         if (m_pInstance)
         {
