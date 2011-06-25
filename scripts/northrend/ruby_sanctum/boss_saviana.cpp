@@ -26,11 +26,11 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                   = -1724015,
-    SAY_SLAY_1                  = -1724016,
-    SAY_SLAY_2                  = -1724017,
-    SAY_SPECIAL                 = -1724018,
-    SOUND_DEATH                 = 17531,                    // On death it has only a screaming sound
+    SAY_AGGRO                   = -1666400,
+    SAY_SLAY_1                  = -1666401,
+    SAY_SLAY_2                  = -1666402,
+    SAY_SPECIAL                 = -1666404,
+    SOUND_DEATH                 = -1666403,
 };
 
 enum BossSpells

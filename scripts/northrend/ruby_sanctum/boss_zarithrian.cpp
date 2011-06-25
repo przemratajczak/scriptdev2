@@ -53,11 +53,11 @@ static Locations SpawnLoc[]=
 
 enum
 {
-    SAY_AGGRO           = -1724019,
-    SAY_SLAY_1          = -1724020,
-    SAY_SLAY_2          = -1724021,
-    SAY_DEATH           = -1724022,
-    SAY_SUMMON          = -1724023,
+    SAY_AGGRO           = -1666200,
+    SAY_SLAY_1          = -1666201,
+    SAY_SLAY_2          = -1666202,
+    SAY_DEATH           = -1666203,
+    SAY_SUMMON          = -1666204,
 };
 
 struct MANGOS_DLL_DECL boss_zarithrianAI : public BSWScriptedAI
