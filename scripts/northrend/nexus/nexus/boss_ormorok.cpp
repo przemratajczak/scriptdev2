@@ -26,11 +26,11 @@ EndScriptData */
 
 enum Sounds
 {
-    SAY_AGGRO                               = -1576020,
-    SAY_DEATH                               = -1576021,
-    SAY_REFLECT                             = -1576022,
-    SAY_CRYSTAL_SPIKES                      = -1576023,
-    SAY_KILL                                = -1576024
+    SAY_AGGRO                               = -1576011,
+    SAY_DEATH                               = -1576015,
+    SAY_REFLECT                             = -1576013,
+    SAY_CRYSTAL_SPIKES                      = -1576014,
+    SAY_KILL                                = -1576012
 };
 
 enum

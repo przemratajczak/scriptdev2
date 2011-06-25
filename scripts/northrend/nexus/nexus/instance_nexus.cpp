@@ -38,7 +38,10 @@ bool GOUse_go_containment_sphere(Player* pPlayer, GameObject* pGo)
         case GO_CONTAINMENT_SPHERE_ORMOROK:  pInstance->SetData(TYPE_ORMOROK, SPECIAL);  break;
     }
 
-    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+    if (Creature *pCaster = GetClosestCreatureWithEntry(pGo, NPC_BREATH_CASTER, 15.0f))
+        pCaster->ForcedDespawn();
+
+    //pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
     return false;
 }
 
@@ -78,7 +81,7 @@ void instance_nexus::OnObjectCreate(GameObject* pGo)
 void instance_nexus::OnCreatureCreate(Creature* pCreature)
 {
     if (pCreature->GetEntry() == NPC_KERISTRASZA || pCreature->GetEntry() == NPC_COMMANDER_H)
-        m_mNpcEntryGuidStore[NPC_KERISTRASZA] = pCreature->GetObjectGuid();
+        m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
 }
 
 uint32 instance_nexus::GetData(uint32 uiType)

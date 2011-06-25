@@ -21,6 +21,7 @@ enum
     NPC_KERISTRASZA                = 26723,
     NPC_COMMANDER_H                = 26798, // horde
     NPC_COMMANDER_A                = 26796, // ally
+    NPC_BREATH_CASTER              = 27048,
 
     GO_CONTAINMENT_SPHERE_TELESTRA = 188526,
     GO_CONTAINMENT_SPHERE_ANOMALUS = 188527,
