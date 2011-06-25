@@ -113,108 +113,61 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 
     void OnCreatureCreate(Creature* pCreature)
     {
+        m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+
         switch(pCreature->GetEntry())
         {
             case NPC_CHROMI01: 
                          pCreature->SetActiveObjectState(true);
-                         m_uiChromi01GUID = pCreature->GetObjectGuid();
                          break;
             case NPC_CHROMI02:
                          pCreature->SetActiveObjectState(true);
-                         m_uiChromi02GUID = pCreature->GetObjectGuid();
                          if (m_auiEncounter[0] == DONE)
                             pCreature->SetVisibility(VISIBILITY_ON);
                          else
                             pCreature->SetVisibility(VISIBILITY_OFF);
                          break;
-            case NPC_MIKE: 
-                         m_uiMikeGUID = pCreature->GetObjectGuid();
-                         break;
             case NPC_MAL_CORICS: 
                          pCreature->SetActiveObjectState(true);
-                         m_uiMalCoricsGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_GRIAN_STONE: 
                          pCreature->SetActiveObjectState(true);
                          pCreature->SetStandState(UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
-                         m_uiGrianStoneGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_JAMES: 
                          pCreature->SetActiveObjectState(true);
                          pCreature->SetStandState(UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
-                         m_uiJamesGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_FRAS_FRASIABI:
                          pCreature->SetActiveObjectState(true);
                          pCreature->SetStandState(UNIT_STAND_STATE_SIT_MEDIUM_CHAIR); 
-                         m_uiFrasCiabiGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_FORRESTER: 
                          pCreature->SetActiveObjectState(true);
                          pCreature->SetStandState(UNIT_STAND_STATE_SIT_MEDIUM_CHAIR);
-                         m_uiForrestenGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_ROGER:
-                         m_uiRogerGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_MORIGAN:
-                         m_uiMoriganGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_PERELLI:
                          pCreature->SetActiveObjectState(true);
-                         m_uiPerelliGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_JENA:
-                         m_uiJenaGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_MARTHA:
                          pCreature->CastSpell(pCreature, 58925, false);
                          pCreature->SetActiveObjectState(true);
-                         m_uiMarthaGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_MALCOLM:
-                         m_uiMalcolmGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_DOG:
                          pCreature->SetActiveObjectState(true);
-                         m_uiDogGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_BARTLEBY:
-                         m_uiBartlebyGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_UTHER:
-                         m_uiUtherGUID = pCreature->GetObjectGuid();
-                         break;
-            case NPC_ARTHAS:
-                         m_uiArthasGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_JAINA:
                          pCreature->SetActiveObjectState(true);
-                         m_uiJainaGUID = pCreature->GetObjectGuid();
                          break;
             case NPC_INFINITE_CORRUPTOR: 
                          pCreature->SetPhaseMask(0, true);
-                         m_uiCorruptorGUID = pCreature->GetObjectGuid();
                          break;
         }
     }
 
     void OnObjectCreate(GameObject* pGo)
     {
-        if (pGo->GetEntry() == GO_SHKAF_GATE)
-            m_uiShkafGateGUID = pGo->GetObjectGuid();
-
-        if (pGo->GetEntry() == GO_MALGANIS_GATE1)
-            m_uiMalGate1GUID = pGo->GetObjectGuid();
-
-        if (pGo->GetEntry() == GO_MALGANIS_GATE2)
-            m_uiMalGate2GUID = pGo->GetObjectGuid();
-
-        if (pGo->GetEntry() == GO_MALGANIS_CHEST || pGo->GetEntry() == GO_MALGANIS_CHEST_H)
-            m_uiMalChestGUID = pGo->GetObjectGuid();
-
-        if (pGo->GetEntry() == GO_EXIT)
-            m_uiExitGUID = pGo->GetObjectGuid();
+        m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
     }
 
     void ChromiWhispers()
