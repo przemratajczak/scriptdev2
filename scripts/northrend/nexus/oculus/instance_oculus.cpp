@@ -44,10 +44,6 @@ struct MANGOS_DLL_DECL instance_oculus : public ScriptedInstance
         Initialize();
     };
 
-    ObjectGuid uiCacheEregosGUID;
-    ObjectGuid uiCacheEregosHGUID;
-    ObjectGuid m_uiSpotLightGUID;
-
     uint32 m_auiEncounter[MAX_ENCOUNTERS+1];
 
     std::string strSaveData;
@@ -64,26 +60,16 @@ struct MANGOS_DLL_DECL instance_oculus : public ScriptedInstance
 
     void OnObjectCreate(GameObject* pGO)
     {
-        switch(pGO->GetEntry())
-        {
-            case GO_EREGOS_CACHE:
-                uiCacheEregosGUID = pGO->GetObjectGuid();
-                break;
-            case GO_EREGOS_CACHE_H:
-                uiCacheEregosHGUID = pGO->GetObjectGuid();
-                break;
-            case GO_SPOTLIGHT:
-                m_uiSpotLightGUID = pGO->GetObjectGuid();
-                break;
-        }
+        m_mGoEntryGuidStore[pGO->GetEntry()] = pGO->GetObjectGuid();
     }
 
     void OnCreatureCreate(Creature* pCreature)
     {
         switch(pCreature->GetEntry())
         {
-            case NPC_DRAKOS:
             case NPC_VAROS:
+                pCreature->SetActiveObjectState(true);
+            case NPC_DRAKOS:
             case NPC_UROM:
             case NPC_EREGOS:
             case NPC_BALGAR_IMAGE:
@@ -105,8 +91,8 @@ struct MANGOS_DLL_DECL instance_oculus : public ScriptedInstance
                 m_auiEncounter[type] = data;
                 if (data == DONE)
                 {
-                    DoRespawnGameObject((m_bIsRegularMode ? uiCacheEregosGUID : uiCacheEregosHGUID), HOUR);
-                    DoRespawnGameObject(m_uiSpotLightGUID, HOUR);
+                    DoRespawnGameObject(m_bIsRegularMode ? GO_EREGOS_CACHE : GO_EREGOS_CACHE_H, HOUR);
+                    DoRespawnGameObject(GO_SPOTLIGHT, HOUR);
                 }
                 break;
             case TYPE_ROBOTS:
