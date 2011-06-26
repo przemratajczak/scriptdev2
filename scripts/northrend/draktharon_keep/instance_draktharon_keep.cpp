@@ -38,37 +38,6 @@ void instance_draktharon_keep::Initialize()
     memset(&m_auiRitualCrystalGUID, 0, sizeof(m_auiRitualCrystalGUID));
 }
 
-void instance_draktharon_keep::OnCreatureCreate(Creature* pCreature)
-{
-    switch(pCreature->GetEntry())
-    {
-        case NPC_CRYSTAL_CHANNEL_TARGET:
-            // channel target npc right above novos head
-            if (pCreature->GetDistance(-379.578f, -738.532f, 37.9125f) > INTERACTION_DISTANCE)
-                break;
-        case NPC_NOVOS:
-            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-            break;
-    }
-}
-
-void instance_draktharon_keep::OnObjectCreate(GameObject* pGo)
-{
-    switch(pGo->GetEntry())
-    {
-        case GO_RITUAL_CRYSTAL_SW:
-        case GO_RITUAL_CRYSTAL_SE:
-        case GO_RITUAL_CRYSTAL_NW:
-        case GO_RITUAL_CRYSTAL_NE:
-            for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
-                if (!m_auiRitualCrystalGUID[i])
-                {
-                    m_auiRitualCrystalGUID[i] = pGo->GetObjectGuid();
-                    break;
-                }
-    }
-}
-
 void instance_draktharon_keep::OnCreatureEnterCombat(Creature* pCreature)
 {
     if (pCreature->GetEntry() == NPC_KING_DRED)

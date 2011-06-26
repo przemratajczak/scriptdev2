@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Novos
-SD%Complete: 20%
-SDComment:
+SD%Complete: 80%
+SDComment: Summon Timers are vague, many visual spells fail (LoS)
 SDCategory: Drak'Tharon Keep
 EndScriptData */
 
@@ -26,154 +26,140 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                               = -1600005,
-    SAY_DEATH                               = -1600006,
-    SAY_KILL                                = -1600007,
-    SAY_ADDS                                = -1600008,
-    SAY_BUBBLE_1                            = -1600009,
-    SAY_BUBBLE_2                            = -1600010,
+    SAY_AGGRO                       = -1600005,
+    SAY_DEATH                       = -1600006,
+    SAY_KILL                        = -1600007,
+    SAY_ADDS                        = -1600008,
+    SAY_BUBBLE_1                    = -1600009,
+    SAY_BUBBLE_2                    = -1600010,
 
-    EMOTE_ASSISTANCE                        = -1600011,
+    EMOTE_ASSISTANCE                = -1600011,
 
-    NPC_CRYSTAL_HANDLER                     = 26627,
-    NPC_NOVOS_SUMMON_TARGET                 = 27583,
-    NPC_NOVOS_SPELL_DUMMY                   = 27669, // not used
-    
-    // spells
-    SPELL_FIELD                             = 47346,
-    
-    // normal
-    SPELL_FROSTBOLT                         = 49037,
-    SPELL_MISERY                            = 50089,
-    SPELL_ARCANE                            = 49198,
-    SPELL_BLIZZARD                          = 49034,
-    SPELL_SUMMON_RISEN_SHADOWCASTER         = 49105,
-    SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE  = 49103,
-    SPELL_SUMMON_HULKING_CORPSE             = 49104,
-    SPELL_SUMMON_CRISTAL_HANDLER            = 49179,
+    SPELL_ARCANE_FIELD              = 47346,
+    SPELL_IMMUNITY                  = 34098,
+    SPELL_SUMMON_MINIONS_H          = 59910,                // (at least) on Phase-Switch, TODO1 research on appearence; TODO2 implement spell. Triggers 59935, 59938, 59939, 59940
+    SPELL_FROSTBOLT                 = 49037,
+    SPELL_FROSTBOLT_H               = 59855,
+    SPELL_ARCANE_BLAST              = 49198,
+    SPELL_ARCANE_BLAST_H            = 59909,
+    SPELL_BLIZZARD                  = 49034,
+    SPELL_BLIZZARD_H                = 59854,
+    SPELL_TOUCH_OF_MISERY           = 50090,                // TODO - purpose of this spell (triggers SPELL_WRATH_OF_MISERY) unknown
+    SPELL_WRATH_OF_MISERY           = 50089,
+    SPELL_WRATH_OF_MISERY_H         = 59856,
 
-    SPELL_DESPAWN_CRYSTAL_HANDLERS          = 51403, // not used
+    // SPELL_SUMMON_CRYSTAL_HANDLER    = 49179,             // Spell seems to be unused, perhaps only server-side, and especially no suitable positioned caster are found for this spell
+    SPELL_SUMMON_FETID_TROLL_CORPSE = 49103,
+    SPELL_SUMMON_HULKING_CORPSE     = 49104,
+    SPELL_SUMMON_RISON_SHADOWCASTER = 49105,
 
-    // heroic
-    SPELL_FROSTBOLT_H                       = 59855,
-    SPELL_MISERY_H                          = 59856,
-    SPELL_ARCANE_H                          = 59909,
-    SPELL_BLIZZARD_H                        = 59854,
-    SPELL_SUMMON_TROLL_CORPSE               = 59910,
+    // Spells 'Crystal Handler Death' 47336, 55801, 55803, 55805 (defined in instance script)
 
-    PHASE_SUMMONING                         = 0,
-    PHASE_ACTIVE_ATTACKING                  = 1,
-    SUMMON_TARGETS_NO                       = 3
+    NPC_CRYSTAL_HANDLER             = 26627,
+    NPC_HULKING_CORPSE              = 27597,
+    NPC_FETID_TROLL_CORPSE          = 27598,
+    NPC_RISON_SHADOWCASTER          = 27600
 };
 
-float fNovosSummonerPosition[3][3] = 
+// The Crystal Handlers are summoned around the two entrances of the room
+static const float aHandlerSummonPos[2][3] =
 {
-    {-379.13f, -813.89f, 59.72f}, // top of stairs
-    {-313.18f, -699.73f, 27.29f}, // entrance
-    {-421.47f, -716.83f, 28.57f}  // exit
+    {-342.894836f, -727.016846f, 28.581081f},
+    {-410.644653f, -731.826904f, 28.580412f}
 };
-
-// there is higher chance to summon non-elite add
-uint32 m_uiRandomSummoningSpell[9] = {SPELL_SUMMON_RISEN_SHADOWCASTER, SPELL_SUMMON_RISEN_SHADOWCASTER, 
-SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE, SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE, SPELL_SUMMON_RISEN_SHADOWCASTER, 
-SPELL_SUMMON_RISEN_SHADOWCASTER, SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE, SPELL_SUMMON_SUMMON_FETID_TROLL_CORPSE,
-SPELL_SUMMON_HULKING_CORPSE};
 
 /*######
 ## boss_novos
 ######*/
 
-struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
+enum Phases
 {
-    boss_novosAI(Creature* pCreature) : ScriptedAI(pCreature)
+    PHASE_SHIELDED  = 0,
+    PHASE_WAITING   = 1,
+    PHASE_NORMAL    = 2,
+};
+
+struct MANGOS_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
+{
+    boss_novosAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_draktharon_keep*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
-    
+    instance_draktharon_keep* m_pInstance;
     bool m_bIsRegularMode;
-    bool m_bHandlerFromEntrance;
-    bool m_bAddsReachedFloor;
 
-    uint8  m_uiPhase;
-    uint8  m_uiCrystalsDeactivated;
-    uint32 m_uiCheckoutAdds_Timer;
-    uint32 m_uiSummonRandomAdd_Timer;
-    uint32 m_uiSummonCrystalChanneler_Timer;
-    uint32 m_uiFrostbolt_Timer;
-    uint32 m_uiMisery_Timer;
-    uint32 m_uiArcane_Timer;
-    uint32 m_uiBlizzard_Timer;
-    uint32 m_uiSummonTrollCorpse_Timer;
-    ObjectGuid m_uiSummonTargetGUID[SUMMON_TARGETS_NO];
+    uint32 m_uiSummonHandlerTimer;                          // TODO the summoning timers are weak
+    uint32 m_uiSummonShadowcasterTimer;
+    uint32 m_uiSummonFetidTrollTimer;
+    uint32 m_uiSummonHulkingCorpseTimer;
+    uint32 m_uiPhaseTimer;
+    uint32 m_uiArcaneBlastTimer;
+    uint32 m_uiBlizzardTimer;
+    uint32 m_uiWrathTimer;
 
-    GUIDList lSummonGUIDs;
+    uint8 m_uiSummonedHandlers;
+    uint8 m_uiLostCrystals;
+    Phases m_uiPhase;
 
     void Reset()
     {
-        m_bHandlerFromEntrance = true;
-        m_bAddsReachedFloor = false;
-        m_uiPhase = PHASE_SUMMONING;
-        m_uiCheckoutAdds_Timer = 0;
-        m_uiSummonRandomAdd_Timer = 5000;
-        m_uiSummonCrystalChanneler_Timer = 15000;
-        m_uiFrostbolt_Timer = 1000;
-        m_uiMisery_Timer = 10000;
-        m_uiArcane_Timer = 25000;
-        m_uiBlizzard_Timer = 30000;
-        m_uiSummonTrollCorpse_Timer = 30000;
-        m_uiCrystalsDeactivated = 0;
+        m_uiSummonHandlerTimer = 25000;
+        m_uiSummonShadowcasterTimer = 3000;
+        m_uiSummonFetidTrollTimer = 10000;
+        m_uiSummonHulkingCorpseTimer = 30000;
+        m_uiPhaseTimer = 3000;
+        m_uiArcaneBlastTimer = urand(6000, 8000);
+        m_uiBlizzardTimer = urand(8000, 12000);
+        m_uiWrathTimer = urand(12000, 15000);
+
+        m_uiSummonedHandlers = 0;
+        m_uiLostCrystals = 0;
+        // This ensures that in the shield phase m_pInstance is valid
+        m_uiPhase = m_pInstance ? PHASE_SHIELDED : PHASE_NORMAL;
     }
 
-    void DespawnAdds()
+    void LostOneCrystal()
     {
-        if (!lSummonGUIDs.empty())
-        {
-            for (GUIDList::iterator itr = lSummonGUIDs.begin(); itr != lSummonGUIDs.end(); ++itr)
-                if (Creature* pSummon = m_creature->GetMap()->GetCreature(*itr))
-                    pSummon->ForcedDespawn();
+        ++m_uiLostCrystals;
 
-            lSummonGUIDs.clear();
+        DoScriptText(urand(0, 1) ? SAY_BUBBLE_1 : SAY_BUBBLE_2, m_creature);
+
+        if (m_uiLostCrystals == MAX_CRYSTALS)
+        {
+            // Enter Phase 2
+            if (!m_bIsRegularMode)
+                DoCastSpellIfCan(m_creature, SPELL_SUMMON_MINIONS_H);
+
+            m_uiPhase = PHASE_WAITING;
         }
     }
 
-    void JustReachedHome()
+    void MoveInLineOfSight(Unit* pWho)
     {
-        if (m_pInstance)
+        // An Add reached the ground, if its z-pos is near the z pos of Novos
+        if (pWho->GetEntry() == NPC_HULKING_CORPSE || pWho->GetEntry() == NPC_FETID_TROLL_CORPSE || pWho->GetEntry() == NPC_RISON_SHADOWCASTER)
         {
-            m_pInstance->SetData(TYPE_CRYSTAL_EVENT, RESET);
-            m_pInstance->SetData(TYPE_NOVOS, FAIL);
+            // Add reached ground, and the failure has not yet been reported
+            if (pWho->GetPositionZ() < m_creature->GetPositionZ() + 1.5f && m_pInstance && m_pInstance->GetData(TYPE_NOVOS) == IN_PROGRESS)
+                m_pInstance->SetData(TYPE_NOVOS, SPECIAL);
+            return;
         }
 
-        DespawnAdds();
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        ScriptedAI::MoveInLineOfSight(pWho);
     }
 
     void Aggro(Unit* pWho)
     {
-        SetCombatMovement(false);
-
-        for (uint8 i = 0; i < SUMMON_TARGETS_NO; ++i)
-        {
-            if (Creature* pSummonTarget = m_creature->SummonCreature(NPC_NOVOS_SUMMON_TARGET, fNovosSummonerPosition[i][0], fNovosSummonerPosition[i][1], fNovosSummonerPosition[i][2], 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 1))
-            {
-                lSummonGUIDs.push_back(pSummonTarget->GetObjectGuid());
-                m_uiSummonTargetGUID[i] = pSummonTarget->GetObjectGuid();
-            }
-        }
-
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCastSpellIfCan(m_creature, SPELL_FIELD);
 
-        if (!m_pInstance)
-            return;
+        DoCastSpellIfCan(m_creature, SPELL_ARCANE_FIELD);
+        DoCastSpellIfCan(m_creature, SPELL_IMMUNITY, CAST_TRIGGERED);
 
-        m_pInstance->SetData(TYPE_NOVOS, IN_PROGRESS);
-        m_pInstance->SetData(TYPE_CRYSTAL_EVENT, ACTIVATE_BEAMS);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_NOVOS, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -184,140 +170,139 @@ struct MANGOS_DLL_DECL boss_novosAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        DespawnAdds();
 
-        if (!m_pInstance)
-            return;
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_NOVOS, DONE);
+    }
 
-        if (m_bAddsReachedFloor) 
-             m_pInstance->SetData(TYPE_NOVOS, SPECIAL);
-        m_pInstance->SetData(TYPE_NOVOS, DONE);
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_NOVOS, FAIL);
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        lSummonGUIDs.push_back(pSummoned->GetObjectGuid());
+        switch (pSummoned->GetEntry())
+        {
+            case NPC_CRYSTAL_HANDLER:
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    pSummoned->AI()->AttackStart(pTarget);
+                break;
+        }
     }
 
     void SummonedCreatureJustDied(Creature* pSummoned)
     {
-        if (m_pInstance && m_pInstance->GetData(TYPE_NOVOS) == IN_PROGRESS)
-            if (pSummoned->GetEntry() == NPC_CRYSTAL_HANDLER)
+        if (pSummoned->GetEntry() == NPC_CRYSTAL_HANDLER)
+        {
+            uint8 uiIndex = 0;
+            if (m_pInstance)
             {
-                ++m_uiCrystalsDeactivated;
-                if (m_pInstance)
-                    m_pInstance->SetData(TYPE_CRYSTAL_EVENT, DEACTIVATE_ONE);
+                if (Creature* pTarget = m_pInstance->GetNextCrystalTarget(pSummoned, uiIndex))
+                    pSummoned->CastSpell(pTarget, aCrystalHandlerDeathSpells[uiIndex], true, NULL, NULL, m_creature->GetObjectGuid());
             }
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (!m_bAddsReachedFloor)
+        switch (m_uiPhase)
         {
-            if (m_uiCheckoutAdds_Timer < uiDiff)
-            {
-                for (GUIDList::iterator itr = lSummonGUIDs.begin(); itr != lSummonGUIDs.end(); ++itr)
-                    if (Creature* pCreature = m_pInstance->instance->GetCreature(*itr))
-                        if (pCreature->GetCreatureInfo()->type ==  CREATURE_TYPE_UNDEAD && pCreature->GetPositionY() > -770.0f)
-                        {
-                            m_bAddsReachedFloor = true;
-                            break;
-                        }
-                m_uiCheckoutAdds_Timer = 1000;
-            }
-            else
-                m_uiCheckoutAdds_Timer -= uiDiff;
-        }
-
-        if (m_uiPhase == PHASE_SUMMONING)
-        {
-            if (m_uiCrystalsDeactivated >= 4)
-            {
-                m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                SetCombatMovement(true);
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                m_uiPhase = PHASE_ACTIVE_ATTACKING;
-            }
-            
-            if (m_uiSummonRandomAdd_Timer < uiDiff)
-            {
-                if (m_pInstance)
-                    // summon random add
-                    if (Creature* pSummonTarget = m_pInstance->instance->GetCreature(m_uiSummonTargetGUID[0]))
-                        pSummonTarget->CastSpell(pSummonTarget, m_uiRandomSummoningSpell[urand(0, 8)], true);
-
-                m_uiSummonRandomAdd_Timer = urand(2000, 4000);
-            }
-            else
-                m_uiSummonRandomAdd_Timer -= uiDiff;
-                
-
-            if (m_uiSummonCrystalChanneler_Timer < uiDiff)
-            {
-                if (m_pInstance)
-                    // summon random add
-                    if (Creature* pSummonTarget = m_pInstance->instance->GetCreature(m_uiSummonTargetGUID[m_bHandlerFromEntrance ? 1 : 2]))
-                        pSummonTarget->CastSpell(pSummonTarget, SPELL_SUMMON_CRISTAL_HANDLER, true);
-
-                m_bHandlerFromEntrance = !m_bHandlerFromEntrance;
-                DoScriptText(SAY_ADDS, m_creature);
-                m_uiSummonCrystalChanneler_Timer = 25000;
-            }
-            else
-                m_uiSummonCrystalChanneler_Timer -= uiDiff;
-        }
-        else
-        {               
-            if (m_uiFrostbolt_Timer < uiDiff)
-            {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_FROSTBOLT : SPELL_FROSTBOLT_H);
-                m_uiFrostbolt_Timer = 2000;
-            }
-            else
-                m_uiFrostbolt_Timer -= uiDiff;
-            
-            if (m_uiMisery_Timer < uiDiff)
-            {
-                DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_MISERY : SPELL_MISERY_H, CAST_INTERRUPT_PREVIOUS);
-                m_uiMisery_Timer = urand(15000, 35000);
-            }
-            else
-                m_uiMisery_Timer -= uiDiff;
-            
-            if (m_uiArcane_Timer < uiDiff)
-            {
-                DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_ARCANE : SPELL_ARCANE_H, CAST_INTERRUPT_PREVIOUS);
-                m_uiArcane_Timer = urand(5000, 20000);
-            }
-            else
-                m_uiArcane_Timer -= uiDiff;
-            
-            if (m_uiBlizzard_Timer < uiDiff)
-            {
-                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_BLIZZARD : SPELL_BLIZZARD_H, CAST_INTERRUPT_PREVIOUS);
-                m_uiBlizzard_Timer = urand(25000, 35000);
-            }
-            else
-                m_uiBlizzard_Timer -= uiDiff;
-            
-
-            if (!m_bIsRegularMode)
-            {
-                if (m_uiSummonTrollCorpse_Timer < uiDiff)
+            case PHASE_SHIELDED:                            // Event Phase, only summoning of mobs
+                if (m_uiSummonHandlerTimer < uiDiff)
                 {
-                    DoCastSpellIfCan(m_creature, SPELL_SUMMON_TROLL_CORPSE, CAST_INTERRUPT_PREVIOUS);
-                    m_uiSummonTrollCorpse_Timer = urand(30000, 35000);
+                    float fX, fY, fZ;
+                    ++m_uiSummonedHandlers;
+                    m_creature->GetRandomPoint(aHandlerSummonPos[m_uiSummonedHandlers % 2][0], aHandlerSummonPos[m_uiSummonedHandlers % 2][1], aHandlerSummonPos[m_uiSummonedHandlers % 2][2], 10.0f, fX, fY, fZ);
+                    m_creature->SummonCreature(NPC_CRYSTAL_HANDLER, fX, fY, fZ, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+
+                    DoScriptText(SAY_ADDS, m_creature);
+                    DoScriptText(EMOTE_ASSISTANCE, m_creature);
+
+                    m_uiSummonHandlerTimer = 40000;
                 }
                 else
-                    m_uiSummonTrollCorpse_Timer -= uiDiff;
-            }
+                    m_uiSummonHandlerTimer -= uiDiff;
+
+                if (m_uiSummonShadowcasterTimer < uiDiff)
+                {
+                    if (Creature* pSummoner = m_pInstance->GetSummonDummy())
+                        pSummoner->CastSpell(pSummoner, SPELL_SUMMON_RISON_SHADOWCASTER, false, NULL, NULL, m_creature->GetObjectGuid());
+                    m_uiSummonShadowcasterTimer = 25000;
+                }
+                else
+                    m_uiSummonShadowcasterTimer -= uiDiff;
+
+                if (m_uiSummonFetidTrollTimer < uiDiff)
+                {
+                    if (Creature* pSummoner = m_pInstance->GetSummonDummy())
+                        pSummoner->CastSpell(pSummoner, SPELL_SUMMON_FETID_TROLL_CORPSE, false, NULL, NULL, m_creature->GetObjectGuid());
+                    m_uiSummonFetidTrollTimer = 5000;
+                }
+                else
+                    m_uiSummonFetidTrollTimer -= uiDiff;
+
+                if (m_uiSummonHulkingCorpseTimer < uiDiff)
+                {
+                    if (Creature* pSummoner = m_pInstance->GetSummonDummy())
+                        pSummoner->CastSpell(pSummoner, SPELL_SUMMON_HULKING_CORPSE, false, NULL, NULL, m_creature->GetObjectGuid());
+                    m_uiSummonHulkingCorpseTimer = 30000;
+                }
+                else
+                    m_uiSummonHulkingCorpseTimer -= uiDiff;
+
+                break;
+
+            case PHASE_WAITING:                             // Short delay between last destroyed crystal and entering combat
+                if (m_uiPhaseTimer < uiDiff)
+                {
+                    m_uiPhase = PHASE_NORMAL;
+                    // Remove Immunity and Shield Aura
+                    m_creature->InterruptNonMeleeSpells(true);
+                    m_creature->RemoveAllAuras();
+                }
+                else
+                    m_uiPhaseTimer -= uiDiff;
+
+                break;
+
+            case PHASE_NORMAL:                              // Normal Phase, attack enemies
+                if (m_uiArcaneBlastTimer < uiDiff)
+                {
+                    // TODO - might be possible that this spell is only casted, when there is an enemy in range
+                    if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ARCANE_BLAST : SPELL_ARCANE_BLAST_H) == CAST_OK)
+                        m_uiArcaneBlastTimer = urand(7000, 9000);
+                }
+                else
+                    m_uiArcaneBlastTimer -= uiDiff;
+
+                if (m_uiBlizzardTimer < uiDiff)
+                {
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                        if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_BLIZZARD : SPELL_BLIZZARD_H) == CAST_OK)
+                            m_uiBlizzardTimer = urand(9000, 13500);
+                }
+                else
+                    m_uiBlizzardTimer -= uiDiff;
+
+                if (m_uiWrathTimer < uiDiff)
+                {
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                        if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_WRATH_OF_MISERY : SPELL_WRATH_OF_MISERY_H) == CAST_OK)
+                            m_uiWrathTimer = urand(12500, 17200);
+                }
+                else
+                    m_uiWrathTimer -= uiDiff;
+
+                if (!m_creature->IsNonMeleeSpellCasted(true))       // TODO Use this additional check, because might want to change the random target to be a target that is in LoS (which then is expensive)
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                        DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_FROSTBOLT : SPELL_FROSTBOLT_H);
+
+                break;
         }
     }
 };
@@ -327,44 +312,95 @@ CreatureAI* GetAI_boss_novos(Creature* pCreature)
     return new boss_novosAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
+// Small helper script to handle summoned adds for Novos
+struct MANGOS_DLL_DECL npc_crystal_channel_targetAI : public ScriptedAI
 {
-    npc_novos_summon_targetAI(Creature* pCreature) : ScriptedAI(pCreature)
+    npc_crystal_channel_targetAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
+        m_pInstance = (instance_draktharon_keep*)pCreature->GetInstanceData();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_draktharon_keep* m_pInstance;
 
     void Reset() {}
+    void MoveInLineOfSight(Unit* pWho) {}
+    void AttackStart(Unit* pWho) {}
+    void UpdateAI(const uint32 uiDiff) {}
+
     void JustSummoned(Creature* pSummoned)
     {
-        if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
+        if (pSummoned->GetEntry() == NPC_HULKING_CORPSE || pSummoned->GetEntry() == NPC_FETID_TROLL_CORPSE || pSummoned->GetEntry() == NPC_RISON_SHADOWCASTER)
         {
-            pNovos->AI()->JustSummoned(pSummoned);
-            if (pNovos->getVictim())
-                pSummoned->AI()->AttackStart(pNovos->getVictim());
+            // Let them move down the stairs
+            float fX, fY, fZ;
+
+            // The end of the stairs is approximately at 1/3 of the way between summoning-position and novos, height of Novos
+            if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
+            {
+                m_creature->GetRandomPoint(0.70*pNovos->GetPositionX() + 0.30*pSummoned->GetPositionX(), 0.70*pNovos->GetPositionY() + 0.30*pSummoned->GetPositionY(), pNovos->GetPositionZ() + 1.5f, 4.0f, fX, fY, fZ);
+                pSummoned->GetMotionMaster()->MovePoint(1, fX, fY, fZ);
+            }
         }
     }
 
-    void SummonedCreatureJustDied(Creature* pSummoned)
+    void SummonedMovementInform(Creature* pSummoned, uint32 uiMotionType, uint32 uiPointId)
     {
-        if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
-            pNovos->AI()->SummonedCreatureJustDied(pSummoned);
-    }
+        if (uiPointId != 1 || uiMotionType != POINT_MOTION_TYPE || (pSummoned->GetEntry() != NPC_HULKING_CORPSE && pSummoned->GetEntry() != NPC_FETID_TROLL_CORPSE && pSummoned->GetEntry() != NPC_RISON_SHADOWCASTER))
+            return;
 
-    void UpdateAI (const uint32 uiDiff) {}
+        if (!pSummoned->isInCombat() && m_pInstance)
+        {
+            if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
+            {
+                if (Unit* pTarget = pNovos->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    pSummoned->AI()->AttackStart(pTarget);
+            }
+        }
+    }
 };
 
-CreatureAI* GetAI_npc_novos_summon_target(Creature* pCreature)
+CreatureAI* GetAI_npc_crystal_channel_target(Creature* pCreature)
 {
-    return new npc_novos_summon_targetAI(pCreature);
+    return new npc_crystal_channel_targetAI(pCreature);
+}
+
+
+// Handling of the dummy auras of Crystal Handler Death spells, on remove the Crystal needs to be opened
+bool EffectAuraDummy_npc_crystal_channel_target(const Aura* pAura, bool bApply)
+{
+    for (uint8 i = 0; i < MAX_CRYSTALS; ++i)
+    {
+        if (pAura->GetId() == aCrystalHandlerDeathSpells[i])
+        {
+            if (pAura->GetEffIndex() == EFFECT_INDEX_0 && !bApply)
+            {
+                if (Creature* pCreature = (Creature*)pAura->GetTarget())
+                {
+                    if (instance_draktharon_keep* pInstance = (instance_draktharon_keep*)pCreature->GetInstanceData())
+                    {
+                        if (pInstance->GetData(TYPE_NOVOS) == NOT_STARTED || pInstance->GetData(TYPE_NOVOS) == FAIL)
+                            return true;
+
+                        pInstance->DoHandleCrystal(i);
+
+                        // Inform Novos about removed
+                        if (Creature* pNovos = pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
+                            if (boss_novosAI* pNovosAI = dynamic_cast<boss_novosAI*>(pNovos->AI()))
+                                pNovosAI->LostOneCrystal();
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void AddSC_boss_novos()
 {
-    Script *pNewScript;
+    Script* pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "boss_novos";
@@ -372,7 +408,8 @@ void AddSC_boss_novos()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_novos_summon_target";
-    pNewScript->GetAI = &GetAI_npc_novos_summon_target;
+    pNewScript->Name = "npc_crystal_channel_target";
+    pNewScript->GetAI = &GetAI_npc_crystal_channel_target;
+    pNewScript->pEffectAuraDummy = &EffectAuraDummy_npc_crystal_channel_target;
     pNewScript->RegisterSelf();
 }
