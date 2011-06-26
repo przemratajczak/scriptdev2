@@ -123,23 +123,29 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
                         DoScriptText(SAY_SHIELD, m_creature);
                         DoScriptText(EMOTE_SHIELD, m_creature);                    
                         DoScriptText(EMOTE_OPEN_RIFT, m_creature);
-                        DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD);
-                        DoCastSpellIfCan(m_creature, SPELL_CHARGE_RIFT);
+                        DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD, CAST_TRIGGERED);
+                        // DoCastSpellIfCan(m_creature, SPELL_CHARGE_RIFT);
                         uiPhase = PHASE_RIFT_OPENED;
                         return;
                     }
                 }
                 break;
 
-            case PHASE_RIFT_OPENED: 
-                if (Creature* pRift = m_creature->GetMap()->GetCreature(m_RiftGuid))
+            case PHASE_RIFT_OPENED:
+            {
+                /*if (Creature* pRift = m_creature->GetMap()->GetCreature(m_RiftGuid))
                     if (pRift->HasAura(SPELL_CHARGE_RIFT))
-                        return;                
-              
-                m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
-                m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL, true);
-                uiPhase = PHASE_AFTER_RIFT;
+                        return;*/
+
+                Creature* pRift = m_creature->GetMap()->GetCreature(m_RiftGuid);
+                if (!pRift || !pRift->isAlive() || !m_creature->HasAura(SPELL_RIFT_SHIELD))
+                {              
+                    m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
+                    m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL, true);
+                    uiPhase = PHASE_AFTER_RIFT;
+                }
                 return;
+            }
 
             default: break;
         }
