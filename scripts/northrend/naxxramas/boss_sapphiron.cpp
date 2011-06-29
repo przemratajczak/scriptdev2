@@ -27,6 +27,21 @@ ToDo:
 * maybe somehow simplify intro?
 EndScriptData */
 
+/* Additional comments:
+ * Bugged spells:   28560 (needs maxTarget = 1, Summon of 16474 implementation, TODO, 30s duration)
+ *                  28526 (needs ScriptEffect to cast 28522 onto random target)
+ *
+ * Blizzard might need handling for their movement
+ * SetHover hackz must be replaced by proper opcodes 04D3(Liftoff) 04D4(Landing)
+ * Achievement-criteria check needs implementation
+ *
+ * Frost-Breath ability: the dummy spell 30101 is self cast, so it won't take the needed delay of ~7s until it reaches its target
+ *                       As Sapphiron is displayed visually in hight (hovering), and the spell is cast with target=self-location
+ *                       which is still on the ground, the client shows a nice slow falling of the visual animation
+ *                       Insisting on using the Dummy-Effect to cast the breath-dmg spells, would require, to relocate Sapphi internally,
+ *                       and to hack the targeting to be "on the ground" - Hence the prefered way as it is now!
+ */
+
 #include "precompiled.h"
 #include "naxxramas.h"
 
@@ -274,6 +289,15 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
         // after server crash
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, (UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
         m_creature->SetVisibility(VISIBILITY_ON);
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_YOU_KNOW_WHO)
+        {
+            if (Unit* pEnemy = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                pSummoned->AI()->AttackStart(pEnemy);
+        }
     }
 
     void MovementInform(uint32 uiMotionType, uint32 uiPointId)
