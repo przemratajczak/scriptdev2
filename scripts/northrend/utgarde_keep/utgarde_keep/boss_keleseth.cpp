@@ -296,8 +296,6 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         if (pSummoned->GetEntry() == NPC_FROST_TOMB)
             pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_FROST, true);
-
-        lAddsList.push_back(pSummoned->GetObjectGuid());
     }
 
     void JustDied(Unit* pKiller)

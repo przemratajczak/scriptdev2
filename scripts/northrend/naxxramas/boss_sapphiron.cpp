@@ -83,6 +83,7 @@ enum
     POINT_HOME                  = 0,
     NPC_WING_BUFFET             = 17025,
     GO_ICEBLOCK                 = 181247,   // should be summoned by some spell
+    NPC_YOU_KNOW_WHO            = 16474,
 
     PHASE_FIGHT_ON_GROUND       = 0,
     PHASE_RETURN_TO_THE_CENTER  = 1,
