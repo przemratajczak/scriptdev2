@@ -195,7 +195,7 @@ struct MANGOS_DLL_DECL boss_onyxiaAI : public ScriptedAI
             // Get some random point near the center
             float fX, fY, fZ;
             pSummoned->GetRandomPoint(pTrigger->GetPositionX(), pTrigger->GetPositionY(), pTrigger->GetPositionZ(), 20.0f, fX, fY, fZ);
-            pSummoned->GetMotionMaster()->MovePoint(1, fX, fY, fZ);
+            pSummoned->GetMotionMaster()->MovePoint(1, fX, fY, fZ, false);
         }
         else
             pSummoned->SetInCombatWithZone();
@@ -329,7 +329,7 @@ struct MANGOS_DLL_DECL boss_onyxiaAI : public ScriptedAI
                     m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
 
                     if (m_pPointData)
-                        m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                        m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ, false);
 
                     // TODO - this might not be the correct place to set this setting
                     if (m_pInstance)
@@ -384,7 +384,7 @@ struct MANGOS_DLL_DECL boss_onyxiaAI : public ScriptedAI
                     }
 
                     if (m_pPointData = GetMoveData())
-                        m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                        m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ, false);
                 }
                 else
                     m_uiMovementTimer -= uiDiff;
