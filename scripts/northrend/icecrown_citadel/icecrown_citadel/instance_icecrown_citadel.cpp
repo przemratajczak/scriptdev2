@@ -46,7 +46,7 @@ static Locations SpawnLoc[]=
             DoOpenDoor(GO_MARROWGAR_DOOR);
             DoOpenDoor(GO_ORATORY_DOOR);
         };
-        if (m_auiEncounter[2] == DONE) 
+        if (m_auiEncounter[2] == DONE)
         {
             if (GameObject* pGO = GetSingleGameObjectFromStorage(GO_DEATHWHISPER_ELEVATOR))
             {
@@ -54,7 +54,7 @@ static Locations SpawnLoc[]=
                 pGO->SetGoState(GO_STATE_READY);
             }
         };
-        if (m_auiEncounter[4] == DONE) 
+        if (m_auiEncounter[4] == DONE)
         {
             DoOpenDoor(GO_SAURFANG_DOOR);
             DoOpenDoor(GO_BLOODWING_DOOR);
