@@ -111,6 +111,8 @@ enum
     SPELL_SEARING_GAZE_H               = 59867,
     NPC_SEARING_GAZE_TARGET            = 28265,
 
+    SPELL_ACHIEVEMENT_CHECK            = 59046,             // Doesn't exist in client dbc
+
     NPC_DARK_RUNE_PROTECTOR            = 27983,
     NPC_DARK_RUNE_STORMCALLER          = 27984,
     NPC_IRON_GOLEM_CUSTODIAN           = 27985,
@@ -700,6 +702,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
                     }
 
                     if (Player* pPlayer = GetPlayerForEscort())
+                    // Should cast spell 59046 (doesn't exist in client dbc), criterias are ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET
                         pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, m_creature);
 
                     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
