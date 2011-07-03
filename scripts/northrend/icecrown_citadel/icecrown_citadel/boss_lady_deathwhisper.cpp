@@ -210,6 +210,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
             }
             else
             {
+                m_creature->RemoveAurasDueToSpell(SPELL_DARK_EMPOWERMENT);
                 m_creature->SetPower(POWER_MANA,0);
                 doRemove(SPELL_MANA_BARRIER);
             };
