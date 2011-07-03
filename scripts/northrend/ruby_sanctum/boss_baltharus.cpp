@@ -183,10 +183,7 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
           return;
 
         if (pClone && pClone->isAlive())
-        {
             pDoneBy->DealDamage(pClone, uiDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            uiDamage = 0;
-        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -254,7 +251,7 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
                  break;
         }
 
-//        timedCast(SPELL_BLADE_TEMPEST, uiDiff);
+        timedCast(SPELL_BLADE_TEMPEST, uiDiff);
         timedCast(SPELL_ENERVATING_BRAND, uiDiff);
         timedCast(SPELL_SABER_LASH, uiDiff);
 
