@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Instance_Ulduar
-SD%Complete: 
-SDComment: 
+SD%Complete:
+SDComment:
 SDCategory: Ulduar
 EndScriptData */
 

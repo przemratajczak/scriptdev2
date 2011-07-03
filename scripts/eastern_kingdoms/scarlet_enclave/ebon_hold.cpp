@@ -510,6 +510,11 @@ enum
     SPELL_DUEL_VICTORY          = 52994,
     SPELL_DUEL_FLAG             = 52991,
 
+    SPELL_BLOOD_STRIKE_DUEL     = 52374,
+    SPELL_DEATH_COIL_DUEL       = 52375,
+    SPELL_ICY_TOUCH_DUEL        = 52372,
+    SPELL_PLAGUE_STRIKE_DUEL    = 52373,
+
     QUEST_DEATH_CHALLENGE       = 12733,
     FACTION_HOSTILE             = 2068
 };
@@ -528,6 +533,10 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
     ObjectGuid m_duelerGuid;
     uint32 m_uiDuelTimer;
     bool m_bIsDuelInProgress;
+    uint32 m_uiBloodStrike_Timer;
+    uint32 m_uiDeathCoil_Timer;
+    uint32 m_uiIcyTouch_Timer;
+    uint32 m_uiPlagueStrike_Timer;
 
     void Reset()
     {
@@ -539,6 +548,10 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
         m_duelerGuid.Clear();
         m_uiDuelTimer = 5000;
         m_bIsDuelInProgress = false;
+        m_uiBloodStrike_Timer = 4000;
+        m_uiDeathCoil_Timer = 6000;
+        m_uiIcyTouch_Timer = 2000;
+        m_uiPlagueStrike_Timer = 5000;
     }
 
     void AttackedBy(Unit* pAttacker)
@@ -594,7 +607,37 @@ struct MANGOS_DLL_DECL npc_death_knight_initiateAI : public ScriptedAI
             return;
         }
 
-        // TODO: spells
+        if (m_uiBloodStrike_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_BLOOD_STRIKE_DUEL);
+            m_uiBloodStrike_Timer = 9000;
+        }
+        else
+            m_uiBloodStrike_Timer -= uiDiff;
+
+        if (m_uiDeathCoil_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_DEATH_COIL_DUEL);
+            m_uiDeathCoil_Timer = 8000;
+        }
+        else
+            m_uiDeathCoil_Timer -= uiDiff;
+
+        if (m_uiIcyTouch_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_ICY_TOUCH_DUEL);
+            m_uiIcyTouch_Timer = 8000;
+        }
+        else
+            m_uiIcyTouch_Timer -= uiDiff;
+
+        if (m_uiPlagueStrike_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_PLAGUE_STRIKE_DUEL);
+            m_uiPlagueStrike_Timer = 8000;
+        }
+        else
+            m_uiPlagueStrike_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -3443,60 +3486,60 @@ bool GossipSelect_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreat
 /*######
 ## npc orbaz, koltira, tassarian
 ######*/
-struct MANGOS_DLL_DECL npc_koltira_orbaz_tassarian_dawn_of_lightAI : public ScriptedAI
-{ 
-    npc_koltira_orbaz_tassarian_dawn_of_lightAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
-    
-    uint32 uiIcyTouchTimer;
-    uint32 uiBloodStrikeTimer;
-    uint32 uiPlagueStrikeTimer;
+struct MANGOS_DLL_DECL npc_minibosses_dawn_of_lightAI : public ScriptedAI
+{
+   npc_minibosses_dawn_of_lightAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
-    void Reset()
-    {
-        uiIcyTouchTimer = urand(10000, 20000);
-        uiBloodStrikeTimer = urand(10000, 20000);
-        uiPlagueStrikeTimer = urand(10000, 20000);
-    }
+   uint32 uiIcyTouchTimer;
+   uint32 uiBloodStrikeTimer;
+   uint32 uiPlagueStrikeTimer;
 
-    bool EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
-    {
-        m_creature->GetMotionMaster()->MoveIdle();
-        return false;
-    }
-    void EnterEvadeMode()
-    {
-        m_creature->GetMotionMaster()->MoveIdle();
-        return;
-    }
+   void Reset()
+   {
+       uiIcyTouchTimer = urand(10000, 20000);
+       uiBloodStrikeTimer = urand(10000, 20000);
+       uiPlagueStrikeTimer = urand(10000, 20000);
+   }
 
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!m_creature->getVictim() || !m_creature->SelectHostileTarget() )
-            return;
+   bool EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
+   {
+       m_creature->GetMotionMaster()->MoveIdle();
+       return false;
+   }
+   void EnterEvadeMode()
+   {
+       m_creature->GetMotionMaster()->MoveIdle();
+       return;
+   }
 
-        if (uiIcyTouchTimer <= uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ICY_TOUCH);
-            uiIcyTouchTimer = urand(10000, 20000);
-        }
-        else uiIcyTouchTimer -= uiDiff;
+   void UpdateAI(const uint32 uiDiff)
+   {
+       if (!m_creature->getVictim() || !m_creature->SelectHostileTarget() )
+           return;
 
-        if (uiBloodStrikeTimer <= uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
-            uiBloodStrikeTimer = urand(10000, 20000);
-        }
-        else uiBloodStrikeTimer -= uiDiff;
+       if (uiIcyTouchTimer <= uiDiff)
+       {
+           DoCastSpellIfCan(m_creature->getVictim(), SPELL_ICY_TOUCH);
+           uiIcyTouchTimer = urand(10000, 20000);
+       }
+       else uiIcyTouchTimer -= uiDiff;
 
-        if (uiPlagueStrikeTimer <= uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_PLAGUE_STRIKE1);
-            uiPlagueStrikeTimer = urand(10000, 20000);
-        }
-        else uiPlagueStrikeTimer -= uiDiff;
+       if (uiBloodStrikeTimer <= uiDiff)
+       {
+           DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOOD_STRIKE);
+           uiBloodStrikeTimer = urand(10000, 20000);
+       }
+       else uiBloodStrikeTimer -= uiDiff;
 
-        DoMeleeAttackIfReady();
-    }
+       if (uiPlagueStrikeTimer <= uiDiff)
+       {
+           DoCastSpellIfCan(m_creature->getVictim(), SPELL_PLAGUE_STRIKE1);
+           uiPlagueStrikeTimer = urand(10000, 20000);
+       }
+       else uiPlagueStrikeTimer -= uiDiff;
+
+       DoMeleeAttackIfReady();
+   }
 };
 
 
@@ -3666,14 +3709,14 @@ struct MANGOS_DLL_DECL mob_warrior_of_the_frozen_wastesAI : public ScriptedAI
     }
 };
 
-/*CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)
-{ 
-     return new npc_highlord_darion_mograineAI(pCreature);
-}*/
-
-CreatureAI* GetAI_npc_koltira_orbaz_tassarian_dawn_of_light(Creature* pCreature)
+CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)
 {
-     return new npc_koltira_orbaz_tassarian_dawn_of_lightAI (pCreature);
+    return new npc_highlord_darion_mograineAI(pCreature);
+}
+
+CreatureAI* GetAI_npc_minibosses_dawn_of_light(Creature* pCreature)
+{
+    return new npc_minibosses_dawn_of_lightAI (pCreature);
 }
 
 CreatureAI* GetAI_mob_warrior_of_the_frozen_wastes(Creature* pCreature)

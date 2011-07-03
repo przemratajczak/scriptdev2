@@ -1,3 +1,9 @@
+-- Eye of Acherus texts
+DELETE FROM script_texts WHERE entry BETWEEN -1666452 AND -1666451;
+INSERT INTO script_texts (entry, content_default, content_loc8, sound, type, language, emote, comment) VALUES
+('-1666451','The Eye of Acherus launches towards its destination','Око Акеруса вылетело в пункт назначения','0','3','0','0','EOA_LAUNCH'),
+('-1666452','The Eye of Acherus is in your control','Око Акеруса под вашим контролем','0','3','0','0','EOA_CONTROL');
+
 -- Quest The Light of Dawn
 
 DELETE FROM `script_texts` WHERE entry BETWEEN -1609286 AND -1609201;
@@ -118,7 +124,7 @@ INSERT INTO `script_waypoint` VALUES
    (29173, 9, 2259.34, -5294.379, 82.167, 0, 'event end');
 
 -- Quest The Gift That Keeps On Giving - script texts
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1609300 AND -1609311;
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1609310 AND -1609300;
 INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (-1609300, "Smell flesh... close...",0,0,0,0,"SAY_SCARLET_GHOUL_SPAWN1"),
 (-1609301, "The grave calls to us all!",0,0,0,0,"SAY_SCARLET_GHOUL_SPAWN2"),
@@ -131,8 +137,3 @@ INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,
 (-1609308, "Back you mindless wretch! Back to the pit!",0,0,0,0,"SAY_SCARLET_GOTHIK3"),
 (-1609309, "It puts the ghoul in the pit or else it gets the lash!",0,0,0,0,"SAY_SCARLET_GOTHIK4"),
 (-1609310, "Get in the pit you worthless pile of garbage!",0,0,0,0,"SAY_SCARLET_GOTHIK5");
-
--- Quest: Powering Our Defenses (8490)
-DELETE FROM script_texts WHERE entry=-1999811;
-INSERT INTO script_texts (entry,content_default,type,comment) VALUES
-(-1999811,'%s releases the last of its energies into nearby runestone, succesfully reactivating it.',2,'INFUSED_CRYSTAL_EMOTE');

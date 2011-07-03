@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11570, 11590, 11692, 11676, 11708, 11919, 11940, 11961. Taxi vendors. 
+SDComment: Quest support: 11570, 11590, 11692, 11676, 11708, 11919, 11940, 11961. Taxi vendors.
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -938,6 +938,9 @@ enum
     NPC_RAELORASZ                   = 26117,
     DRAKE_HUNT_KILL_CREDIT          = 26175,
 
+    //SPELL_INTANGIBLE_PRESENCE     = 36513,
+    //SPELL_NETHERBREATH            = 36631,
+
     QUEST_DRAKE_HUNT                = 11919,
     QUEST_DRAKE_HUNT_D              = 11940
 
@@ -950,18 +953,22 @@ struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
      ObjectGuid uiHarpoonerGuid;
      bool bWithRedDragonBlood;
      bool bIsFollowing;
+     //uint32 SPELL_INTANGIBLE_PRESENCE_Timer;
+     //uint32 SPELL_NETHERBREATH_Timer;
 
      void Reset()
      {
          bWithRedDragonBlood = false;
          bIsFollowing = false;
+         //SPELL_INTANGIBLE_PRESENCE_Timer; = 16600;    MAX REPEAT 19700
+         //SPELL_NETHERBREATH_Timer = 2600;             MAX REPEAT 20000
      }
 
      void EnterCombat(Unit* pWho)
      {
          AttackStart(pWho);
      }
-     
+
      void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
      {
             if (pSpell->Id == SPELL_DRAKE_HARPOON && pCaster->GetTypeId() == TYPEID_PLAYER)
@@ -989,11 +996,11 @@ struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
                      uiHarpoonerGuid = 0;
                      m_creature->ForcedDespawn(1000);
                  }
-              
+
           }
       }
-     
-     void UpdateAI(const uint32 uidiff)
+
+     void UpdateAI(const uint32 uidiff)  // TODO: ADD SPELLS
         {
             if (bWithRedDragonBlood && uiHarpoonerGuid && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
             {
@@ -1060,6 +1067,9 @@ enum eBerylSorcerer
     NPC_CAPTURED_BERLY_SORCERER         = 25474,
     NPC_LIBRARIAN_DONATHAN              = 25262,
 
+    SPELL_FROST_BOLT                     = 9672,
+    SPELL_BLINK                          = 50648,
+
     SPELL_ARCANE_CHAINS                 = 45611,
     SPELL_COSMETIC_CHAINS               = 54324,
     SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
@@ -1067,18 +1077,24 @@ enum eBerylSorcerer
 
 struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
 {
-    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) { 
-        Reset(); 
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) {
+        m_uiNormalFaction = pCreature->getFaction();
+        Reset();
     }
 
     bool bEnslaved;
     ObjectGuid uiChainerGuid;
     uint32 m_uiNormalFaction;
 
+    uint32 SPELL_FROST_BOLT_Timer;
+    uint32 SPELL_BLINK_Timer;
+
     void Reset()
     {
          m_creature->setFaction(14);
          bEnslaved = false;
+         SPELL_FROST_BOLT_Timer = 5400;
+         SPELL_BLINK_Timer = 15000;
     }
     void EnterCombat(Unit* pWho)
     {
@@ -1097,7 +1113,6 @@ struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
                 StartFollow(pChainer, 35, NULL);
                 m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
                 DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
- 
                 bEnslaved = true;
                 }
             }
@@ -1119,8 +1134,21 @@ struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
      }
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->getVictim())
-                return;
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        /// Frost_bolt needs to be casted more after blink
+        if (SPELL_FROST_BOLT_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_BOLT);
+            SPELL_FROST_BOLT_Timer = 5400 + rand()%1400;
+        }else SPELL_FROST_BOLT_Timer -= uiDiff;
+
+        if (SPELL_BLINK_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_BLINK);
+            SPELL_BLINK_Timer = 15000 + rand()%3000;
+        }else SPELL_BLINK_Timer -= uiDiff;
 
             DoMeleeAttackIfReady();
     }
