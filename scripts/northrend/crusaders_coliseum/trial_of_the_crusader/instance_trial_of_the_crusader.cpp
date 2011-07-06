@@ -124,24 +124,23 @@ struct MANGOS_DLL_DECL instance_trial_of_the_crusader : public BSWScriptedInstan
                                 m_auiEncounter[3] = uiData;
                             if (uiData == DONE) 
                             {
-                                uint32 uiCacheEntry = GO_CRUSADERS_CACHE_10;
+                               uint32 uiCacheEntry = GO_CRUSADERS_CACHE_10; 
 
-                                switch (instance->GetDifficulty())
-                                {
-                                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                                        uiCacheEntry = GO_CRUSADERS_CACHE_10_H;
-                                        break;
-                                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                                        uiCacheEntry = GO_CRUSADERS_CACHE_25;
-                                        break;
-                                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                                        uiCacheEntry = GO_CRUSADERS_CACHE_25_H;
-                                        break;
-                                }
-
-                                if (GameObject* pChest = GetSingleGameObjectFromStorage(uiCacheEntry))
-                                    if (!pChest->isSpawned())
-                                        pChest->SetRespawnTime(7*DAY);
+                               switch (instance->GetDifficulty()) 
+                               { 
+                                   case RAID_DIFFICULTY_10MAN_HEROIC: 
+                                       uiCacheEntry = GO_CRUSADERS_CACHE_10_H; 
+                                       break; 
+                                   case RAID_DIFFICULTY_25MAN_NORMAL: 
+                                       uiCacheEntry = GO_CRUSADERS_CACHE_25; 
+                                       break; 
+                                   case RAID_DIFFICULTY_25MAN_HEROIC: 
+                                       uiCacheEntry = GO_CRUSADERS_CACHE_25_H; 
+                                       break; 
+                               } 
+                               if (GameObject* pChest = GetSingleGameObjectFromStorage(uiCacheEntry)) 
+                                   if (!pChest->isSpawned()) 
+                                       pChest->SetRespawnTime(7*DAY);
                             };
                             break;
         case TYPE_CRUSADERS_COUNT:  if (uiData == 0) --m_auiCrusadersCount;
