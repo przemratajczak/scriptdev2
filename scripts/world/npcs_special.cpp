@@ -1270,6 +1270,9 @@ bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 {
    if (pPlayer->getClass() != CLASS_ROGUE) return false;
 
+   if (pCreature->isTrainer())
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+   
    if (pPlayer->getLevel() >= 24 && !pPlayer->HasItemCount(17126,1) && !pPlayer->GetQuestRewardStatus(6681))
         if (pCreature->isQuestGiver())
         {
@@ -1283,13 +1286,22 @@ bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+
+    switch(uiAction )
     {
-        pPlayer->CastSpell(pPlayer,21100,false);
-        pPlayer->CLOSE_GOSSIP_MENU();
-        return true;
+        case GOSSIP_ACTION_TRAIN:
+            pPlayer->SEND_TRAINERLIST(pCreature->GetObjectGuid());
+            break;
+
+        case GOSSIP_ACTION_INFO_DEF:
+            {
+                pPlayer->CastSpell(pPlayer,21100,false);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            }
     } 
-    else return false;
+    return true;
+    
 }
 
 /*######
