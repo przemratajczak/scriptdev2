@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Instance_Obsidian_Sanctum
-SD%Complete: 90%
+SD%Complete: 95%
 SDComment:
 SDCategory: Obsidian Sanctum
 EndScriptData */
