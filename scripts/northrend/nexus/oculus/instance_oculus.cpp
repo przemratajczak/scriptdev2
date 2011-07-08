@@ -186,21 +186,20 @@ InstanceData* GetInstanceData_instance_oculus(Map* pMap)
     return new instance_oculus(pMap);
 }
 
-/*###
-# Oculus Orb
-####*/
-
-bool GOUse_go_oculus_portal(Player* pPlayer, GameObject* pGo)
-{
-	switch(pGo->GetEntry())
-	{
-	case GO_ORB_OF_NEXUS:
-		pPlayer->TeleportTo(571,3876.159912f,6984.439941f,106.32f,6.279f);
-		return true;
-	}
-
-	return false;
+/*### 
+# Oculus Orb 
+-####*/ 
+bool GOUse_go_oculus_portal(Player* pPlayer, GameObject* pGo) 
+{ 
+    switch(pGo->GetEntry()) 
+    {
+    case GO_ORB_OF_NEXUS: 
+        pPlayer->TeleportTo(571,3876.159912f,6984.439941f,106.32f,6.279f); 
+        return true; 
+    } 
+    return false; 
 }
+
 
 void AddSC_instance_oculus()
 {
