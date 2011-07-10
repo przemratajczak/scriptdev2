@@ -17,7 +17,8 @@
 /* ScriptData
 SDName: Ebon_Hold
 SD%Complete: 85
-SDComment: Quest support: 12641, 12701, 12848, 12733, 12739(and 12742 to 12750), 12727, 12698. Special Npc (npc_valkyr_battle_maiden)
+SDComment: Quest support: 12641, 12701, 12848, 12733, 12739(and 12742 to 12750), 12720, 12727, 12698. Special Npc (npc_valkyr_battle_maiden)
+ToDo: restore spells to mobs in quest how to persudae friends and win enemies
 SDCategory: Ebon Hold
 EndScriptData */
 
@@ -4085,6 +4086,9 @@ bool GOUse_inconspicous_mine_car(Player *pPlayer, GameObject* /*pGo*/)
 {
     if (pPlayer->GetQuestStatus(QUEST_MASSACRE_AT_LIGHTS_POINT) == QUEST_STATUS_INCOMPLETE)
     {
+        if (pPlayer->GetVehicle())
+            return false;
+
         if (Creature *pMiner = pPlayer->SummonCreature(ENTRY_SCARLET_MINER, 2383.869629f, -5900.312500f, 107.996086f, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
         {
             pPlayer->CastSpell(pPlayer, SPELL_MINE_CAR_SUMM, true);
