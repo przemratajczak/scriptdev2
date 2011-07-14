@@ -37,17 +37,12 @@ enum
 
     //auriaya
     SPELL_BERSERK                = 47008,
-    SPELL_GUARDIAN_SWARM        = 64396,
-    SPELL_GUARDIAN_SWARM_DUMMY  = 65029,
+    SPELL_GUARDIAN_SWARM        = 64396,    // broken
     SPELL_SENTINEL_BLAST        = 64389,
     SPELL_SENTINEL_BLAST_H        = 64678,
     SPELL_SONIC_SCREECH            = 64422,
     SPELL_SONIC_SCREECH_H        = 64688,
     SPELL_FEAR                    = 64386,
-    // summon Feral Defender
-    SPELL_SUMMON_DEFENDER       = 64448,
-    SPELL_SUMMON_DEFENDER_AURA  = 64449,
-    NPC_FERAL_DEFENDER_STALKER  = 34096,
 
     //feral defender
     SPELL_FEIGN_DEATH            = 57685,
@@ -63,9 +58,7 @@ enum
     SPELL_SAVAGE_POUNCE            = 64666,
     SPELL_SAVAGE_POUNCE_H        = 64374,
     SPELL_STRENGHT_OF_PACK        = 64369,
-    SPELL_STRENGHT_OF_PACK_BUFF = 64381,
     //seeping feral essence
-    SPELL_SUMMON_SEEPING_ESSENCE= 64457,
     AURA_VOID_ZONE                = 64458,
     AURA_VOID_ZONE_H            = 64676,
     //NPC ids
@@ -190,11 +183,15 @@ struct MANGOS_DLL_DECL mob_sanctum_sentryAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
         {
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
-                if (m_pInstance)
-                    if (Creature *pAuriaya = m_pInstance->GetSingleCreatureFromStorage(NPC_AURIAYA))
-                        m_creature->GetMotionMaster()->MoveFollow(pAuriaya, 5.0f, urand(60, 250)/100.0f);
-            return;
+            // they should follow Auriaya, but this looks ugly!
+            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_AURIAYA)))
+            {
+                if (pTemp->isAlive())
+                {
+                    m_creature->GetMotionMaster()->MoveFollow(pTemp,0.0f,0.0f);
+                    m_creature->GetMap()->CreatureRelocation(m_creature, pTemp->GetPositionX(), pTemp->GetPositionY(), pTemp->GetPositionZ(), 0.0f);
+                }
+            }
         }
 
         if (m_uiRip_Flesh_Timer < diff)
@@ -242,7 +239,7 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
     bool m_bIsDead;
     bool m_bHasAura;
 
-    GUIDList m_lVoidZones;
+    bool m_bHasAura;
 
     void Reset()
     {
@@ -250,7 +247,7 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
         m_uiRush_Start_Timer    = 9000;
         m_bIsRush               = false;
         m_bIsDead               = false;
-        m_bHasAura              = false;
+        m_bHasAura                = false;
         m_creature->SetRespawnDelay(DAY);
         m_creature->SetInCombatWithZone();
         if (!m_lVoidZones.empty())
@@ -268,6 +265,11 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
     }
 
     void Aggro(Unit* pWho)
+    {
+        DoCast(m_creature, SPELL_FERAL_ESSENCE);
+    }
+
+    void JustDied(Unit* pKiller)
     {
         DoCast(m_creature, SPELL_FERAL_ESSENCE);
     }
@@ -299,8 +301,15 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
             // remove 1 stack of the aura
             if(SpellAuraHolder* strenght = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
             {
-                if(strenght->ModStackAmount(-1))
-                    m_creature->RemoveAurasDueToSpell(SPELL_FERAL_ESSENCE);
+                // remove 1 stack of the aura
+                if(SpellAuraHolder* strenght = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
+                {
+                    if(strenght->ModStackAmount(-1))
+                        m_creature->RemoveAurasDueToSpell(SPELL_FERAL_ESSENCE);
+                }
+
+                m_uiRevive_Delay = 35000;
+                m_bIsDead = true;
             }
             m_uiRevive_Delay = 35000;
             m_bIsDead = true;
@@ -348,15 +357,12 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
             return;
 
         // hacky way of stacking aura, needs fixing
-        if (!m_bHasAura)
+        if(SpellAuraHolder* essence = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
         {
-            if(SpellAuraHolder* essence = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
+            if(essence->GetStackAmount() < 9 && !m_bHasAura)
             {
-                if(essence->GetStackAmount() < 9)
-                {
-                    m_bHasAura = true;
-                    essence->SetStackAmount(9);
-                }
+                m_bHasAura = true;
+                essence->SetStackAmount(9);
             }
         }
 
@@ -559,18 +565,11 @@ struct MANGOS_DLL_DECL boss_auriayaAI : public ScriptedAI
 
         if (m_uiFear_Timer < uiDiff)
         {
-            if (!IsCastPostponed())
-            {
-                DoScriptText(EMOTE_SCREECH, m_creature);
-                m_creature->InterruptNonMeleeSpells(true);
-                DoCast(m_creature, SPELL_FEAR);
-                m_uiFear_Timer = 35000;
-                m_uiSentinel_Blast_Timer = 2500;
-
-                // don't cast Sonic Screech right after the fear!
-                if (m_uiSonic_Screech_Timer < 4000)
-                    m_uiSonic_Screech_Timer = 4000;
-            }
+            DoScriptText(EMOTE_SCREECH, m_creature);
+            m_creature->InterruptNonMeleeSpells(true);
+            DoCast(m_creature, SPELL_FEAR);
+            m_uiFear_Timer = 35000;
+            m_uiSentinel_Blast_Timer = 2500;
         }else m_uiFear_Timer -= uiDiff;
 
         if (m_uiSentinel_Blast_Timer < uiDiff)
@@ -603,12 +602,9 @@ struct MANGOS_DLL_DECL boss_auriayaAI : public ScriptedAI
 
         if (m_uiSonic_Screech_Timer < uiDiff)
         {
-            if (!IsCastPostponed())
-            {
-                m_creature->InterruptNonMeleeSpells(true);
-                DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_SONIC_SCREECH : SPELL_SONIC_SCREECH_H);
-                m_uiSonic_Screech_Timer = 27000;
-            }
+            m_creature->InterruptNonMeleeSpells(true);
+            DoCast(m_creature->getVictim(), m_bIsRegularMode ? SPELL_SONIC_SCREECH : SPELL_SONIC_SCREECH_H);
+            m_uiSonic_Screech_Timer = 27000;
         }else m_uiSonic_Screech_Timer -= uiDiff;
 
         // summon swarm, spell needs core fix

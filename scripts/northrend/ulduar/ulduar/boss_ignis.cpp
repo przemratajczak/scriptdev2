@@ -27,48 +27,50 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                       = -1610020,
-    SAY_SCORCH_1                    = -1610021,
-    SAY_SCORCH_2                    = -1610022,
-    SAY_SLAG_POT                    = -1610023,
-    EMOTE_FLAME_JETS                = -1610024,
-    SAY_SUMMON                      = -1610025,
-    SAY_SLAY_1                      = -1610026,
-    SAY_SLAY_2                      = -1610027,
-    SAY_BERSERK                     = -1610028,
-    SAY_DEATH                       = -1610029,
+    //yells
+    SAY_AGGRO       = -1603010,
+    SAY_SCORCH1     = -1603011,
+    SAY_SCORCH2     = -1603012,
+    SAY_SLAGPOT     = -1603013,
+    EMOTE_FLAMEJETS = -1603014,
+    SAY_SUMMON      = -1603015,
+    SAY_SLAY1       = -1603016,
+    SAY_SLAY2       = -1603017,
+    SAY_BERSERK     = -1603018,
+    SAY_DEATH       = -1603019,
 
-    // Ignis
-    SPELL_FLAME_JETS                = 62680,
-    SPELL_FLAME_JETS_H              = 63472,
-    SPELL_SCORCH_CHANNELED          = 62546,
-    SPELL_SCORCH_CHANNELED_H        = 63474,
-    SPELL_CHARGE_SLAG_POT           = 62707,
-    SPELL_CHARGE_SLAG_POT_H         = 63535,
-    SPELL_SLAG_POT_AURA             = 62717,
-    SPELL_SLAG_POT_AURA_H           = 63477,
+    //ignis the furnace master
+    SPELL_FLAME_JETS            = 62680,
+    SPELL_FLAME_JETS_H            = 63472,
+    SPELL_SLAG_POT                = 62717,
+    SPELL_SLAG_POT_H            = 63477,
+    SPELL_SLAG_POT_DMG            = 65722,
+    SPELL_SLAG_POT_DMG_H        = 65723,
+    SPELL_SCORCH                = 62546,
+    SPELL_SCORCH_H                = 63474,
+    BUFF_STRENGHT_OF_CREATOR    = 64473,
+    SPELL_STRENGHT_OF_CREATOR2    = 64474,
+    SPELL_STRENGHT_OF_CREATOR3    = 64475,
+    SPELL_HASTE                    = 66045,
+    SPELL_ENRAGE                = 26662,
+    //iron construct
+    SPELL_HEAT                    = 65667,
+    SPELL_MOLTEN                = 62373,
+    SPELL_BRITTLE                = 62382,
+    SPELL_SHATTER                = 62383,
+    //scorch target
+    AURA_SCORCH                    = 62548,
+    AURA_SCORCH_H                = 63476,
+    AURA_HEAT                   = 65667,
+    SPELL_FREEZE_ANIM           = 16245,
+    //NPC ids
+    MOB_IRON_CONSTRUCT            = 33121,
+    MOB_SCORCH_TARGET            = 33221,
 
-    // Scorch trigger
-    SPELL_SCORCH_AURA               = 62548,
-    SPELL_SCORCH_AURA_H             = 63476,
-
-    // Iron Constructs
-    //NPC_IRON_CONSTRUCT            = 33121,
-    SPELL_STONED                    = 62468,
-    SPELL_HEAT_AURA                 = 65667,
-    SPELL_MOLTEN                    = 62373,
-    SPELL_BRITTLE                   = 67114,
-    SPELL_BRITTLE_H                 = 62382,
-    SPELL_SHATTER                   = 62383,
-    SPELL_ACTIVATE_CONSTRUCT        = 62488,
-    SPELL_STRENGTH_OF_THE_CREATOR   = 64473,
-
-    // other stuff
-    SPELL_SUMMON_SCORCH_TRIGGER     = 62551,
-    SPELL_SLAG_IMBUED               = 62836,
-    SPELL_SLAG_IMBUED2              = 63536,
-    SPELL_MOLTEN_STUN               = 65208,            // couldn't find proper spell, so using this one
-    SCORCH_DESPAWN_TIME             = 40000
+    ACHIEV_STOKIN_THE_FURNACE   = 2930,
+    ACHIEV_STOKIN_THE_FURNACE_H = 2929,
+    ACHIEV_SHATTERED            = 2925,
+    ACHIEV_SHATTERED_H          = 2926,
 };
 
 /*######
@@ -172,9 +174,21 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
                 m_pInstance->SetData(TYPE_ACHI_SHATTERED, DONE);
         }
 
-        // reset achievement timer
-        m_uiShatteredTimer = 0;
-    }
+    // set in combat
+    void GetInCombat()
+    { 
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        if (m_creature->HasAura(SPELL_FREEZE_ANIM, EFFECT_INDEX_0))
+            m_creature->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
+        m_bIsInCombat = true;
+
+        if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_IGNIS)))
+        {
+            if (pTemp->isAlive())
+            {
+                m_creature->SetWalk(false);
+                m_creature->GetMotionMaster()->MovePoint(0, pTemp->GetPositionX(), pTemp->GetPositionY(), pTemp->GetPositionZ());
 
     void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
     {

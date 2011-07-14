@@ -298,7 +298,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
         m_creature->GetMotionMaster()->Clear();
 
         DespawnCreatures(NPC_POWER_SPARK);
@@ -357,7 +357,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         DespawnCreatures(NPC_STATIC_FIELD);
         m_creature->SummonCreature(NPC_ALEXSTRASZA, CENTER_X+20.0f, CENTER_Y+20.0f, AIR_Z, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
         m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z-500.0f, 0);
-        m_creature->SendMonsterMove(m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z-400.0f, SPLINETYPE_NORMAL , m_creature->GetSplineFlags(), 10000);
+        m_creature->MonsterMoveWithSpeed(m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z-400.0f, 26);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -426,7 +426,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         {
             /*if (Creature* pDisk = pSummoned->SummonCreature(NPC_HOVER_DISK, pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
             {
-                pDisk->SetSplineFlags(SPLINEFLAG_FLYING);
+                pDisk->SetLevitate(true);
                 pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
                 pDisk->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
@@ -555,7 +555,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 pTargetSparkPortal->Respawn();
 
             m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-            m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
+            m_creature->SetLevitate(false);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_uiPhase = PHASE_FLOOR;
             m_creature->SetInCombatWithZone();
@@ -769,7 +769,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     else if (m_uiVortexPhase == 3)
                     {
                         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-                        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
+                        m_creature->SetLevitate(false);
                         m_uiSubPhase = 0;
                         SetCombatMovement(true);
                         m_creature->GetMotionMaster()->Clear();
@@ -832,7 +832,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             if (m_uiVortexTimer <= uiDiff)
             {
                 m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-                m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+                m_creature->SetLevitate(true);
                 SetCombatMovement(false);
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MovePoint(POINT_ID_VORTEX_AIR, CENTER_X, CENTER_Y, AIR_Z);
@@ -856,7 +856,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     m_uiPhase = PHASE_ADDS;
                     m_uiSubPhase = SUBPHASE_TALK;
                     m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-                    m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+                    m_creature->SetLevitate(true);
                     SetCombatMovement(false);
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, AIR_Z);
@@ -1129,7 +1129,7 @@ struct MANGOS_DLL_DECL npc_power_sparkAI : public ScriptedAI
         m_uiCheckTimer = 0;
 
         SetCombatMovement(false);
-        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
         m_creature->CastSpell(m_creature, SPELL_POWER_SPARK_VISUAL, false);
     }
 
@@ -1154,7 +1154,7 @@ struct MANGOS_DLL_DECL npc_power_sparkAI : public ScriptedAI
             m_creature->CastSpell(m_creature, SPELL_POWER_SPARK_PLAYERS, true);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z+1.5f, 0);
-            m_creature->SendMonsterMove(m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z+1.5f, SPLINETYPE_NORMAL , m_creature->GetSplineFlags(), 1000);
+            m_creature->MonsterMoveWithSpeed(m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z+1.5f,26);
             m_creature->ForcedDespawn(60000);
         }
     }
@@ -1400,11 +1400,57 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
 ######*/
 struct MANGOS_DLL_DECL npc_arcane_overloadAI : public ScriptedAI
 {
-    npc_arcane_overloadAI(Creature *pCreature) : ScriptedAI(pCreature){}
-    void Reset(){SetCombatMovement(false);}
-    void MoveInLineOfSight(Unit *pWho){}
-    void AttackStart(Unit *pWho){}
-    void UpdateAI(const uint32 uiDiff){}
+    npc_hover_diskAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiCheckTimer;
+    bool m_bPassengerHere;
+    bool m_bMoved;
+
+    void Reset()
+    {
+        m_uiCheckTimer = 500;
+        m_bPassengerHere = false;
+        m_bMoved = false;
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->setFaction(35);
+        m_creature->CastSpell(m_creature, SPELL_FLIGHT, true);
+        m_creature->SetLevitate(true);
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiCheckTimer <= uiDiff)
+        {
+            if (m_creature->GetVehicleKit()->GetPassenger(0) && !m_bPassengerHere)
+            {
+                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                m_bMoved = false;
+                m_bPassengerHere = true;
+            }
+            else
+                if (!m_bMoved && m_bPassengerHere)
+                {
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    m_creature->GetMap()->CreatureRelocation(m_creature, m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z+1.5f, 0);
+                    m_creature->MonsterMoveWithSpeed(m_creature->GetPositionX(), m_creature->GetPositionY(), FLOOR_Z+1.5f, 26);
+                    m_bMoved = true;
+                    m_bPassengerHere = false;
+                }
+            m_uiCheckTimer = 500;
+        }
+        else
+            m_uiCheckTimer -= uiDiff;
+    }
 };
 
 /*######
@@ -1428,7 +1474,10 @@ struct MANGOS_DLL_DECL npc_alexstraszaAI : public ScriptedAI
         m_uiTimer = 9500;
         m_uiCount = 0;
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
+        if (m_pInstance)
+            if (Creature* pMalygos = m_pInstance->GetSingleCreatureFromStorage(NPC_MALYGOS))
+                m_creature->SetFacingToObject(pMalygos);
     }
 
     void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpell)
@@ -1541,6 +1590,106 @@ CreatureAI* GetAI_npc_arcane_overload(Creature* pCreature)
 CreatureAI* GetAI_npc_alexstrasza(Creature* pCreature)
 {
     return new npc_alexstraszaAI(pCreature);
+}
+
+struct MANGOS_DLL_DECL npc_whyrmrest_skytalonAI : public ScriptedAI
+{
+    npc_whyrmrest_skytalonAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+    bool Active;
+    bool seated;
+    ObjectGuid ownerGUID;
+    uint32 StartTimer;
+    uint32 SeatTimer;
+
+    void Reset()
+    {
+        Active = false;
+        seated = false;
+        ownerGUID = ObjectGuid();
+        StartTimer = 500;
+        SeatTimer = 2000;
+        ownerGUID = m_creature->GetCreatorGuid();
+        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
+        m_creature->SetLevitate(true);
+    }
+
+    void AttackStart(Unit *) {}
+    void MoveInLineOfSight(Unit*) {}
+
+    void JustDied(Unit* killer)
+    {
+        if (!m_creature || m_creature->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        if (ownerGUID.IsEmpty())
+            ownerGUID = m_creature->GetCreatorGuid();
+
+        Unit* owner = m_creature->GetMap()->GetUnit(ownerGUID);
+
+        if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        owner->RemoveAurasDueToSpell(SPELL_VEHICLE_HARDCODED);
+        m_creature->SetCreatorGuid(ObjectGuid());
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+
+        if (ownerGUID.IsEmpty())
+        {
+            ownerGUID = m_creature->GetCreatorGuid();
+            if (Unit* owner = m_creature->GetMap()->GetUnit(ownerGUID))
+                m_creature->setFaction(owner->getFaction());
+        }
+
+        if (!ownerGUID.IsEmpty() && !seated && Active)
+        {
+            if (SeatTimer < uiDiff)
+            {
+                if (Unit* owner = m_creature->GetMap()->GetUnit(ownerGUID))
+                {
+                    m_creature->setFaction(owner->getFaction());
+                    owner->CastSpell(m_creature, SPELL_VEHICLE_HARDCODED, true);
+                    if (Creature* pMalygos = m_pInstance->GetSingleCreatureFromStorage(NPC_MALYGOS))
+                    {
+                        pMalygos->SetInCombatWith(m_creature);
+                        pMalygos->AddThreat(m_creature);
+                    }
+                    seated = true;
+                }
+            }
+            else
+                SeatTimer -= uiDiff;
+        }
+
+        if (!ownerGUID.IsEmpty() && !Active)
+        {
+            if (StartTimer < uiDiff)
+            {
+                if (Unit* owner = m_creature->GetMap()->GetUnit(ownerGUID))
+                {
+                    float x, y, z;
+                    owner->GetClosePoint(x, y, z, owner->GetObjectBoundingRadius(), 1.0f, owner->GetAngle(m_creature));
+                    m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+                    Active = true;
+                }
+            }
+            else
+                StartTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_whyrmrest_skytalon(Creature* pCreature)
+{
+    return new npc_whyrmrest_skytalonAI(pCreature);
 }
 
 void AddSC_boss_malygos()

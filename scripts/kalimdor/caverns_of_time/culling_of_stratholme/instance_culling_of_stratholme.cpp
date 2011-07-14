@@ -167,7 +167,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
 
     void OnObjectCreate(GameObject* pGo)
     {
-        m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+         m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
     }
 
     void ChromiWhispers()

@@ -32,7 +32,6 @@ EndScriptData */
  *                  28526 (needs ScriptEffect to cast 28522 onto random target)
  *
  * Blizzard might need handling for their movement
- * SetHover hackz must be replaced by proper opcodes 04D3(Liftoff) 04D4(Landing)
  * Achievement-criteria check needs implementation
  *
  * Frost-Breath ability: the dummy spell 30101 is self cast, so it won't take the needed delay of ~7s until it reaches its target
@@ -123,23 +122,21 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiLifeDrainTimer  = 24000;
-        m_uiBlizzardTimer   = 10000;
-        m_uiTailSweepTimer  = 10000;
-        m_uiCleaveTimer     = 10000;
-        m_uiFlyTimer        = 45000;
-        m_uiIceboltTimer    = 4000;
-        m_uiLandTimer       = 2000;
-        m_uiRespawnTime     = 22000;
-        m_uiBeserkTimer     = 15*MINUTE*IN_MILLISECONDS;
-        m_uiPhase           = PHASE_FIGHT_ON_GROUND;
-        m_iIceboltCount     = 0;
-        m_uiWingBuffetGuid  = 0;
-        m_bCastingFrostBreath = false;
-        m_bHundredClub      = true;
-        m_mIceblocks.clear();
-        m_uiHundredClubCheckTimer = 5000;
-        m_creature->GetRespawnCoord(fHomeX, fHomeY, fHomeZ);
+        m_uiCleaveTimer = 5000;
+        m_uiTailSweepTimer = 12000;
+        m_uiFrostBreathTimer = 7000;
+        m_uiLifeDrainTimer = 11000;
+        m_uiBlizzardTimer = 15000;                          // "Once the encounter starts,based on your version of Naxx, this will be used x2 for normal and x6 on HC"
+        m_uiFlyTimer = 46000;
+        m_uiIceboltTimer = 5000;
+        m_uiLandTimer = 0;
+        m_uiBerserkTimer = 15 * MINUTE * IN_MILLISECONDS;
+        m_Phase = PHASE_GROUND;
+        m_uiIceboltCount = 0;
+
+        SetCombatMovement(true);
+        m_creature->SetLevitate(false);
+        //m_creature->ApplySpellMod(SPELL_FROST_AURA, SPELLMOD_DURATION, -1);
     }
 
     Unit* SelectTargetForIcebolt()
@@ -313,11 +310,9 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
             m_uiIceboltTimer = 4000;
             m_iIceboltCount = 0;
             DoScriptText(EMOTE_FLY, m_creature);
-            if (Creature* pWingBuffet = m_creature->SummonCreature(NPC_WING_BUFFET, fHomeX, fHomeY, fHomeZ, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
-                m_uiWingBuffetGuid = pWingBuffet->GetObjectGuid();            
-            m_uiPhase = PHASE_ICEBOLTS;
-        }
-    }
+            m_creature->HandleEmote(EMOTE_ONESHOT_LIFTOFF);
+            m_creature->SetLevitate(true);
+            m_Phase = PHASE_AIR_BOLTS;
 
     // achievement check
     bool DoHundredClubCheck()
@@ -443,8 +438,12 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
             case PHASE_ICEBOLTS:
                 if (m_uiIceboltTimer < uiDiff)
                 {
-                    if (Unit* pTarget = SelectTargetForIcebolt())
-                        DoCastSpellIfCan(pTarget, SPELL_ICEBOLT);
+                    if (m_uiLandTimer <= uiDiff)
+                    {
+                        // Begin Landing
+                        DoScriptText(EMOTE_GROUND, m_creature);
+                        m_creature->HandleEmote(EMOTE_ONESHOT_LAND);
+                        m_creature->SetLevitate(false);
 
                     ++m_iIceboltCount;
 

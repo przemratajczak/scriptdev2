@@ -250,15 +250,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_uiPhase != NORMAL) return;
- 
-        ScriptedAI::AttackStart(pWho);
-    }
-
-    void Aggro(Unit* pWho)
-    {
-        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
-        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
+        m_creature->SetLevitate(false);
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
@@ -331,24 +323,11 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
 
     void SacredText(uint8 SoundId)
     {
-        switch(SoundId)
-        {
-           case 1:
-              DoScriptText(SAY_SACRIFICE_1, m_creature);
-              break;
-           case 2:
-              DoScriptText(SAY_SACRIFICE_2, m_creature);
-              break;
-           case 3:
-              DoScriptText(SAY_SACRIFICE_3, m_creature);
-              break;
-           case 4:
-              DoScriptText(SAY_SACRIFICE_4, m_creature);
-              break;
-           case 5:
-              DoScriptText(SAY_SACRIFICE_5, m_creature);
-              break;
-        }
+        float fX, fZ, fY;
+        m_creature->GetRespawnCoord(fX, fY, fZ);
+
+        m_creature->SetLevitate(true);
+        m_creature->GetMotionMaster()->MovePoint(0, fX, fY, fZ + 5.0f);
     }
 
     void UpdateAI(const uint32 uiDiff)

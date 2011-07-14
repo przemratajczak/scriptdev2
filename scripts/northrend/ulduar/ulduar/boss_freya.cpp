@@ -306,6 +306,7 @@ struct MANGOS_DLL_DECL boss_elder_brightleafAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
+        // this needs core suport
         if(m_uiBrightleafFluxTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_BRIGHTLEAF_FLUX);
@@ -320,12 +321,33 @@ struct MANGOS_DLL_DECL boss_elder_brightleafAI : public ScriptedAI
         }
         else m_uiSolarFlareTimer -= uiDiff;
 
+        // also the following spells need some core support -> hacky way of use
+        // PLEASE FIX FOR REVISION!
         if(m_uiUnstableSunBeanTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_UNSTABLE_SUN_BEAM);
             m_uiUnstableSunBeanTimer = urand(7000, 12000);
         }
         else m_uiUnstableSunBeanTimer -= uiDiff;
+
+        // cast after the unstable sun bean
+        if (m_uiHealTimer < uiDiff && m_bHasSunbeam)
+        {
+            DoCast(m_creature, SPELL_PHOTOSYNTHESIS);
+            m_bHasSunbeam = false;
+        }
+        else m_uiHealTimer -= uiDiff;
+
+        // removes photosynthesis when standing inside
+        if(m_uiUnstabelEnergyTimer < uiDiff)
+        {
+            DoCast(m_creature, m_bIsRegularMode ? SPELL_UNSTABLE_ENERGY: SPELL_UNSTABLE_ENERGY_H);
+            m_creature->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_A);
+            m_creature->RemoveAurasDueToSpell(SPELL_PHOTOSYNTHESIS);
+            m_uiSunbeamStacks = 1;
+            m_uiUnstabelEnergyTimer = urand(20000, 30000);
+        }
+        else m_uiUnstabelEnergyTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -511,7 +533,7 @@ struct MANGOS_DLL_DECL boss_freyaAI : public ScriptedAI
 
     bool m_bIsHardMode;
     bool m_bHasAura;
-
+    
     uint32 m_uiNatureBombTimer;
     uint32 m_uiLifebindersGiftTimer;
 
@@ -812,7 +834,6 @@ struct MANGOS_DLL_DECL boss_freyaAI : public ScriptedAI
                     if(!pWaterSpirit->isAlive() && !pStormLasher->isAlive() && !pSnapLasher->isAlive())
                     {
                         m_bWaveCheck = false;
-                        m_bThreeWaveCheckTimerStarted = false;
                         if(SpellAuraHolder* natureAura = m_creature->GetSpellAuraHolder(SPELL_ATTUNED_TO_NATURE))
                         {
                             if(natureAura->ModStackAmount(-30))
@@ -893,6 +914,9 @@ struct MANGOS_DLL_DECL boss_freyaAI : public ScriptedAI
 
             if(m_bIsIronbranchAlive)
             {
+                if(!m_creature->HasAura(SPELL_IRONBRANCH_ESSENCE, EFFECT_INDEX_0))
+                    DoCast(m_creature, SPELL_IRONBRANCH_ESSENCE);
+
                 if(m_uiStrenghtenIronRootsTimer < uiDiff)
                 {
                     if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
@@ -1283,6 +1307,7 @@ struct MANGOS_DLL_DECL mob_freya_spawnedAI : public ScriptedAI
 
         switch(m_creature->GetEntry())
         {
+            // The Conservator's Grip needs core fix. It should be canceled by pheronomes!
         case NPC_ANCIENT_CONSERVATOR:
             m_bAncientConservator = true;
             DoCast(m_creature, SPELL_CONSERVATORS_GRIP);
@@ -1311,7 +1336,7 @@ struct MANGOS_DLL_DECL mob_freya_spawnedAI : public ScriptedAI
         // hacky way. Should be done by spell which needs core support
         if (m_bAncientConservator)
         {
-            if (Creature* pFreya = m_pInstance->GetSingleCreatureFromStorage(NPC_FREYA))
+            if (Creature* pFreya = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_FREYA)))
             {
                 if(SpellAuraHolder* natureAura = pFreya->GetSpellAuraHolder(SPELL_ATTUNED_TO_NATURE))
                 {
@@ -1323,7 +1348,7 @@ struct MANGOS_DLL_DECL mob_freya_spawnedAI : public ScriptedAI
 
         if (m_bDetonatingLasher)
         {
-            if (Creature* pFreya = m_pInstance->GetSingleCreatureFromStorage(NPC_FREYA))
+            if (Creature* pFreya = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_FREYA)))
             {
                 if(SpellAuraHolder* natureAura = pFreya->GetSpellAuraHolder(SPELL_ATTUNED_TO_NATURE))
                 {

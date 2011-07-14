@@ -27,12 +27,12 @@ EndScriptData */
 
 enum
 {
-    SAY_FALRIC_AGGRO                        = -1594507,
-    SAY_FALRIC_DEATH                        = -1594508,
-    SAY_FALRIC_SLAY01                       = -1594509,
-    SAY_FALRIC_SLAY02                       = -1594510,
-    SAY_FALRIC_SP01                         = -1594511,
-    SAY_FALRIC_SP02                         = -1594512,
+    SAY_FALRIC_AGGRO                        = -1668507,
+    SAY_FALRIC_DEATH                        = -1668508,
+    SAY_FALRIC_SLAY01                       = -1668509,
+    SAY_FALRIC_SLAY02                       = -1668510,
+    SAY_FALRIC_SP01                         = -1668511,
+    SAY_FALRIC_SP02                         = -1668512,
 
     SPELL_HOPELESSNESS                      = 72395,
     SPELL_IMPENDING_DESPAIR                 = 72426,
@@ -75,7 +75,7 @@ struct MANGOS_DLL_DECL boss_falricAI : public BSWScriptedAI
 
     void Aggro(Unit* pVictim)
     {
-      m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+      m_creature->SetWalk(false);
       DoScriptText(SAY_FALRIC_AGGRO, m_creature);
       DoCast(m_creature, SPELL_HOPELESSNESS);
     }
