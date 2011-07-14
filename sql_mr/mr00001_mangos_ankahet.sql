@@ -19,7 +19,7 @@ INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `b2_0_sheath`
 UPDATE `creature_template` SET `unit_flags` = '0' WHERE `entry` IN (30114,31473);
 
 DELETE FROM `creature_addon` WHERE guid=131953;
-DELETE FROM `creature` WHERE guid = 131953;
+DELETE FROM `creature` WHERE guid IN (131953, 115064);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
 (131953, 29310, 619, 3, 1, 26777, 0, 357.353, -692.808, -10.7028, 5.56541, 14400, 5, 0, 212700, 0, 0, 1);
 
@@ -107,7 +107,7 @@ INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equip
 UPDATE `creature_template` SET `minhealth` = 1 WHERE `entry` = 30391;
 UPDATE `creature_template` SET `minmana` = 0 WHERE `entry` = 29310;
 
-UPDATE `creature_template` SET `AIname`='EventAI' WHERE `entry` = 30176;
+UPDATE `creature_template` SET `faction_A` = 16, `faction_H` = 16, `AIname`='EventAI' WHERE `entry` = 30176;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 30176;
 INSERT INTO `creature_ai_scripts` (`id`, `creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `action2_type`, `action2_param1`, `action2_param2`, `action2_param3`, `action3_type`, `action3_param1`, `action3_param2`, `action3_param3`, `comment`) VALUES
 ('3017610', '30176', '11', '0', '100', '6', '0', '0', '0', '0', '11', '56151', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ''),
