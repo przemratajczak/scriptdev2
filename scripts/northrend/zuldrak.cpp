@@ -361,7 +361,7 @@ struct MANGOS_DLL_DECL npc_deacying_ghoulAI : public ScriptedAI
             float fDestX, fDestY, fDestZ;
             pCaster->GetNearPoint(pCaster, fDestX, fDestY, fDestZ, pCaster->GetObjectBoundingRadius(), 4.0f, pCaster->GetAngle(m_creature));
             m_creature->GetMotionMaster()->Clear();
-            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            m_creature->SetWalk(false);
             m_creature->GetMotionMaster()->MovePoint(POINT_NEAR_BOWL, fDestX, fDestY, fDestZ);
         }
     }
@@ -461,7 +461,7 @@ struct MANGOS_DLL_DECL npc_flying_fiend_vehicleAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetOwnerGuid(m_creature->GetCreatorGuid());
         m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
-        m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+        m_creature->SetWalk(false);
         DoCastSpellIfCan(m_creature, SPELL_SCOURGE_DISGUISE);
         uiNode = 0;
         FlyToNextNode();

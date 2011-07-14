@@ -178,7 +178,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
             if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
             {
                 pGrauf->GetMotionMaster()->MoveTargetedHome();
-                pGrauf->RemoveSplineFlag(SPLINEFLAG_FLYING);
+                pGrauf->SetLevitate(false);
                 pGrauf->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
             }
             m_pInstance->SetData(TYPE_SKADI, NOT_STARTED);
@@ -224,7 +224,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
         uint32 uiEntry = pCreature->GetEntry();
         if (uiEntry == NPC_YMIRJAR_WARRIOR || uiEntry == NPC_YMIRJAR_WITCH_DOCTOR || uiEntry == NPC_YMIRJAR_HARPOONER)
         {
-            pCreature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            pCreature->SetWalk(false);
             if (!m_bIsFirstPack)
                 pCreature->GetMotionMaster()->MovePoint(0, SUMMON_X+urand(0, 6), SUMMON_Y-urand(25, 30), SUMMON_Z);
         }
@@ -262,7 +262,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
             {
                 m_uiMoveTimer = uiTime;
                 pGrauf->GetMap()->CreatureRelocation(pGrauf, fX, fY, fZ, pGrauf->GetAngle(fX, fY));
-                pGrauf->SendMonsterMove(fX, fY, fZ, SPLINETYPE_NORMAL, pGrauf->GetSplineFlags(), uiTime);
+                pGrauf->MonsterMoveWithSpeed(fX, fY, fZ, uiTime);
                 m_creature->Relocate(fX, fY, fZ, m_creature->GetAngle(pGrauf));
             }
         }
@@ -395,7 +395,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
                                 case 1:
                                     m_bIsFirstPack = false;
                                     m_bIsSkadiMove = true;
-                                    pGrauf->AddSplineFlag(SPLINEFLAG_FLYING);
+                                    pGrauf->SetLevitate(true);
                                     pGrauf->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                                     break;
                             }
@@ -550,8 +550,8 @@ struct MANGOS_DLL_DECL boss_graufAI : public ScriptedAI
                 ((boss_skadiAI*)pSkadi->AI())->SetCombatMovement(true);
                 ((boss_skadiAI*)pSkadi->AI())->m_bCanLaunchHarpoon = false;
                 pSkadi->GetMap()->CreatureRelocation(pSkadi, 479.391f, -510.158f, 104.736f, pSkadi->GetOrientation());
-                pSkadi->SendMonsterMove(479.391f, -510.158f, 104.736f, SPLINETYPE_NORMAL, SPLINEFLAG_TRAJECTORY, 1000);
-                // pSkadi->SendMonsterMoveJump(479.391f, -510.158f, 104.736f, 20.0f, SPLINEFLAG_TRAJECTORY, 1000);
+                pSkadi->MonsterMoveWithSpeed(479.391f, -510.158f, 104.736f, 1000);
+                // pSkadi->SendMonsterMoveWithSpeedJump(479.391f, -510.158f, 104.736f, 20.0f, SPLINEFLAG_TRAJECTORY, 1000);
                 if (Unit* pTarget = pSkadi->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
                     pSkadi->AI()->AttackStart(pTarget);

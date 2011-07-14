@@ -263,8 +263,7 @@ struct MANGOS_DLL_DECL mob_zombie_chowAI : public ScriptedAI
     {
         ScriptedAI::AttackStart(pWho);
 
-        if (!m_creature->HasSplineFlag(SPLINEFLAG_WALKMODE))
-            m_creature->AddSplineFlag(SPLINEFLAG_WALKMODE);
+        m_creature->SetWalk(true);
     }
 
     void SpellHit(Unit *pCaster, const SpellEntry *spellInfo)
@@ -274,7 +273,7 @@ struct MANGOS_DLL_DECL mob_zombie_chowAI : public ScriptedAI
 
         if (spellInfo->Id == SPELL_DECIMATE_EFFECT)
         {
-            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            m_creature->SetWalk(false);
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveFollow(pCaster, 0.0f, 0.0f);
         }

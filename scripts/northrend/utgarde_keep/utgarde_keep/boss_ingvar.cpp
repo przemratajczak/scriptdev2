@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_ANNHYLDE)
         {
             pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            pSummoned->SendMonsterMove(pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ() + 15.0f, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, 0); 
+            pSummoned->MonsterMoveWithSpeed(pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ() + 15.0f, 0); 
             m_uiAnnylideGuid = pSummoned->GetObjectGuid();
         }
     }

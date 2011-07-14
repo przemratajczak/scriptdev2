@@ -105,7 +105,7 @@ struct MANGOS_DLL_DECL npc_gortok_orbAI : public ScriptedAI
         m_bTimeToAct = true;
         m_uiBossEntry = urand(NPC_WORGEN, NPC_RHINO);
         m_uiBossCount = 0;
-        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
         m_creature->SetDisplayId(16925);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         m_creature->CastSpell(m_creature, SPELL_ORB_VISUAL, true);
@@ -138,7 +138,7 @@ struct MANGOS_DLL_DECL npc_gortok_orbAI : public ScriptedAI
                 switch (m_uiStep)
                 {
                     case 1:
-                        m_creature->SendMonsterMoveWithSpeed(ORB_SPAWN_X, ORB_SPAWN_Y, ORB_Z+4.0f, 4000);
+                        m_creature->MonsterMoveWithSpeed(ORB_SPAWN_X, ORB_SPAWN_Y, ORB_Z+4.0f, 4000);
                         m_creature->GetMap()->CreatureRelocation(m_creature, ORB_SPAWN_X, ORB_SPAWN_Y, ORB_Z+4.0f, 0);
                         m_uiStepTimer = 4000;
                         break;

@@ -189,7 +189,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         m_uiPhase = NORMAL;
 
         m_creature->NearTeleportTo(296.632f, -346.075f, 90.630f, 4.65f);
-        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(false);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
         m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
 
@@ -257,7 +257,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
-        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(false);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
         DoScriptText(SAY_AGGRO, m_creature);
     }
@@ -283,10 +283,10 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         float fX, fZ, fY;
         m_creature->GetRespawnCoord(fX, fY, fZ);
 
-        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
 
-        m_creature->SendMonsterMoveWithSpeed(fX, fY, fZ + 5.0f, m_uiIntroTimer);
+        m_creature->MonsterMoveWithSpeed(fX, fY, fZ + 5.0f, m_uiIntroTimer);
         m_creature->GetMap()->CreatureRelocation(m_creature, fX, fY, fZ + 5.0f, m_creature->GetOrientation());
     }
 
@@ -465,7 +465,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                     switch(m_uiRitualStage)
                     {
                         case 1:
-                            m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+                            m_creature->SetLevitate(true);
                             m_creature->NearTeleportTo(296.632f, -346.075f, 90.63f + 17.0f, 0);
                             if (pVictim)
                             {
@@ -503,7 +503,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                             pVictim = NULL;
                             m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                             m_creature->InterruptNonMeleeSpells(false);
-                            m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
+                            m_creature->SetLevitate(false);
                             m_uiRitualOfSwordTimer = 20000;
                             m_uiRitualStage = 0;
                             break;

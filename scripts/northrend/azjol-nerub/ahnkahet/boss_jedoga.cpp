@@ -187,7 +187,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_creature->GetMotionMaster()->Clear(true, true);
             // send visual update to player
-            m_creature->MonsterMove(SpawnNode[8][0], SpawnNode[8][1], SpawnNode[8][2], 3000);
+            m_creature->MonsterMoveWithSpeed(SpawnNode[8][0], SpawnNode[8][1], SpawnNode[8][2], 3000);
             // actual move
             m_creature->GetMotionMaster()->MovePoint(POINT_AT_THE_GROUND, SpawnNode[8][0], SpawnNode[8][1], SpawnNode[8][2]);
         }

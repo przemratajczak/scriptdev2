@@ -552,7 +552,7 @@ bool EffectDummyCreature_npc_oil_stained_wolf(Unit* pCaster, uint32 uiSpellId, S
         if (uiEffIndex == EFFECT_INDEX_0 && pCreatureTarget->getFaction() != FACTION_MONSTER && !pCreatureTarget->HasAura(SPELL_HAS_EATEN))
         {
             pCreatureTarget->SetFactionTemporary(FACTION_MONSTER);
-            pCreatureTarget->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            pCreatureTarget->SetWalk(false);
 
             pCreatureTarget->GetMotionMaster()->MoveIdle();
 
@@ -1278,7 +1278,7 @@ Kill(Leryssa);
             case 1:
                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-               m_creature->AddSplineFlag(SPLINEFLAG_WALKMODE);
+               m_creature->SetWalk(true);
                m_creature->GetMotionMaster()->MovePoint(0, 3712.466f, 3570.2911f, 477.443f);
                JumpNextStep(4000);
                break;
@@ -1343,7 +1343,7 @@ DoScriptText(SAY_DIA02, Valanar);
                JumpNextStep(9000);
                break;
             case 7:
-               m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+               m_creature->SetWalk(false);
                m_creature->GetMotionMaster()->MovePoint(0, 3722.271f, 3566.878f, 477.442f);
                if (Unit* LichKing = m_creature->GetMap()->GetCreature(m_uiLichKingGuid))
                    m_creature->SetFacingToObject(LichKing);
@@ -1421,7 +1421,7 @@ case 17:
             case 18:
                if (Unit* Leryssa = m_creature->GetMap()->GetCreature(m_uiLeryssaGuid))
                {
-                   ((Creature*)Leryssa)->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                   ((Creature*)Leryssa)->SetWalk(false);
                    Leryssa->GetMotionMaster()->MovePoint(0, 3726.749f, 3568.097f, 477.442f);
                    Leryssa->SetFacingToObject(m_creature);
                    Leryssa->SetStandState(UNIT_STAND_STATE_SIT);

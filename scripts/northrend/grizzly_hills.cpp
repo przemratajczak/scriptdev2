@@ -134,11 +134,11 @@ struct MANGOS_DLL_DECL npc_harrison_jones_ghAI : public npc_escortAI
                 if (Player* pPlayer = GetPlayerForEscort())
                     m_creature->SetFacingToObject(pPlayer);
                 DoScriptText(SAY_ESCORT_START, m_creature);
-                m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                m_creature->SetWalk(false);
                 break;
             case 6:
                 DoScriptText(SAY_BEFOR_CHAMBER, m_creature);
-                m_creature->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                m_creature->SetWalk(true);
                 break;
             case 8:
                 SetEscortPaused(true);
@@ -213,7 +213,7 @@ struct MANGOS_DLL_DECL npc_harrison_jones_ghAI : public npc_escortAI
                                 m_FireDoorGuid = pFireDoor->GetObjectGuid();
                                 float fDestX, fDestY, fDestZ;
                                 pFireDoor->GetPosition(fDestX, fDestY, fDestZ);
-                                pAdarria->SendMonsterMove(fDestX, fDestY, fDestZ, SPLINETYPE_NORMAL, SPLINEFLAG_NONE, 3000);
+                                pAdarria->MonsterMoveWithSpeed(fDestX, fDestY, fDestZ, 3000);
                             }
                         }
                         subevent = SE_RETURN_TO_ESCORT;
