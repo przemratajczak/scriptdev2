@@ -222,20 +222,6 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
             case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
         }
     }
-    void EnterEvadeMode()
-    {
-        if (m_uiPhase == PHASE_PREACHING && !m_isRealEvade) return;
-
-        m_uiPhase = PHASE_PREACHING;
-        SetCombatMovement(false);
-        m_creature->GetMotionMaster()->MovementExpired();
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->InterruptNonMeleeSpells(true);
-        DoCast(m_creature, SPELL_SPHERE_VISUAL);
-        m_creature->GetMap()->CreatureRelocation(m_creature, JEDOGA_X, JEDOGA_Y, JEDOGA_Z, JEDOGA_O);
-        m_creature->MonsterMoveWithSpeed(JEDOGA_X, JEDOGA_Y, JEDOGA_Z, 26);
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_JEDOGA, NOT_STARTED);
 
     void JustDied(Unit* pKiller)
     {
@@ -435,18 +421,13 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
             return;
         }
 
-                SetCombatMovement(true);
-                m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, GROUND_Z, JEDOGA_O);
-                m_creature->MonsterMoveWithSpeed(CENTER_X, CENTER_Y, GROUND_Z, 26);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
-                  m_creature->SetInCombatWithZone();
-                //Spawn Volunteers
-                for(int i = 0; i <= 28; ++i)
-                {
-                    if(Creature *pTemp = m_creature->SummonCreature(NPC_TWILIGHT_VOLUNTEER, VolunteerLoc[i].x, VolunteerLoc[i].y, VolunteerLoc[i].z, VolunteerLoc[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0))
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        if(m_uiCycloneStrikeTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_CYCLONE_STRIKE : SPELL_CYCLONE_STRIKE_H);
+            m_uiCycloneStrikeTimer = urand(10000, 20000);
+        }
+        else
+            m_uiCycloneStrikeTimer -= uiDiff;
 
         if(m_uiLightningBoltTimer < uiDiff)
         {
@@ -512,24 +493,7 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
 
         if (uiPointId == 7)
         {
-            if(m_uiSubPhase == SUBPHASE_FLY_UP)
-            {
-                SetCombatMovement(false);
-                m_creature->GetMotionMaster()->MovementExpired();
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->InterruptNonMeleeSpells(true);
-                DoCast(m_creature, SPELL_SPHERE_VISUAL);
-                m_creature->GetMap()->CreatureRelocation(m_creature, JEDOGA_X, JEDOGA_Y, JEDOGA_Z, JEDOGA_O);
-                m_creature->MonsterMoveWithSpeed(JEDOGA_X, JEDOGA_Y, JEDOGA_Z, 26);
-                m_uiSubPhase = SUBPHASE_CALL_VOLUNTEER;
-                GameObject* pCircle = GetClosestGameObjectWithEntry(m_creature,GO_CIRCLE,50.0f);
-                if (pCircle && !pCircle->isSpawned())
-                    pCircle->SetRespawnTime(10000);
-            }
-            else if(m_uiSubPhase == SUBPHASE_CALL_VOLUNTEER)
-            {
-                pVolunteer = SelectRandomVolunteer(150.0f);
-                if(pVolunteer)
+            if (Creature* pController = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_CONTROLLER))
                 {
                     m_creature->SetFacingToObject(pController);
                     m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -552,18 +516,6 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
                     SetCombatMovement(false);
                     DoCastSpellIfCan(m_creature, SPELL_VOLUNTEER_SPHERE);
                 }
-                if(!m_bVolunteerDied)
-                    DoCast(m_creature, SPELL_GIFT_OF_THE_HERALD);
-
-                m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, GROUND_Z, JEDOGA_O);
-                m_creature->MonsterMoveWithSpeed(CENTER_X, CENTER_Y, GROUND_Z, 26);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->RemoveAurasDueToSpell(SPELL_SPHERE_VISUAL);
-                SetCombatMovement(true);
-                m_uiPhase = PHASE_FIGHT;
-                if(m_creature->getVictim())
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
             }
         }
     }

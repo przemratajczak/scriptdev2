@@ -603,7 +603,9 @@ struct MANGOS_DLL_DECL npc_amanishi_hatcherAI : public ScriptedAI
         m_uiHatchlingCount = 1;
         m_bCanMoveNext = false;
         m_bWaypointEnd = false;
-        m_creature->SetWalk(false);
+
+        if (m_creature->HasSplineFlag(SPLINEFLAG_WALKMODE))
+            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
     }
 
     void MoveInLineOfSight(Unit* pWho) {}

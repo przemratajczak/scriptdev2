@@ -41,7 +41,7 @@ bool GOUse_go_containment_sphere(Player* pPlayer, GameObject* pGo)
     if (Creature *pCaster = GetClosestCreatureWithEntry(pGo, NPC_BREATH_CASTER, 15.0f))
         pCaster->ForcedDespawn();
 
-    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+    //pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
     return false;
 }
 

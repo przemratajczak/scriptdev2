@@ -140,7 +140,6 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 pSummoned->CastSpell(pTarget, m_bIsRegularMode ? SPELL_STAMPEDE_RHINO : SPELL_STAMPEDE_RHINO_H, false);
-
             pSummoned->ForcedDespawn(1000);
         }
     }

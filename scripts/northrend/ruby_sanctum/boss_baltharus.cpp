@@ -216,7 +216,7 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
                  m_creature->InterruptNonMeleeSpells(true);
                  if (is25())
                      doCast(SPELL_SUMMON_CLONE);
-                   //  DoScriptText(SAY_BALTHARUS_SPECIAL_1,m_creature);
+                     DoScriptText(SAY_BALTHARUS_SPECIAL_1,m_creature);
                  setStage(2);
                  break;
 
@@ -250,7 +250,7 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
                  m_creature->InterruptNonMeleeSpells(true);
                  if (is25())
                      doCast(SPELL_SUMMON_CLONE);
-                  //   DoScriptText(SAY_BALTHARUS_SPECIAL_1,m_creature);
+                     DoScriptText(SAY_BALTHARUS_SPECIAL_1,m_creature);
                  setStage(8);
                  break;
 

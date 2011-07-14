@@ -585,7 +585,7 @@ struct MANGOS_DLL_DECL npc_injured_patientAI : public ScriptedAI
                 case 2: DoScriptText(SAY_DOC3,m_creature); break;
             }
 
-            m_creature->SetWalk(false);
+            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
 
             uint32 mobId = m_creature->GetEntry();
 
@@ -1961,20 +1961,9 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
 
     void Reset()
     {
-     owner = m_creature->GetOwner();
-     if (!owner) return;
-
-     m_creature->SetLevel(owner->getLevel());
-     m_creature->setFaction(owner->getFaction());
-
-     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-     m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-     m_creature->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
-     m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
-     m_creature->SetLevitate(true);
-
-     inCombat = false;
-     m_uiGargoyleStrikeTimer = urand(3000, 5000);
+        m_uiTargetGuid = 0;
+        m_uiStrikeTimer = 0;
+    }
 
     void MoveInLineOfSight(Unit *pWho)
     {

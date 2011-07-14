@@ -128,16 +128,16 @@ struct MANGOS_DLL_DECL npc_chromi_startAI : public ScriptedAI
 
 enum
 {
-   SAY_MIKE01                = -1597270,
-   SAY_FORRESTER02           = -1597271,
-   SAY_JAMES03               = -1597272,
-   SAY_SIABI04               = -1597273,
-   SAY_MIKE05                = -1597274,
-   SAY_CORICKS06             = -1597275,
-   SAY_GRIAN07               = -1597276,
-   SAY_CORICKS08             = -1597277,
-   SAY_JAMES09               = -1597278,
-   SAY_FORRESTER10           = -1597279,
+   SAY_MIKE01                = -1557270,
+   SAY_FORRESTER02           = -1557271,
+   SAY_JAMES03               = -1557272,
+   SAY_SIABI04               = -1557273,
+   SAY_MIKE05                = -1557274,
+   SAY_CORICKS06             = -1557275,
+   SAY_GRIAN07               = -1557276,
+   SAY_CORICKS08             = -1557277,
+   SAY_JAMES09               = -1557278,
+   SAY_FORRESTER10           = -1557279,
 
    EMOTE_SHOT                = 5,
    EMOTE_TALK                = 1,
@@ -180,7 +180,7 @@ struct MANGOS_DLL_DECL npc_mikeAI : public ScriptedAI
 
            if (who->GetTypeId() == TYPEID_PLAYER && m_creature->GetDistance2d(who) <= 15 && who->GetPositionZ() > 99.50f && m_uiPhase == 0)
            {
-             m_creature->SetGuidValue(UNIT_FIELD_TARGET, who->GetObjectGuid());
+             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, who->GetObjectGuid());
              m_uiPhase = 1;
            }
     }
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL npc_mikeAI : public ScriptedAI
               m_uiStepTimer = 4000;
               break;
            case 1:
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               m_uiStepTimer = 5000;
               break;
            case 2:
@@ -292,10 +292,10 @@ struct MANGOS_DLL_DECL npc_mikeAI : public ScriptedAI
 
 enum
 {
-  SAY_ROGER01                     = -1597280,
-  SAY_ROGER02                     = -1597281,
-  SAY_ROGER03                     = -1597282,
-  SAY_ROGER04                     = -1597283,
+  SAY_ROGER01                     = -1557280,
+  SAY_ROGER02                     = -1557281,
+  SAY_ROGER03                     = -1557282,
+  SAY_ROGER04                     = -1557283,
 };
 
 struct MANGOS_DLL_DECL npc_rogerAI : public ScriptedAI
@@ -404,7 +404,7 @@ struct MANGOS_DLL_DECL npc_rogerAI : public ScriptedAI
     {
         unit->GetMotionMaster()->MovementExpired(false);
         unit->GetMap()->CreatureRelocation(unit, X, Y, Z, unit->GetOrientation());
-        unit->MonsterMoveWithSpeed(X, Y, Z, 26);
+        unit->SendMonsterMove(X, Y, Z, SPLINETYPE_NORMAL , unit->GetSplineFlags(), Timer);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -429,13 +429,13 @@ struct MANGOS_DLL_DECL npc_rogerAI : public ScriptedAI
 
 enum
 {
-  SAY_MORIGAN01                     = -1597284,
-  SAY_PERELLI02                     = -1597285,
-  SAY_MORIGAN03                     = -1597286,
-  SAY_PERELLI04                     = -1597287,
-  SAY_MORIGAN05                     = -1597288,
-  SAY_PERELLI06                     = -1597289,
-  SAY_MORIGAN07                     = -1597290,
+  SAY_MORIGAN01                     = -1557284,
+  SAY_PERELLI02                     = -1557285,
+  SAY_MORIGAN03                     = -1557286,
+  SAY_PERELLI04                     = -1557287,
+  SAY_MORIGAN05                     = -1557288,
+  SAY_PERELLI06                     = -1557289,
+  SAY_MORIGAN07                     = -1557290,
 };
 
 struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
@@ -506,8 +506,8 @@ struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
               m_creature->SetStandState(UNIT_STAND_STATE_STAND);
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_PERELLI))
               {
-                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
-                 pTemp->SetGuidValue(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
               }
               m_uiStepTimer = 3000;
               break;
@@ -530,9 +530,9 @@ struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
               m_uiStepTimer = 4000;
               break;
            case 12:
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_PERELLI))
-                 pTemp->SetGuidValue(UNIT_FIELD_TARGET, 0);
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               MoveToPoint(m_creature, 1576.119f, 657.675f, 102.09f, 5000);
               m_uiStepTimer = 4900;
               break;
@@ -554,7 +554,7 @@ struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
     void MoveToPoint(Creature* unit, float X, float Y, float Z, uint32 Timer)
     {
         unit->GetMap()->CreatureRelocation(unit, X, Y, Z, unit->GetOrientation());
-        unit->MonsterMoveWithSpeed(X, Y, Z, 26);
+        unit->SendMonsterMove(X, Y, Z, SPLINETYPE_NORMAL , unit->GetSplineFlags(), Timer);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -579,11 +579,11 @@ struct MANGOS_DLL_DECL npc_moriganAI : public ScriptedAI
 
 enum
 {
-  SAY_JENA01           = -1597291,
-  SAY_MARTHA02         = -1597292,
-  SAY_JENA03           = -1597293,
-  SAY_JENA04           = -1597294,
-  SAY_MARTHA05         = -1597295,
+  SAY_JENA01           = -1557291,
+  SAY_MARTHA02         = -1557292,
+  SAY_JENA03           = -1557293,
+  SAY_JENA04           = -1557294,
+  SAY_MARTHA05         = -1557295,
 
 };
 
@@ -643,7 +643,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               break;
            case 4:
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MARTHA))
-                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_JENA01, m_creature);
               m_uiStepTimer = 3000;
               break;
@@ -660,7 +660,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               {
                  pTemp->GetMotionMaster()->MovementExpired(false);
                  pTemp->GetMotionMaster()->MovePoint(0, 1636.721f, 725.88f, 113.561f);
-                 pTemp->SetGuidValue(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
               }
               m_uiStepTimer = 1000;
               break;
@@ -674,16 +674,16 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               m_uiStepTimer = 3000;
               break;
            case 9:
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               m_creature->GetMotionMaster()->MovePoint(0, 1629.278f, 727.894f, 112.636f);
               m_uiStepTimer = 1500;
               break;
            case 10:
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MARTHA))
               {
-                 pTemp->SetGuidValue(UNIT_FIELD_TARGET, 0);
+                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                  pTemp->GetMap()->CreatureRelocation(pTemp, 1640.089f, 725.766f, 113.561f, 4.77f);
-                 pTemp->MonsterMoveWithSpeed(1640.089f, 725.766f, 113.561f, 26);
+                 pTemp->SendMonsterMove(1640.089f, 725.766f, 113.561f, SPLINETYPE_NORMAL , pTemp->GetSplineFlags(), 1500);
               }
               m_creature->GetMotionMaster()->MovementExpired(false);
               m_creature->GetMotionMaster()->MovePoint(0, 1629.452f, 729.416f, 112.712f);
@@ -706,7 +706,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
               break;
            case 14:
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_MARTHA))
-                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_JENA04, m_creature);
               m_uiStepTimer = 3000;
               break;
@@ -717,7 +717,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
                  DoScriptText(SAY_MARTHA05, pTemp);
                  MoveToPoint(pTemp, 1638.196f, 726.171f, 113.561f, 1000);
               }
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               MoveToPoint(m_creature, 1615.590f, 719.509f, 110.311f, 2000);
               m_uiStepTimer = 2000;
               break;
@@ -739,7 +739,7 @@ struct MANGOS_DLL_DECL npc_jenaAI : public ScriptedAI
     void MoveToPoint(Creature* unit, float X, float Y, float Z, uint32 Timer)
     {
         unit->GetMap()->CreatureRelocation(unit, X, Y, Z, unit->GetOrientation());
-        unit->MonsterMoveWithSpeed(X, Y, Z, 26);
+        unit->SendMonsterMove(X, Y, Z, SPLINETYPE_NORMAL , unit->GetSplineFlags(), Timer);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -768,10 +768,10 @@ enum
   SOUND_ID_DOG_HOWL     = 1018,
   EMOTE_DOG_HOWL        = 393,
 
-  SAY_MALCOLM01         = -1597296,
-  SAY_MALCOLM02         = -1597297,
-  SAY_MALCOLM03         = -1597298,
-  SAY_MALCOLM04         = -1597299,
+  SAY_MALCOLM01         = -1557296,
+  SAY_MALCOLM02         = -1557297,
+  SAY_MALCOLM03         = -1557298,
+  SAY_MALCOLM04         = -1557299,
 };
 
 struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
@@ -840,7 +840,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
               break;
            case 5:
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_DOG))
-                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_MALCOLM02, m_creature);
               m_uiStepTimer = 2000;
               break;
@@ -858,7 +858,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
               m_uiStepTimer = 4000;
               break;
            case 8:
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               MoveToPoint(m_creature, 1629.922f, 807.799f, 120.122f, 3000);
               m_uiStepTimer = 2900;
               break;
@@ -878,7 +878,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
            case 12:
               m_creature->SetStandState(UNIT_STAND_STATE_STAND);
               if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_DOG))
-                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
+                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTemp->GetObjectGuid());
               DoScriptText(SAY_MALCOLM04, m_creature);
               m_uiStepTimer = 7000;
               break;
@@ -890,7 +890,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
            case 14:
              if(Creature* pTemp = m_pInstance->GetSingleCreatureFromStorage(NPC_DOG))
                 pTemp->SetStandState(UNIT_STAND_STATE_SIT);
-              m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
+              m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
               MoveToPoint(m_creature, 1641.452f, 812.600f, 119.948f, 4000);
               m_uiStepTimer = 3900;
               break;
@@ -928,7 +928,7 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
     void MoveToPoint(Creature* unit, float X, float Y, float Z, uint32 Timer)
     {
         unit->GetMap()->CreatureRelocation(unit, X, Y, Z, unit->GetOrientation());
-        unit->MonsterMoveWithSpeed(X, Y, Z, 26);
+        unit->SendMonsterMove(X, Y, Z, SPLINETYPE_NORMAL , unit->GetSplineFlags(), Timer);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -953,11 +953,11 @@ struct MANGOS_DLL_DECL npc_malcolmAI : public ScriptedAI
 
 enum
 {
-  SAY_BARTLEBY01         = -1597300,
-  SAY_BARTLEBY02         = -1597301, 
-  SAY_BARTLEBY03         = -1597302,
-  SAY_BARTLEBY04         = -1597303,
-  SAY_BARTLEBY05         = -1597304,
+  SAY_BARTLEBY01         = -1557300,
+  SAY_BARTLEBY02         = -1557301, 
+  SAY_BARTLEBY03         = -1557302,
+  SAY_BARTLEBY04         = -1557303,
+  SAY_BARTLEBY05         = -1557304,
 };
 
 struct MANGOS_DLL_DECL npc_bartleby_csAI : public ScriptedAI
@@ -1075,7 +1075,7 @@ struct MANGOS_DLL_DECL npc_bartleby_csAI : public ScriptedAI
     void MoveToPoint(Creature* unit, float X, float Y, float Z, uint32 Timer)
     {
         unit->GetMap()->CreatureRelocation(unit, X, Y, Z, unit->GetOrientation());
-        unit->MonsterMoveWithSpeed(X, Y, Z, 26);
+        unit->SendMonsterMove(X, Y, Z, SPLINETYPE_NORMAL , unit->GetSplineFlags(), Timer);
     }
 
     void UpdateAI(const uint32 uiDiff)

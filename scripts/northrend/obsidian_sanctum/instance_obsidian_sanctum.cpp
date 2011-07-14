@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Instance_Obsidian_Sanctum
-SD%Complete: 95%
+SD%Complete: 90%
 SDComment:
 SDCategory: Obsidian Sanctum
 EndScriptData */
@@ -45,7 +45,7 @@ void instance_obsidian_sanctum::Initialize()
     m_lEggsGUIDList.clear();
     m_lWhelpsGUIDList.clear();
     m_lBlazesGUIDList.clear();
-    m_lHitByVolcanoGUIDList.clear();
+    //m_lHitByVolcanoGUIDList.clear();
 }
 
 void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)

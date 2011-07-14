@@ -113,8 +113,11 @@ struct MANGOS_DLL_DECL boss_vazrudenAI : public ScriptedAI
     {
         if (Creature* pHerald = m_pInstance->GetSingleCreatureFromStorage(NPC_VAZRUDEN_HERALD))
         {
-            pHerald->SetWalk(false);
+            if (pHerald->HasSplineFlag(SPLINEFLAG_WALKMODE))
+                pHerald->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+
             pHerald->GetMotionMaster()->MovePoint(POINT_ID_COMBAT, afCombatPos[0], afCombatPos[1], afCombatPos[2]);
+
             DoScriptText(EMOTE_DESCEND, pHerald);
         }
     }
@@ -180,7 +183,7 @@ struct MANGOS_DLL_DECL boss_vazruden_heraldAI : public ScriptedAI
         // see boss_onyxia
         // sort of a hack, it is unclear how this really work but the values appear to be valid
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-        m_creature->SetLevitate(true);
+        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -230,7 +233,7 @@ struct MANGOS_DLL_DECL boss_vazruden_heraldAI : public ScriptedAI
                     // Landing
                     // undo flying
                     m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-                    m_creature->SetLevitate(false);
+                    m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
 
                     Player* pPlayer = m_creature->GetMap()->GetPlayer(m_lastSeenPlayerGuid);
                     if (pPlayer && pPlayer->isAlive())

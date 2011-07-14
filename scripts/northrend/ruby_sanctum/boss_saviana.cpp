@@ -98,13 +98,13 @@ struct MANGOS_DLL_DECL boss_ragefireAI : public BSWScriptedAI
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_0, 50331648);
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 50331648);
             m_creature->HandleEmoteCommand(EMOTE_ONESHOT_FLY_SIT_GROUND_UP);
-            m_creature->SetLevitate(true);
+            m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
         }
         else
         {
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_0, 0);
             m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            m_creature->SetLevitate(false);
+            m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
         }
     }
 

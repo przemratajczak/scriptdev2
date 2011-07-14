@@ -48,8 +48,16 @@ enum
     SPELL_FROZEN_BLOWS          = 62478,
     SPELL_FROZEN_BLOWS_H        = 63512,
     SPELL_FREEZE                = 62469,
-    SPELL_BITTER_COLD           = 62038,    // SPELL BROKEN!!!!
-    SPELL_ICICLE                = 62460,    // full spell -> needs core fix
+    SPELL_BITTER_COLD           = 62038,	// SPELL BROKEN!!!!
+    SPELL_ICICLE_TARGETING_AURA = 62227,    // spell used for random targeting of Icicle throughout the whole encounter. not used here
+    SPELL_ICICLE_FLASH_MARKS    = 62476,    // casts this right befor flash freeze, triggers SPELL_ICICLE_SNOWPACKED. should target Icicles dummy NPCs
+    SPELL_ICICLE_FLASH_MARKS_H  = 62477,
+    SPELL_ICICLE                = 62234,    // regular Icicle throughout the whole encounter
+    SPELL_ICICLE_DAMAGE         = 69426,    // regular Icicle throughout the whole encounter, spell triggered by dummy NPC
+    SPELL_ICICLE_DAMAGE_H       = 62236,
+    SPELL_ICICLE_SNOWPACKED_SUM = 62462,    // icicles right before flash freeze that summon snowdrifts
+    SPELL_ICICLE_SNOWDRIFT      = 62460,
+    SPELL_COLLAPSING_ICICLE     = 69424,    // this spell summons the exact Icicle that falls, deals damage and knocks back
     SPELL_ICE_SHARDS            = 65370,    // icicle damage -> 14k
     SPELL_ICICLE_DUMMY          = 62453,    // cast by Snowpacked Icicle, after this they cast Icicle with snowdrift
     SPELL_SNOWDRIFT             = 62463,
@@ -103,204 +111,6 @@ enum
     SPELL_SMITE         = 61923,
     SPELL_GREAT_HEAL    = 62809,    //friendly
     SPELL_DISPEL_MAGIC  = 63499,    //friendly
-
-};
-
-#define CENTER_X    2000.0f
-#define CENTER_Y    -234.21f
-
-bool m_bCoolestFriend;
-
-// script for Flash freeze
-struct MANGOS_DLL_DECL mob_flashFreezeAI : public ScriptedAI
-{
-    mob_flashFreezeAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        pCreature->SetDisplayId(11686);     // make invisible
-        SetCombatMovement(false);
-        Reset();
-    }
-
-    bool m_bIsRegularMode;
-    uint64 m_uiVictimGUID;
-
-    void Reset()
-    {
-        m_uiVictimGUID = 0;
-        if(m_bIsRegularMode)
-            m_creature->SetMaxHealth(35000);
-        m_creature->SetRespawnDelay(DAY);
-    }
-
-    void Aggro(Unit* pWho)
-    {
-        m_creature->SetInCombatWith(pWho);
-        pWho->SetInCombatWith(m_creature);
-        DoCast(pWho, SPELL_FLASH_FREEZE_STUN);
-        pWho->CastSpell(pWho, SPELL_FLASH_FREEZE_STUN, false);
-        m_uiVictimGUID = pWho->GetGUID();
-        // kill targets that are frozen
-        if(pWho->HasAura(SPELL_FREEZE, EFFECT_INDEX_0))
-        {
-            pWho->CastSpell(pWho, SPELL_FLASH_FREEZE_KILL, false);
-            m_creature->ForcedDespawn();
-        }
-    }
-
-    void KilledUnit(Unit* pVictim)
-    {
-        if (pVictim) 
-            pVictim->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE_STUN);
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        if (Unit* pVictim = m_creature->GetMap()->GetUnit( m_uiVictimGUID))
-            pVictim->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE_STUN);
-
-        if (Killer)
-            Killer->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE_STUN);
-    }
-
-    void UpdateAI(const uint32 diff) {}
-};
-
-// script for Icicles
-struct MANGOS_DLL_DECL mob_icicleAI : public ScriptedAI
-{
-    mob_icicleAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        SetCombatMovement(false);
-        pCreature->setFaction(14);
-        Reset();
-    }
-
-    uint32 m_uiSpellDelayTimer;
-
-    void Reset()
-    {
-        DoCast(m_creature, SPELL_ICICLE);
-        m_uiSpellDelayTimer = 500;
-    }
-
-    void AttackStart(Unit* pWho)
-    {
-        return;
-    }
-
-    void UpdateAI(const uint32 diff)
-    { 
-        if(m_uiSpellDelayTimer < diff)
-        {
-            DoCast(m_creature, SPELL_ICICLE_DUMMY);
-            m_uiSpellDelayTimer = 30000;
-        }
-        else m_uiSpellDelayTimer -= diff;
-    }
-};
-
-// Toasty fire. Used by mage
-struct MANGOS_DLL_DECL mob_toasty_fireAI : public ScriptedAI
-{
-    mob_toasty_fireAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        pCreature->SetDisplayId(11686);     // make invisible
-        SetCombatMovement(false);
-        Reset();
-    }
-
-    void Reset()
-    {
-        DoCast(m_creature, SPELL_TOASTY_FIRE_A);
-    }
-
-    void UpdateAI(const uint32 diff) {}
-};
-
-// Script for the Flash freeze which is enchasing the npcs in ice at the begginign of the fight
-// this needs some fixing on spells
-struct MANGOS_DLL_DECL mob_npc_flashFreezeAI : public ScriptedAI
-{
-    mob_npc_flashFreezeAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        pCreature->SetDisplayId(25865);     // invisible
-        pCreature->GetMotionMaster()->MoveIdle();
-        SetCombatMovement(false);
-        Reset();
-    }
-
-    ScriptedInstance* m_pInstance;
-    std::list<Creature*> lVictims;
-
-    void Reset()
-    {
-        lVictims.clear();
-        SetVictim();
-        DoCast(m_creature, SPELL_FLASH_FREEZE_NPC_STUN);
-    }
-
-    void Aggro(Unit *who) 
-    {
-        if (Creature* pHodir = GetClosestCreatureWithEntry(m_creature, NPC_HODIR, 100.0f))
-        {
-            pHodir->AI()->AttackStart(who);
-            pHodir->AddThreat(who, 0.0f);
-        }
-    }
-
-    void SetVictim()
-    {
-        // druids
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33325, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32901, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32941, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33333, 2.0f);
-        // shamys
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33328, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32900, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33332, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32950, 2.0f);
-        // mages
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32893, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33327, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33331, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32946, 2.0f);
-        // priests
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32897, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33326, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 32948, 2.0f);
-        GetCreatureListWithEntryInGrid(lVictims, m_creature, 33330, 2.0f);
-        if (!lVictims.empty())
-        {
-            for(std::list<Creature*>::iterator iter = lVictims.begin(); iter != lVictims.end(); ++iter)
-            {
-                if ((*iter) && (*iter)->isAlive() && !(*iter)->HasAura(SPELL_FLASH_FREEZE_NPC_STUN, EFFECT_INDEX_0))
-                    (*iter)->CastSpell((*iter), SPELL_FLASH_FREEZE_NPC_STUN, false);
-            }
-        }
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        if (!lVictims.empty())
-        {
-            for(std::list<Creature*>::iterator iter = lVictims.begin(); iter != lVictims.end(); ++iter)
-            {
-                if ((*iter) && (*iter)->isAlive() && (*iter)->HasAura(SPELL_FLASH_FREEZE_NPC_STUN, EFFECT_INDEX_0))
-                {
-                    (*iter)->RemoveAurasDueToSpell(SPELL_FLASH_FREEZE_NPC_STUN);
-                    if (Creature* pHodir = GetClosestCreatureWithEntry(m_creature, NPC_HODIR, 100.0f))
-                        (*iter)->AddThreat(pHodir, 100.0f);
-                }
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff) 
-    { }
 };
 
 // Hodir
@@ -434,9 +244,7 @@ struct MANGOS_DLL_DECL boss_hodirAI : public ScriptedAI
         DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
     }
 
-    // Flash freeze. Hacky way, needs core support
-    // PLEASE REMOVE FOR REVISION!
-    void DoFlashFreeze()
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *spellProto)
     {
         if (spellProto->Id == SPELL_FLASH_FREEZE)
         {

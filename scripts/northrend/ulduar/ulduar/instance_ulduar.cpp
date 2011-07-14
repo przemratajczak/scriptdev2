@@ -37,60 +37,16 @@ instance_ulduar::instance_ulduar(Map* pMap) : ScriptedInstance(pMap),
     m_bChooseSteel(false),
     m_bCantDoThat(true)
 {
-    instance_ulduar(Map* pMap) : ScriptedInstance(pMap)
-    {
-        Regular = pMap->IsRegularDifficulty();
-        Initialize();
-    }
+    Initialize();
+}
 
-    bool Regular;
-
-    // initialize the encouter variables
-    std::string m_strInstData;
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    uint32 m_auiHardBoss[HARD_ENCOUNTER];
-    uint32 m_auiUlduarKeepers[KEEPER_ENCOUNTER];
-    uint32 m_auiUlduarTeleporters[3];
-    uint32 m_auiMiniBoss[6];
-
-    // boss phases which need to be used inside the instance script
-    uint32 m_uiMimironPhase;
-    uint32 m_uiYoggPhase;
-    uint32 m_uiVisionPhase;
-
-    // creature guids
-    uint64 m_uiLeviathanGUID;
-    uint64 m_uiIgnisGUID;
-    uint64 m_uiRazorscaleGUID;
-    uint64 m_uiCommanderGUID;
-    uint64 m_uiXT002GUID;
-    uint64 m_auiAssemblyGUIDs[3];
-    uint64 m_uiKologarnGUID;
-    uint64 m_uiAuriayaGUID;
-    uint64 m_uiMimironGUID;
-    uint64 m_uiHodirGUID;
-    uint64 m_uiThorimGUID;
-    uint64 m_uiFreyaGUID;
-    uint64 m_uiVezaxGUID;
-    uint64 m_uiYoggSaronGUID;
-    uint64 m_uiAlgalonGUID;
-    uint64 m_uiRightArmGUID;
-    uint64 m_uiLeftArmGUID;
-    uint64 m_uiFeralDefenderGUID;
-    uint64 m_uiElderBrightleafGUID;
-    uint64 m_uiElderStonebarkGUID;
-    uint64 m_uiElderIronbrachGUID;
-    uint64 m_uiSaroniteAnimusGUID;
-    uint64 m_uiRunicColossusGUID;
-    uint64 m_uiRuneGiantGUID;
-    uint64 m_uiJormungarGUID;
-    uint64 m_uiLeviathanMkGUID;
-    uint64 m_uiHodirImageGUID;
-    uint64 m_uiFreyaImageGUID;
-    uint64 m_uiThorimImageGUID;
-    uint64 m_uiMimironImageGUID;
-    uint64 m_uiSaraGUID;
-    uint64 m_uiYoggBrainGUID;
+void instance_ulduar::Initialize()
+{
+    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+    memset(&m_auiHardBoss, 0, sizeof(m_auiHardBoss));
+    memset(&m_auiUlduarKeepers, 0, sizeof(m_auiUlduarKeepers));
+    memset(&m_auiUlduarTeleporters, 0, sizeof(m_auiUlduarTeleporters));
+    memset(&m_auiMiniBoss, NOT_STARTED, sizeof(m_auiMiniBoss));
 
     m_lIronDwarvesAchievList.clear();
 
@@ -103,110 +59,8 @@ bool instance_ulduar::IsEncounterInProgress() const
 {
     for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
     {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        memset(&m_auiHardBoss, 0, sizeof(m_auiHardBoss));
-        memset(&m_auiUlduarKeepers, 0, sizeof(m_auiUlduarKeepers));
-        memset(&m_auiUlduarTeleporters, 0, sizeof(m_auiUlduarTeleporters));
-
-        for(uint8 i = 0; i < 6; i++)
-            m_auiMiniBoss[i] = NOT_STARTED;
-
-        for(uint8 i = 0; i < 9; i++)
-            m_uiMimironTelGUID[i] = 0;
-
-        m_uiMimironPhase        = 0;
-        m_uiYoggPhase           = 0;
-        m_uiVisionPhase         = 0;
-
-        m_uiLeviathanGUID       = 0;
-        m_uiIgnisGUID           = 0;
-        m_uiRazorscaleGUID      = 0;
-        m_uiCommanderGUID       = 0;
-        m_uiXT002GUID           = 0;
-        m_uiKologarnGUID        = 0;
-        m_uiAuriayaGUID         = 0;
-        m_uiMimironGUID         = 0;
-        m_uiHodirGUID           = 0;
-        m_uiThorimGUID          = 0;
-        m_uiFreyaGUID           = 0;
-        m_uiVezaxGUID           = 0;
-        m_uiYoggSaronGUID       = 0;
-        m_uiAlgalonGUID         = 0;
-        m_uiRightArmGUID        = 0;
-        m_uiLeftArmGUID            = 0;
-        m_uiFeralDefenderGUID    = 0;
-        m_uiElderBrightleafGUID = 0;
-        m_uiElderStonebarkGUID  = 0;
-        m_uiElderIronbrachGUID  = 0;
-        m_uiSaroniteAnimusGUID  = 0;
-        m_uiRunicColossusGUID   = 0;
-        m_uiRuneGiantGUID       = 0;
-        m_uiJormungarGUID        = 0;
-        m_uiLeviathanMkGUID     = 0;
-        m_uiHodirImageGUID      = 0;
-        m_uiFreyaImageGUID      = 0;
-        m_uiThorimImageGUID     = 0;
-        m_uiMimironImageGUID    = 0;
-        m_uiSaraGUID            = 0;
-        m_uiYoggBrainGUID       = 0;
-
-        // loot
-        m_uiKologarnLootGUID    = 0;
-        m_uiHodirLootGUID       = 0;
-        m_uiHodirRareLootGUID   = 0;
-        m_uiThorimLootGUID      = 0;
-        m_uiThorimRareLootGUID  = 0;
-        m_uiFreyaLootGUID       = 0;
-        m_uiFreyaLoot1GUID      = 0;
-        m_uiFreyaLoot2GUID      = 0;
-        m_uiFreyaLoot3GUID      = 0;
-        m_uiMimironLootGUID     = 0;
-        m_uiMimironHardLootGUID = 0;
-        m_uiAlagonLootGUID      = 0;
-
-        // doors
-        // The siege
-        m_uiShieldWallGUID      = 0;
-        m_uiLeviathanGateGUID   = 0;
-        m_uiXT002GateGUID       = 0;
-        m_uiBrokenHarpoonGUID   = 0;
-        // Archivum
-        m_uiIronCouncilDoorGUID = 0;
-        m_uiArchivumDoorGUID    = 0;
-        m_uiArchivumConsoleGUID = 0;
-        m_uiUniverseFloorArchivumGUID = 0;
-        // Celestial planetarium
-        m_uiCelestialDoorGUID   = 0;
-        m_uiCelestialConsoleGUID = 0;
-        m_uiUniverseFloorCelestialGUID = 0;
-        m_uiAzerothGlobeGUID    = 0;
-        // Kologarn
-        m_uiShatteredHallsDoorGUID = 0;
-        m_uiKologarnBridgeGUID  = 0;
-        // Hodir
-        m_uiHodirEnterDoorGUID  = 0;
-        m_uiHodirWallGUID       = 0;
-        m_uiHodirExitDoorGUID   = 0;
-        // Mimiron
-        m_uiMimironTramGUID     = 0;
-        m_uiMimironButtonGUID   = 0;
-        m_uiMimironDoor1GUID    = 0;
-        m_uiMimironDoor2GUID    = 0;
-        m_uiMimironDoor3GUID    = 0;
-        m_uiMimironElevatorGUID = 0;
-        // Thorim
-        m_uiArenaEnterDoorGUID  = 0;
-        m_uiArenaExitDoorGUID   = 0;
-        m_uiHallwayDoorGUID     = 0;
-        m_uiThorimEnterDoorGUID = 0;
-        m_uiThorimLeverGUID     = 0;
-        // Prison
-        m_uiAncientGateGUID     = 0;
-        m_uiVezaxGateGUID       = 0;
-        m_uiYoggGateGUID        = 0;
-        m_uiBrainDoor1GUID      = 0;
-        m_uiBrainDoor2GUID      = 0;
-        m_uiBrainDoor3GUID      = 0;
+        if (m_auiEncounter[i] == IN_PROGRESS)
+            return true;
     }
 
     return false;
@@ -415,12 +269,7 @@ void instance_ulduar::OnObjectCreate(GameObject *pGo)
         case GO_GIFT_OF_OBSERVER_H:
             break;
 
-    // functions to open or close some doors
-    void OpenDoor(uint64 guid)
-    {
-        if(!guid) return;
-        GameObject* pGo = instance->GetGameObject(guid);
-        if(pGo) pGo->SetGoState(GO_STATE_ACTIVE);
+        default: return;
     }
     m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
 }
@@ -472,11 +321,14 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
             {
-                OpenDoor(m_uiIronCouncilDoorGUID);
-                OpenDoor(m_uiArchivumDoorGUID);
-                CheckIronCouncil();        // used for a hacky achiev, remove for revision!
-            } else if (uiData == IN_PROGRESS)
-                CloseDoor(m_uiIronCouncilDoorGUID);
+                OpenDoor(GO_IRON_ENTRANCE_DOOR);
+                OpenDoor(GO_ARCHIVUM_DOOR);
+                OpenDoor(GO_SHATTERED_DOOR);
+            }
+            else if (uiData == IN_PROGRESS)
+                CloseDoor(GO_IRON_ENTRANCE_DOOR);
+            else if (uiData == FAIL)
+                OpenDoor(GO_IRON_ENTRANCE_DOOR);
             break;
         case TYPE_KOLOGARN:
             m_auiEncounter[uiType] = uiData;
@@ -494,8 +346,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
             {
-//                CheckIronCouncil();        // used for a hacky achiev, remove for revision!
-                if (GameObject* pGO = instance->GetGameObject(m_uiMimironTramGUID))
+                if (GameObject* pGO = GetSingleGameObjectFromStorage(GO_MIMIRON_TRAM))
                 {
                     pGO->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                     pGO->SetGoState(GO_STATE_READY);
@@ -516,8 +367,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 // used to make the friendly keeper visible
                 if(Creature* pImage = GetSingleCreatureFromStorage(MIMIRON_IMAGE))
                     pImage->SetVisibility(VISIBILITY_ON);
-                OpenMadnessDoor();
-                CheckKeepers();        // used for a hacky achiev, remove for revision!
+                DoOpenMadnessDoorIfCan();
             }
             break;
         case TYPE_HODIR:
@@ -532,8 +382,8 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 // used to make the friendly keeper visible
                 if(Creature* pImage = GetSingleCreatureFromStorage(HODIR_IMAGE))
                     pImage->SetVisibility(VISIBILITY_ON);
-                OpenMadnessDoor();
-                CheckKeepers();        // used for a hacky achiev, remove for revision!
+
+                DoOpenMadnessDoorIfCan();
             }
             else if (uiData == IN_PROGRESS)
                 CloseDoor(GO_HODIR_ENTER);
@@ -552,8 +402,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 // used to make the friendly keeper visible
                 if(Creature* pImage = GetSingleCreatureFromStorage(THORIM_IMAGE))
                     pImage->SetVisibility(VISIBILITY_ON);
-                OpenMadnessDoor();
-                CheckKeepers();        // used for a hacky achiev, remove for revision!
+                DoOpenMadnessDoorIfCan();
             }
             break;
         case TYPE_FREYA:
@@ -570,8 +419,7 @@ void instance_ulduar::SetData(uint32 uiType, uint32 uiData)
                 // used to make the friendly keeper visible
                 if(Creature* pImage = GetSingleCreatureFromStorage(FREYA_IMAGE))
                     pImage->SetVisibility(VISIBILITY_ON);
-                OpenMadnessDoor();
-                CheckKeepers();        // used for a hacky achiev, remove for revision!
+                DoOpenMadnessDoorIfCan();
             }
             break;
         // 1 elder up +1 emblem drops
@@ -876,14 +724,12 @@ bool instance_ulduar::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player c
             return !instance->IsRegularDifficulty() && GetData(TYPE_ACHI_NINE_LIVES);
     }
 
-    // TODO: implement all achievs here!
-    bool CheckAchievementCriteriaMeet(uint32 criteria_id, const Player *source)
-    {
-        switch(criteria_id)
-        {
-        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
-            break;
-        }
+    return false;
+}
+
+bool instance_ulduar::CheckConditionCriteriaMeet(Player const* source, uint32 map_id, uint32 instance_condition_id)
+{
+    if (map_id != instance->GetId())
         return false;
 
     if (GetData(instance_condition_id) == DONE)

@@ -383,10 +383,10 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_bTenebronHelpedInFight = true;
             bCanUseWill = true;
             pTene->CastSpell(pTene, SPELL_POWER_OF_TENEBRON, false);
-            pTene->SetLevitate(true);
-            pTene->SetWalk(false);
+            pTene->AddSplineFlag(SPLINEFLAG_FLYING);
+            pTene->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
             pTene->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ);
+            pTene->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aTene[0].m_fX, m_aTene[0].m_fY, m_aTene[0].m_fZ, false);
         }
 
         if (pShad && pShad->isAlive() && !pShad->getVictim())
@@ -394,10 +394,10 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_bShadronHelpedInFight = true;
             bCanUseWill = true;
             pShad->CastSpell(pShad, SPELL_POWER_OF_SHADRON, false);
-            pShad->SetLevitate(true);
-            pShad->SetWalk(false);
+            pShad->AddSplineFlag(SPLINEFLAG_FLYING);
+            pShad->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
             pShad->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ);
+            pShad->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aShad[0].m_fX, m_aShad[0].m_fY, m_aShad[0].m_fZ, false);
         }
 
         if (pVesp && pVesp->isAlive() && !pVesp->getVictim())
@@ -405,10 +405,10 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_bVesperonHelpedInFight = true;
             bCanUseWill = true;
             pVesp->CastSpell(pVesp, SPELL_POWER_OF_VESPERON, false);
-            pVesp->SetLevitate(true);
-            pVesp->SetWalk(false);
+            pVesp->AddSplineFlag(SPLINEFLAG_FLYING);
+            pVesp->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
             pVesp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ);
+            pVesp->GetMotionMaster()->MovePoint(POINT_ID_INIT, m_aVesp[0].m_fX, m_aVesp[0].m_fY, m_aVesp[0].m_fZ, false);
         }
 
         if (bCanUseWill)
@@ -439,7 +439,6 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             if (pTemp && pTemp->isAlive() && !pTemp->getVictim())
             {
                 pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pTemp->SetWalk(false);
 
                 m_uiSarthHealth = m_creature->GetHealth();
                 DoCast(m_creature, SPELL_WILL_OF_SARTHARION);
@@ -460,17 +459,17 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
                     case NPC_TENEBRON:
                         iTextId = SAY_SARTHARION_CALL_TENEBRON;
                         pTemp->GetMotionMaster()->MovementExpired(true);
-                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ);
+                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aTene[1].m_fX, m_aTene[1].m_fY, m_aTene[1].m_fZ, false);
                         break;
                     case NPC_SHADRON:
                         iTextId = SAY_SARTHARION_CALL_SHADRON;
                         pTemp->GetMotionMaster()->MovementExpired(true);
-                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ);
+                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aShad[1].m_fX, m_aShad[1].m_fY, m_aShad[1].m_fZ, false);
                         break;
                     case NPC_VESPERON:
                         iTextId = SAY_SARTHARION_CALL_VESPERON;
                         pTemp->GetMotionMaster()->MovementExpired(true);
-                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ);
+                        pTemp->GetMotionMaster()->MovePoint(POINT_ID_LAND, m_aVesp[1].m_fX, m_aVesp[1].m_fY, m_aVesp[1].m_fZ, false);
                         break;
                 }
 
@@ -758,8 +757,8 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetLevitate(true);
-        m_creature->SetWalk(false);
+        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_uiWaypointId = 0;
@@ -1859,7 +1858,7 @@ struct MANGOS_DLL_DECL mob_flame_tsunamiAI : public ScriptedAI
     void Reset()
     {
         m_creature->SetDisplayId(11686);
-        m_creature->SetLevitate(true);
+        m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
         m_creature->SetSpeedRate(MOVE_WALK, 4.5f, true);
         m_uiMovementStartTimer = 4000;
     }
@@ -1874,7 +1873,7 @@ struct MANGOS_DLL_DECL mob_flame_tsunamiAI : public ScriptedAI
             int8 uiDirection = 1;
             if (m_creature->GetPositionX() > 3240.0f)
                 uiDirection = -1;
-            m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+uiDirection*86.5f, m_creature->GetPositionY(), m_creature->GetPositionZ());
+            m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+uiDirection*86.5f, m_creature->GetPositionY(), m_creature->GetPositionZ(), false);
             m_uiMovementStartTimer = 30000;
         }
         else
