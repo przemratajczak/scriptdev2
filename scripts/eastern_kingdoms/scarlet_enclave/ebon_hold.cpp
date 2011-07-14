@@ -3905,7 +3905,7 @@ struct MANGOS_DLL_DECL npc_mine_carAI : public ScriptedAI
             // buggy sometimes...
             m_creature->SetSpeedRate(MOVE_WALK, 1.5f, true);
             m_creature->SetSpeedRate(MOVE_RUN, 1.5f, true);
-            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+            m_creature->SetWalk(false);
 
             m_creature->GetMotionMaster()->MoveFollow(pMiner, 1.0f, 0);
         }
@@ -4142,7 +4142,7 @@ struct MANGOS_DLL_DECL npc_scourge_gryphonAI : public npc_escortAI
         // Need to be set here. If flag is applied earlier, the Spell Immune Mask
         // makes the vehicle mount spell (ID - 46598 Ride Vehicle Hardcoded) disfunctional
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetSplineFlags(SPLINEFLAG_FLYING);
+        m_creature->SetLevitate(true);
 
         Start(true, pPlayer);
     }

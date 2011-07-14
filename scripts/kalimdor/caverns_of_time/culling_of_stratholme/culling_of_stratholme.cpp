@@ -922,7 +922,7 @@ struct MANGOS_DLL_DECL npc_arthasAI : public npc_escortAI
                    m_creature->GetMotionMaster()->MovePoint(0, Malganis->GetPositionX(), Malganis->GetPositionY(), Malganis->GetPositionZ());
                 }
                 m_creature->SetGuidValue(UNIT_FIELD_TARGET, 0);
-                m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                m_creature->SetWalk(false);
                 JumpNextStep(3000);
                 break;
             case 5:
@@ -1116,21 +1116,21 @@ struct MANGOS_DLL_DECL npc_utherAI : public npc_escortAI
            if(Creature* Knight01 = m_creature->SummonCreature(NPC_KNIGHT,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,110000))
            {
               m_uiKnightGUID01 = Knight01->GetObjectGuid();
-              Knight01->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+              Knight01->SetWalk(false);
               Knight01->GetMotionMaster()->MoveFollow(m_creature,PET_FOLLOW_DIST,M_PI_F/2);
            }
 
            if(Creature* Knight02 = m_creature->SummonCreature(NPC_KNIGHT,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,110000))
            {
               m_uiKnightGUID02 = Knight02->GetObjectGuid();
-              Knight02->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+              Knight02->SetWalk(false);
               Knight02->GetMotionMaster()->MoveFollow(m_creature,PET_FOLLOW_DIST,M_PI_F/4);
            }
 
            if(Creature* Knight03 = m_creature->SummonCreature(NPC_KNIGHT,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,110000))
            {
               m_uiKnightGUID03 = Knight03->GetObjectGuid();
-              Knight03->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+              Knight03->SetWalk(false);
               Knight03->GetMotionMaster()->MoveFollow(m_creature,PET_FOLLOW_DIST,M_PI_F/3);
            }
     }
@@ -1142,7 +1142,7 @@ struct MANGOS_DLL_DECL npc_utherAI : public npc_escortAI
             case 3:
                if(Creature* pArthas = m_pInstance->GetSingleCreatureFromStorage(NPC_ARTHAS))
                {
-                 pArthas->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                 pArthas->SetWalk(false);
                  pArthas->SetGuidValue(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
                  pArthas->GetMotionMaster()->MovePoint(0, 1902.974f, 1291.635f, 143.337f);
                }
