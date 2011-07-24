@@ -190,11 +190,17 @@ struct MANGOS_DLL_DECL mob_sanctum_sentryAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
         {
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
-                if (m_pInstance)
-                    if (Creature *pAuriaya = m_pInstance->GetSingleCreatureFromStorage(NPC_AURIAYA))
-                        m_creature->GetMotionMaster()->MoveFollow(pAuriaya, 5.0f, urand(60, 250)/100.0f);
-            return;
+            // they should follow Auriaya, but this looks ugly!
+            if (Creature* pTemp = m_creature->GetMap()->GetCreature( m_pInstance->GetData64(NPC_AURIAYA)))
+            {
+                if (pTemp->isAlive() && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+                {
+
+                    float angle = m_creature->GetAngle(pTemp);
+                    m_creature->GetMotionMaster()->Clear(false);
+                    m_creature->GetMotionMaster()->MoveFollow(pTemp, PET_FOLLOW_DIST, angle);
+                }
+            }
         }
 
         if (m_uiRip_Flesh_Timer < diff)

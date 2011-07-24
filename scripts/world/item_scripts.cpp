@@ -25,6 +25,7 @@ EndScriptData */
 item_arcane_charges                 Prevent use if player is not flying (cannot cast while on ground)
 item_flying_machine(i34060,i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
+Item_jungle_punch_offer
 EndContentData */
 
 #include "precompiled.h"
@@ -126,6 +127,10 @@ bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const Spell
 
     return false;
 }
+
+/*####
+# jungle_punch_
+####*/
 
 enum
 {

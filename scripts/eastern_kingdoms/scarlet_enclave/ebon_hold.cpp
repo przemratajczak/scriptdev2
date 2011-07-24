@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+   Copyright (C) 2011 MangosR2_ScriptDev2
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,7 +17,7 @@
 
 /* ScriptData
 SDName: Ebon_Hold
-SD%Complete: 85
+SD%Complete: 95%  ---- still a few minor bugs here and there
 SDComment: Quest support: 12641, 12701, 12848, 12733, 12739(and 12742 to 12750), 12720, 12727, 12698. Special Npc (npc_valkyr_battle_maiden)
 ToDo: restore spells to mobs in quest how to persudae friends and win enemies
 SDCategory: Ebon Hold
@@ -1341,7 +1342,7 @@ CreatureAI* GetAI_mob_scarlet_miner(Creature* pCreature)
 };
 
 /*######
-## Scarlet Ghoul (The Gift That Keeps On Giving
+## mob_scarlet_ghoul
 ######*/
 
 enum
@@ -1349,18 +1350,18 @@ enum
     SPELL_HARVESTER_PING_DUMMY  = 52514,
     ENTRY_GOTHIK                = 28658,
 
-    SAY_SCARLET_GHOUL_SPAWN1    = -1609286,
-    SAY_SCARLET_GHOUL_SPAWN2    = -1609285,
-    SAY_SCARLET_GHOUL_SPAWN3    = -1609284,
-    SAY_SCARLET_GHOUL_SPAWN4    = -1609283,
-    SAY_SCARLET_GHOUL_SPAWN5    = -1609282,
-    SAY_SCARLET_GHOUL_SPAWN6    = -1609281,
+    SAY_SCARLET_GHOUL_SPAWN1    = -1609300,
+    SAY_SCARLET_GHOUL_SPAWN2    = -1609301,
+    SAY_SCARLET_GHOUL_SPAWN3    = -1609302,
+    SAY_SCARLET_GHOUL_SPAWN4    = -1609303,
+    SAY_SCARLET_GHOUL_SPAWN5    = -1609304,
+    SAY_SCARLET_GHOUL_SPAWN6    = -1609305,
 
-    SAY_SCARLET_GOTHIK1         = -1609280,
-    SAY_SCARLET_GOTHIK2         = -1609279,
-    SAY_SCARLET_GOTHIK3         = -1609278,
-    SAY_SCARLET_GOTHIK4         = -1609277,
-    SAY_SCARLET_GOTHIK5         = -1609276,
+    SAY_SCARLET_GOTHIK1         = -1609306,
+    SAY_SCARLET_GOTHIK2         = -1609307,
+    SAY_SCARLET_GOTHIK3         = -1609308,
+    SAY_SCARLET_GOTHIK4         = -1609309,
+    SAY_SCARLET_GOTHIK5         = -1609310,
 };
 
 struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
@@ -1369,15 +1370,19 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_bIsSpawned = false;
         fDist = (float)urand(1, 5);
-        m_uiCreatorGUID = m_creature->GetCreatorGuid();
-        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID))
+        m_creatorGuid = m_creature->GetCreatorGuid();
+        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_creatorGuid) )
             fAngle = m_creature->GetAngle(pOwner);
 
         Reset();
     }
 
-    ObjectGuid m_uiCreatorGUID;
-    ObjectGuid m_uiHarvesterGUID;
+
+    Unit* pTarget;
+
+    ObjectGuid m_creatorGuid;
+    ObjectGuid m_targetGUID;
+    ObjectGuid m_harvesterGUID;
 
     uint32 m_uiWaitForThrowTimer;
 
@@ -1391,19 +1396,21 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_uiWaitForThrowTimer   = 3000;
         m_bWaitForThrow         = false;
-        m_uiHarvesterGUID       = 0;
-
+        pTarget                 = NULL;
+        //m_creatorGuid.Clear();
+        m_targetGUID.Clear();
+        m_harvesterGUID.Clear();
     }
 
     void MoveInLineOfSight(Unit *pWho)
     {
         if (!m_bWaitForThrow && pWho->GetEntry() == ENTRY_GOTHIK && m_creature->GetDistance(pWho) < 15.0f)
         {
-            m_uiHarvesterGUID = pWho->GetObjectGuid();
+            m_harvesterGUID = pWho->GetObjectGuid();
 
-            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID))
+            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_creatorGuid) )
             {
-                pOwner->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetObjectGuid());
+                pOwner->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetObjectGuid() );
                 // this will execute if m_creature survived Harvester's wrath
                 float x, y, z, o;
                 o = float(urand(53, 57))/10.0f;
@@ -1428,7 +1435,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
         {
             if (m_uiWaitForThrowTimer <= uiDiff)
             {
-                if (Creature* pGothik = m_creature->GetMap()->GetCreature(m_uiHarvesterGUID) )
+                if (Creature* pGothik = m_creature->GetMap()->GetCreature(m_harvesterGUID) )
                 {
                     if (pGothik->AI()->DoCastSpellIfCan(m_creature, roll_chance_i(50) ? 52519 : 52521) == CAST_OK)
                         DoScriptText(SAY_SCARLET_GOTHIK1 - urand(0, 4), pGothik);
@@ -1443,7 +1450,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
             return;
         }
 
-        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
+        Player* pOwner = m_creature->GetMap()->GetPlayer(m_creatorGuid);
         if (!pOwner || !pOwner->IsInWorld())
         {
             m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
@@ -4177,6 +4184,268 @@ struct MANGOS_DLL_DECL npc_scourge_gryphonAI : public npc_escortAI
     {
         npc_escortAI::UpdateAI(uiDiff);
     }
+};
+
+/*######
+## quest How To Win Friends And Influence Enemies  &&  replaces EventAI for these npcs overall
+######*/
+enum win_friends
+{
+   QUEST_HOW_TO_WIN_FRIENDS          = 12720,
+
+   NPC_PREACHER                      = 28939,
+   SPELL_HOLY_FURY_OOC               = 34809,
+   SPELL_HOLY_SMITE                  = 15498,
+
+   NPC_MARKSMEN                      = 28610,
+   SPELL_RAPTOR_STRIKE               = 32915,
+
+   SAY_PERSUADE1                     = -1609101,
+   SAY_PERSUADE2                     = -1609102,
+   SAY_PERSUADE3                     = -1609103,
+   SAY_PERSUADE4                     = -1609104,
+   SAY_PERSUADE5                     = -1609105,
+   SAY_PERSUADE6                     = -1609106,
+   SAY_PERSUADE7                     = -1609107,
+   SAY_CRUSADER1                     = -1609108,
+   SAY_CRUSADER2                     = -1609109,
+   SAY_CRUSADER3                     = -1609110,
+   SAY_CRUSADER4                     = -1609111,
+   SAY_CRUSADER5                     = -1609112,
+   SAY_CRUSADER6                     = -1609113,
+   SAY_PERSUADED1                    = -1609114,
+   SAY_PERSUADED2                    = -1609115,
+   SAY_PERSUADED3                    = -1609116,
+   SAY_PERSUADED4                    = -1609117,
+   SAY_PERSUADED5                    = -1609118,
+   SAY_PERSUADED6                    = -1609119,
+
+   SPELL_PERSUASIVE_STRIKE           = 52781
+};
+
+struct MANGOS_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
+{
+   npc_crusade_persuadedAI(Creature *pCreature) : ScriptedAI(pCreature)
+   {
+       Reset();
+   }
+
+   ObjectGuid m_playerGUID;
+   uint32 m_uiSpeech_timer;
+   uint32 m_uiSpeech_counter;
+   uint32 m_uiCrusade_faction;
+
+   uint32 m_uiHOLYFURYTimer;
+   uint32 m_uiHOLYSMITETimer;
+   uint32 m_uiRATORSTRIKETimer;
+
+   void Reset()
+   {
+       m_uiSpeech_timer = 0;
+       m_uiSpeech_counter = 0;
+       m_uiCrusade_faction = 0;
+       m_playerGUID.Clear();
+
+       m_uiHOLYFURYTimer     = 60000;
+       m_uiHOLYSMITETimer    = 5500;
+
+       m_uiRATORSTRIKETimer  = 4500;
+   }
+
+   void SpellHit(Unit *caster, const SpellEntry *spell)
+   {
+       if (caster->GetTypeId() == TYPEID_PLAYER && m_creature->isAlive() && spell->Id == SPELL_PERSUASIVE_STRIKE && m_uiSpeech_counter == 0)
+       {
+           if(((Player*)caster)->GetQuestStatus(QUEST_HOW_TO_WIN_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+           {
+               if (rand()%100 > 90) // chance
+               {
+                   m_playerGUID = ((Player*)caster)->GetObjectGuid();
+                   m_uiCrusade_faction = m_creature->getFaction();
+                   m_uiSpeech_timer = 1000;
+                   m_uiSpeech_counter = 1;
+                   m_creature->setFaction(35);
+               }
+               else if (m_uiSpeech_counter == 0)
+               {
+                   switch(rand()%6)
+                   {
+                       case 0: DoScriptText(SAY_PERSUADE1, caster);break;
+                       case 1: DoScriptText(SAY_PERSUADE2, caster);break;
+                       case 2: DoScriptText(SAY_PERSUADE3, caster);break;
+                       case 3: DoScriptText(SAY_PERSUADE4, caster);break;
+                       case 4: DoScriptText(SAY_PERSUADE5, caster);break;
+                       case 5: DoScriptText(SAY_PERSUADE6, caster);break;
+                       case 6: DoScriptText(SAY_PERSUADE7, caster);break;
+                   }
+                   switch(rand()%5)
+                   {
+                       case 0: DoScriptText(SAY_CRUSADER1, m_creature);break;
+                       case 1: DoScriptText(SAY_CRUSADER2, m_creature);break;
+                       case 2: DoScriptText(SAY_CRUSADER3, m_creature);break;
+                       case 3: DoScriptText(SAY_CRUSADER4, m_creature);break;
+                       case 4: DoScriptText(SAY_CRUSADER5, m_creature);break;
+                       case 5: DoScriptText(SAY_CRUSADER6, m_creature);break;
+                   }
+               }
+           }
+       }
+   }
+
+   void UpdateAI(const uint32 diff)
+   {
+       if (m_uiSpeech_counter >= 1 && m_uiSpeech_counter <= 6)
+           if (m_uiSpeech_timer < diff)
+           {
+               m_creature->CombatStop(true);
+               m_creature->StopMoving();
+               Unit* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGUID);
+
+              switch(m_uiSpeech_counter)
+               {
+                   case 1: DoScriptText(SAY_PERSUADED1, m_creature); m_uiSpeech_timer = 8000; m_uiSpeech_counter++; break;
+                   case 2: DoScriptText(SAY_PERSUADED2, m_creature); m_uiSpeech_timer = 8000; m_uiSpeech_counter++; break;
+                   case 3: DoScriptText(SAY_PERSUADED3, m_creature); m_uiSpeech_timer = 8000; m_uiSpeech_counter++; break;
+                   case 4: DoScriptText(SAY_PERSUADED4, m_creature); m_uiSpeech_timer = 8000; m_uiSpeech_counter++; break;
+                   case 5: DoScriptText(SAY_PERSUADED5, pPlayer);    m_uiSpeech_timer = 8000; m_uiSpeech_counter++; break;
+                   case 6:
+                       DoScriptText(SAY_PERSUADED6, m_creature);
+                       m_creature->setFaction(m_uiCrusade_faction);
+                       m_uiSpeech_timer = 0;
+                       m_uiCrusade_faction = 0;
+                       m_uiSpeech_counter++;
+                       AttackStart(pPlayer);
+                       if(((Player*)pPlayer)->GetQuestStatus(QUEST_HOW_TO_WIN_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+                           ((Player*)pPlayer)->AreaExploredOrEventHappens(QUEST_HOW_TO_WIN_FRIENDS);
+                       break;
+               }
+            }else m_uiSpeech_timer -= diff;
+       else
+           if (m_creature->GetEntry() == NPC_PREACHER)
+           {
+               if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                   return;
+
+               if (m_uiHOLYSMITETimer < diff)
+               {
+                   DoCastSpellIfCan(m_creature->getVictim(), SPELL_HOLY_SMITE);
+                   m_uiHOLYSMITETimer = 5500 + rand()%1400;
+               }else m_uiHOLYSMITETimer -= diff;
+
+               if (m_uiHOLYFURYTimer < diff)
+               {
+                   DoCastSpellIfCan(m_creature, SPELL_HOLY_FURY_OOC);
+                   m_uiHOLYFURYTimer = 1000 + rand()%90000;
+               }else m_uiHOLYFURYTimer -= diff;
+
+                   DoMeleeAttackIfReady();
+            }
+            else
+            {
+                if (m_creature->GetEntry() == NPC_MARKSMEN)
+                {
+                    if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                    return;
+
+                    if (m_uiRATORSTRIKETimer < diff)
+                    {
+                        DoCastSpellIfCan(m_creature->getVictim(), SPELL_RAPTOR_STRIKE);
+                        m_uiRATORSTRIKETimer = 4500 + rand()%1400;
+                    }else m_uiRATORSTRIKETimer -= diff;
+                   DoMeleeAttackIfReady();
+                }
+            }
+   }
+};
+
+//Scarlet courier
+enum ScarletCourierEnum
+{
+    SAY_TREE1               = -1609531,
+    SAY_TREE2               = -1609532,
+    GO_INCONSPICUOUS_TREE   = 191144,
+    NPC_SCARLET_COURIER     = 29076
+};
+
+struct MANGOS_DLL_DECL mob_scarlet_courierAI : ScriptedAI
+{
+    mob_scarlet_courierAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint8 m_uiStage;
+    uint32 m_uiStageTimer;
+
+    void Reset()
+    {
+        m_creature->Mount(14338); // not sure about this id
+        m_uiStage = 1;
+        m_uiStageTimer = 3*IN_MILLISECONDS;
+    }
+
+    void EnterCombat(Unit* pWho)
+    {
+        DoScriptText(SAY_TREE2, m_creature);
+        m_creature->Unmount();
+        m_uiStage = 0;
+    }
+
+    void MovementInform(uint32 m_uiType, uint32 m_uiId)
+    {
+        if (m_uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (m_uiId == 1)
+            m_uiStage = 2;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiStage && !m_creature->isInCombat())
+        {
+            if (m_uiStageTimer <= uiDiff)
+            {
+                switch(m_uiStage)
+                {
+                    case 1:
+                        m_creature->SetWalk(true);
+                        if (GameObject* tree = GetClosestGameObjectWithEntry(m_creature,GO_INCONSPICUOUS_TREE, 40.0f))
+                        {
+                            DoScriptText(SAY_TREE1, m_creature);
+                            float x, y, z;
+                            tree->GetContactPoint(m_creature, x, y, z);
+                            m_creature->GetMotionMaster()->MovePoint(1, x, y, z);
+                        }
+                        break;
+                    case 2:
+                        if (GameObject* tree = GetClosestGameObjectWithEntry(m_creature,GO_INCONSPICUOUS_TREE, 40.0f))
+                            if (Unit *unit = tree->GetOwner())
+                                AttackStart(unit);
+                        break;
+                    default:
+                        break;
+                }
+
+                m_uiStageTimer = 3*IN_MILLISECONDS;
+                m_uiStage = 0;
+            }
+            else
+                m_uiStageTimer -= uiDiff;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_scarlet_courier(Creature* pCreature)
+{
+    return new mob_scarlet_courierAI(pCreature);
+};
+
+CreatureAI* GetAI_npc_crusade_persuaded(Creature* pCreature)
+{
+   return new npc_crusade_persuadedAI(pCreature);
 };
 
 CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)
