@@ -121,21 +121,21 @@ struct MANGOS_DLL_DECL BSWScriptedAI : public ScriptedAI
                  return queryIndex(_findSpellIDX(SpellID)) ? _QuerySpellPeriod(_findSpellIDX(SpellID), diff, ignorecast) : false;
              };
 
-        CanCastResult timedCast(uint32 SpellID, uint32 diff, Unit* pTarget = NULL)
+        CanCastResult timedCast(uint32 SpellID, uint32 diff, Unit* pTarget = NULL, uint32 cast_flags = 0)
              {
                  if (!queryIndex(_findSpellIDX(SpellID))) return CAST_FAIL_OTHER;
-                 return _QuerySpellPeriod(_findSpellIDX(SpellID), diff) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget) : CAST_FAIL_STATE;
+                 return _QuerySpellPeriod(_findSpellIDX(SpellID), diff) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget, cast_flags) : CAST_FAIL_STATE;
              };
 
-        CanCastResult doCast(uint32 SpellID, Unit* pTarget = NULL)
+        CanCastResult doCast(uint32 SpellID, Unit* pTarget = NULL, uint32 cast_flags = 0)
              {
-                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget) : CAST_FAIL_OTHER;
+                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget, cast_flags) : CAST_FAIL_OTHER;
              };
 
-        CanCastResult doCast(Unit* pTarget, uint32 SpellID)
+        CanCastResult doCast(Unit* pTarget, uint32 SpellID, uint32 cast_flags = 0)
              {
                   if (!pTarget) return CAST_FAIL_OTHER;
-                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWCastOnTarget(pTarget, _findSpellIDX(SpellID)) : CAST_FAIL_OTHER;
+                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWCastOnTarget(pTarget, _findSpellIDX(SpellID), cast_flags) : CAST_FAIL_OTHER;
              };
 
         bool doRemove(uint32 SpellID, Unit* pTarget = NULL, uint8 index = EFFECT_INDEX_ALL)
@@ -253,9 +253,9 @@ struct MANGOS_DLL_DECL BSWScriptedAI : public ScriptedAI
 
         CanCastResult _BSWDoForceCast(uint8 m_uiSpellIdx, Unit* pTarget);
 
-        CanCastResult _BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget = NULL);
+        CanCastResult _BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget = NULL, uint32 cast_flags = 0);
 
-        CanCastResult _BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx);
+        CanCastResult _BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx, uint32 cast_flags);
 
         bool          _QuerySpellPeriod(uint8 m_uiSpellIdx, uint32 diff, bool ignorecast = false);
 

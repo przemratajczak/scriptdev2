@@ -137,7 +137,7 @@ bool BSWScriptedAI::_QuerySpellPeriod(uint8 m_uiSpellIdx, uint32 diff, bool igno
     };
 };
 
-CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget)
+CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget, uint32 cast_flags)
 {
 
     BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
@@ -158,30 +158,30 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
                    break;
 
             case CAST_ON_SELF:
-                   result = _BSWCastOnTarget(m_creature, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(m_creature, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_SUMMONS:
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_VICTIM:
                    pTarget = m_creature->getVictim();
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_RANDOM:
                    pTarget = _doSelect(0, false, 60.0f);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_BOTTOMAGGRO:
                    pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_BOTTOMAGGRO,0);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_TARGET:
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case APPLY_AURA_SELF:
@@ -248,12 +248,12 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
 
             case CAST_ON_FRENDLY:
                    pTarget = DoSelectLowestHpFriendly(pSpell->LocData.x,0);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_FRENDLY_LOWHP:
                    pTarget = DoSelectLowestHpFriendly(pSpell->LocData.x,1);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case CAST_ON_RANDOM_POINT:
@@ -294,7 +294,7 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
             case CAST_ON_RANDOM_PLAYER:
                    if ( pSpell->LocData.x < 1 ) pTarget = _doSelect(0, false, 60.0f);
                        else pTarget = _doSelect(0, false, (float)pSpell->LocData.x);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
                    break;
 
             case APPLY_AURA_ALLPLAYERS:
@@ -337,7 +337,7 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
     return result;
 };
 
-CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx)
+CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx, uint32 cast_flags)
 {
     BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
 
@@ -349,7 +349,7 @@ CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx)
 
     debug_log("BSW: Casting (on target) spell %u type %u",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
 
-    if (!pSpell->m_IsBugged) return _DoCastSpellIfCan(pTarget, pSpell->m_uiSpellEntry[currentDifficulty]);
+    if (!pSpell->m_IsBugged) return _DoCastSpellIfCan(pTarget, pSpell->m_uiSpellEntry[currentDifficulty], cast_flags);
         else if (pSpell->m_IsBugged) return _BSWDoCast(m_uiSpellIdx, pTarget);
              else  return CAST_FAIL_OTHER;
 };
