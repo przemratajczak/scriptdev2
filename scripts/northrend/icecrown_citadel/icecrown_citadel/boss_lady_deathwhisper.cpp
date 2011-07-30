@@ -213,7 +213,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
                 m_creature->RemoveAurasDueToSpell(SPELL_DARK_EMPOWERMENT);
                 m_creature->SetPower(POWER_MANA,0);
                 doRemove(SPELL_MANA_BARRIER);
-            };
+            }
         }
         else
             return;
@@ -410,10 +410,10 @@ struct MANGOS_DLL_DECL mob_vengeful_shadeAI : public BSWScriptedAI
 
         if (timedQuery(SPELL_VENGEFUL_BLAST_0, uiDiff))
         {
-            if (m_creature->IsWithinDist(m_creature->getVictim(), 1.0f, false))
+            if (m_creature->IsWithinDist(m_creature->getVictim(), 5.0f, false))
             {
                 doCast(SPELL_VENGEFUL_BLAST_0);
-                m_creature->ForcedDespawn();
+                m_creature->ForcedDespawn(500);
             }
             else
             {
