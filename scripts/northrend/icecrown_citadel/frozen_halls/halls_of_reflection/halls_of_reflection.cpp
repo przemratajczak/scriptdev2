@@ -203,11 +203,11 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
                 m_pInstance->SetNextEvent(5,m_creature->GetEntry(),10000);
                 break;
             case 5:
-                if(Creature* pTarget = m_creature->SummonCreature(NPC_ALTAR_TARGET,5309.374f,2006.788f,711.615f,1.37f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
+                /*if(Creature* pTarget = m_creature->SummonCreature(NPC_ALTAR_TARGET,5309.374f,2006.788f,711.615f,1.37f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
                 {
                     //m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTarget->GetObjectGuid());
                     pTarget->SetCreatorGuid(ObjectGuid());
-                }
+                }*/
                 m_pInstance->SetNextEvent(6,m_creature->GetEntry(),1000);
                 break;
             case 6:
