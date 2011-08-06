@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11570, 11590, 11692, 11676, 11708, 11919, 11940, 11961. Taxi vendors.
+SDComment: Quest support: 11570, 11590, 11608, 11676, 11692, 11708, 11919, 11940, 11961. Taxi vendors.
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -34,6 +34,7 @@ npc_lurgglbr
 npc_nexus_drake
 go_scourge_cage
 npc_beryl_sorcerer
+npc_seaforium_depth_charge
 EndContentData */
 
 #include "precompiled.h"
@@ -1785,7 +1786,7 @@ CreatureAI* GetAI_npc_bonker_togglevolt(Creature* pCreature)
 }
 
 /*######
-## Quest 11608: Bury Those Cockroaches!
+##Bury Those Cockroaches!
 ######*/
 enum
 {
@@ -1803,9 +1804,9 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
         uiExplosionTimer = urand(5000,10000);
     }
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if (uiExplosionTimer < diff)
+        if (uiExplosionTimer < uiDiff)
         {
             DoCast(m_creature, SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);          
             for(uint8 i = 0; i < 4; ++i)
@@ -1820,7 +1821,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
                 }
             }
             m_creature->ForcedDespawn(1000);
-        } else uiExplosionTimer -= diff;
+        } else uiExplosionTimer -= uiDiff;
     }
 };
 
@@ -1938,5 +1939,10 @@ void AddSC_borean_tundra()
     pNewScript = new Script;
     pNewScript->Name = "npc_beryl_sorcerer";
     pNewScript->GetAI = &GetAI_npc_beryl_sorcerer;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_seaforium_depth_charge";
+    pNewScript->GetAI = &GetAI_npc_seaforium_depth_charge;
     pNewScript->RegisterSelf();
 }

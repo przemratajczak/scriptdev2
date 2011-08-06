@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Dragonblight
 SD%Complete: 100
-SDComment: Quest support: 12166, 12261, 12499/12500(end sequenze). Taxi paths Wyrmrest temple.
+SDComment: Quest support: 12499/12500(end sequenze) 12161, 12266, 12470 . Taxi paths Wyrmrest temple.
 SDCategory: Dragonblight
 EndScriptData */
 
@@ -28,6 +28,7 @@ npc_destructive_ward
 npc_tariolstrasz
 npc_torastrasza
 npc_taunkale_refugee
+npc_hourglass_of_eternity
 EndContentData */
 
 #include "precompiled.h"
@@ -1035,7 +1036,7 @@ CreatureAI* GetAI_npc_warsong_battle_standart(Creature* pCreature)
 
 void AddSC_dragonblight()
 {
-    Script* pNewScript;
+   Script* pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "npc_afrasastrasz";

@@ -701,9 +701,9 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
                         m_pInstance->SetData(TYPE_BRANN, DONE);
                     }
 
-                    if (Player* pPlayer = GetPlayerForEscort())
-                    // Should cast spell 59046 (doesn't exist in client dbc), criterias are ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET
-                        pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, m_creature);
+                    //if (Player* pPlayer = GetPlayerForEscort())
+                        //pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, m_creature);
+                    DoCastSpellIfCan(m_creature, SPELL_ACHIEVEMENT_CHECK, CAST_TRIGGERED);
 
                     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
