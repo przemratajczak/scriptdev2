@@ -215,6 +215,10 @@ struct MANGOS_DLL_DECL boss_halion_realAI : public BSWScriptedAI
                 m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
         }
+
+        // despawn Xerestrasza so she will not spawn Halion again
+        if (Creature *pXerestrasza = pInstance->GetSingleCreatureFromStorage(NPC_XERESTRASZA))
+            pXerestrasza->ForcedDespawn();
     }
 
     void KilledUnit(Unit* pVictim)
