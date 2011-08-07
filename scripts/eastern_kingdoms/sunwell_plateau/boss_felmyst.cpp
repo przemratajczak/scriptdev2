@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+ * Copyright (C) 2011 MangosR2_ScriptDev2
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,11 +18,35 @@
 /* ScriptData
 SDName: boss_felmyst
 SD%Complete:
-SDComment:
+SDComment: END_OUTRO not made. Script for Outro Madrigosa to be added here and the transform
 SDCategory: Sunwell Plateau
 EndScriptData */
 
 #include "precompiled.h"
+#include "sunwell_plateau.h"
+
+enum Texts
+{
+    SAY_INTRO           = -1580036,
+    SAY_KILL_1          = -1580037,
+    SAY_KILL_2          = -1580038,
+    SAY_DEATH           = -1580042,
+    SAY_TAKEOFF         = -1580040,
+    SAY_BREATH          = -1580039,
+    SAY_BERSERK         = -1580041,
+    SAY_KALECGOS_OUTRO  = -1580043,
+};
+
+enum TransformFelmystOutro
+{
+    //SPELL_BREAK_ICE                 = 46650,  // related to the door //outro
+    //SPELL_OPEN_DOOR              = 46652, // outro
+    //SPELL_FELMYST_SUMMON         = 45069, // outro
+    SPELL_TRANSFORM_TRIGGER        = 44885,   // madrigosa to self, trigger 46350
+    SPELL_TRANSFORM_VISUAL         = 46350,   // 46411stun?
+    SPELL_TRANSFORM_FELMYST        = 45068,   // become fel
+    SPELL_FELMYST_SUMMON           = 45069,
+};
 
 void AddSC_boss_felmyst()
 {
