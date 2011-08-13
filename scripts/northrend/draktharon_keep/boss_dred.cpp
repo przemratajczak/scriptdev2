@@ -76,6 +76,13 @@ struct MANGOS_DLL_DECL boss_dredAI : public ScriptedAI
         CallForRaptorSpawn_Check = 0;
     }
     
+    void JustDied(Unit* pKiller)
+    {        
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_KING_DRED, DONE);
+    }
+
     void CallForRaptorSpawnCheck()
     {
         CallForRaptorSpawn_Timer = 1000;
