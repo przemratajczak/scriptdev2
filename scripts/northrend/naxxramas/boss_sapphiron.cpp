@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Sapphiron
-SD%Complete: 60
-SDComment: Place Holder
+SD%Complete: 80
+SDComment: Some spells need core implementation
 SDCategory: Naxxramas
 
 przemratajczak:

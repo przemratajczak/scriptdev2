@@ -19,6 +19,7 @@
 SDName: Boss_Brutallus
 SD%Complete: 85%
 SDComment: Intro ONLY Madrigosa  -> Supported here (look to felmyst for outro and transform)
+GO_ICE_Barrier needs work
 SDCategory: Sunwell Plateau
 EndScriptData */
 
@@ -61,8 +62,14 @@ enum BrutallusSpells
 
 enum MadrigosaSpells
 {
-    SPELL_FROST_BLAST               = 45203,
-    SPELL_ENCAPSULATE               = 44883,
+    SPELL_FROST_BLAST               = 44843,
+    SPELL_ENCAPSULATE               = 44883,    // gotta be the wrong encapsulate for intro
+    SPELL_FROST_DOOR              = 45203,   // Starting to think madrigosa casthis at game object ice barrier doodad to make the ice barrier door at intro
+    //SPELL_BREAK_ICE               = 46650,  // Graphic of spell when Ice Barrier Breaks
+    //SPELL_OPEN_DOOR               = 46652, // outro
+    //SPELL_INTRO_ENCAPSULATE            =   45665,   used in intro
+    //SPELL_INTRO_ENCAPSULATE_CHANELLING =   45661    used in intro
+    SPELL_FELMYST_SUMMON            = 45069, //  Madrigosa uses this spell to summon invis base of felmyst --- Invis base needs to hide(spawn in center of madri corpse) he shouldnt be a static spawn
 };
 
 struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
@@ -101,18 +108,31 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         m_uiIntroCount = 0;
         m_uiMadrigosaGuid.Clear();
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_BRUTALLUS, NOT_STARTED);
+        //if (m_pInstance)
+          //  m_pInstance->SetData(TYPE_BRUTALLUS, NOT_STARTED);
+
+        if (m_pInstance->GetData(TYPE_BRUTALLUS) == NOT_STARTED)
+        {
+            if (Creature* pMadrigosa = m_pInstance->GetSingleCreatureFromStorage(NPC_MADRIGOSA))
+            {
+                pMadrigosa->SetDeathState(ALIVE);
+                pMadrigosa->SetHealth(424900);
+            }
+        }
     }
 
     void Aggro(Unit* pWho)
     {
-        if (m_pInstance->GetData(TYPE_BRUTALLUS) == IN_PROGRESS && !m_bIsIntroNow)
+        if (m_pInstance->GetData(TYPE_BRUTALLUS) == IN_PROGRESS)
            DoScriptText(YELL_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit* pVictim)
     {
+        //won't yell killing pet/other unit
+        if (pVictim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
         switch(urand(0, 2))
         {
             case 0: DoScriptText(YELL_KILL1, m_creature); break;
@@ -127,6 +147,11 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_BRUTALLUS, DONE);
+
+// should spawn felmyst Invis base inside madrigosa corpse
+// Upon Brutallus Death his bloods runs over to madrigosa corpse and felmyst is born
+        if (Creature* pMadrigosa = m_pInstance->GetSingleCreatureFromStorage(NPC_MADRIGOSA))
+            pMadrigosa->CastSpell(pMadrigosa->GetPositionX(),pMadrigosa->GetPositionY(),pMadrigosa->GetPositionZ(),SPELL_FELMYST_SUMMON, true);
     }
 
     void SpellHitTarget(Unit* pCaster, const SpellEntry* pSpell)
@@ -170,7 +195,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
                     if (Creature* pMadrigosa = m_pInstance->instance->GetCreature(m_uiMadrigosaGuid))
                     {
                         DoScriptText(YELL_MADR_ICE_BLOCK, pMadrigosa);
-                        pMadrigosa->CastSpell(m_creature, SPELL_FROST_BLAST, true);
+                        pMadrigosa->CastSpell(m_creature, SPELL_FROST_DOOR, true);
                     }
                     m_uiIntroTimer = 2000;
                     break;
@@ -187,11 +212,11 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
                             m_creature->GetMotionMaster()->MoveChase(pMadrigosa);
                             pMadrigosa->CastSpell(m_creature, SPELL_FROST_BLAST, true);
                     }
-                    m_uiIntroTimer = 2000;
+                    m_uiIntroTimer = 4000;
                     break;
                 case 6:
                     if (Creature* pMadrigosa = m_pInstance->instance->GetCreature(m_uiMadrigosaGuid))
-                       pMadrigosa->CastSpell(m_creature, SPELL_FROST_BLAST, true);
+                       pMadrigosa->CastSpell(m_creature, SPELL_FROST_DOOR, true);
                        m_uiIntroTimer = 2000;
                     break;
                 case 7:
@@ -201,10 +226,9 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
                 case 8:
                     if (Creature* pMadrigosa = m_pInstance->instance->GetCreature(m_uiMadrigosaGuid))
                     {
-                        pMadrigosa->CastSpell(m_creature, SPELL_ENCAPSULATE, true);
                         DoScriptText(YELL_MADR_TRAP, pMadrigosa);
                     }
-                    m_uiIntroTimer = 15000;
+                    m_uiIntroTimer = 3000;
                     break;
                 case 9:
                     DoScriptText(YELL_INTRO_CHARGE, m_creature);
@@ -216,16 +240,18 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
                         DoScriptText(YELL_MADR_DEATH, pMadrigosa);
                         pMadrigosa->SetDeathState(JUST_DIED);
                         pMadrigosa->SetHealth(0);
+                        m_creature->GetMotionMaster()->Clear();
                     }
                     m_uiIntroTimer = 5000;
                     break;
                 case 11:
                     DoScriptText(YELL_INTRO_KILL_MADRIGOSA, m_creature);
+                    m_creature->GetMotionMaster()->Clear();
+// His Yell here suppose to break Ice Barrier players by the barrier arent hit and knocked back in room  == 0 damge its all for show
                     m_uiIntroTimer = 6000;
                     break;
                 case 12:
                     DoScriptText(YELL_INTRO_TAUNT, m_creature);
-  // should doing something with ice barrier right here or be handled in instance script  .... Not 100% sure
                     m_creature->GetMotionMaster()->Clear();
                     m_bIsIntroNow = false;
                     if (m_pInstance)

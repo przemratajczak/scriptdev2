@@ -23,6 +23,7 @@
 #include "revision.h"
 #include "sd2_revision_nr.h"
 #include "sd2_revision_andeeria_nr.h"
+#include "sd2_revision_R2.h"
 
 // Format is YYYYMMDDRR where RR is the change in the conf file
 // for that day.
@@ -37,7 +38,7 @@
 #endif
 
 #ifndef _VERSION
-#define _VERSION "Revision [" SD2_REVISION_NR "] Andeeria SD2 version: " SD2_REVISION_ANDEERIA_NR " Compilation date: " REVISION_DATE
+#define _VERSION "Revision [" SD2_REVISION_NR "] Andeeria SD2 version: " SD2_REVISION_ANDEERIA_NR " Compilation date: " REVISION_DATE "Revision R2 [" SD2_REVISION_R2 "]"
 #endif
 
 // The path to config files
