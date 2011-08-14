@@ -49,6 +49,19 @@ DELETE FROM `creature_ai_texts` WHERE (`entry`='-312491') OR (`entry`='-312492')
 -- Start of Quest and related data and fixes ----------------------
 -- ----------------------------------------------------------------
 
+-- ------------------
+-- Quest 12860/12927-
+-- ------------------
+
+-- after testing again not needed
+DELETE FROM `item_required_target` WHERE `entry` = 29746;
+
+-- correct target and take quest item away when quest is done and remove uneeded reqspellcast
+UPDATE `quest_template` SET `ReqSourceId1` = 41179, `ReqSourceCount1` = 1, `ReqCreatureOrGOId1` = 29746, `ReqSpellCast1` = 0 WHERE `entry` = 12860;
+
+-- correct target and take quest item away when quest is done and remove uneeded reqspellcast
+UPDATE `quest_template` SET `ReqSourceId1` = 41179, `ReqSourceCount1` = 1, `ReqCreatureOrGOId1` = 29746, `ReqSpellCast1` = 0 WHERE `entry` = 12927;
+
 -- ---------------
 -- Quest 12813 ---
 -- ---------------
