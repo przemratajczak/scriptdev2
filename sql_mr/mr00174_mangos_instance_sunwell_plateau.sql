@@ -123,12 +123,102 @@ UPDATE `gameobject_template` SET `data5` = 0, `data7` = 0 WHERE `entry` = 187366
 UPDATE `creature_template` SET `minlevel` = 73, `maxlevel` = 73, `faction_A` = 14, `faction_H` = 14 WHERE `entry` = 25214;
 
 -- ------
--- mu'ru-
+-- M'uru-
 -- ------
-UPDATE `creature_template` SET `ScriptName` = 'boss_muru', `AIName` = ''  WHERE `entry` = 25741;
+UPDATE `creature_template` SET `ScriptName` = 'boss_muru', `AIName` = '' WHERE `entry` = 25741;
+UPDATE `creature_template` SET `ScriptName` = 'boss_entropius', `modelid_2` = 23428, `modelid_3` = 23428, `modelid_4` = 23428 , `AIName` = '' WHERE `entry` = 25840;
+UPDATE `creature_template` SET `ScriptName` = 'mob_dark_fiend', `AIName` = '' WHERE `entry` = 25744; 
+UPDATE `creature_template` SET `ScriptName` = 'mob_voidsentinel', `AIName` = '' WHERE `entry` = 25772; 
 
+-- ----------------
+-- Dark fiend fixes
+UPDATE `creature_template` SET `speed_walk` = 0.7, `speed_run` = 0.7 WHERE `entry` = 25744; -- move slower then the player they are suppose run away from then 8)
 
+-- shorter attack range ( needs to be for chase explode )
+DELETE FROM `creature_model_info` WHERE (`modelid`=1126);
+INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (1126, 2, 0.5, 2, 0, 0);
+DELETE FROM `creature_model_info` WHERE (`modelid`=23842);
+INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (23842, 2, 0.5, 2, 0, 0);
+
+-- -----------
+-- Singularity
+UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14, `speed_walk` = 0.7, `speed_run` = 0.7 WHERE `entry` = 25855; -- move slower then the player they are suppose run away from then 8)
+UPDATE `creature_template` SET `unit_flags` = 33554434, `ScriptName` = 'mob_singularity' WHERE `entry` = 25855;  -- non attackable and selectable
+UPDATE `creature_template` SET `modelid_1` = 25206, `modelid_2` = 25206 WHERE `entry` = 25855;
+
+-- added throw character aura if they get to close and acrance form aura
+DELETE FROM `creature_template_addon` WHERE (`entry`=25855);
+INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `b2_0_sheath`, `b2_1_pvp_state`, `emote`, `moveflags`, `auras`) VALUES (25855, 0, 0, 0, 0, 0, 0, '46228 48019');
+
+-- short their attack range to they have to be close before effect iss triggered
+DELETE FROM `creature_model_info` WHERE (`modelid`=25206);
+INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (25206, 0.75, 0.5, 2, 0, 0);
+
+-- ---------------------------
+-- fixes to the portal targets
+
+-- added no movement to template as well
+UPDATE `creature_template` SET `unit_flags` = 33554692 WHERE `entry` = 25770;
+
+DELETE FROM `creature` WHERE `id`=25770; -- so far only movement ( there not suppose to needs somes twinks to a few locs )
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
+(81074, 25770, 580, 1, 1, 0, 0, 1802.91, 591.566, 78.5747, 1.25664, 604800, 0, 0, 1, 0, 0, 0),
+(81075, 25770, 580, 1, 1, 0, 0, 1803.18, 657.192, 78.5476, 4.06662, 604800, 0, 0, 1, 0, 0, 0),
+(81076, 25770, 580, 1, 1, 0, 0, 1775.98, 635.201, 78.5586, 0.069813, 604800, 0, 0, 1, 0, 0, 0),
+(81077, 25770, 580, 1, 1, 0, 0, 1849.18, 641.002, 78.6183, 3.56047, 604800, 0, 0, 1, 0, 0, 0),
+(81089, 25770, 580, 1, 1, 0, 0, 1852.49, 623.461, 78.6198, 3.03687, 604800, 0, 0, 1, 0, 0, 0),
+(81090, 25770, 580, 1, 1, 0, 0, 1839.93, 652.875, 78.5929, 3.9619, 604800, 0, 0, 1, 0, 0, 0),
+(81091, 25770, 580, 1, 1, 0, 0, 1824.05, 653.748, 78.5587, 5.044, 604800, 0, 0, 1, 0, 0, 0),
+(81092, 25770, 580, 1, 1, 0, 0, 1794.84, 604.343, 78.549, 0.087266, 604800, 0, 0, 1, 0, 0, 0),
+(81093, 25770, 580, 1, 1, 0, 0, 1824.17, 588.977, 78.621, 1.79769, 604800, 0, 0, 1, 0, 0, 0),
+(81094, 25770, 580, 1, 1, 0, 0, 1781.65, 621.09, 78.5541, 1.15192, 604800, 0, 0, 1, 0, 0, 0);
+
+-- ----------------------
+-- clean up of M'uru ACID
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 25741;
+
+-- -----------------------
+-- clean up of Entrop ACID
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 25840;
+
+-- -----------------------
+-- trash ACID clean up
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 25744; -- dark fiend
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 25772; -- void sentinel
 
 -- ---------------------------------------------
 -- InstanceFixes and Related Data --------------
 -- ---------------------------------------------
+
+-- Some missing doors and ect
+DELETE FROM `gameobject` WHERE `id`=188118;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(20935, 188118, 585, 3, 1, -71.2025, -523.017, 0.144581, 3.13287, 0, 0, 0.99999, 0.00436133, 180, 100, 0),
+(300000, 188118, 580, 1, 1, 1777.03, 674.714, 71.1903, 2.31614, 0, 0, 0.916031, 0.401107, 25, 255, 1);
+
+DELETE FROM `gameobject` WHERE `id`=187990;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(43416, 187990, 585, 3, 1, 3.43601, -448.192, -5.71188, -2.27765, 0, 0, -0.908142, 0.418662, 180, 100, 0),
+(300001, 187990, 580, 1, 1, 1849.54, 597.848, 81.9718, 5.59911, 0, 0, 0.335408, -0.942073, 25, 255, 1);
+
+-- fix to Agamath, The First Gate
+UPDATE `gameobject_template` SET `flags` = 32 WHERE `entry` = 187766;
+
+DELETE FROM `gameobject` WHERE `id`=187766;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(43450, 187766, 585, 3, 1, 72.4223, -587.322, 1.59501, 2.69653, 0, 0, 0.975342, 0.220699, 180, 100, 1),
+(300002, 187766, 580, 1, 1, 1710.29, 531.319, 93.3079, 4.30948, 0, 0, 0.834295, -0.551318, 25, 255, 1);
+
+-- fix to Rohendor, The Second
+UPDATE `gameobject_template` SET `flags` = 32 WHERE `entry` = 187764;
+
+DELETE FROM `gameobject` WHERE `id`=187764;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(43428, 187764, 585, 3, 1, -15.9065, -421.996, -47.1748, 3.0456, 0, 0, 0.998848, 0.0479779, 180, 100, 1),
+(300003, 187764, 580, 1, 1, 1832.99, 671.026, 42.7647, 4.45321, 0, 0, 0.792556, -0.609799, 25, 255, 1);
+
+UPDATE `gameobject_template` SET `flags` = 32 WHERE `entry` = 187765;
+
+-- i forgot where the third gate was placed  8P
+
+
