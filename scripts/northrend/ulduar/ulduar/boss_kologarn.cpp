@@ -334,7 +334,7 @@ struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
 
         m_uiSpell_Timer     = 10000;
         m_uiShockwave_Timer = 30000;
-        m_uiCheck_Timer     = 6300;
+        m_uiCheck_Timer     = 10000;
         m_uiEnrageTimer     = 600000;
         m_uiEyebeam_Timer   = 10000 + urand(1000, 5000);
         m_bIsRightDead      = false;
@@ -374,7 +374,7 @@ struct MANGOS_DLL_DECL boss_kologarnAI : public ScriptedAI
         {
             if (pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster())
             {
-                if (m_creature->IsWithinDist(pWho, 40.0f, false))
+                if (m_creature->IsWithinDist(pWho, 20.0f, false))
                 {
                     if (m_pInstance)
                     {
