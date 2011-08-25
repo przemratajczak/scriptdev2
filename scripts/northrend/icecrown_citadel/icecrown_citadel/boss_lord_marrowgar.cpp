@@ -32,7 +32,7 @@ enum
 
     //summons
     NPC_BONE_SPIKE                          = 38711,
-    NPC_COLDFLAME                          = 36672,
+    NPC_COLDFLAME                           = 36672,
 
     // Bone Slice
     SPELL_BONE_SLICE_10                     = 69055,
@@ -79,7 +79,8 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         m_bSaidIntro = false;
-        m_bIsHeroic = pCreature->GetMap()->GetDifficulty() > RAID_DIFFICULTY_25MAN_NORMAL;
+        m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
+        m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_uiMaxCharges = m_bIsHeroic ? MAX_CHARGES_HEROIC : MAX_CHARGES_NORMAL;
 
         Reset();
@@ -94,6 +95,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
     uint8 m_uiChargesCount;
     uint8 m_uiMaxCharges;
 
+    uint32 m_uiBerserkTimer;
     uint32 m_uiBoneSliceTimer;
     uint32 m_uiColdflameTimer;
     uint32 m_uiBoneSpikeTimer;
@@ -101,12 +103,15 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
     uint32 m_uiBoneStormChargeTimer;
     uint32 m_uiBoneStormColdflameTimer;
 
+    Difficulty m_uiMapDifficulty;
+
     void Reset()
     {
         SetCombatMovement(true);
 
         m_uiPhase                   = PHASE_NORMAL;
 
+        m_uiBerserkTimer            = 10 * MINUTE * IN_MILLISECONDS;
         m_uiBoneSliceTimer          = 10000;
         m_uiColdflameTimer          = 5000;
         m_uiBoneSpikeTimer          = 12000;
@@ -202,6 +207,18 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
+        // Berserk
+        if (m_uiBerserkTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED))
+            {
+                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+                DoScriptText(-1631008, m_creature);
+            }
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
+
         switch (m_uiPhase)
         {
             case PHASE_NORMAL:
@@ -223,7 +240,10 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                     if (m_uiBoneSpikeTimer <= uiDiff)
                     {
                         if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_10) == CAST_OK)
+                        {
                             m_uiBoneSpikeTimer = 30000;
+                            DoScriptText(-1631003 - urand(0, 2), m_creature);
+                        }
                     }
                     else
                         m_uiBoneSpikeTimer -= uiDiff;
@@ -238,6 +258,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                         m_uiBoneStormTimer = urand(45000, 60000);
                         m_uiPhase = PHASE_BONE_STORM_CHARGE;
                         m_creature->SetSpeedRate(MOVE_RUN, 3.0f);
+                        DoScriptText(-1631002, m_creature);
                     }
                 }
                 else
@@ -316,7 +337,10 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
             if (m_uiBoneSpikeTimer <= uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_STORM_10) == CAST_OK)
+                {
                     m_uiBoneSpikeTimer = 30000;
+                    DoScriptText(-1631003 - urand(0, 2), m_creature);
+                }
             }
             else
                 m_uiBoneSpikeTimer -= uiDiff;
