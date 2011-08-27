@@ -86,6 +86,27 @@ enum BossSpells
     VIEW_3                        = 30993,
 };
 
+// talks
+enum
+{
+    SAY_AGGRO                   = -1631092,
+    SAY_AIRLOCK                 = -1631093,
+    SAY_PHASE_CHANGE            = -1631094,
+    SAY_TRANSFORM_1             = -1631095,
+    SAY_TRANSFORM_2             = -1631096,
+    SAY_SLAY_1                  = -1631097,
+    SAY_SLAY_2                  = -1631098,
+    SAY_BERSERK                 = -1631099,
+    SAY_DEATH                   = -1631100,
+
+    // during other fights
+    SAY_SLIME_FLOW_1            = -1631074,
+    SAY_SLIME_FLOW_2            = -1631075,
+    SAY_BLIGHT                  = -1631083,
+    SAY_FESTERGUT_DEATH         = -1631091,
+    SAY_ROTFACE_DEATH           = -1631080,
+};
+
 static Locations SpawnLoc[]=
 {
     {4356.779785f, 3263.510010f, 389.398010f, 1.586f},  // 0 Putricide start point o=1.586
@@ -130,21 +151,13 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
         if (pInstance->GetData(TYPE_EVENT_NPC) == NPC_PROFESSOR_PUTRICIDE
             || !pWho->IsWithinDistInMap(m_creature, 60.0f)) return;
 
-        DoScriptText(-1631240,m_creature, pWho);
+        DoScriptText(SAY_AGGRO,m_creature, pWho);
         intro = true;
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        switch (urand(0,1))
-        {
-            case 0:
-                DoScriptText(-1631241,m_creature,pVictim);
-                break;
-            case 1:
-                DoScriptText(-1631242,m_creature,pVictim);
-                break;
-        }
+        DoScriptText(SAY_SLAY_1 - urand(0, 1),m_creature,pVictim);
     }
 
     void MovementInform(uint32 type, uint32 id)
@@ -164,7 +177,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
             return;
 
         pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
-        DoScriptText(-1631249,m_creature, pWho);
+        DoScriptText(SAY_AIRLOCK,m_creature, pWho);
 
         if (Unit* pTarget = doSelectRandomPlayer(SPELL_SHADOWS_EDGE, true, 100.0f)) //hack! need remove later
             doAura(SHADOW_INFUSION_AURA,pTarget);
@@ -174,7 +187,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
     {
         if (!pInstance) return;
         pInstance->SetData(TYPE_PUTRICIDE, DONE);
-        DoScriptText(-1631243,m_creature, killer);
+        DoScriptText(SAY_DEATH,m_creature, killer);
     }
 
     void JustSummoned(Creature* summoned)
@@ -235,7 +248,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                 case 500:
                           m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                           m_creature->NearTeleportTo(SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z, SpawnLoc[1].o);
-                          DoScriptText(-1631201, m_creature);
+                          DoScriptText(SAY_SLIME_FLOW_2, m_creature);
                           UpdateTimer = 60000;
                           pInstance->SetData(TYPE_EVENT,510);
                           break;
@@ -247,14 +260,14 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                               pInstance->SetData(TYPE_EVENT,630);
                           break;
                 case 550:
-                          DoScriptText(-1631202, m_creature);
+                          DoScriptText(SAY_FESTERGUT_DEATH, m_creature);
                           UpdateTimer = 10000;
                           pInstance->SetData(TYPE_EVENT,630);
                           break;
                 case 600:
                           m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                           m_creature->NearTeleportTo(SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, SpawnLoc[2].o);
-                          DoScriptText(-1631220, m_creature);
+                          DoScriptText(SAY_SLIME_FLOW_1, m_creature);
                           UpdateTimer = 60000;
                           pInstance->SetData(TYPE_EVENT,610);
                           break;
@@ -266,7 +279,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                               pInstance->SetData(TYPE_EVENT,630);
                           break;
                 case 620:
-                          DoScriptText(-1631202, m_creature);
+                          DoScriptText(SAY_SLIME_FLOW_1, m_creature);
                           UpdateTimer = 10000;
                           pInstance->SetData(TYPE_EVENT,630);
                           break;
@@ -310,7 +323,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                     m_creature->AttackStop();
                     SetCombatMovement(false);
                     doCast(SPELL_TEAR_GAS_1);
-                    DoScriptText(-1631245,m_creature);
+                    DoScriptText(SAY_BLIGHT,m_creature);
                     StartMovement(0);
                     stage = 2;
                     break;
@@ -322,7 +335,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
             case 3:
                     if (m_creature->IsNonMeleeSpellCasted(true,false,false) ||
                     !doSelectRandomPlayer(SPELL_TEAR_GAS_1, false)) return;
-                    DoScriptText(-1631246,m_creature);
+                    DoScriptText(SAY_TRANSFORM_1,m_creature);
                     m_creature->SetDisplayId(VIEW_2);
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -371,7 +384,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                     m_creature->AttackStop();
                     SetCombatMovement(false);
                     doCast(SPELL_TEAR_GAS_1);
-                    DoScriptText(-1631245,m_creature);
+                    DoScriptText(SAY_BLIGHT,m_creature);
                     StartMovement(0);
                     stage = 6;
                     break;
@@ -385,7 +398,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
                     if (m_creature->GetDisplayId() != VIEW_3)
                         m_creature->SetDisplayId(VIEW_3);
                     if (!doSelectRandomPlayer(SPELL_TEAR_GAS_1, false)) return;
-                    DoScriptText(-1631247,m_creature);
+                    DoScriptText(SAY_TRANSFORM_2,m_creature);
                     m_creature->SetDisplayId(VIEW_3);
                     doCast(SPELL_MUTATED_STRENGTH);
                     m_creature->GetMotionMaster()->Clear();
@@ -406,7 +419,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
 
         if (timedQuery(SPELL_BERSERK, diff)){
                  doCast(SPELL_BERSERK);
-                 DoScriptText(-1631244,m_creature);
+                 DoScriptText(SAY_BERSERK,m_creature);
                  }
     }
 };

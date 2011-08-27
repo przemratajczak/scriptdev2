@@ -24,6 +24,53 @@ EndScriptData */
 #include "precompiled.h"
 #include "icecrown_citadel.h"
 
+// talks
+enum
+{
+    SAY_AGGRO                   = -1631028,
+    SAY_FALLENCHAMPION          = -1631029,
+    SAY_BLOODBEASTS             = -1631030,
+    SAY_SLAY_1                  = -1631031,
+    SAY_SLAY_2                  = -1631032,
+    SAY_BERSERK                 = -1631033,
+    SAY_DEATH                   = -1631034,
+    SAY_INTRO_ALLY_0            = -1631035,
+    SAY_INTRO_ALLY_1            = -1631036,
+    SAY_INTRO_ALLY_2            = -1631037,
+    SAY_INTRO_ALLY_3            = -1631038,
+    SAY_INTRO_ALLY_4            = -1631039,
+    SAY_INTRO_ALLY_5            = -1631040,
+    SAY_INTRO_HORDE_1           = -1631041,
+    SAY_INTRO_HORDE_2           = -1631042,
+    SAY_INTRO_HORDE_3           = -1631043,
+    SAY_INTRO_HORDE_4           = -1631044,
+    SAY_INTRO_HORDE_5           = -1631045,
+    SAY_INTRO_HORDE_6           = -1631046,
+    SAY_INTRO_HORDE_7           = -1631047,
+    SAY_INTRO_HORDE_8           = -1631048,
+    SAY_INTRO_HORDE_9           = -1631049,
+    SAY_OUTRO_ALLY_1            = -1631050,
+    SAY_OUTRO_ALLY_2            = -1631051,
+    SAY_OUTRO_ALLY_3            = -1631052,
+    SAY_OUTRO_ALLY_4            = -1631053,
+    SAY_OUTRO_ALLY_5            = -1631054,
+    SAY_OUTRO_ALLY_6            = -1631055,
+    SAY_OUTRO_ALLY_7            = -1631056,
+    SAY_OUTRO_ALLY_8            = -1631057,
+    SAY_OUTRO_ALLY_9            = -1631058,
+    SAY_OUTRO_ALLY_10           = -1631059,
+    SAY_OUTRO_ALLY_11           = -1631060,
+    SAY_OUTRO_ALLY_12           = -1631061,
+    SAY_OUTRO_ALLY_13           = -1631062,
+    SAY_OUTRO_ALLY_14           = -1631063,
+    SAY_OUTRO_ALLY_15           = -1631064,
+    SAY_OUTRO_ALLY_16           = -1631065,
+    SAY_OUTRO_HORDE_1           = -1631066,
+    SAY_OUTRO_HORDE_2           = -1631067,
+    SAY_OUTRO_HORDE_3           = -1631068,
+    SAY_OUTRO_HORDE_4           = -1631069,
+};
+
 enum
 {
         // Blood Power
@@ -99,13 +146,6 @@ float fPositions[12][4] =
     {-535.17f, 2214.17f, 539.30f, 6.28f}, // guard npc2 first move
     {-535.17f, 2207.71f, 539.30f, 6.28f}, // guard npc3 first move
     {-536.87f, 2205.68f, 539.30f, 6.28f} // guard npc4 first move
-};
-
-enum SaurfangEventSounds
-{
-    SOUND_MURADIN_OUTRO_1       = 16976,
-    SOUND_OVERLORD_INTRO_1      = 17103,
-    SOUND_DEATHBRINGER_INTRO_1  = 16704,
 };
 
 // Event handler
@@ -235,7 +275,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SAURFANG, DONE);
 
-        DoScriptText(-1631106, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_REMOVE_MARKS, CAST_TRIGGERED);
     }
 
@@ -297,8 +337,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                             m_pInstance->DoUseDoorOrButton(GO_SAURFANG_DOOR, 0, true);
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterYell("Kor'kron, move out! Champions, watch your backs. The Scourge have been...", 0);
-                                pTmp->PlayDirectSound(17103);
+                                DoScriptText(SAY_INTRO_HORDE_1, pTmp);
                                 pTmp->GetMotionMaster()->MovePoint(0, fPositions[7][0], fPositions[7][1], fPositions[7][2]);
                             }
                             // move guards
@@ -314,9 +353,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         }
                         case 3:
                         {
-                            m_creature->MonsterYell("Join me, father. Join me and we will crush this world in the name of the Scourge - for the glory of the Lich King!", 0);
-                            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                            m_creature->PlayDirectSound(16704);
+                            DoScriptText(SAY_INTRO_HORDE_2, m_creature);
                             NextStep(13000);
                             break;
                         }
@@ -324,18 +361,14 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterSay("My boy died at the Wrath Gate. I am here only to collect his body.", 0);
-                                pTmp->HandleEmote(EMOTE_ONESHOT_TALK);
-                                pTmp->PlayDirectSound(17097);
+                                DoScriptText(SAY_INTRO_HORDE_3, pTmp);
                             }
                             NextStep(7000);
                             break;
                         }
                         case 5:
                         {
-                            m_creature->MonsterYell("Stubborn and old. What chance do you have? I am stronger, and more powerful than you ever were.", 0);
-                            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                            m_creature->PlayDirectSound(16705);
+                            DoScriptText(SAY_INTRO_HORDE_4, m_creature);
                             NextStep(11000);
                             break;
                         }
@@ -343,9 +376,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterSay("We named him Dranosh. It means 'Heart of Draenor' in orcish. I would not let the warlocks take him. My boy would be safe, hidden away by the elders of Garadar.", 0);
-                                pTmp->HandleEmote(EMOTE_ONESHOT_TALK);
-                                pTmp->PlayDirectSound(17098);
+                                DoScriptText(SAY_INTRO_HORDE_5, pTmp);
                             }
                             NextStep(16000);
                             break;
@@ -354,9 +385,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterSay("I made a promise to his mother before she died that I would cross the Dark Portal alone - whether I lived or died, my son would be safe. Untainted...", 0);
-                                pTmp->HandleEmote(EMOTE_ONESHOT_TALK);
-                                pTmp->PlayDirectSound(17099);
+                                DoScriptText(SAY_INTRO_HORDE_6, pTmp);
                             }
                             NextStep(15000);
                             break;
@@ -364,11 +393,8 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         case 8:
                         {
                             if (Creature *pTmp = GetMainNpc())
-                            {
-                                pTmp->MonsterSay("Today, I fulfill that promise.", 0);
-                                pTmp->HandleEmote(EMOTE_ONESHOT_TALK);
-                                pTmp->PlayDirectSound(17100);
-                            }
+                                DoScriptText(SAY_INTRO_HORDE_7, pTmp);
+
                             NextStep(3000);
                             break;
                         }
@@ -379,7 +405,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
 
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterTextEmote("High Overlord Saurfang charges!", 0);
+                                DoScriptText(SAY_INTRO_HORDE_8, pTmp);
                                 pTmp->SetWalk(false);
                                 pTmp->GetMotionMaster()->MovePoint(0, x, y, z);
                             }
@@ -421,9 +447,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                                     pTmp->HandleEmoteState(EMOTE_STATE_STRANGULATE);
                                 }
                             }
-                            m_creature->MonsterYell("Pathetic old orc. Come then heroes. Come and face the might of the Scourge!", 0);
-                            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                            m_creature->PlayDirectSound(16706);
+                            DoScriptText(SAY_INTRO_HORDE_9, m_creature);
                             NextStep(10000);
                             break;
                         }
@@ -538,8 +562,8 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
+                                DoScriptText(SAY_OUTRO_HORDE_1, pTmp);
                                 pTmp->HandleEmote(EMOTE_ONESHOT_KNEEL);
-                                pTmp->MonsterTextEmote("High Overlord Saurfang coughs.", 0);
                             }
                             NextStep(3000);
                             break;
@@ -573,7 +597,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterTextEmote("High Overlord Saurfang weeps over the corpse of his son.", 0);
+                                DoScriptText(SAY_OUTRO_HORDE_2, pTmp);
                                 pTmp->HandleEmote(EMOTE_ONESHOT_KNEEL);
                                 // Overlord should take Deathbringer on hands (vehicle ride?)
                             }
@@ -584,11 +608,8 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             // take deathbringer
                             if (Creature *pTmp = GetMainNpc())
-                            {
-                                pTmp->MonsterSay("You will have a proper ceremony in Nagrand next to the pyres of your mother and ancestors.", 0);
-                                pTmp->HandleEmote(EMOTE_ONESHOT_TALK);
-                                pTmp->PlayDirectSound(17101);
-                            }
+                                DoScriptText(SAY_OUTRO_HORDE_3, pTmp);
+
                             NextStep(11000);
                             break;
                         }
@@ -596,8 +617,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                         {
                             if (Creature *pTmp = GetMainNpc())
                             {
-                                pTmp->MonsterSay("Honor, young heroes... no matter how dire the battle... Never forsake it!", 0);
-                                pTmp->PlayDirectSound(17102);
+                                DoScriptText(SAY_OUTRO_HORDE_4, pTmp);
                                 pTmp->GetMotionMaster()->MovePoint(0, fPositions[2][0], fPositions[2][1], fPositions[2][2]);
                             }
                             NextStep();
@@ -661,12 +681,6 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
     bool m_bIsHeroic;
     bool m_bIs25Man;
 
-    bool m_bBeastSummoned_1;
-    bool m_bBeastSummoned_2;
-    bool m_bBeastSummoned_3;
-    bool m_bBeastSummoned_4;
-    bool m_bBeastSummoned_all;
-
     Powers m_powerBloodPower;
     Difficulty m_uiMapDifficulty;
 
@@ -681,12 +695,6 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
 
         m_bIsFrenzied = false;
 
-        m_bBeastSummoned_1 = false;
-        m_bBeastSummoned_2 = false;
-        m_bBeastSummoned_3 = false;
-        m_bBeastSummoned_4 = false;
-        m_bBeastSummoned_all = false;
-
         m_creature->SetPower(m_powerBloodPower, 0);
     }
 
@@ -695,7 +703,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SAURFANG, IN_PROGRESS);
 
-        DoScriptText(-1631100, m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
 
         SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
 
@@ -713,7 +721,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
     void KilledUnit(Unit* pVictim)
     {
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
-            DoScriptText(-1631103 - urand(0,1), m_creature, pVictim);
+            DoScriptText(SAY_SLAY_1 - urand(0,1), m_creature, pVictim);
     }
 
     void JustSummoned(Creature *pSummoned)
@@ -788,7 +796,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
                     m_creature->RemoveAurasDueToSpell(72371);
                     int32 power = m_creature->GetPower(m_powerBloodPower);
                     m_creature->CastCustomSpell(m_creature, 72371, &power, &power, NULL, true);
-                    DoScriptText(-1631101, m_creature);
+                    DoScriptText(SAY_FALLENCHAMPION, m_creature);
                 }
             }
         }
@@ -799,7 +807,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
             if (m_creature->GetHealthPercent() <= 30.0f)
             {
                 DoCastSpellIfCan(m_creature, SPELL_FRENZY, CAST_TRIGGERED);
-                DoScriptText(-1631101,m_creature);
+                DoScriptText(SAY_BERSERK, m_creature);
                 m_bIsFrenzied = true;
             }
         }
@@ -809,7 +817,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
         {
             if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
             {
-                DoScriptText(-1631108, m_creature);
+                DoScriptText(SAY_BERSERK, m_creature);
                 m_uiBerserkTimer = (m_bIsHeroic ? 6 : 8) * MINUTE * IN_MILLISECONDS;
             }
         }
@@ -846,53 +854,22 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
         // Call Blood Beasts
         if (m_uiBloodBeastsTimer <= uiDiff)
         {
-            // ugly code for making sure that all beasts were summoned (often only 4 are)
-            if (!m_bBeastSummoned_1)
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_CALL_BLOOD_BEAST_1, CAST_TRIGGERED) == CAST_OK)
-                    m_bBeastSummoned_1 = true;
-            }
-            if (m_bBeastSummoned_1 && !m_bBeastSummoned_2)
-            {
-                if (DoCastSpellIfCan(m_creature, SPELL_CALL_BLOOD_BEAST_2, CAST_TRIGGERED) == CAST_OK)
-                {
-                    m_bBeastSummoned_2 = true;
-
-                    if (!m_bIs25Man)
-                        m_bBeastSummoned_all = true;
-                }
-            }
+            m_creature->CastSpell(m_creature, SPELL_CALL_BLOOD_BEAST_1, true);
+            m_creature->CastSpell(m_creature, SPELL_CALL_BLOOD_BEAST_2, true);
 
             if (m_bIs25Man)
             {
-                if (m_bBeastSummoned_2 && !m_bBeastSummoned_3)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_CALL_BLOOD_BEAST_3, CAST_TRIGGERED) == CAST_OK)
-                        m_bBeastSummoned_3 = true;
-                }
-                if (m_bBeastSummoned_3 && !m_bBeastSummoned_4)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_CALL_BLOOD_BEAST_4, CAST_TRIGGERED) == CAST_OK)
-                        m_bBeastSummoned_4 = true;
-                }
-                if (m_bBeastSummoned_4 && !m_bBeastSummoned_all)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_CALL_BLOOD_BEAST_5, CAST_TRIGGERED) == CAST_OK)
-                        m_bBeastSummoned_all = true;
-                }
+                m_creature->CastSpell(m_creature, SPELL_CALL_BLOOD_BEAST_3, true);
+                m_creature->CastSpell(m_creature, SPELL_CALL_BLOOD_BEAST_4, true);
+                m_creature->CastSpell(m_creature, SPELL_CALL_BLOOD_BEAST_5, true);
             }
 
-            if (m_bBeastSummoned_all)
-            {
-                m_bBeastSummoned_1 = m_bBeastSummoned_2 = m_bBeastSummoned_3 = m_bBeastSummoned_4 = m_bBeastSummoned_all = false;
-                
-                m_uiBloodBeastsTimer  = 40000;
+            m_uiBloodBeastsTimer  = 40000;
 
-                if (m_bIsHeroic)
-                    m_uiScentOfBloodTimer = 7000; // 5 seconds after beasts engage in combat
+            if (m_bIsHeroic)
+                m_uiScentOfBloodTimer = 7000; // 5 seconds after beasts engage in combat
 
-                DoScriptText(-1631102,m_creature);
-            }
+            DoScriptText(SAY_BLOODBEASTS, m_creature);
         }
         else
             m_uiBloodBeastsTimer -= uiDiff;

@@ -65,6 +65,21 @@ enum BossSpells
     SPELL_TAIL_SWEEP         = 71369,
 };
 
+// talks
+enum
+{
+    SAY_AGGRO                   = -1631148,
+    SAY_UNCHAINED_MAGIC         = -1631149,
+    SAY_BLISTERING_COLD         = -1631150,
+    SAY_RESPIRE                 = -1631151,
+    SAY_TAKEOFF                 = -1631152,
+    SAY_PHASE_3                 = -1631153,
+    SAY_SLAY_1                  = -1631154,
+    SAY_SLAY_2                  = -1631155,
+    SAY_BERSERK                 = -1631156,
+    SAY_DEATH                   = -1631157,
+};
+
 static Locations SpawnLoc[]=
 {
     {4408.052734f, 2484.825439f, 203.374207f},  // 0 Sindragosa spawn
@@ -112,15 +127,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch (urand(0,1))
-        {
-            case 0:
-                DoScriptText(-1631421,m_creature,pVictim);
-                break;
-            case 1:
-                DoScriptText(-1631422,m_creature,pVictim);
-                break;
-        }
+        DoScriptText(SAY_SLAY_1 - urand(0, 1),m_creature,pVictim);
     }
 
     void JustReachedHome()
@@ -130,7 +137,6 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
 
         pInstance->SetData(TYPE_SINDRAGOSA, FAIL);
         doRemoveFromAll(SPELL_ICY_TOMB);
-        DoScriptText(-1631422,m_creature);
 
         if (Creature* pTemp = pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG))
            if (!pTemp->isAlive())
@@ -161,7 +167,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
         if(!pInstance)
             return;
 
-        DoScriptText(-1631420,m_creature,who);
+        DoScriptText(SAY_AGGRO,m_creature,who);
         doCast(SPELL_FROST_AURA_1);
 
         if (Unit* pTarget = doSelectRandomPlayer(SPELL_SHADOWS_EDGE, true, 100.0f))
@@ -174,7 +180,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
             return;
         doRemoveFromAll(SPELL_ICY_TOMB);
         pInstance->SetData(TYPE_SINDRAGOSA, DONE);
-        DoScriptText(-1631423,m_creature,killer);
+        DoScriptText(SAY_DEATH,m_creature,killer);
 
         if (Creature* pTemp = pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG))
             pTemp->SetRespawnDelay(7*DAY);
@@ -245,7 +251,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
 
                     if (gripped && !m_creature->IsNonMeleeSpellCasted(true,false,false))
                     {
-                        DoScriptText(-1631426,m_creature);
+                        DoScriptText(SAY_BLISTERING_COLD,m_creature);
                         doCast(SPELL_BLISTERING_COLD);
                         gripped = false;
                     }
@@ -257,11 +263,11 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
                     {
                         doCast(SPELL_MYSTIC_BUFFET);
                         setStage(9);
-                        DoScriptText(-1631429,m_creature);
+                        DoScriptText(SAY_PHASE_3,m_creature);
                     }
                 break;
             case 1:
-                    DoScriptText(-1631425,m_creature);
+                    DoScriptText(SAY_TAKEOFF,m_creature);
                     IceMark();
                     setStage(2);
                     MovementStarted = true;
@@ -338,7 +344,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
 
                     if (gripped && !m_creature->IsNonMeleeSpellCasted(true,false,false))
                     {
-                        DoScriptText(-1631426,m_creature);
+                        DoScriptText(SAY_BLISTERING_COLD,m_creature);
                         doCast(SPELL_BLISTERING_COLD);
                         gripped = false;
                     }
@@ -351,7 +357,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
         if (timedQuery(SPELL_BERSERK, diff))
         {
             doCast(SPELL_BERSERK);
-            DoScriptText(-1631424,m_creature);
+            DoScriptText(SAY_BERSERK,m_creature);
         };
 
         DoMeleeAttackIfReady();

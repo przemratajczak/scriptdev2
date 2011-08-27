@@ -60,6 +60,33 @@ enum BossSpells
     SPELL_VOID_BUFF              = 71085,
 };
 
+// talks
+enum SvalnaTexts                                            // TODO Maybe need own file?
+{
+    SAY_SVALNA_EVENT_1          = -1631130,
+    SAY_SVALNA_EVENT_2          = -1631131,
+    SAY_SVALNA_EVENT_3          = -1631132,
+    SAY_SVALNA_EVENT_4          = -1631133,
+    SAY_KILLING_CRUSADERS       = -1631134,
+    SAY_RESSURECT               = -1631135,
+    SAY_SVALNA_AGGRO            = -1631136,
+    SAY_KILL_CAPTAIN            = -1631137,
+    SAY_KILL_PLAYER             = -1631138,
+    SAY_DEATH                   = -1631139,
+};
+
+enum
+{
+    SAY_AGGRO                   = -1631140,
+    SAY_PORTAL                  = -1631141,
+    SAY_75_HEALTH               = -1631142,
+    SAY_25_HEALTH               = -1631143,
+    SAY_0_HEALTH                = -1631144,
+    SAY_PLAYER_DIES             = -1631145,
+    SAY_BERSERK                 = -1631146,
+    SAY_VICTORY                 = -1631147,
+};
+
 struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
 {
     boss_valithria_dreamwalkerAI(Creature* pCreature) : BSWScriptedAI(pCreature)
@@ -176,7 +203,7 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
               }
        }
               pInstance->SetData(TYPE_VALITHRIA, FAIL);
-              DoScriptText(-1631409,m_creature);
+              DoScriptText(SAY_0_HEALTH,m_creature);
               DespawnMobs();
               m_creature->DeleteThreatList();
               m_creature->CombatStop(true);
@@ -197,13 +224,13 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
 
         if (!intro)
         {
-            DoScriptText(-1631401,m_creature,pWho);
+            DoScriptText(SAY_AGGRO,m_creature,pWho);
             intro = true;
             doCast(SPELL_IMMUNITY);
         }
         if (!battlestarted && pWho->isAlive() && pWho->IsWithinDistInMap(m_creature, 40.0f))
         {
-            DoScriptText(-1631401,m_creature,pWho);
+            DoScriptText(SAY_AGGRO,m_creature,pWho);
             battlestarted = true;
             pInstance->SetData(TYPE_VALITHRIA, IN_PROGRESS);
             m_creature->SetHealth(m_creature->GetMaxHealth()/2.0f);
@@ -226,16 +253,7 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        if(!pInstance) return;
-
-        switch (urand(0,1)) {
-            case 0:
-               DoScriptText(-1631403,m_creature,pVictim);
-               break;
-            case 1:
-               DoScriptText(-1631404,m_creature,pVictim);
-               break;
-        };
+        DoScriptText(SAY_PLAYER_DIES,m_creature,pVictim);
     }
 
     void JustSummoned(Creature* summoned)
@@ -274,7 +292,7 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
     {
         if(!pInstance) return
         pInstance->SetData(TYPE_VALITHRIA, FAIL);
-        DoScriptText(-1631409,m_creature);
+        DoScriptText(SAY_0_HEALTH,m_creature);
         DespawnMobs();
         m_creature->Respawn();
         Reset();
@@ -313,17 +331,17 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
                     if ( m_creature->GetHealthPercent() > 99.9f ) setStage(5);
                     break;
             case 2:
-                    DoScriptText(-1631407,m_creature);
+                    DoScriptText(SAY_75_HEALTH,m_creature);
                     setStage(1);
                     break;
             case 3:
-                    DoScriptText(-1631406,m_creature);
+                    DoScriptText(SAY_25_HEALTH,m_creature);
                     setStage(1);
                     break;
             case 4:
                     break;
             case 5:
-                    DoScriptText(-1631408,m_creature);
+                    DoScriptText(SAY_VICTORY,m_creature);
                     if (hasAura(SPELL_CORRUPTION,m_creature)) doRemove(SPELL_CORRUPTION);
                     setStage(6);
                     return;
@@ -364,7 +382,6 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
 
 
         if (timedQuery(NPC_RISEN_ARCHMAGE, (uint32)(diff + diff*(speedK/100)))) {
-                if (urand(0,1) == 1) DoScriptText(-1631402,m_creature);
                 speedK = speedK+10;
                 if (currentDifficulty == RAID_DIFFICULTY_25MAN_NORMAL
                    || currentDifficulty == RAID_DIFFICULTY_25MAN_HEROIC) {
@@ -389,7 +406,7 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public BSWScriptedAI
                                                         {
                                                         if (!portalscount) {
                                                                            portalscount = 3;
-                                                                           DoScriptText(-1631405,m_creature);
+                                                                           DoScriptText(SAY_PORTAL,m_creature);
                                                                            };
                                                         doCast(SPELL_NIGHTMARE_PORTAL);
                                                         --portalscount;

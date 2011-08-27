@@ -52,6 +52,21 @@ enum BossSpells
     NPC_OOZE_EXPLODE_STALKER = 38107,
 };
 
+//talks
+enum
+{
+    SAY_PRECIOUS_DIES           = -1631070,
+    SAY_AGGRO                   = -1631071,
+    SAY_SLIME_SPRAY             = -1631072,
+    SAY_OOZE_EXPLODE            = -1631073,
+    SAY_SLIME_FLOW_1            = -1631074,
+    SAY_SLIME_FLOW_2            = -1631075,
+    SAY_SLAY_1                  = -1631076,
+    SAY_SLAY_2                  = -1631077,
+    SAY_BERSERK                 = -1631078,
+    SAY_DEATH                   = -1631079,
+};
+
 static Locations SpawnLoc[]=
 {
     {4471.821289f, 3162.986084f, 360.38501f},  // 0
@@ -99,28 +114,21 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-    switch (urand(0,1)) {
-        case 0:
-               DoScriptText(-1631222,m_creature,pVictim);
-               break;
-        case 1:
-               DoScriptText(-1631223,m_creature,pVictim);
-               break;
-        }
+        DoScriptText(SAY_SLAY_1 - urand(0, 1), m_creature, pVictim);
     }
 
     void Aggro(Unit *who)
     {
         if(!pInstance) return;
         pInstance->SetData(TYPE_ROTFACE, IN_PROGRESS);
-        DoScriptText(-1631221,m_creature,who);
+        DoScriptText(SAY_AGGRO,m_creature,who);
     }
 
     void JustDied(Unit *killer)
     {
         if(!pInstance) return;
         pInstance->SetData(TYPE_ROTFACE, DONE);
-        DoScriptText(-1631224,m_creature, killer);
+        DoScriptText(SAY_DEATH,m_creature, killer);
     }
 
     void UpdateAI(const uint32 diff)
@@ -136,7 +144,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public BSWScriptedAI
                  pet = true;
                  if (pInstance->GetData(TYPE_PRECIOUS) == NOT_STARTED)
                  {
-                     DoScriptText(-1631228,m_creature);
+                     DoScriptText(SAY_PRECIOUS_DIES,m_creature);
                      pInstance->SetData(TYPE_PRECIOUS,DONE);
                  }
             }
@@ -148,7 +156,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public BSWScriptedAI
         if (nexttick)
               {
                   doCast(SPELL_OOZE_FLOOD_1);
-                  DoScriptText(-1631227,m_creature);
+                  DoScriptText(SAY_OOZE_EXPLODE,m_creature);
                   nexttick = false;
               };
 
@@ -171,13 +179,13 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public BSWScriptedAI
             for(uint8 i = 0; i < getSpellData(SPELL_MUTATED_INFECTION); ++i)
                 if (Unit* pTarget = doSelectRandomPlayer(SPELL_MUTATED_INFECTION_AURA, false, 60.0f))
                      doCast(SPELL_MUTATED_INFECTION, pTarget);
-            DoScriptText(-1631226,m_creature);
+            DoScriptText(SAY_SLIME_SPRAY, m_creature);
         }
 
         if (timedQuery(SPELL_BERSERK, diff))
         {
             doCast(SPELL_BERSERK);
-            DoScriptText(-1631225,m_creature);
+            DoScriptText(SAY_BERSERK, m_creature);
         };
 
         DoMeleeAttackIfReady();

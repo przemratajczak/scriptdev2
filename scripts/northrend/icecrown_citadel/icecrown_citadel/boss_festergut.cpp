@@ -56,6 +56,21 @@ enum BossSpells
     MAX_SPORE_TARGETS        = 6,
 };
 
+// talks
+enum
+{
+    SAY_STINKY_DIES             = -1631081,
+    SAY_AGGRO                   = -1631082,
+    SAY_BLIGHT                  = -1631083,
+    SAY_SPORE                   = -1631084,
+    SAY_PUNGUENT_BLIGHT         = -1631085,
+    SAY_PUNGUENT_BLIGHT_EMOTE   = -1631086,
+    SAY_SLAY_1                  = -1631087,
+    SAY_SLAY_2                  = -1631088,
+    SAY_BERSERK                 = -1631089,
+    SAY_DEATH                   = -1631090,
+};
+
 static Locations SpawnLoc[]=
 {
     {4267.9399f, 3137.32f, 360.385986f, 0.0f},  // 0 (start point)
@@ -126,14 +141,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-     switch (urand(0,1)) {
-        case 0:
-               DoScriptText(-1631204,m_creature,pVictim);
-               break;
-        case 1:
-               DoScriptText(-1631205,m_creature,pVictim);
-               break;
-        }
+        DoScriptText(SAY_SLAY_1 - urand(0, 1),m_creature,pVictim);
     }
 
     void JustReachedHome()
@@ -158,7 +166,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
         Creature* pBlightTarget = m_creature->GetMap()->GetCreature(blightTargetGUID);
 
         pInstance->SetData(TYPE_FESTERGUT, IN_PROGRESS);
-        DoScriptText(-1631203,m_creature,pWho);
+        DoScriptText(SAY_AGGRO,m_creature,pWho);
         if (pBlightTarget && !pBlightTarget->isAlive())
             pBlightTarget->Respawn();
         if (pBlightTarget)
@@ -185,7 +193,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
         if (!pInstance) return;
         pInstance->SetData(TYPE_FESTERGUT, DONE);
         pInstance->SetData(TYPE_EVENT, 550);
-        DoScriptText(-1631206,m_creature);
+        DoScriptText(SAY_DEATH,m_creature);
         Creature* pBlightTarget = m_creature->GetMap()->GetCreature(blightTargetGUID);
         doRemoveFromAll(SPELL_BLIGHT_VISUAL_1);
         doRemoveFromAll(SPELL_BLIGHT_VISUAL_2);
@@ -217,7 +225,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                      pet = true;
                      if (pInstance->GetData(TYPE_STINKY) == NOT_STARTED)
                      {
-                         DoScriptText(-1631209,m_creature);
+                         DoScriptText(SAY_STINKY_DIES,m_creature);
                          pInstance->SetData(TYPE_STINKY,DONE);
                      }
                 }
@@ -235,12 +243,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                         setStage(1);
                     break;
             case 1:
-                    switch (urand(0,2))
-                    {
-                        case 0:  DoScriptText(-1631210,m_creature); break;
-                        case 1:  DoScriptText(-1631211,m_creature); break;
-                        case 2:  DoScriptText(-1631212,m_creature); break;
-                    }
+                    DoScriptText(SAY_PUNGUENT_BLIGHT,m_creature);
                     doCast(SPELL_INHALE_BLIGHT);
                     setStage(2);
                     break;
@@ -263,12 +266,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                         setStage(4);
                     break;
             case 4:
-                    switch (urand(0,2))
-                    {
-                        case 0:  DoScriptText(-1631210,m_creature); break;
-                        case 1:  DoScriptText(-1631211,m_creature); break;
-                        case 2:  DoScriptText(-1631212,m_creature); break;
-                    }
+                    DoScriptText(SAY_PUNGUENT_BLIGHT,m_creature);
                     doCast(SPELL_INHALE_BLIGHT);
                     setStage(5);
                     break;
@@ -291,12 +289,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                         setStage(7);
                     break;
             case 7:
-                    switch (urand(0,2))
-                    {
-                        case 0:  DoScriptText(-1631210,m_creature); break;
-                        case 1:  DoScriptText(-1631211,m_creature); break;
-                        case 2:  DoScriptText(-1631212,m_creature); break;
-                    }
+                    DoScriptText(SAY_PUNGUENT_BLIGHT,m_creature);
                     doCast(SPELL_INHALE_BLIGHT);
                     setStage(8);
                     break;
@@ -316,7 +309,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
             case 9:
                     if (timedQuery(SPELL_PUNGENT_BLIGHT, diff))
                     {
-                        DoScriptText(-1631208,m_creature);
+                        DoScriptText(SAY_PUNGUENT_BLIGHT_EMOTE,m_creature);
                         doCast(SPELL_PUNGENT_BLIGHT);
                         setStage(10);
                     }
@@ -347,13 +340,13 @@ struct MANGOS_DLL_DECL boss_festergutAI : public BSWScriptedAI
                        m_creature->GetRandomPoint(fPosX, fPosY, fPosZ, 30.0f, fPosX, fPosY, fPosZ);
                        if (Unit* pTemp = doSummon(NPC_VILE_GAS_STALKER,fPosX, fPosY, fPosZ))
                             doCast(SPELL_VILE_GAS, pTemp);
-                       DoScriptText(-1631213,m_creature);
+                       DoScriptText(SAY_SPORE,m_creature);
         };
 
         if (timedQuery(SPELL_BERSERK, diff))
         {
             doCast(SPELL_BERSERK);
-            DoScriptText(-1631207,m_creature);
+            DoScriptText(SAY_BERSERK,m_creature);
         };
 
         DoMeleeAttackIfReady();

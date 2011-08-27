@@ -25,6 +25,22 @@ EndScriptData */
 #include "precompiled.h"
 #include "icecrown_citadel.h"
 
+// talks
+enum
+{
+    SAY_INTRO                   = -1631001,
+    SAY_AGGRO                   = -1631002,
+    SAY_BONE_STORM              = -1631003,
+    SAY_BONE_SPIKE_1            = -1631004,
+    SAY_BONE_SPIKE_2            = -1631005,
+    SAY_BONE_SPIKE_3            = -1631006,
+    SAY_SLAY_1                  = -1631007,
+    SAY_SLAY_2                  = -1631008,
+    SAY_DEATH                   = -1631009,
+    SAY_BERSERK                 = -1631010,
+};
+
+// spells
 enum
 {
     //common
@@ -131,7 +147,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
         if (m_bSaidIntro)
             return;
 
-        DoScriptText(-1631000,m_creature);
+        DoScriptText(SAY_INTRO, m_creature);
         m_bSaidIntro = true;
     }
 
@@ -147,12 +163,12 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
             return;
 
         m_pInstance->SetData(TYPE_MARROWGAR, IN_PROGRESS);
-        DoScriptText(-1631001,m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(-1631006 - urand(0, 1),m_creature,pVictim);
+        DoScriptText(SAY_SLAY_1 - urand(0, 1),m_creature,pVictim);
     }
 
     void JustDied(Unit *killer)
@@ -160,7 +176,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
         if(m_pInstance)
             m_pInstance->SetData(TYPE_MARROWGAR, DONE);
 
-        DoScriptText(-1631009,m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
     }
 
     void JustSummoned(Creature *pSummoned)
@@ -213,7 +229,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
             if (DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED))
             {
                 m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
-                DoScriptText(-1631008, m_creature);
+                DoScriptText(SAY_BERSERK, m_creature);
             }
         }
         else
@@ -242,7 +258,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                         if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_10) == CAST_OK)
                         {
                             m_uiBoneSpikeTimer = 30000;
-                            DoScriptText(-1631003 - urand(0, 2), m_creature);
+                            DoScriptText(SAY_BONE_SPIKE_1 - urand(0, 2), m_creature);
                         }
                     }
                     else
@@ -258,7 +274,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                         m_uiBoneStormTimer = urand(45000, 60000);
                         m_uiPhase = PHASE_BONE_STORM_CHARGE;
                         m_creature->SetSpeedRate(MOVE_RUN, 3.0f);
-                        DoScriptText(-1631002, m_creature);
+                        DoScriptText(SAY_BONE_STORM, m_creature);
                     }
                 }
                 else
@@ -339,7 +355,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                 if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_STORM_10) == CAST_OK)
                 {
                     m_uiBoneSpikeTimer = 30000;
-                    DoScriptText(-1631003 - urand(0, 2), m_creature);
+                    DoScriptText(SAY_BONE_SPIKE_1 - urand(0, 2), m_creature);
                 }
             }
             else

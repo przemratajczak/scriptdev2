@@ -47,6 +47,20 @@ enum BossSpells
         THIRST_QUENCHED_AURA                    = 72154,
 };
 
+// talks
+enum
+{
+    SAY_AGGRO                   = -1631121,
+    SAY_BITE_1                  = -1631122,
+    SAY_BITE_2                  = -1631123,
+    SAY_SHADOWS                 = -1631124,
+    SAY_PACT                    = -1631125,
+    SAY_MC                      = -1631126,
+    SAY_AIR_PHASE               = -1631127,
+    SAY_BERSERK                 = -1631128,
+    SAY_DEATH                   = -1631129,
+};
+
 static Locations SpawnLoc[]=
 {
     {4595.640137f, 2769.195557f, 400.137054f},  // 0 Phased
@@ -91,16 +105,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch (urand(0,1))
-        {
-            case 0:
-               DoScriptText(-1631330,m_creature,pVictim);
-               break;
-            case 1:
-               DoScriptText(-1631331,m_creature,pVictim);
-               break;
-        }
-
         if (pVictim && pVictim->HasAura(SPELL_BLOOD_MIRROR))
            doRemove(SPELL_BLOOD_MIRROR,pVictim);
 
@@ -133,7 +137,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 
         doCast(SPELL_SHROUD_OF_SORROW);
 
-        DoScriptText(-1631321,m_creature,who);
+        DoScriptText(SAY_AGGRO,m_creature,who);
 
         if (Unit* pTarget = doSelectRandomPlayer(SPELL_BLOOD_MIRROR_MARK, false, 100.0f))
         {
@@ -155,7 +159,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
             return;
 
         pInstance->SetData(TYPE_LANATHEL, DONE);
-        DoScriptText(-1631333,m_creature,killer);
+        DoScriptText(SAY_DEATH,m_creature,killer);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_0, 0);
         m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
 
@@ -190,15 +194,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 
                     if (timedQuery(SPELL_VAMPIRIC_BITE,diff))
                     {
-                       switch (urand(0,1))
-                       {
-                           case 0:
-                                  DoScriptText(-1631322,m_creature);
-                                  break;
-                           case 1:
-                                  DoScriptText(-1631323,m_creature);
-                                  break;
-                       }
+                       DoScriptText(SAY_BITE_1 - urand(0, 1),m_creature);
                        doCast(SPELL_VAMPIRIC_BITE);
                     }
 
@@ -222,7 +218,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
             case 2:
                     if (movementstarted)
                         return;
-                    DoScriptText(-1631327,m_creature);
+                    DoScriptText(SAY_AIR_PHASE,m_creature);
                     doCast(SPELL_BLOODBOLT_WHIRL);
                     stage = 3;
                     return;
@@ -232,7 +228,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
                     if (timedQuery(SPELL_TWILIGHT_BLOODBOLT,diff) || m_creature->GetHealthPercent() < 10.0f)
                     {
                         stage = 4;
-//                        DoScriptText(-1631325,m_creature);
                         bloodbolts = 3;
                     };
                     break;
@@ -246,7 +241,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
                     break;
             case 5:
                     if (movementstarted) return;
-                    DoScriptText(-1631325,m_creature);
+                    DoScriptText(SAY_SHADOWS,m_creature);
                     stage = 0;
                     SetCombatMovement(true);
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -264,7 +259,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
         if (timedQuery(SPELL_BERSERK, diff))
         {
              doCast(SPELL_BERSERK);
-             DoScriptText(-1631332,m_creature);
+             DoScriptText(SAY_BERSERK,m_creature);
         };
 
     }

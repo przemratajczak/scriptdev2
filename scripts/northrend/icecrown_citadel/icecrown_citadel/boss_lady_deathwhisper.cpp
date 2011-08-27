@@ -61,6 +61,28 @@ enum BossSpells
         SPELL_VAMPIRIC_MIGHT                    = 70674,
 };
 
+// talks
+enum
+{
+    SAY_SPEECH_1                = -1631011,
+    SAY_SPEECH_2                = -1631012,
+    SAY_SPEECH_3                = -1631013,
+    SAY_SPEECH_4                = -1631014,
+    SAY_SPEECH_5                = -1631015,
+    SAY_SPEECH_6                = -1631016,
+    SAY_SPEECH_7                = -1631017,
+    SAY_AGGRO                   = -1631018,
+    SAY_PHASE_TWO               = -1631019,
+    SAY_DARK_EMPOWERMENT        = -1631020,
+    SAY_DARK_TRANSFORMATION     = -1631021,
+    SAY_ANIMATE_DEAD            = -1631022,
+    SAY_DOMINATE_MIND           = -1631023,
+    SAY_BERSERK                 = -1631024,
+    SAY_DEATH                   = -1631025,
+    SAY_SLAY_1                  = -1631026,
+    SAY_SLAY_2                  = -1631027,
+};
+
 static Locations SpawnLoc[]=
 {
     {-623.055481f, 2211.326660f, 51.764259f},  // 0 Lady's stay point
@@ -123,15 +145,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch (urand(0,1))
-        {
-            case 0:
-               DoScriptText(-1631029,m_creature,pVictim);
-               break;
-            case 1:
-               DoScriptText(-1631030,m_creature,pVictim);
-               break;
-        }
+        DoScriptText(SAY_SLAY_1 - urand(0, 1), m_creature, pVictim);
     }
 
     void JustReachedHome()
@@ -142,8 +156,12 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(!pInstance) return;
-        if(type != POINT_MOTION_TYPE) return;
+        if(!pInstance)
+            return;
+
+        if(type != POINT_MOTION_TYPE)
+            return;
+
         if(MovementStarted && id != 1)
         {
             m_creature->GetMotionMaster()->MovePoint(1, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
@@ -160,30 +178,31 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
     {
         if (!pInstance)
             return;
+
         pInstance->SetData(TYPE_DEATHWHISPER, IN_PROGRESS);
         doCast(SPELL_MANA_BARRIER );
         MovementStarted = true;
         SetCombatMovement(false);
-        DoScriptText(-1631023,m_creature);
+        DoScriptText(SAY_AGGRO, m_creature);
         m_creature->GetMotionMaster()->MovePoint(1, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit *pKiller)
     {
         if(pInstance)
             pInstance->SetData(TYPE_DEATHWHISPER, DONE);
-        DoScriptText(-1631032,m_creature,killer);
+
+        DoScriptText(SAY_DEATH, m_creature, pKiller);
         doRemoveFromAll(SPELL_INSIGNIFICANCE);
     }
 
-    void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* pSummoned)
     {
-        if(!pInstance || !summoned) return;
+        if(!pInstance || !pSummoned)
+            return;
 
         if (Unit* pTarget= m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0) )
-        {
-            summoned->AddThreat(pTarget, 100.0f);
-        }
+            pSummoned->AddThreat(pTarget, 100.0f);
     }
 
     void CallGuard(uint8 place)
@@ -226,15 +245,15 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
             switch (stage)
             {
                 case 0:
-                       DoScriptText(-1631020,m_creature);
+                       DoScriptText(SAY_SPEECH_1, m_creature);
                        stage = 1;
                        break;
                 case 1:
-                       DoScriptText(-1631021,m_creature);
+                       DoScriptText(SAY_SPEECH_4, m_creature);
                        stage = 2;
                        break;
                 case 2:
-                       DoScriptText(-1631022,m_creature);
+                       DoScriptText(SAY_SPEECH_7, m_creature);
                        stage = 3;
                        break;
                 default:
@@ -272,7 +291,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
 
                     if (timedQuery(NPC_FANATIC, diff))
                         {
-                        DoScriptText(-1631028,m_creature);
+                        DoScriptText(SAY_ANIMATE_DEAD,m_creature);
                         switch (currentDifficulty) {
                              case RAID_DIFFICULTY_10MAN_NORMAL:
                                        CallGuard(urand(0,1));
@@ -304,14 +323,14 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
                                   if(Creature *pGuard = GetClosestCreatureWithEntry(m_creature, NPC_FANATIC, 100.0f))
                                   {
                                       doCast(SPELL_DARK_EMPOWERMENT, pGuard);
-                                      DoScriptText(-1631026,m_creature);
+                                      DoScriptText(SAY_DARK_EMPOWERMENT, m_creature);
                                   };
                                   break;
                             case 1:
                                   if(Creature *pGuard = GetClosestCreatureWithEntry(m_creature, NPC_ADHERENT, 100.0f))
                                   {
                                       doCast(SPELL_DARK_EMPOWERMENT, pGuard);
-                                      DoScriptText(-1631027,m_creature);
+                                      DoScriptText(SAY_DARK_EMPOWERMENT, m_creature);
                                   };
                                   break;
                                   }
@@ -355,7 +374,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
          if (!hasAura(SPELL_MANA_BARRIER, m_creature) && stage == 3)
                {
                 stage = 4;
-                DoScriptText(-1631024,m_creature);
+                DoScriptText(SAY_PHASE_TWO, m_creature);
                 SetCombatMovement(true);
                 m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                }
@@ -363,7 +382,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
          if (timedQuery(SPELL_BERSERK, diff))
                 {
                 doCast(SPELL_BERSERK);
-                DoScriptText(-1631031,m_creature);
+                DoScriptText(SAY_BERSERK, m_creature);
                 };
 
          DoMeleeAttackIfReady();

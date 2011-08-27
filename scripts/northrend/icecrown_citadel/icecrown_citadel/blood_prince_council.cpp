@@ -68,6 +68,31 @@ enum BossSpells
 
 };
 
+// talks
+enum
+{
+    SAY_COUNCIL_INTRO_1         = -1631101,                 // Intro by Bloodqueen
+    SAY_COUNCIL_INTRO_2         = -1631102,
+    SAY_KELESETH_INVOCATION     = -1631103,
+    SAY_KELESETH_SPECIAL        = -1631104,
+    SAY_KELESETH_SLAY_1         = -1631105,
+    SAY_SKELESETH_SLAY_2        = -1631106,
+    SAY_KELESETH_BERSERK        = -1631107,
+    SAY_KELESETH_DEATH          = -1631108,
+    SAY_TALDARAM_INVOCATION     = -1631109,
+    SAY_TALDARAM_SPECIAL        = -1631110,
+    SAY_TALDARAM_SLAY_1         = -1631111,
+    SAY_TALDARAM_SLAY_2         = -1631112,
+    SAY_TALDARAM_BERSERK        = -1631113,
+    SAY_TALDARAM_DEATH          = -1631114,
+    SAY_VALANAR_INVOCATION      = -1631115,
+    SAY_VALANAR_SPECIAL         = -1631116,
+    SAY_VALANAR_SLAY_1          = -1631117,
+    SAY_VALANAR_SLAY_2          = -1631118,
+    SAY_VALANAR_BERSERK         = -1631119,
+    SAY_VALANAR_DEATH           = -1631120,
+};
+
 struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
 {
     boss_valanar_iccAI(Creature* pCreature) : BSWScriptedAI(pCreature)
@@ -94,15 +119,7 @@ struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        switch (urand(0,1))
-        {
-            case 0:
-                DoScriptText(-1631302,m_creature,pVictim);
-                break;
-            case 1:
-                DoScriptText(-1631303,m_creature,pVictim);
-                break;
-        }
+        DoScriptText(SAY_VALANAR_SLAY_1 - urand(0, 1),m_creature,pVictim);
     }
 
     void EnterEvadeMode()
@@ -127,7 +144,7 @@ struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
     {
         if (!m_pInstance)
             return;
-        DoScriptText(-1631304,m_creature,pKiller);
+        DoScriptText(SAY_VALANAR_DEATH,m_creature,pKiller);
         m_pInstance->SetData(TYPE_BLOOD_COUNCIL, DONE);
 
         if (pBrother1 && pBrother1->isAlive())
@@ -186,7 +203,7 @@ struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
         {
             if (!invocated)
             {
-                DoScriptText(-1631307,m_creature);
+                DoScriptText(SAY_VALANAR_INVOCATION,m_creature);
                 m_creature->SetHealth(m_health);
                 invocated = true;
             }
@@ -213,7 +230,7 @@ struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
         if (timedQuery(SPELL_BERSERK, uiDiff))
         {
              doCast(SPELL_BERSERK);
-             DoScriptText(-1631305,m_creature);
+             DoScriptText(SAY_VALANAR_BERSERK,m_creature);
          };
 
         DoMeleeAttackIfReady();
@@ -342,7 +359,7 @@ struct MANGOS_DLL_DECL boss_taldaram_iccAI : public BSWScriptedAI
         {
             if (!invocated)
             {
-                DoScriptText(-1631307,m_creature);
+                DoScriptText(SAY_TALDARAM_INVOCATION,m_creature);
                 m_creature->SetHealth(m_health);
                 invocated = true;
             }
@@ -379,7 +396,7 @@ struct MANGOS_DLL_DECL boss_taldaram_iccAI : public BSWScriptedAI
         if (timedQuery(SPELL_BERSERK, uiDiff))
         {
             doCast(SPELL_BERSERK);
-            DoScriptText(-1631305,m_creature);
+            DoScriptText(SAY_TALDARAM_BERSERK,m_creature);
         };
 
         DoMeleeAttackIfReady();
@@ -507,7 +524,7 @@ struct MANGOS_DLL_DECL boss_keleseth_iccAI : public BSWScriptedAI
         {
             if (!invocated)
             {
-                DoScriptText(-1631307,m_creature);
+                DoScriptText(SAY_KELESETH_INVOCATION,m_creature);
                 m_creature->SetHealth(m_health);
                 invocated = true;
             };
@@ -535,7 +552,7 @@ struct MANGOS_DLL_DECL boss_keleseth_iccAI : public BSWScriptedAI
         if (timedQuery(SPELL_BERSERK, uiDiff))
         {
             doCast(SPELL_BERSERK);
-            DoScriptText(-1631305,m_creature);
+            DoScriptText(SAY_KELESETH_BERSERK,m_creature);
         };
 
         DoMeleeAttackIfReady();
@@ -933,12 +950,12 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathel_introAI : public BSWScriptedAI
                 {
                 case 800:
                           m_creature->SetVisibility(VISIBILITY_ON);
-                          DoScriptText(-1631301, m_creature);
+                          DoScriptText(SAY_COUNCIL_INTRO_1, m_creature);
                           UpdateTimer = 15000;
                           pInstance->SetData(TYPE_EVENT,810);
                           break;
                 case 810:
-                          DoScriptText(-1631311, m_creature);
+                          DoScriptText(SAY_COUNCIL_INTRO_2, m_creature);
                           if (Creature* pPrince = pInstance->GetSingleCreatureFromStorage(NPC_TALDARAM))
                           {
                               doRemove(SPELL_FAKE_DEATH,pPrince);
