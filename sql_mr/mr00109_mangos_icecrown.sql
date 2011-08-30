@@ -150,14 +150,30 @@ INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`,
 UPDATE `creature_template` SET `ScriptName`='boss_festergut', `AIName`=''  WHERE `entry`= 36626;
 UPDATE `gameobject_template` SET `faction` = '114' WHERE `gameobject_template`.`entry` IN (201371);
 UPDATE `gameobject` SET `state` = '0' WHERE `id` IN (201371);
-UPDATE `creature_template` SET `ScriptName`='mob_vile_gas_stalker', `AIName`=''  WHERE `entry`= 38548;
-UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14,  `ScriptName`='mob_orange_gas_stalker', `AIName`='' WHERE `entry`= 36659;
+UPDATE `creature_template` SET `ScriptName`='mob_vile_gas_malleable_goo', `AIName`='', `flags_extra` = `flags_extra` | 2 | 128  WHERE `entry` IN (38548, 38556);
+-- orange gas stalker
+UPDATE `creature_template` SET `faction_A` = 2212, `faction_H` = 2212,  `ScriptName`='', `AIName`='' WHERE `entry`= 36659;
+DELETE FROM `spell_script_target` WHERE `entry` IN (69157, 69162, 69164);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+(69157, 1, 36659),
+(69162, 1, 36659),
+(69164, 1, 36659);
+
 -- original auras from YTDB
+DELETE FROM `creature_template_addon` WHERE `entry` = 36659;
 -- INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `auras`) VALUES
 -- (36659, 0, 0, 1, 0, 0, '69126 69152 69154');
--- DELETE FROM `creature_template_addon` WHERE `entry` = 36659;
--- Visual effect mobs from Timmit
+
+-- gas from valves
 UPDATE `creature` SET `spawnMask` = 15, `modelid` = 11686, `spawntimesecs` = 300 WHERE `id`=37013;
+DELETE FROM `spell_script_target` WHERE `entry` = 69125;
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES (69125, 1, 37013);
+
+-- proper way for Gastric Bloat, but cooldowns for creatures not implemented yet
+-- -- Gastric Bloat
+DELETE FROM `spell_proc_event` WHERE `entry` = 72214;
+-- INSERT INTO `spell_proc_event` VALUES
+-- (72214, 0x00,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 8);
 
 -- fixed modelID info
 DELETE FROM `creature_model_info` WHERE (`modelid`=31006);

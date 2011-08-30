@@ -130,6 +130,8 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
     uint8 nextPoint;
     uint8 slimetype;
 
+    bool m_bIsAssistingOnly;
+
     void Reset()
     {
         if (!pInstance) return;
@@ -138,9 +140,17 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
         slimetype = 0;
         intro = false;
         movementstarted = false;
+        m_bIsAssistingOnly = false;
+        SetCombatMovement(true);
         UpdateTimer = 1000;
         resetTimers();
         m_creature->SetRespawnDelay(7*DAY);
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        if (m_bIsAssistingOnly)
+            uiDamage = 0;
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -172,9 +182,15 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
 
     void Aggro(Unit *pWho)
     {
-        if (!pInstance) return;
-        if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER)
+        if (!pInstance)
             return;
+
+        if (pInstance->GetData(TYPE_FESTERGUT) == IN_PROGRESS || pInstance->GetData(TYPE_ROTFACE) == IN_PROGRESS)
+        {
+            SetCombatMovement(false);
+            m_bIsAssistingOnly = true;
+            return;
+        }
 
         pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
         DoScriptText(SAY_AIRLOCK,m_creature, pWho);
@@ -295,6 +311,9 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
              } else UpdateTimer -= diff;
              pInstance->SetData(TYPE_EVENT_TIMER, UpdateTimer);
         }
+
+        if (m_bIsAssistingOnly)
+            return;
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
