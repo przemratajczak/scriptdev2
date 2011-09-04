@@ -124,16 +124,18 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 UPDATE `creature_template` SET `ScriptName`='boss_rotface', `AIName`=''  WHERE `entry`= 36627;
 UPDATE `gameobject_template` SET `faction` = '114' WHERE `gameobject_template`.`entry` IN (201370);
 UPDATE `gameobject` SET `state` = '0' WHERE `id` IN (201370);
-UPDATE `creature_template` SET `ScriptName`='mob_small_ooze', `AIName`='' WHERE `entry`= 36897;
+UPDATE `creature_template` SET `ScriptName`='mob_little_ooze', `AIName`='' WHERE `entry`= 36897;
 UPDATE `creature_template` SET `ScriptName`='mob_big_ooze', `AIName`='' WHERE `entry`= 36899;
-UPDATE `creature_template` SET `ScriptName`='mob_ooze_spray_stalker', `AIName`='' WHERE `entry`= 37986;
-UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 14, `faction_H` = 14, `ScriptName`='mob_sticky_ooze', `AIName`='' WHERE `entry`= 37006;
-UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 14, `faction_H` = 14, `ScriptName`='', `AIName`='' WHERE `entry` IN (37013);
-UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 14, `faction_H` = 14, `ScriptName`='mob_ooze_explode_stalker', `AIName`='' WHERE `entry` = 38107;
-DELETE FROM `spell_script_target` WHERE `entry` = 69783;
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES ('69783', '1', '37013');
-DELETE FROM `spell_script_target` WHERE `entry` = 69508;
-INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES ('69508', '1', '37986');
+UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 14, `faction_H` = 14, `ScriptName`='mob_rotface_ooze_dummy', `AIName`='', unit_flags = 524288, flags_extra = flags_extra | 2 WHERE `entry` IN (37013, 37986, 38107, 38548);
+UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 2212, `faction_H` = 2212, `ScriptName`='mob_sticky_ooze', `AIName`='' WHERE `entry`= 37006;
+UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 2212, `faction_H` = 2212, `ScriptName`='mob_ooze_explode_stalker', `AIName`='' WHERE `entry` = 38107;
+
+DELETE FROM `spell_script_target` WHERE `entry` IN (69508, 70881, 69782, 69783, 70079);
+INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
+('69508', '1', '37986'), -- Slime Spray
+('70881', '1', '37986'), -- Slime Spray dummy
+('69783', '1', '37013'), -- Ooze Flood
+('70079', '1', '36627'); -- Ooze Flood remove
 
 -- fix rotface combat reach was set to 40 he could hit u from across the room
 DELETE FROM `creature_model_info` WHERE (`modelid`=31005);

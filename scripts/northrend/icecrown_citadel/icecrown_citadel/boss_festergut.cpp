@@ -58,7 +58,8 @@ enum
     SPELL_GAS_SPORE             = 69278,
 
     // Vile Gas
-    SPELL_VILE_GAS_SUMMON       = 72285,
+    SPELL_VILE_GAS_SUMMON       = 72288,
+    SPELL_VILE_GAS_SUMMON_TRIG  = 72287,
     SPELL_VILE_GAS              = 71307,
     SPELL_VILE_GAS_TRIGGERED    = 69240,
 
@@ -91,7 +92,7 @@ enum
 
 static Locations SpawnLoc[]=
 {
-    //{4322.85f, 3164.17f, 389.40f, 3.76f},             // festergut side
+    {4322.85f, 3164.17f, 389.40f, 3.76f},               // festergut side
     {4311.91f, 3157.42f, 389.00f, 3.62f},               // hacky (LoS problems?) festergut side
     {4391.38f, 3163.71f, 389.40f, 5.8f}                 // rotface side
 };
@@ -144,13 +145,10 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_FESTERGUT, IN_PROGRESS);
 
-            if (m_bIsHeroic)
+            if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
             {
-                if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
-                {
-                    pProfessor->NearTeleportTo(SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, SpawnLoc[0].o);
-                    pProfessor->SetInCombatWithZone();
-                }
+                pProfessor->NearTeleportTo(SpawnLoc[m_bIsHeroic ? 1 : 0].x, SpawnLoc[m_bIsHeroic ? 1 : 0].y, SpawnLoc[m_bIsHeroic ? 1 : 0].z, SpawnLoc[m_bIsHeroic ? 1 : 0].o);
+                pProfessor->SetInCombatWithZone();
             }
         }
     }
@@ -166,11 +164,8 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_FESTERGUT, FAIL);
 
-            if (m_bIsHeroic)
-            {
-                if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
-                    pProfessor->AI()->EnterEvadeMode();
-            }
+            if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
+                pProfessor->AI()->EnterEvadeMode();
         }
 
         DoCastSpellIfCan(m_creature, SPELL_REMOVE_INOCULENT, CAST_TRIGGERED);
@@ -308,16 +303,19 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
 
             if (Unit *pTarget = SelectRandomRangedTarget(m_creature))
             {
-                if (DoCastSpellIfCan(pTarget, SPELL_VILE_GAS_TRIGGERED) == CAST_OK)
-                    m_uiVileGasTimer = 30000;
+                if (DoCastSpellIfCan(pTarget, SPELL_VILE_GAS_SUMMON_TRIG, CAST_TRIGGERED) == CAST_OK)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_VILE_GAS, CAST_TRIGGERED) == CAST_OK)
+                        m_uiVileGasTimer = 30000;
+                }
             }
         }
         else
             m_uiVileGasTimer -= uiDiff;
 
         // Malleable Goo
-        if (m_bIsHeroic)
-        {
+        //if (m_bIsHeroic)
+        //{
             if (m_uiMalleableGooTimer <= uiDiff)
             {
                 if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
@@ -339,7 +337,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
             }
             else
                 m_uiMalleableGooTimer -= uiDiff;
-        }
+        //}
 
         DoMeleeAttackIfReady();
     }
