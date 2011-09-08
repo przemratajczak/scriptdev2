@@ -177,11 +177,8 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
         {
             m_pInstance->SetData(TYPE_FESTERGUT, DONE);
 
-            if (m_bIsHeroic)
-            {
-                if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
-                    pProfessor->AI()->EnterEvadeMode();
-            }
+            if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
+                pProfessor->AI()->EnterEvadeMode();
         }
 
         DoScriptText(SAY_DEATH, m_creature);

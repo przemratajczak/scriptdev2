@@ -176,7 +176,12 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public ScriptedAI
     void JustDied(Unit *pKiller)
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_ROTFACE, DONE);
+
+            if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
+                pProfessor->AI()->EnterEvadeMode();
+        }
 
         DoScriptText(SAY_DEATH, m_creature);
     }
