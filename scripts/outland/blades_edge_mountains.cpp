@@ -692,6 +692,99 @@ bool EffectAuraDummy_spell_aura_WranglingRay(const Aura* pAura, bool bApply)
 };
 
 /*######
+## npc_brutebane_trigger
+######*/
+enum
+{
+    NPC_BLADESPIRE_BRUTE                = 19995,
+    NPC_BRUTEBANE_TRIGGER_KC            = 21241,
+    NPC_BLADESPIRE_CHAMPION             = 21296,
+    NPC_BLADESPIRE_COOK                 = 20334,
+    NPC_BLADESPIRE_SHAMAN               = 19998,
+    QUEST_BLADESPIRE_KEGGER             = 10545,
+    QUEST_GETTING_THE_BLADESPIRE_TANKED = 10512
+ 
+};
+
+struct MANGOS_DLL_DECL npc_brutebane_triggerAI : public ScriptedAI
+{
+    npc_brutebane_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 uiDrunkTimer;
+    uint32 uiCheckTimer;
+    bool   bIsInRange;
+
+    void Reset()
+    {
+        uiCheckTimer = 1000;
+        uiDrunkTimer = 11000;
+        bIsInRange   = false;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+     {
+            if (uiCheckTimer <= uiDiff)
+            {
+                if(Creature *pOgr = GetClosestCreatureWithEntry(m_creature, NPC_BLADESPIRE_BRUTE, 20.0f))
+                    {
+                        if(pOgr->isAlive())
+                        {
+                            pOgr->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                            bIsInRange   = true;
+                        }
+                    }
+                else if (Creature *pOgr = GetClosestCreatureWithEntry(m_creature, NPC_BLADESPIRE_CHAMPION, 20.0f))
+                    {
+                        if(pOgr->isAlive())
+                        {
+                            pOgr->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                            bIsInRange   = true;
+                        }
+                    }
+                else if (Creature *pOgr = GetClosestCreatureWithEntry(m_creature, NPC_BLADESPIRE_COOK, 20.0f))
+                    {
+                        if(pOgr->isAlive())
+                        {
+                            pOgr->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                            bIsInRange   = true;
+                        }
+                    }
+                 else if (Creature *pOgr = GetClosestCreatureWithEntry(m_creature, NPC_BLADESPIRE_SHAMAN, 20.0f))
+                    {
+                        if(pOgr->isAlive())
+                        {
+                            pOgr->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                            bIsInRange   = true;
+                        }
+                    }
+
+            } else uiCheckTimer -= uiDiff;
+
+            if( uiDrunkTimer <= uiDiff)
+            {
+                if(bIsInRange)
+                {
+                    if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+                    {
+                        if(pPlayer->GetQuestStatus(QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE || 
+                            pPlayer->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            pPlayer->KilledMonsterCredit(NPC_BRUTEBANE_TRIGGER_KC);                            
+                            
+                        }
+                    }
+                }
+                m_creature->ForcedDespawn();                
+            }
+            else uiDrunkTimer -= uiDiff;
+     }
+};
+CreatureAI* GetAI_npc_brutebane_trigger(Creature* pCreature)
+{
+    return new npc_brutebane_triggerAI(pCreature);
+}
+
+/*######
 ## AddSC
 ######*/
 
@@ -747,5 +840,10 @@ void AddSC_blades_edge_mountains()
     newscript->Name = "npc_AetherRay";
     newscript->GetAI = &GetAI_npc_AetherRay;
     newscript->pEffectAuraDummy = EffectAuraDummy_spell_aura_WranglingRay;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_brutebane_trigger";
+    newscript->GetAI = &GetAI_npc_brutebane_trigger;
     newscript->RegisterSelf();
 }
