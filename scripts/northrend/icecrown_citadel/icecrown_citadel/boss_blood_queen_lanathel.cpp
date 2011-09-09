@@ -139,7 +139,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 
         doCast(SPELL_SHROUD_OF_SORROW);
 
-        DoScriptText(SAY_AGGRO,m_creature,who);
+        DoScriptText(SAY_AGGRO,m_creature,pWho);
 
         if (Unit* pTarget = doSelectRandomPlayer(SPELL_BLOOD_MIRROR_MARK, false, 100.0f))
         {

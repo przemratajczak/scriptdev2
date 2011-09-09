@@ -137,7 +137,6 @@ enum UsedSpells
     //AURA_BLUESHIELD             = 44867, // :D
     //SPELL_HASTE                 = 45856, // NOT WORKING
 };
->>>>>>> 538888715d716990f1cbb246f095111c8a405021
 
 enum Npcs_Go
 {

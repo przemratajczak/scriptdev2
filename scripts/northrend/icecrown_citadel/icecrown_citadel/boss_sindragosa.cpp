@@ -167,7 +167,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
         if(!pInstance)
             return;
 
-        DoScriptText(SAY_AGGRO,m_creature,who);
+        DoScriptText(SAY_AGGRO,m_creature,pWho);
         doCast(SPELL_FROST_AURA_1);
 
         if (Unit* pTarget = doSelectRandomPlayer(SPELL_SHADOWS_EDGE, true, 100.0f))
