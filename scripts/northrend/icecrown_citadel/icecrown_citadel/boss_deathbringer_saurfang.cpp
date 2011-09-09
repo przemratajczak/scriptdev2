@@ -181,6 +181,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
     bool m_bIsOutroStarted;
 
     ObjectGuid m_guidNpc;
+    ObjectGuid m_guidKiller;
     GUIDList m_lGuards;
 
     virtual void ResetFight() {}
@@ -228,6 +229,7 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
         {
             uiDamage = 0;
             m_creature->RemoveAllAuras();
+            m_guidKiller = pDealer->GetObjectGuid();
             DoFakeDeath();
             m_uiEventStep = 0;
             m_bIsOutroStarted = true;
@@ -639,7 +641,17 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
                                 }
                             }
 
-                            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+                            Unit *pKiller = m_creature;
+
+                            if (m_pInstance)
+                            {
+                                if (Unit *pTmp = m_creature->GetMap()->GetUnit(m_guidKiller))
+                                    pKiller = pTmp;
+                            }
+
+                            if (pKiller)
+                                pKiller->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+
                             return;
                         }
                     }
