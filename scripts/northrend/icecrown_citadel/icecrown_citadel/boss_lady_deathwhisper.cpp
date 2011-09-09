@@ -174,7 +174,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public BSWScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit* pWho)
     {
         if (!pInstance)
             return;

@@ -162,7 +162,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public BSWScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit* pWho)
     {
         if(!pInstance)
             return;

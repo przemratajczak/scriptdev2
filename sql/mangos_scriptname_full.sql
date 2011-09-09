@@ -50,6 +50,8 @@ DELETE FROM scripted_areatrigger WHERE entry=3626;
 INSERT INTO scripted_areatrigger VALUES (3626, 'at_vaelastrasz');
 DELETE FROM scripted_areatrigger WHERE entry=4937;
 INSERT INTO scripted_areatrigger VALUES (4937, 'at_sunwell_plateau');
+DELETE FROM scripted_areatrigger WHERE entry=4524;
+INSERT INTO scripted_areatrigger VALUES (4524,'at_shattered_halls');
 
 
 /* BATTLEGROUNDS */
@@ -156,6 +158,14 @@ UPDATE creature_template SET ScriptName='spell_dummy_npc' WHERE entry IN (
 25752,25753,25758,25792,25793,26268,26270,26421,26616,26643,26841,27122,27808,28053,28054,28068,28093,28465,28600,29319,29327,29329,29330,29338,30146,32149);
 
 UPDATE gameobject_template SET ScriptName='spell_dummy_go' WHERE entry IN (181616,186949);
+
+/* WORLD MAP SCRIPTS */
+DELETE FROM world_template WHERE map IN (0, 1, 530, 571);
+INSERT INTO world_template VALUES
+(0, 'world_map_eastern_kingdoms'),
+(1, 'world_map_kalimdor'),
+(530, 'world_map_outland'),
+(571, 'world_map_northrend');
 
 /*  */
 /* ZONE */

@@ -3075,6 +3075,10 @@
 					RelativePath="..\scripts\world\spell_scripts.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\scripts\world\world_map_scripts.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="outdoor_pvp"

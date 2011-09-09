@@ -130,9 +130,11 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
         movementstarted = true;
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit* pWho)
     {
-        if(!pInstance) return;
+        if (!pInstance) 
+            return;
+
         pInstance->SetData(TYPE_LANATHEL, IN_PROGRESS);
 
         doCast(SPELL_SHROUD_OF_SORROW);

@@ -180,7 +180,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public BSWScriptedAI
         }
     }
 
-    void Aggro(Unit *pWho)
+    void Aggro(Unit* pWho)
     {
         if (!pInstance)
             return;
