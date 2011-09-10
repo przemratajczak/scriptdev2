@@ -73,7 +73,6 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
     }
 
     ScriptedInstance *pInstance;
-    Creature* pDummyTarget;
     Creature* pClone;
     bool inCombat;
     bool intro;
@@ -90,14 +89,14 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
         pClone = NULL;
         inCombat = false;
         intro = false;
-        if (pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET))
+        if (Creature *pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET))
         {
             if (!pDummyTarget->isAlive()) pDummyTarget->Respawn();
 
             pDummyTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pDummyTarget->GetMotionMaster()->MoveIdle();
         }
-        else if (pDummyTarget = m_creature->SummonCreature(NPC_BALTHARUS_TARGET, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 1000))
+        else if (Creature *pDummyTarget = m_creature->SummonCreature(NPC_BALTHARUS_TARGET, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 1000))
         {
             pDummyTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             pDummyTarget->GetMotionMaster()->MoveIdle();
@@ -134,7 +133,7 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
         DoScriptText(SAY_BALTHARUS_DEATH,m_creature);
         if (pInstance->GetData(TYPE_BALTHARUS) != DONE)
         {
-            if (pDummyTarget) 
+            if (Creature *pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET)) 
                 pDummyTarget->ForcedDespawn();
         }
         pInstance->SetData(TYPE_BALTHARUS, DONE);
@@ -177,7 +176,8 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
         if (!pInstance) return;
         if (pWho->GetTypeId() != TYPEID_PLAYER) return;
 
-        if (pDummyTarget) pDummyTarget->ForcedDespawn();
+        if (Creature *pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET))
+            pDummyTarget->ForcedDespawn();
 
         SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
 
@@ -207,7 +207,10 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
         if (!pInstance) return;
 
         if (!inCombat && !m_creature->IsNonMeleeSpellCasted(false))
-            timedCast(SPELL_CHANNEL_SPELL, uiDiff, pDummyTarget);
+        {
+            if (Creature *pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET))
+                timedCast(SPELL_CHANNEL_SPELL, uiDiff, pDummyTarget);
+        }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
