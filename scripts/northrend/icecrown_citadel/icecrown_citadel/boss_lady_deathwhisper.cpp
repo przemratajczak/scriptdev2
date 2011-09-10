@@ -16,8 +16,9 @@
 
 /* ScriptData
 SDName: boss_lady_deathwhisper
-SD%Complete: 
-SDComment: 
+SD%Complete: 90%
+SDComment:  mechanic of buffing adds is not clear, used wide range timers.
+            Dominate Mind needs core support, uncomment code in script if it works.
 SDCategory: Icecrown Citadel
 EndScriptData */
 
@@ -26,38 +27,6 @@ EndScriptData */
 
 enum BossSpells
 {
-/*
-        //yells
-
-        //summons
-        NPC_VENGEFUL_SHADE                      = 38222,
-        NPC_FANATIC                             = 37890,
-        NPC_REANIMATED_FANATIC                  = 38009,
-        NPC_ADHERENT                            = 37949,
-        NPC_REANIMATED_ADHERENT                 = 38010,
-
-        //Abilities
-        SPELL_DARK_EMPOWERMENT                  = 70901,
-
-        SPELL_DOMINATE_MIND                     = 71289,
-
-        SPELL_VENGEFUL_BLAST                    = 71494,
-        SPELL_VENGEFUL_BLAST_0                  = 71544,
-
-        // summons
-        SPELL_FROST_FEVER                       = 71129,
-        SPELL_DEATHCHILL_BOLT                   = 70594,
-        SPELL_DEATHCHILL_BLAST                  = 70906,
-        SPELL_DARK_MARTYRDROM                   = 70903,
-        SPELL_CURSE_OF_TOPOR                    = 71237,
-        SPELL_SHORUD_OF_THE_OCCULUT             = 70768,
-        SPELL_ADHERENTS_DETERMINIATION          = 71234,
-
-        SPELL_NECROTIC_STRIKE                   = 70659,
-        SPELL_SHADOW_CLEAVE                     = 70670,
-        SPELL_VAMPIRIC_MIGHT                    = 70674,*/
-
-        // my spells
         SPELL_BERSERK                           = 26662,
         SPELL_INSIGNIFICANCE                    = 71204,
         SPELL_DOMINATE_MIND                     = 71289,
@@ -66,9 +35,6 @@ enum BossSpells
         SPELL_SHADOW_BOLT                       = 71254,
         SPELL_FROSTBOLT                         = 71420,
         SPELL_FROSTBOLT_VOLLEY                  = 72905,
-
-        // summons related
-        SPELL_SPAWN_VISUAL                      = 41236,
 
         // Cult Adherents
         NPC_CULT_ADHERENT                       = 37949,
@@ -347,9 +313,6 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
 
     void JustSummoned(Creature *pSummoned)
     {
-        if (pSummoned->GetEntry() == NPC_CULT_ADHERENT || pSummoned->GetEntry() == NPC_CULT_FANATIC)
-            pSummoned->CastSpell(pSummoned, SPELL_SPAWN_VISUAL, true);
-
         pSummoned->SetInCombatWithZone();
     }
 
@@ -416,9 +379,6 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // ***********
-        // Both Phases
-
         // Berserk - both phases
         if (m_uiBerserkTimer <= uiDiff)
         {
@@ -431,7 +391,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
         else
             m_uiBerserkTimer -= uiDiff;
 
-        // Death and Decay
+        // Death and Decay - both phases
         if (m_uiDeathAndDecayTimer <= uiDiff)
         {
             if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
@@ -443,7 +403,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
         else
             m_uiDeathAndDecayTimer -= uiDiff;
 
-        // Dominate Mind
+        // Dominate Mind - both phases
         if (m_uiMindControlCount)
         {
             if (m_uiDominateMindTimer <= uiDiff)
@@ -462,10 +422,8 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
                 m_uiDominateMindTimer -= uiDiff;
         }
 
-        // ******************
-        // end of both phases
 
-
+         // PHASE ONE
         if (m_bIsPhaseOne)
         {
             // Mana Barrier check
@@ -508,7 +466,7 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
             else
                 m_uiShadowBoltTimer -= uiDiff;
         }
-        else
+        else // PHASE TWO
         {
             if (m_bIsHeroic)
             {
