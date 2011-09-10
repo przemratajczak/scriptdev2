@@ -311,8 +311,8 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
             m_uiVileGasTimer -= uiDiff;
 
         // Malleable Goo
-        //if (m_bIsHeroic)
-        //{
+        if (m_bIsHeroic)
+        {
             if (m_uiMalleableGooTimer <= uiDiff)
             {
                 if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
@@ -334,7 +334,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
             }
             else
                 m_uiMalleableGooTimer -= uiDiff;
-        //}
+        }
 
         DoMeleeAttackIfReady();
     }
