@@ -29,6 +29,35 @@ DELETE FROM `gameobject` WHERE `id`=201919;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (7807, 201919, 631, 1, 128, 4356.52, 2651.74, 351.1, 1.61378, 0, 0, 0.722138, 0.691749, 25, 255, 1);
 
+-- Icecrown buff
+DELETE FROM `spell_area` WHERE `spell` IN
+(73762, 73824, 73825, 73826, 73827, 73828, -- Alliance
+73816, 73818, 73819, 73820, 73821, 73822);
+-- +5%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73762, 4812, 1101, 2, 1), -- Alliance
+-- (73816, 4812, 1101, 2, 1); -- Horde
+-- +10%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73824, 4812, 1101, 2, 1), -- Alliance
+-- (73818, 4812, 1101, 2, 1); -- Horde
+-- +15%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73825, 4812, 1101, 2, 1), -- Alliance
+-- (73819, 4812, 1101, 2, 1); -- Horde
+-- +20%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73826, 4812, 1101, 2, 1), -- Alliance
+-- (73820, 4812, 1101, 2, 1); -- Horde
+-- +25%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73827, 4812, 1101, 2, 1), -- Alliance
+-- (73821, 4812, 1101, 2, 1); -- Horde
+-- +30%
+-- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
+-- (73828, 4812, 1101, 2, 1), -- Alliance
+-- (73822, 4812, 1101, 2, 1); -- Horde
+
 -- --------
 -- Saurfang
 -- --------
