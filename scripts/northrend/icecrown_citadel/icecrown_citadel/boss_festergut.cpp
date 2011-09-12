@@ -300,11 +300,9 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
 
             if (Unit *pTarget = SelectRandomRangedTarget(m_creature))
             {
-                if (DoCastSpellIfCan(pTarget, SPELL_VILE_GAS_SUMMON_TRIG, CAST_TRIGGERED) == CAST_OK)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_VILE_GAS, CAST_TRIGGERED) == CAST_OK)
-                        m_uiVileGasTimer = 30000;
-                }
+                pTarget->CastSpell(pTarget, SPELL_VILE_GAS_SUMMON_TRIG, true);
+                DoCastSpellIfCan(m_creature, SPELL_VILE_GAS, CAST_TRIGGERED);
+                m_uiVileGasTimer = 30000;
             }
         }
         else
