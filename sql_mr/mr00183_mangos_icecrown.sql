@@ -36,27 +36,27 @@ DELETE FROM `spell_area` WHERE `spell` IN
 -- +5%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73762, 4812, 1101, 2, 1), -- Alliance
--- (73816, 4812, 1101, 2, 1); -- Horde
+-- (73816, 4812, 690, 2, 1); -- Horde
 -- +10%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73824, 4812, 1101, 2, 1), -- Alliance
--- (73818, 4812, 1101, 2, 1); -- Horde
+-- (73818, 4812, 690, 2, 1); -- Horde
 -- +15%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73825, 4812, 1101, 2, 1), -- Alliance
--- (73819, 4812, 1101, 2, 1); -- Horde
+-- (73819, 4812, 690, 2, 1); -- Horde
 -- +20%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73826, 4812, 1101, 2, 1), -- Alliance
--- (73820, 4812, 1101, 2, 1); -- Horde
+-- (73820, 4812, 690, 2, 1); -- Horde
 -- +25%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73827, 4812, 1101, 2, 1), -- Alliance
--- (73821, 4812, 1101, 2, 1); -- Horde
+-- (73821, 4812, 690, 2, 1); -- Horde
 -- +30%
 -- INSERT INTO `spell_area` (`spell`, `area`, `racemask`, `gender`, `autocast`) VALUES
 -- (73828, 4812, 1101, 2, 1), -- Alliance
--- (73822, 4812, 1101, 2, 1); -- Horde
+-- (73822, 4812, 690, 2, 1); -- Horde
 
 -- --------
 -- Saurfang
