@@ -415,7 +415,7 @@
 					RelativePath="..\scripts\battlegrounds\battleground.cpp"
 					>
 				</File>
-                <File
+				<File
 					RelativePath="..\scripts\battlegrounds\battlegroundSA.cpp"
 					>
 				</File>
@@ -3230,6 +3230,14 @@
 			</File>
 			<File
 				RelativePath="..\include\sc_outdoor_pvp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\sc_utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\sc_utility.h"
 				>
 			</File>
 		</Filter>

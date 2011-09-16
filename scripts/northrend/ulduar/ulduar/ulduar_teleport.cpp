@@ -76,14 +76,6 @@ bool GOGossipSelect_go_ulduar_teleporter(Player *pPlayer, GameObject* pGo, uint3
 
     if(action >= 0 && action <= PORTALS_COUNT)
     pPlayer->TeleportTo(PortalLoc[action].map_num, PortalLoc[action].x, PortalLoc[action].y, PortalLoc[action].z, PortalLoc[action].o);
-    if (PortalLoc[action].spellID != 0 )
-        if (SpellEntry const* spell = (SpellEntry *)GetSpellStore()->LookupEntry(PortalLoc[action].spellID))
-        {
-            SpellAuraHolder* holder = CreateSpellAuraHolder(spell, pPlayer, pPlayer);
-            Aura *aura = holder->CreateAura(spell, EFFECT_INDEX_2, NULL, pPlayer, pPlayer, NULL);
-            pPlayer->AddSpellAuraHolder(holder);
-        }
-
     pPlayer->CLOSE_GOSSIP_MENU();
     return true;
 }

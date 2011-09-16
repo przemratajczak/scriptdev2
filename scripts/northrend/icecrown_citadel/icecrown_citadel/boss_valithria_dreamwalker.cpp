@@ -16,9 +16,8 @@
 
 /* ScriptData
 SDName: boss_valithria
-SD%Complete: 
+SD%Complete: 90%
 SDComment:  evading/wiping not clear. timers for adds not clear.
-            TODO: Nightmares after aggro, spells for adds, visibility of clouds
 SDCategory: Icecrown Citadel
 EndScriptData */
 

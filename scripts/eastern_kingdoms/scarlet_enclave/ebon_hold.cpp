@@ -1019,7 +1019,6 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         if (m_creature->getFaction() != m_uiNormFaction)
             m_creature->setFaction(m_uiNormFaction);
 
-        m_myAnchorGuid.Clear();
         m_uiAnchorCheckTimer = 5000;
         m_uiPhase = PHASE_INACTIVE_OR_COMBAT;
         m_uiPhaseTimer = 7500;
@@ -1032,6 +1031,12 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
     void JustReachedHome()
     {
         SetAnchor();
+
+        if (Creature* pAnchor = GetAnchor())
+        {
+            if (npc_unworthy_initiate_anchorAI* pAnchorAI = dynamic_cast<npc_unworthy_initiate_anchorAI*>(pAnchor->AI()))
+                pAnchorAI->ResetPrison();
+        }
     }
 
     void JustRespawned()
@@ -1271,7 +1276,10 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
             {
                 m_creature->CastSpell(m_creature, SPELL_EYE_PHASEMASK, true);
                 m_creature->CastSpell(m_creature, SPELL_EYE_VISUAL, true);
-                m_creature->CastSpell(m_creature, SPELL_EYE_FL_BOOST_FLY, true);
+                //m_creature->CastSpell(m_creature, SPELL_EYE_FL_BOOST_FLY, true);
+                //m_creature->SetLevitate(true);   // will be uncommented if any troubles with flying inhabit 4
+                m_creature->SetWalk(false);
+                m_creature->SetSpeedRate(MOVE_RUN, 5.0f);
                 DoScriptText(TEXT_EYE_LAUNCHED, m_creature);
                 m_creature->GetMotionMaster()->MovePoint(0,1750.8276f, -5873.788f, 147.2266f);
                 m_isActive = true;

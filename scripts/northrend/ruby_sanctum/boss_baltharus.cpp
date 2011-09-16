@@ -136,7 +136,6 @@ struct MANGOS_DLL_DECL boss_baltharusAI : public BSWScriptedAI
             if (Creature *pDummyTarget = pInstance->GetSingleCreatureFromStorage(NPC_BALTHARUS_TARGET)) 
                 pDummyTarget->ForcedDespawn();
         }
-        pInstance->SetData(TYPE_BALTHARUS, DONE);
     }
 
     void KilledUnit(Unit* pVictim)
