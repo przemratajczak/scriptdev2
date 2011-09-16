@@ -9,7 +9,6 @@
 
 enum
 {
-
     TYPE_TELEPORT               = 0,
     TYPE_MARROWGAR              = 1,
     TYPE_DEATHWHISPER           = 2,
@@ -100,10 +99,10 @@ enum
     GO_FROSTWING_DOOR           = 201919,
     GO_GREEN_DRAGON_DOOR_1      = 201375, //1202
     GO_GREEN_DRAGON_DOOR_2      = 201374, //1200
-    GO_VALITHRIA_DOOR_1         = 201380, //1618
+    GO_VALITHRIA_DOOR_1         = 201381, //1618
     GO_VALITHRIA_DOOR_2         = 201382, //1482
     GO_VALITHRIA_DOOR_3         = 201383, //1335
-    GO_VALITHRIA_DOOR_4         = 201381, //1558
+    GO_VALITHRIA_DOOR_4         = 201380, //1558
 
     GO_SINDRAGOSA_DOOR_1        = 201369, //1619
     GO_SINDRAGOSA_DOOR_2        = 201379,

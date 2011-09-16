@@ -410,21 +410,49 @@ static Locations SpawnLoc[]=
                 m_auiEncounter[TYPE_VALITHRIA] = uiData;
 
                 if (uiData == IN_PROGRESS)
-                    DoCloseDoor(GO_GREEN_DRAGON_DOOR_1);
-                else
-                    DoOpenDoor(GO_GREEN_DRAGON_DOOR_1);
-
-                if (uiData == DONE)
                 {
+                    DoCloseDoor(GO_GREEN_DRAGON_DOOR_1);
+                    DoOpenDoor(GO_VALITHRIA_DOOR_1);
+                    DoOpenDoor(GO_VALITHRIA_DOOR_2);
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
+                        instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    {
+                        DoOpenDoor(GO_VALITHRIA_DOOR_3);
+                        DoOpenDoor(GO_VALITHRIA_DOOR_4);
+                    }
+                }
+                else if (uiData == DONE)
+                {
+                    DoOpenDoor(GO_GREEN_DRAGON_DOOR_1);
                     DoOpenDoor(GO_GREEN_DRAGON_DOOR_2);
                     DoOpenDoor(GO_SINDRAGOSA_DOOR_1);
                     DoOpenDoor(GO_SINDRAGOSA_DOOR_2);
+                    DoCloseDoor(GO_VALITHRIA_DOOR_1);
+                    DoCloseDoor(GO_VALITHRIA_DOOR_2);
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
+                        instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    {
+                        DoCloseDoor(GO_VALITHRIA_DOOR_3);
+                        DoCloseDoor(GO_VALITHRIA_DOOR_4);
+                    }
                     if (GameObject* pChest = GetSingleGameObjectFromStorage( m_uiValithriaCache))
+                    {
                         if (pChest && !pChest->isSpawned())
-                        {
                             pChest->SetRespawnTime(7*DAY);
-                        };
-                };
+                    }
+                }
+                else
+                {
+                    DoOpenDoor(GO_GREEN_DRAGON_DOOR_1);
+                    DoCloseDoor(GO_VALITHRIA_DOOR_1);
+                    DoCloseDoor(GO_VALITHRIA_DOOR_2);
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
+                        instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    {
+                        DoCloseDoor(GO_VALITHRIA_DOOR_3);
+                        DoCloseDoor(GO_VALITHRIA_DOOR_4);
+                    }
+                }
                 break;
              case TYPE_SINDRAGOSA:
                 m_auiEncounter[TYPE_SINDRAGOSA] = uiData;
