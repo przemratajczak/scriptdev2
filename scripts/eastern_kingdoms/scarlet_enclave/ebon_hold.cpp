@@ -4547,14 +4547,14 @@ void AddSC_ebon_hold()
     pNewScript->GetAI = &GetAI_mob_scarlet_ghoul;
     pNewScript->RegisterSelf();
 
-    /*
+    
     pNewScript = new Script;
     pNewScript->Name = "npc_highlord_darion_mograine";
     pNewScript->GetAI = &GetAI_npc_highlord_darion_mograine;
     pNewScript->pGossipHello = &GossipHello_npc_highlord_darion_mograine;
     pNewScript->pGossipSelect = &GossipSelect_npc_highlord_darion_mograine;
     pNewScript->RegisterSelf();
-    */
+    
 
     pNewScript = new Script;
     pNewScript->Name = "mob_acherus_ghoul";
