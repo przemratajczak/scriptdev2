@@ -227,12 +227,12 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfang_eventAI : public ScriptedAI
 
         if (uiDamage >= m_creature->GetHealth())
         {
+            m_bIsOutroStarted = true;
             uiDamage = 0;
             m_creature->RemoveAllAuras();
             m_guidKiller = pDealer->GetObjectGuid();
             DoFakeDeath();
             m_uiEventStep = 0;
-            m_bIsOutroStarted = true;
         }
     }
 
