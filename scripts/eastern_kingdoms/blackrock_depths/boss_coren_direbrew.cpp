@@ -130,9 +130,9 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         Despawn(Antagonist1GUID);
         Despawn(Antagonist2GUID);
         Despawn(Antagonist3GUID);
-        if (m_pInstance)
+       /* if (m_pInstance)
             if (GameObject* pMinionSummoner = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(DATA_GO_MINIONSUMMONER)))
-                pMinionSummoner->SetGoState(GO_STATE_READY);
+                pMinionSummoner->SetGoState(GO_STATE_READY);*/ 
     }
 
     void JustDied(Unit* pKiller)
@@ -308,7 +308,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
                 }
         }
 
-        if (Minion_Timer < uiDiff)
+        /*if (Minion_Timer < uiDiff)
         {
             if (m_pInstance)
             {
@@ -335,7 +335,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
                     }
               }
             }else Minion_Timer = 20000;
-        }else Minion_Timer -= uiDiff;
+        }else Minion_Timer -= uiDiff;*/ 
 
         if (AggroYell_Timer < uiDiff)
         {
