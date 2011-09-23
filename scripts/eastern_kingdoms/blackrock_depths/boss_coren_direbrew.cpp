@@ -63,9 +63,9 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
     bool UrsulaSpawned;
 
     // Adds GUIDs
-    uint64 Antagonist1GUID;
-    uint64 Antagonist2GUID;
-    uint64 Antagonist3GUID;
+    ObjectGuid Antagonist1GUID;
+    ObjectGuid Antagonist2GUID;
+    ObjectGuid Antagonist3GUID;
 
     uint32 AggroYell_Timer;
     uint32 Walk_Timer;
@@ -149,19 +149,19 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
             temp = m_creature->SummonCreature(MOB_ANTAGONIST, Coord[0][0], Coord[0][1], Coord[0][2], Coord[0][3], TEMPSUMMON_DEAD_DESPAWN, 0);
             if (temp != NULL)
             {
-                Antagonist1GUID = temp->GetGUID();
+                Antagonist1GUID = temp->GetObjectGuid();
                 temp = NULL;
             }
             temp = m_creature->SummonCreature(MOB_ANTAGONIST, Coord[1][0], Coord[1][1], Coord[1][2], Coord[1][3], TEMPSUMMON_DEAD_DESPAWN, 0);
             if (temp != NULL)
             {
-                Antagonist2GUID = temp->GetGUID();
+                Antagonist2GUID = temp->GetObjectGuid();
                 temp = NULL;
             }
             temp = m_creature->SummonCreature(MOB_ANTAGONIST, Coord[2][0], Coord[2][1], Coord[2][2], Coord[2][3], TEMPSUMMON_DEAD_DESPAWN, 0);
             if (temp != NULL)
             {
-                Antagonist3GUID = temp->GetGUID();
+                Antagonist3GUID = temp->GetObjectGuid();
                 temp = NULL;
             }
             break;
@@ -187,7 +187,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         if (pWho->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        Player* pPlayer = m_creature->GetMap()->GetPlayer(pWho->GetGUID());
+        Player* pPlayer = m_creature->GetMap()->GetPlayer(pWho->GetObjectGuid());
         if (!pPlayer)
             return;
 
@@ -195,7 +195,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         {
             if (pPlayer->GetQuestStatus(QUEST_INSULT_COREN) == QUEST_STATUS_COMPLETE)
             {
-                Start(true,pPlayer->GetGUID());
+                Start(true,pPlayer);
                 EventStarted = true;
             }
         }
@@ -212,15 +212,15 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
                 // Coren Walking in fornt of Antagonists
                 if (Walk_Timer < uiDiff)
                 {
-                    m_creature->SetSplineFlags(SPLINEFLAG_WALKMODE);
+                    m_creature->SetWalk(true);
                     switch(Walk)
                     {
                         case 0:
-                            m_creature->SendMonsterMove(Coord[3][0],Coord[3][1],Coord[3][2],SPLINETYPE_NORMAL,SPLINEFLAG_WALKMODE,6000);
+                            m_creature->GetMotionMaster()->MovePoint(0,Coord[3][0],Coord[3][1],Coord[3][2]);
                             Walk = 1;
                             break;
                         case 1:
-                            m_creature->SendMonsterMove(Coord[4][0],Coord[4][1],Coord[4][2],SPLINETYPE_NORMAL,SPLINEFLAG_WALKMODE,6000);
+                            m_creature->GetMotionMaster()->MovePoint(0,Coord[4][0],Coord[4][1],Coord[4][2]);
                             Walk = 0;
                             break;
                     }
@@ -352,7 +352,7 @@ CreatureAI* GetAI_boss_coren_direbrew(Creature* pCreature)
     return new boss_coren_direbrewAI(pCreature);
 }
 
-bool ChooseReward_boss_coren_direbrew(Player* pPlayer, Creature* pCreature, const Quest* pQuest, uint32 slot)
+bool ChooseReward_boss_coren_direbrew(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
 
     if (pPlayer && pQuest->GetQuestId() == QUEST_INSULT_COREN)
@@ -373,6 +373,6 @@ void AddSC_boss_coren_direbrew()
     newscript = new Script;
     newscript->Name = "boss_coren_direbrew";
     newscript->GetAI = &GetAI_boss_coren_direbrew;
-    newscript->pChooseReward = &ChooseReward_boss_coren_direbrew;
+    newscript->pQuestRewardedNPC = &ChooseReward_boss_coren_direbrew;
     newscript->RegisterSelf();
 }
