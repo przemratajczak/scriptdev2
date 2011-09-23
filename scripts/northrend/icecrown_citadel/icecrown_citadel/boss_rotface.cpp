@@ -422,7 +422,7 @@ struct MANGOS_DLL_DECL mob_big_oozeAI : public ScriptedAI
         // Unstable Ooze
         if (m_uiCheckTimer <= uiDiff)
         {
-            if (SpellAuraHolder *holder= m_creature->GetSpellAuraHolder(SPELL_UNSTABLE_OOZE))
+            if (SpellAuraHolderPtr holder= m_creature->GetSpellAuraHolder(SPELL_UNSTABLE_OOZE))
             {
                 if (holder->GetStackAmount() >= 5)
                 {

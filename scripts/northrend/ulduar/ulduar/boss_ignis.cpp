@@ -142,6 +142,7 @@ struct MANGOS_DLL_DECL boss_ignisAI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_IGNIS, DONE);
+
             // destroy constructs
             for (GUIDList::iterator i = m_pInstance->m_lIronConstructsGUIDs.begin(); i != m_pInstance->m_lIronConstructsGUIDs.end(); i++)
                 if (Creature *pTmp = m_pInstance->instance->GetCreature(*i))
@@ -280,7 +281,7 @@ struct MANGOS_DLL_DECL mob_iron_constructAI : public ScriptedAI
                     if (m_pInstance)
                         if (Creature *pIgnis = m_pInstance->GetSingleCreatureFromStorage(NPC_IGNIS))
                         {
-                            if (SpellAuraHolder *pHolder = pIgnis->GetSpellAuraHolder(SPELL_STRENGTH_OF_THE_CREATOR) )
+                            if (SpellAuraHolderPtr pHolder = pIgnis->GetSpellAuraHolder(SPELL_STRENGTH_OF_THE_CREATOR) )
                                 pHolder->SetStackAmount(pHolder->GetStackAmount()-1);
 
                             if (pIgnis->AI())

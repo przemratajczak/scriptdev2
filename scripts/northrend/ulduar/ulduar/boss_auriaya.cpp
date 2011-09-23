@@ -175,7 +175,7 @@ struct MANGOS_DLL_DECL mob_sanctum_sentryAI : public ScriptedAI
 
             GetCreatureListWithEntryInGrid(lPack, m_creature, NPC_SANCTUM_SENTRY, 10.0f);
 
-            if (SpellAuraHolder *holder = m_creature->GetSpellAuraHolder(SPELL_STRENGHT_OF_PACK_BUFF))
+            if (SpellAuraHolderPtr holder = m_creature->GetSpellAuraHolder(SPELL_STRENGHT_OF_PACK_BUFF))
                 holder->SetStackAmount(lPack.size());
         }
     }
@@ -303,11 +303,12 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             // remove 1 stack of the aura
-            if(SpellAuraHolder* strenght = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
+            if(SpellAuraHolderPtr strenght = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
             {
                 if(strenght->ModStackAmount(-1))
                     m_creature->RemoveAurasDueToSpell(SPELL_FERAL_ESSENCE);
             }
+
             m_uiRevive_Delay = 35000;
             m_bIsDead = true;
         }
@@ -356,7 +357,7 @@ struct MANGOS_DLL_DECL mob_feral_defenderAI : public ScriptedAI
         // hacky way of stacking aura, needs fixing
         if (!m_bHasAura)
         {
-            if(SpellAuraHolder* essence = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
+            if(SpellAuraHolderPtr essence = m_creature->GetSpellAuraHolder(SPELL_FERAL_ESSENCE))
             {
                 if(essence->GetStackAmount() < 9)
                 {

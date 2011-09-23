@@ -225,7 +225,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
 
         if (spellInfo->Id == SPELL_FROSTBREATH)
         {
-            if (SpellAuraHolder *holder = pVictim->GetSpellAuraHolder(SPELL_ICEBOLT))
+            if (SpellAuraHolderPtr holder = pVictim->GetSpellAuraHolder(SPELL_ICEBOLT))
             {
                 holder->SetAuraDuration(500);
                 holder->SendAuraUpdate(false);

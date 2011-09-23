@@ -408,7 +408,7 @@ struct MANGOS_DLL_DECL boss_brundirAI : public ScriptedAI
         {
             m_bHasSupercharge2 = true;
             DoCast(m_creature, SPELL_STORMSHIELD, true);
-            if (SpellAuraHolder *pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
+            if (SpellAuraHolderPtr pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
                 pHolder->SetStackAmount(2);
         }
         // else, it is the first Supercharge
@@ -690,7 +690,7 @@ struct MANGOS_DLL_DECL boss_molgeimAI : public ScriptedAI
         if (m_bHasSupercharge1)
         {
             m_bHasSupercharge2 = true;
-            if (SpellAuraHolder *pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
+            if (SpellAuraHolderPtr pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
                 pHolder->SetStackAmount(2);
         }
         // else, it is the first Supercharge
@@ -969,7 +969,7 @@ struct MANGOS_DLL_DECL boss_steelbreakerAI : public ScriptedAI
         if (m_bHasSupercharge1)
         {
             m_bHasSupercharge2 = true;
-            if (SpellAuraHolder *pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
+            if (SpellAuraHolderPtr pHolder = m_creature->GetSpellAuraHolder(SPELL_SUPERCHARGE))
                 pHolder->SetStackAmount(2);
         }
         // else, it is the first Supercharge

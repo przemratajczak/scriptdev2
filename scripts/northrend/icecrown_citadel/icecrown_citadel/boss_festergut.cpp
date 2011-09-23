@@ -248,7 +248,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
         if (m_uiInhaleBlightTimer <= uiDiff)
         {
             // check for Pungent Blight
-            SpellAuraHolder *holder = m_creature->GetSpellAuraHolder(SPELL_INHALED_BLIGHT_10);
+            SpellAuraHolderPtr holder = m_creature->GetSpellAuraHolder(SPELL_INHALED_BLIGHT_10);
             if (!holder)
                 holder = m_creature->GetSpellAuraHolder(SPELL_INHALED_BLIGHT_25);
             if (holder)
