@@ -16,16 +16,17 @@
 
 /* ScriptData
 SDName: blood_prince_council
-SD%Complete: 90%
-SDComment: by /dev/rsa
+SD%Complete:
+SDComment:
 SDCategory: Icecrown Citadel
 EndScriptData */
-// Need implement true movement for kinetic bomb, correct yells.
+
 #include "precompiled.h"
 #include "icecrown_citadel.h"
 
 enum BossSpells
 {
+/*
         SPELL_BERSERK                           = 47008,
         SPELL_FAKE_DEATH                        = 71598,
 
@@ -65,7 +66,32 @@ enum BossSpells
 
         // Blood orb
         SPELL_BLOOD_ORB_STATE_VISUAL            = 72100,
+*/
+    // spells
+    SPELL_BERSERK               = 26662,
+    SPELL_INVOCATION_TRIGGERED  = 70983,
 
+    // Valanar
+    SPELL_INVOCATIO_VALANAR     = 70952,
+
+    SPELL_SHOCK_VORTEX          = 72037,
+    SPELL_SHOCK_VORTEX_AURA     = 71945,
+    SPELL_SHOCK_VORTEX_VISUAL   = 72633,
+
+    SPELL_EMP_SHOCK_VORTEX      = 72039,
+
+    // Keleseth
+    SPELL_INVOCATION_KELESETH   = 70981,
+
+    SPELL_SHADOW_LANCE          = 71405,
+    SPELL_EMP_SHADOW_LANCE      = 71815,
+
+    SPELL_SHADOW_PRISON         = 73001,
+
+    // Taldaram
+    SPELL_INVOCATIO_TALDARAM    = 70982,
+
+    SPELL_GLITTERING_SPARKS     = 71807,
 };
 
 // talks
@@ -73,18 +99,21 @@ enum
 {
     SAY_COUNCIL_INTRO_1         = -1631101,                 // Intro by Bloodqueen
     SAY_COUNCIL_INTRO_2         = -1631102,
+
     SAY_KELESETH_INVOCATION     = -1631103,
     SAY_KELESETH_SPECIAL        = -1631104,
     SAY_KELESETH_SLAY_1         = -1631105,
-    SAY_SKELESETH_SLAY_2        = -1631106,
+    SAY_KELESETH_SLAY_2         = -1631106,
     SAY_KELESETH_BERSERK        = -1631107,
     SAY_KELESETH_DEATH          = -1631108,
+
     SAY_TALDARAM_INVOCATION     = -1631109,
     SAY_TALDARAM_SPECIAL        = -1631110,
     SAY_TALDARAM_SLAY_1         = -1631111,
     SAY_TALDARAM_SLAY_2         = -1631112,
     SAY_TALDARAM_BERSERK        = -1631113,
     SAY_TALDARAM_DEATH          = -1631114,
+
     SAY_VALANAR_INVOCATION      = -1631115,
     SAY_VALANAR_SPECIAL         = -1631116,
     SAY_VALANAR_SLAY_1          = -1631117,
@@ -93,6 +122,292 @@ enum
     SAY_VALANAR_DEATH           = -1631120,
 };
 
+// Valanar
+struct MANGOS_DLL_DECL boss_valanar_iccAI : public ScriptedAI
+{
+    boss_valanar_iccAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
+        m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
+        m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+    Difficulty m_uiMapDifficulty;
+    bool m_bIsHeroic;
+    bool m_bIs25Man;
+
+    bool m_bIsEmpowered;
+
+    uint32 m_uiBerserkTimer;
+    uint32 m_uiVortexTimer;
+
+    void Reset()
+    {
+        m_bIsEmpowered = false;
+        m_uiVortexTimer = urand(5000, 10000);
+        m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+    }
+
+    void JustDied(Unit *pKiller)
+    {
+        DoScriptText(SAY_VALANAR_DEATH, m_creature);
+    }
+
+    void KilledUnit(Unit *pVictim)
+    {
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            DoScriptText(SAY_VALANAR_SLAY_1 - urand(0, 1), m_creature);
+    }
+
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+        {
+            m_bIsEmpowered = true;
+            DoScriptText(SAY_VALANAR_INVOCATION, m_creature);
+        }
+    }
+
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+            m_bIsEmpowered = false;
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        if (!m_bIsEmpowered)
+            uiDamage = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        // Berserk
+        if (m_uiBerserkTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
+
+        // Shock Vortex
+        if (m_uiVortexTimer <= uiDiff)
+        {
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHOCK_VORTEX, SELECT_FLAG_PLAYER))
+            {
+                if (DoCastSpellIfCan(pTarget, m_bIsEmpowered ? SPELL_EMP_SHOCK_VORTEX : SPELL_SHOCK_VORTEX) == CAST_OK)
+                {
+                    m_uiVortexTimer = urand(5000, 10000);
+                    if (m_bIsEmpowered)
+                        DoScriptText(SAY_VALANAR_SPECIAL, m_creature);
+                }
+            }
+        }
+        else
+            m_uiVortexTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_boss_valanar_icc(Creature* pCreature)
+{
+    return new boss_valanar_iccAI(pCreature);
+}
+
+
+// Keleseth
+struct MANGOS_DLL_DECL boss_keleseth_iccAI : public ScriptedAI
+{
+    boss_keleseth_iccAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
+        m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
+        m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+    Difficulty m_uiMapDifficulty;
+    bool m_bIsHeroic;
+    bool m_bIs25Man;
+
+    bool m_bIsEmpowered;
+
+    uint32 m_uiBerserkTimer;
+
+    void Reset()
+    {
+        m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+        m_bIsEmpowered = false;
+    }
+
+    void JustDied(Unit *pKiller)
+    {
+        DoScriptText(SAY_KELESETH_DEATH, m_creature);
+    }
+
+    void KilledUnit(Unit *pVictim)
+    {
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            DoScriptText(SAY_KELESETH_SLAY_1 - urand(0, 1), m_creature);
+    }
+
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+        {
+            m_bIsEmpowered = true;
+            DoScriptText(SAY_KELESETH_INVOCATION, m_creature);
+        }
+    }
+
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+            m_bIsEmpowered = false;
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        if (!m_bIsEmpowered)
+            uiDamage = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        // Berserk
+        if (m_uiBerserkTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
+
+        // Shadow Lance
+        if (DoCastSpellIfCan(m_creature->getVictim(), m_bIsEmpowered ? SPELL_EMP_SHADOW_LANCE : SPELL_SHADOW_LANCE) == CAST_OK)
+        {
+            if (m_bIsEmpowered)
+                DoScriptText(SAY_KELESETH_SPECIAL, m_creature);
+        }
+    }
+};
+
+CreatureAI* GetAI_boss_keleseth_icc(Creature* pCreature)
+{
+    return new boss_keleseth_iccAI(pCreature);
+}
+
+
+// Taldaram
+struct MANGOS_DLL_DECL boss_taldaram_iccAI : public ScriptedAI
+{
+    boss_taldaram_iccAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
+        m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
+        m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+    Difficulty m_uiMapDifficulty;
+    bool m_bIsHeroic;
+    bool m_bIs25Man;
+
+    bool m_bIsEmpowered;
+
+    uint32 m_uiBerserkTimer;
+    uint32 m_uiSparksTimer;
+
+    void Reset()
+    {
+        m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+        m_bIsEmpowered = false;
+        m_uiSparksTimer = urand(8000, 15000);
+    }
+
+    void JustDied(Unit *pKiller)
+    {
+        DoScriptText(SAY_TALDARAM_DEATH, m_creature);
+    }
+
+    void KilledUnit(Unit *pVictim)
+    {
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            DoScriptText(SAY_TALDARAM_SLAY_1 - urand(0, 1), m_creature);
+    }
+
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+        {
+            m_bIsEmpowered = true;
+            DoScriptText(SAY_TALDARAM_INVOCATION, m_creature);
+        }
+    }
+
+    void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_INVOCATION_TRIGGERED)
+            m_bIsEmpowered = false;
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        if (!m_bIsEmpowered)
+            uiDamage = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        // Berserk
+        if (m_uiBerserkTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
+
+        // Glittering Sparks
+        if (m_uiSparksTimer <= uiDiff)
+        {
+            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SHOCK_VORTEX, SELECT_FLAG_PLAYER))
+            {
+                if (DoCastSpellIfCan(pTarget, SPELL_GLITTERING_SPARKS) == CAST_OK)
+                    m_uiSparksTimer = urand(8000, 15000);
+            }
+        }
+        else
+            m_uiSparksTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_boss_taldaram_icc(Creature* pCreature)
+{
+    return new boss_taldaram_iccAI(pCreature);
+}
+
+/*
 struct MANGOS_DLL_DECL boss_valanar_iccAI : public BSWScriptedAI
 {
     boss_valanar_iccAI(Creature* pCreature) : BSWScriptedAI(pCreature)
@@ -763,7 +1078,7 @@ struct MANGOS_DLL_DECL mob_kinetic_bombAI : public ScriptedAI
 /*
 Place shock bomb movement here
 */
-
+/*
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance || m_pInstance->GetData(TYPE_BLOOD_COUNCIL) != IN_PROGRESS || finita)
@@ -987,6 +1302,7 @@ CreatureAI* GetAI_boss_blood_queen_lanathel_intro(Creature* pCreature)
 {
     return new boss_blood_queen_lanathel_introAI(pCreature);
 }
+*/
 
 void AddSC_blood_prince_council()
 {
@@ -1006,7 +1322,7 @@ void AddSC_blood_prince_council()
     newscript->Name = "boss_valanar_icc";
     newscript->GetAI = &GetAI_boss_valanar_icc;
     newscript->RegisterSelf();
-
+/*
     newscript = new Script;
     newscript->Name = "mob_dark_nucleus";
     newscript->GetAI = &GetAI_mob_dark_nucleus;
@@ -1036,5 +1352,5 @@ void AddSC_blood_prince_council()
     newscript->Name = "boss_blood_queen_lanathel_intro";
     newscript->GetAI = &GetAI_boss_blood_queen_lanathel_intro;
     newscript->RegisterSelf();
-
+*/
 }
