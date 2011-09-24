@@ -730,6 +730,13 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public boss_deathbringer_s
             m_pInstance->SetData(TYPE_SAURFANG, FAIL);
     }
 
+    // used for unlocking bugged encounter
+    void JustDied(Unit *pKiller)
+    {
+        if (m_pInstance && m_pInstance->GetData(TYPE_SAURFANG) != DONE)
+            m_pInstance->SetData(TYPE_SAURFANG, DONE);
+    }
+
     void KilledUnit(Unit* pVictim)
     {
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
