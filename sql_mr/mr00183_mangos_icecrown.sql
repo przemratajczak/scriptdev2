@@ -254,7 +254,11 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 -- --------------
 
 UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lanathel_intro', `AIName`='' WHERE `entry`= 38004;
--- UPDATE `creature_template` SET `ScriptName`='npc_blood_orb_control', `AIName`='' WHERE `entry`= 38008;
+
+UPDATE `creature_template` SET `minhealth` = 5647725, `maxhealth` = 5647725, `ScriptName`='npc_blood_orb_control', `AIName`='' WHERE `entry`= 38008;
+UPDATE `creature_template` SET `minhealth` = 22590900, `maxhealth` = 22590900 WHERE `entry` = 38641;
+UPDATE `creature_template` SET `minhealth` = 7600025, `maxhealth` = 7600025 WHERE `entry` = 38773;
+UPDATE `creature_template` SET `minhealth` = 30469825, `maxhealth` = 30469825 WHERE `entry` = 38774;
 
 -- --------
 -- Taldaram
@@ -280,19 +284,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_keleseth_icc', `AIName`='' WHE
 UPDATE `creature_template` SET `ScriptName`='mob_dark_nucleus', `AIName`='',`minlevel` = 82, `maxlevel` = 82, `faction_A` = 14, `faction_H` = 14 WHERE `entry`= 38369;
 
 DELETE FROM  `creature_template_addon` WHERE `entry` IN (37972,37973,37970,38401,38784,38785,38399,38769,38770,38400,38771,38772);
-INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `emote`, `moveflags`, `auras`) VALUES
-(37970, 0, 0, 0, 0, '71598'),
-(37972, 0, 0, 0, 0, '71598'),
-(37973, 0, 0, 0, 0, '71598'),
-(38401, 0, 0, 0, 0, '71598'),
-(38784, 0, 0, 0, 0, '71598'),
-(38785, 0, 0, 0, 0, '71598'),
-(38399, 0, 0, 0, 0, '71598'),
-(38769, 0, 0, 0, 0, '71598'),
-(38770, 0, 0, 0, 0, '71598'),
-(38400, 0, 0, 0, 0, '71598'),
-(38771, 0, 0, 0, 0, '71598'),
-(38772, 0, 0, 0, 0, '71598');
+
 
 -- -----------------
 -- Loot and deathstate for blood council (correct YTDB bugs, flags - from already killed princes)
