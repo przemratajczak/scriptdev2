@@ -32,7 +32,6 @@ enum
     SAY_DEATH_SECOND            = -1574008,
     SAY_KILL_FIRST              = -1574009,
     SAY_KILL_SECOND             = -1574010,
-    SAY_RESSURECTING            = -1999782,
     SAY_ANNHYLDE_REZ            = -1574023,
     EMOTE_ROAR                  = -1574022,
 
@@ -200,7 +199,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
                     case 1:
                         if (pAnnylide)
                         {
-                            DoScriptText(SAY_RESSURECTING, pAnnylide, m_creature);
+                            DoScriptText(SAY_ANNHYLDE_REZ, pAnnylide, m_creature);
                             pAnnylide->CastSpell(m_creature, SPELL_SCOURGE_RES_CHANNEL, false);
                         }
                          DoCastSpellIfCan(m_creature, SPELL_SCOURGE_RES_BUBBLE, CAST_TRIGGERED);
