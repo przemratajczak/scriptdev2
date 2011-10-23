@@ -257,7 +257,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                     {
                         if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_10) == CAST_OK)
                         {
-                            m_uiBoneSpikeTimer = 30000;
+                            m_uiBoneSpikeTimer = urand(20000, 30000);
                             DoScriptText(SAY_BONE_SPIKE_1 - urand(0, 2), m_creature);
                         }
                     }
@@ -271,7 +271,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
                     if (DoCastSpellIfCan(m_creature, SPELL_BONE_STORM) == CAST_OK)
                     {
                         SetCombatMovement(false);
-                        m_uiBoneStormTimer = urand(45000, 60000);
+                        m_uiBoneStormTimer = 90000;
                         m_uiPhase = PHASE_BONE_STORM_CHARGE;
                         m_creature->SetSpeedRate(MOVE_RUN, 3.0f);
                         DoScriptText(SAY_BONE_STORM, m_creature);
@@ -354,7 +354,7 @@ struct MANGOS_DLL_DECL boss_lord_marrowgarAI : public ScriptedAI
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_BONE_SPIKE_STORM_10) == CAST_OK)
                 {
-                    m_uiBoneSpikeTimer = 30000;
+                    m_uiBoneSpikeTimer = urand(20000, 30000);
                     DoScriptText(SAY_BONE_SPIKE_1 - urand(0, 2), m_creature);
                 }
             }
