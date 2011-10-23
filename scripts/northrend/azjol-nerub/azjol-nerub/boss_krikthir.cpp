@@ -123,7 +123,10 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
     {
         uint32 uiEntry = pSummoned->GetEntry();
         if (uiEntry == NPC_SKITTERING_SWARMER || uiEntry == NPC_SKITTERING_INFECTOR)
+        {
+            pSummoned->SetInCombatWithZone();
             pSummoned->AI()->AttackStart(m_creature->getVictim());
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)

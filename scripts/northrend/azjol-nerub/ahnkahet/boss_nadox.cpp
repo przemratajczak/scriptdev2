@@ -88,6 +88,18 @@ struct MANGOS_DLL_DECL mob_ahnkahar_eggAI : public ScriptedAI
             }
         }
     }
+
+    void SummonedCreatureJustDied(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_AHNKAHAR_GUARDIAN)
+        {
+            if (m_pInstance)
+            {
+                if (Creature *pNadox = m_pInstance->GetSingleCreatureFromStorage(NPC_ELDER_NADOX))
+                    pNadox->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_mob_ahnkahar_egg(Creature* pCreature)
