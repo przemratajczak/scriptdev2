@@ -27,10 +27,10 @@ EndScriptData */
 
 enum
 {
-    SAY_AGGRO                          = -1599000,
-    SAY_KILL                           = -1599001,
-    SAY_DEATH                          = -1599002,
-    SAY_SHATTER                        = -1599003,
+    SAY_AGGRO                          = -1599065,
+    SAY_SHATTER                        = -1599066,
+    SAY_KILL                           = -1599067,
+    SAY_DEATH                          = -1599068,    
 
     SPELL_BOULDER_TOSS                  = 50843,
     SPELL_BOULDER_TOSS_H                = 59742,

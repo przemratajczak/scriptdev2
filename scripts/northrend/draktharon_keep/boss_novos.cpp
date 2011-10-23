@@ -184,6 +184,8 @@ struct MANGOS_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 
     void JustSummoned(Creature* pSummoned)
     {
+        pSummoned->SetInCombatWithZone();
+
         switch (pSummoned->GetEntry())
         {
             case NPC_CRYSTAL_HANDLER:
