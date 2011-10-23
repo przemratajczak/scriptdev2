@@ -223,9 +223,8 @@ struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
         {
             if (PhaseChangeTimer < uiDiff)
             {
-                DoCast(m_creature, SPELL_DECAY_FLESH);
                 m_creature->SetDisplayId(27072);
-                PhaseChangeTimer = PHASE_CHANGE_SKELETON;
+                PhaseChangeTimer = 5 * MINUTE * IN_MILLISECONDS;
                 Phase = PHASE_SKELETON;
                 SkeletonSpells_Timer = urand (5000, 10000);
                 CurseOfLife_Timer = urand (5000, 10000);
