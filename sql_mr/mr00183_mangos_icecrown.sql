@@ -276,6 +276,10 @@ UPDATE `creature_template` SET `ScriptName`='mob_kinetic_bomb', `AIName`='',`min
 UPDATE `creature_template` SET `ScriptName`='mob_shock_vortex', `AIName`='',`minlevel` = 82, `maxlevel` = 82, `faction_A` = 14, `faction_H` = 14 WHERE `entry`= 38422;
 UPDATE `creature_template` SET `ScriptName`='mob_kinetic_bomb_target', `AIName`='' WHERE `entry`= 38458;
 
+DELETE FROM `spell_proc_event` WHERE `entry` = 72059;
+INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `procFlags`, `procEx`) VALUES
+(72059, 127, 0x00000008|0x00000020|0x00000080|0x00000200|0x00002000|0x00020000|0x00400000, 0x0010000);
+
 -- --------
 -- Keleseth
 -- --------

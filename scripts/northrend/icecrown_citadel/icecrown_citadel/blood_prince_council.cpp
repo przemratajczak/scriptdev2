@@ -670,7 +670,10 @@ struct MANGOS_DLL_DECL boss_taldaram_iccAI : public base_blood_prince_council_bo
     {
         pSummoned->SetInCombatWithZone();
         if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, 99999, SELECT_FLAG_IN_LOS|SELECT_FLAG_PLAYER))
+        {
             pSummoned->AddThreat(pTarget, 1000000.0f, true);
+            pSummoned->AI()->AttackStart(pTarget);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -803,8 +806,9 @@ struct MANGOS_DLL_DECL mob_ball_of_flamesAI : public ScriptedAI
 
     void Reset()
     {
-        //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        //m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetLevitate(true);
         m_creature->SetDisplayId(26767);
 
@@ -816,8 +820,6 @@ struct MANGOS_DLL_DECL mob_ball_of_flamesAI : public ScriptedAI
         if (m_creature->GetMap()->GetDifficulty() > RAID_DIFFICULTY_25MAN_NORMAL)
             DoCastSpellIfCan(m_creature, SPELL_BALL_FLAMES_PERIODIC, CAST_TRIGGERED);
     }
-
-    void AttackStart(Unit *pWho){}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -833,7 +835,8 @@ struct MANGOS_DLL_DECL mob_ball_of_flamesAI : public ScriptedAI
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_FLAMES) == CAST_OK)
                 {
-                    m_creature->ForcedDespawn(1000);
+                    m_creature->ForcedDespawn(2000);
+                    m_creature->RemoveAllAuras();
                     m_bIsDespawned = true;
                     return;
                 }
@@ -866,28 +869,36 @@ struct MANGOS_DLL_DECL mob_kinetic_bombAI : public ScriptedAI
     mob_kinetic_bombAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsHeroic = pCreature->GetMap()->GetDifficulty() > RAID_DIFFICULTY_25MAN_NORMAL;
         Reset();
     }
 
     ScriptedInstance* m_pInstance;
     bool m_bHasCast;
-    uint32 m_uiStartTimer;
+    bool m_bIsHeroic;
     bool m_bIsStarted;
+    uint32 m_uiStartTimer;
 
     void Reset()
     {
+        float x, y, z;
+
         m_bHasCast = false;
         m_bIsStarted = false;
         m_uiStartTimer = 3000;
 
-        m_creature->SetLevitate(true);
-        m_creature->SetSpeedRate(MOVE_RUN, 0.2f);
-        m_creature->SetSpeedRate(MOVE_WALK, 0.2f);
+        m_creature->SetSpeedRate(MOVE_WALK, 0.3f);
 
         m_creature->SetDisplayId(31095);
 
         DoCastSpellIfCan(m_creature, SPELL_KINETIC_BOMB_VISUAL, CAST_TRIGGERED);
         DoCastSpellIfCan(m_creature, SPELL_UNSTABLE, CAST_TRIGGERED);
+
+        m_creature->SetLevitate(true);
+        m_creature->GetPosition(x, y, z);
+        m_creature->NearTeleportTo(x, y, z + (m_bIsHeroic ? 10.0f : 15.0f), 0.0f);
+
+        m_creature->GetMotionMaster()->MovePoint(0, x, y, z, false);
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
@@ -899,6 +910,7 @@ struct MANGOS_DLL_DECL mob_kinetic_bombAI : public ScriptedAI
     }
 
     void AttackStart(Unit *pWho){}
+    void EnterEvadeMode(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -925,6 +937,7 @@ struct MANGOS_DLL_DECL mob_kinetic_bombAI : public ScriptedAI
                 {
                     m_bHasCast = true;
                     m_creature->ForcedDespawn(3000);
+                    m_creature->RemoveAllAuras();
                 }
             }
         }
@@ -941,11 +954,8 @@ struct MANGOS_DLL_DECL mob_kinetic_bomb_targetAI : public ScriptedAI
 {
     mob_kinetic_bomb_targetAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_bIsHeroic = pCreature->GetMap()->GetDifficulty() > RAID_DIFFICULTY_25MAN_NORMAL;
         Reset();
     }
-
-    bool m_bIsHeroic;
 
     void Reset()
     {
@@ -955,15 +965,6 @@ struct MANGOS_DLL_DECL mob_kinetic_bomb_targetAI : public ScriptedAI
         SetCombatMovement(false);
 
         DoCastSpellIfCan(m_creature, SPELL_KINETIC_BOMB_TARGET, CAST_TRIGGERED);
-    }
-
-    void JustSummoned(Creature *pSummoned)
-    {
-        float x, y, z;
-        pSummoned->GetPosition(x, y, z);
-        pSummoned->NearTeleportTo(x, y, z + (m_bIsHeroic ? 10.0f : 15.0f), 0.0f);
-        pSummoned->SetInCombatWithZone();
-        pSummoned->GetMotionMaster()->MoveChase(m_creature);
     }
 
     void SummonedCreatureJustDied(Creature* summoned)
