@@ -172,7 +172,7 @@ struct MANGOS_DLL_DECL boss_ormorokAI : public ScriptedAI
 
         if (m_uiSpellCrystalSpikesTimer < uiDiff)
         {
-            DoScriptText(SAY_CRYSTAL_SPIKES, m_creature);
+            DoScriptText(SAY_ICESPIKE, m_creature);
             m_bIsCrystalSpikes = true;
             m_uiCrystalSpikesCount = 1;
             m_uiCrystalSpikesTimer = 0;
