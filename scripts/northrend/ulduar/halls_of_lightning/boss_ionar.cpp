@@ -277,6 +277,9 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
         // Health check
         if (!m_bIsDesperseCasting && m_creature->GetHealthPercent() < 50.0f)
         {
+            if (m_bHasSplitted)
+                return;
+
             m_bHasSplitted = true;
 
             if (m_creature->IsNonMeleeSpellCasted(false))
