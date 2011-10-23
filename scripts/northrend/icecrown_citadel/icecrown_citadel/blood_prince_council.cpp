@@ -314,7 +314,7 @@ CreatureAI* GetAI_npc_blood_orb_control(Creature* pCreature)
 }
 
 // base struct for Blood Prince Council
-struct MANGOS_DLL_DECL base_blood_prince_council_bossAI abstract : public base_icc_bossAI
+struct MANGOS_DLL_DECL base_blood_prince_council_bossAI : public base_icc_bossAI
 {
     base_blood_prince_council_bossAI(Creature* pCreature) : base_icc_bossAI(pCreature)
     {
