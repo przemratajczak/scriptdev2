@@ -170,6 +170,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         SetCombatMovement(false);
+        m_creature->SetLevitate(true);
 
  //       m_creature->ExitVehicle();
 //        m_creature->NearTeleportTo(SKADI_X, SKADI_Y, SKADI_Z, SKADI_O);
@@ -178,7 +179,6 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
             if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
             {
                 pGrauf->GetMotionMaster()->MoveTargetedHome();
-                pGrauf->SetLevitate(false);
                 pGrauf->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
             }
             m_pInstance->SetData(TYPE_SKADI, NOT_STARTED);
@@ -500,6 +500,7 @@ struct MANGOS_DLL_DECL boss_graufAI : public ScriptedAI
 
     void Reset()
     {
+        m_creature->SetLevitate(true);
         uiSpeechPauseTimer = 3000;
         m_bIsSpeechPause = false;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

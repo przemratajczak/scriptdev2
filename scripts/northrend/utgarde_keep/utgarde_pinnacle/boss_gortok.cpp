@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL npc_gortok_orbAI : public ScriptedAI
                         m_uiStepTimer = 4000;
                         break;
                     case 2:
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_ORB, ORB_MOVE_X, ORB_MOVE_Y, ORB_Z+2.0f);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_ORB, ORB_MOVE_X, ORB_MOVE_Y, ORB_Z+2.0f, false);
                         m_bTimeToAct = false;
                         break;
                     case 3:

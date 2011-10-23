@@ -39,6 +39,7 @@ void instance_pinnacle::OnCreatureCreate(Creature* pCreature)
     switch(pCreature->GetEntry())
     {
         case NPC_STASIS_CONTROLLER:
+        case NPC_JORMUNGAR:
         case NPC_RHINO:
         case NPC_WORGEN:
         case NPC_GORTOK:
