@@ -65,6 +65,7 @@ void instance_pinnacle::OnObjectCreate(GameObject* pGo)
         case GO_HARPOON_LAUNCHER_1:
         case GO_HARPOON_LAUNCHER_2:
         case GO_HARPOON_LAUNCHER_3:
+        case GO_STASIS_GENERATOR:
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
     }
