@@ -193,12 +193,6 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SKADI, IN_PROGRESS);
-        {
-            if (Creature* pGrauf = m_pInstance->GetSingleCreatureFromStorage(NPC_GRAUF))
-            {
-                pGrauf->Respawn();
-            }
-        }
     }
     
     void KilledUnit(Unit* pVictim)

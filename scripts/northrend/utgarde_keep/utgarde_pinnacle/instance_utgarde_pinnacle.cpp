@@ -38,6 +38,9 @@ void instance_pinnacle::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
+        case NPC_GRAUF:
+        case NPC_SKADI:
+            pCreature->SetActiveObjectState(true);
         case NPC_STASIS_CONTROLLER:
         case NPC_JORMUNGAR:
         case NPC_RHINO:
@@ -48,8 +51,6 @@ void instance_pinnacle::OnCreatureCreate(Creature* pCreature)
         case NPC_HALDOR:
         case NPC_BJORN:
         case NPC_TOR:
-        case NPC_GRAUF:
-        case NPC_SKADI:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
     }
