@@ -332,7 +332,6 @@ struct MANGOS_DLL_DECL base_blood_prince_council_bossAI : public base_icc_bossAI
 
     void Reset()
     {
-        SetCombatMovement(false);
         m_bIsEmpowered = false;
         m_bIsSaidSpecial = false;
         m_uiEmpowermentFadeTimer = 30000;
