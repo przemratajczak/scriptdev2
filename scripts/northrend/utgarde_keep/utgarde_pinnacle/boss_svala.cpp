@@ -106,7 +106,7 @@ struct MANGOS_DLL_DECL npc_ritual_channelerAI : public Scripted_NoMovementAI
 
     bool m_bIsRegularMode;
 
-    Unit* m_pTarget;
+    ObjectGuid m_pTargetGuid;
     bool m_bCasted;
 
     void Reset()
@@ -116,28 +116,30 @@ struct MANGOS_DLL_DECL npc_ritual_channelerAI : public Scripted_NoMovementAI
             DoCast(m_creature, SPELL_SHADOWS_IN_THE_DARK);
     }
 
-    void SetVictim(Unit* pVictim)
+    void SetVictim(ObjectGuid guid)
     {
-         if (pVictim)
-            m_pTarget = pVictim;
+         m_pTargetGuid = guid;
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_pTarget && (!m_bCasted || !m_pTarget->HasAura(SPELL_PARALYZE)))
+        if (Unit *pTarget = m_creature->GetMap()->GetUnit(m_pTargetGuid))
         {
-            SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_PARALYZE);
-            if (pTempSpell)
+            if (!m_bCasted || !pTarget->HasAura(SPELL_PARALYZE))
             {
-                pTempSpell->EffectImplicitTargetA[0] = TARGET_EFFECT_SELECT;
-                pTempSpell->EffectImplicitTargetB[0] = 0;
-                pTempSpell->EffectImplicitTargetA[1] = TARGET_EFFECT_SELECT;
-                pTempSpell->EffectImplicitTargetB[1] = 0;
-                pTempSpell->EffectImplicitTargetA[2] = TARGET_EFFECT_SELECT;
-                pTempSpell->EffectImplicitTargetB[2] = 0;
-                m_creature->CastSpell(m_pTarget, pTempSpell, true);
+                SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_PARALYZE);
+                if (pTempSpell)
+                {
+                    pTempSpell->EffectImplicitTargetA[0] = TARGET_EFFECT_SELECT;
+                    pTempSpell->EffectImplicitTargetB[0] = 0;
+                    pTempSpell->EffectImplicitTargetA[1] = TARGET_EFFECT_SELECT;
+                    pTempSpell->EffectImplicitTargetB[1] = 0;
+                    pTempSpell->EffectImplicitTargetA[2] = TARGET_EFFECT_SELECT;
+                    pTempSpell->EffectImplicitTargetB[2] = 0;
+                    m_creature->CastSpell(pTarget, pTempSpell, true);
+                }
+                m_bCasted = true;
             }
-            m_bCasted = true;
         }
     }
 };
@@ -159,8 +161,6 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
 
-    Creature* pArthas;
-
     bool m_bIsIntroDone;
     uint32 m_uiIntroTimer;
     uint32 m_uiIntroCount;
@@ -172,11 +172,13 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
 
     uint8 m_uiPhase;
 
-    Unit* pVictim;
+    ObjectGuid m_victimGuid;
+    ObjectGuid m_arthasGuid;
 
     void Reset()
     {
-        pArthas = NULL;
+        m_arthasGuid.Clear();
+        m_victimGuid.Clear();
 
         m_uiIntroTimer = 2500;
         m_uiIntroCount = 0;
@@ -193,7 +195,6 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
         m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
 
-        pVictim = NULL;
         m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(37146));
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
@@ -267,7 +268,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_ARTHAS_IMAGE)
         {
             pSummoned->CastSpell(pSummoned, SPELL_ARTHAS_VISUAL, true);
-            pArthas = pSummoned;
+            m_arthasGuid = pSummoned->GetObjectGuid();
             pSummoned->SetFacingToObject(m_creature);
         }
     }
@@ -275,7 +276,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
     void SummonedCreatureDespawn(Creature* pDespawned)
     {
         if (pDespawned->GetEntry() == NPC_ARTHAS_IMAGE)
-            pArthas = NULL;
+            m_arthasGuid.Clear();
     }
 
     void DoMoveToPosition()
@@ -301,7 +302,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
     {
         if (pSpell->Id == SPELL_TRANSFORMING)
         {
-            if (pArthas)
+            if (Unit *pArthas = m_creature->GetMap()->GetUnit(m_arthasGuid))
                 pArthas->InterruptNonMeleeSpells(true);
 
             m_creature->UpdateEntry(NPC_SVALA_SORROW);
@@ -355,8 +356,14 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
         {
-            if (m_bIsIntroDone || (!pArthas && m_uiIntroCount < 5))
+            if (m_bIsIntroDone)
                 return;
+
+            {
+                Unit *pArthas = m_creature->GetMap()->GetUnit(m_arthasGuid);
+                if (!pArthas && m_uiIntroCount < 5)
+                    return;
+            }
 
             if (m_uiIntroTimer < uiDiff)
             {
@@ -368,12 +375,14 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                         m_uiIntroTimer = 9000;
                         break;
                     case 1:
-                        DoScriptText(SAY_INTRO_2_ARTHAS, pArthas);
+                        if (Unit *pArthas = m_creature->GetMap()->GetUnit(m_arthasGuid))
+                            DoScriptText(SAY_INTRO_2_ARTHAS, pArthas);
                         m_uiIntroTimer = 12000;
                         break;
                     case 2:
                         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                        pArthas->CastSpell(m_creature, SPELL_TRANSFORMING_CHANNEL, false);
+                        if (Unit *pArthas = m_creature->GetMap()->GetUnit(m_arthasGuid))
+                            pArthas->CastSpell(m_creature, SPELL_TRANSFORMING_CHANNEL, false);
                         m_creature->CastSpell(m_creature, SPELL_TRANSFORMING_FLOATING, false);
                         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                         m_uiIntroTimer = 6000;
@@ -385,7 +394,8 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                         m_uiIntroTimer = 12000;
                         break;
                     case 4:
-                        DoScriptText(SAY_INTRO_4_ARTHAS, pArthas);
+                        if (Unit *pArthas = m_creature->GetMap()->GetUnit(m_arthasGuid))
+                            DoScriptText(SAY_INTRO_4_ARTHAS, pArthas);
                         m_uiIntroTimer = 7000;
                         break;
                     case 5:
@@ -447,7 +457,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                         m_creature->InterruptNonMeleeSpells(false);
                         SacredText(urand(1, 5));
                         m_creature->CastSpell(pSacrificeTarget, SPELL_RITUAL_OF_SWORD, true); //spell ports caster but not target
-                        pVictim = pSacrificeTarget;
+                        m_victimGuid = pSacrificeTarget->GetObjectGuid();
                         m_uiSacrificeTimer = 750;
                         m_uiPhase = SACRED;
                         m_uiRitualStage = 1;
@@ -467,12 +477,12 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                         case 1:
                             m_creature->SetLevitate(true);
                             m_creature->NearTeleportTo(296.632f, -346.075f, 90.63f + 17.0f, 0);
-                            if (pVictim)
+                            if (Unit *pVictim = m_creature->GetMap()->GetUnit(m_victimGuid))
                             {
                                 DoTeleportPlayer(pVictim, 296.632f, -346.075f, 90.63f, 4.6f);
                                 for (uint8 i = 0; i < 3; ++i)
                                     if (Creature* pSummon = m_creature->SummonCreature(NPC_RITUAL_CHANNELER, RitualChannelerPos[i].x,RitualChannelerPos[i].y,RitualChannelerPos[i].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 27000))
-                                        ((npc_ritual_channelerAI*)pSummon->AI())->SetVictim(pVictim);
+                                        ((npc_ritual_channelerAI*)pSummon->AI())->SetVictim(m_victimGuid);
                                 m_creature->SetFacingToObject(pVictim);
                             }
                             m_creature->addUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
@@ -500,7 +510,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
                             break;
                         case 5:
                             m_uiPhase = NORMAL;
-                            pVictim = NULL;
+                            m_victimGuid.Clear();
                             m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                             m_creature->InterruptNonMeleeSpells(false);
                             m_creature->SetLevitate(false);
