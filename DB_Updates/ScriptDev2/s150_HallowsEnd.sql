@@ -2,15 +2,15 @@
 UPDATE creature_template SET unit_flags = 0, AIName = '', faction_a = 35, faction_h = 35, ScriptName = 'npc_horseman_fire_bunny' WHERE entry = 23686;
 UPDATE creature_template SET InhabitType = 4, ScriptName = 'npc_shade_of_horseman' WHERE entry = 23543;
 
-DELETE FROM script_texts WHERE entry BETWEEN -1100006 AND -1100001;
+DELETE FROM script_texts WHERE entry BETWEEN -1110006 AND -1110001;
 INSERT INTO script_texts (entry, content_default, TYPE, sound) VALUES
-(-1100001, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!",1,11966),
-(-1100002, "The sky is dark. The fire burns. You strive in vain as Fate's wheel turns.",1,12570),
-(-1100003, "The town still burns, a cleansing fire! Time is short, I'll soon retire!",1,12571),
+(-1110001, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!",1,11966),
+(-1110002, "The sky is dark. The fire burns. You strive in vain as Fate's wheel turns.",1,12570),
+(-1110003, "The town still burns, a cleansing fire! Time is short, I'll soon retire!",1,12571),
 
-(-1100004, "Fire consumes! You've tried and failed. Let there be no doubt, justice prevailed!",1,11967),
-(-1100005, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.",1,11968),
-(-1100006, "Harken, cur! Tis you I spurn! Now feel... the burn!",1,12573);
+(-1110004, "Fire consumes! You've tried and failed. Let there be no doubt, justice prevailed!",1,11967),
+(-1110005, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.",1,11968),
+(-1110006, "Harken, cur! Tis you I spurn! Now feel... the burn!",1,12573);
 
 DELETE FROM game_event WHERE entry = 101;
 INSERT INTO game_event (entry,start_time,end_time,occurence,LENGTH,description) VALUES
