@@ -2441,9 +2441,283 @@ CreatureAI* GetAI_mob_risen_ghoul(Creature* pCreature)
     return new mob_risen_ghoulAI (pCreature);
 };
 
+enum
+{
+    NPC_FIRE_BUNNY          = 23686,
+    SPELL_THROW_BUCKET      = 42339,
+    SPELL_EXTINGUISH_VISUAL = 42348,
+    SPELL_FLAMES_LARGE      = 42075,
+    SPELL_SMOKE             = 42355,
+    SPELL_CONFLAGRATE       = 42132,
+    SPELL_HORSEMAN_MOUNT    = 48024,
+    SPELL_HORSMAN_SHADE_VIS = 43904,
+    SPELL_Q_STOP_THE_FIRE   = 42242,
+    SPELL_Q_LET_THE_FIRES_C = 47775,
+    SPELL_LAUGH_DELAYED_8   = 43893,
+
+    PHASE_INITIAL           = 0,
+    PHASE_1ST_SPEACH        = 1,
+    PHASE_2ND_SPEACH        = 2,
+    PHASE_FAIL              = 3,
+    PHASE_END               = 4,
+
+    YELL_IGNITE             = -1100001,
+    YELL_1ST                = -1100002,
+    YELL_2ND                = -1100003,
+    YELL_FAIL               = -1100004,
+    YELL_VICTORY            = -1100005,
+    YELL_CONFLAGRATION      = -1100006
+};
+
+struct MANGOS_DLL_DECL npc_horseman_fire_bunnyAI : public Scripted_NoMovementAI
+{
+    npc_horseman_fire_bunnyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+    {
+        Reset();
+        m_creature->RemoveAllAuras();
+    }
+
+    void Reset()
+    {
+        if (!m_creature->isAlive())
+            m_creature->Respawn();
+    }
+
+    void SpellHit(Unit* pWho, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_THROW_BUCKET)
+        {
+            pWho->CastSpell(m_creature, SPELL_EXTINGUISH_VISUAL, false);
+            m_creature->RemoveAurasDueToSpell(SPELL_FLAMES_LARGE);
+        }
+        if (pSpell->Id == SPELL_CONFLAGRATE)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_FLAMES_LARGE);
+            m_creature->RemoveAurasDueToSpell(SPELL_CONFLAGRATE);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->SelectHostileTarget() || m_creature->getVictim())
+            EnterEvadeMode(); // Dunno how to prevent them from entering combat while hit by SPELL_EXTINGUISH_VISUAL (spelleffect 2)
+    }
+};
+
+CreatureAI* GetAI_npc_horseman_fire_bunny(Creature* pCreature)
+{
+    return new npc_horseman_fire_bunnyAI (pCreature);
+};
+
+struct MANGOS_DLL_DECL npc_shade_of_horsemanAI : public ScriptedAI
+{
+    npc_shade_of_horsemanAI(Creature* pCreature) : ScriptedAI(pCreature){Reset();}
+
+    uint8 uiPhase;
+    uint32 m_uiEventTimer;
+    uint32 m_uiConflagrationTimer;
+    uint32 m_uiConflagrationProcTimer;
+    bool bIsConflagrating;
+
+    GUIDList lFireBunnies;
+
+    void Reset()
+    {
+        if (!m_creature->isAlive())
+            m_creature->Respawn();
+
+        uiPhase = PHASE_INITIAL;
+        lFireBunnies.clear();
+        bIsConflagrating = true;
+
+        m_uiEventTimer = 2.5*MINUTE*IN_MILLISECONDS;
+
+        m_uiConflagrationTimer = 30000;
+        m_uiConflagrationProcTimer = 1500;
+
+        DoCastSpellIfCan(m_creature, SPELL_HORSEMAN_MOUNT);
+        DoCastSpellIfCan(m_creature, SPELL_HORSMAN_SHADE_VIS);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (uiPhase == PHASE_INITIAL)
+        {
+            DoScriptText(YELL_IGNITE, m_creature);
+            ++uiPhase;
+            return;
+        }
+        else if (uiPhase == PHASE_END)
+            return;
+
+        if (!bIsConflagrating)
+        {
+            bool IsVictory = true;
+            for (GUIDList::iterator itr = lFireBunnies.begin(); itr != lFireBunnies.end(); ++itr)
+                if (Creature* pFireBunny = m_creature->GetMap()->GetCreature(*itr))
+                    if (pFireBunny->HasAura(SPELL_FLAMES_LARGE))
+                        IsVictory = false;
+            if (IsVictory)
+            {
+                DoScriptText(YELL_VICTORY, m_creature);
+                DoCastSpellIfCan(m_creature, SPELL_Q_STOP_THE_FIRE, CAST_TRIGGERED);
+                DoCastSpellIfCan(m_creature, SPELL_Q_LET_THE_FIRES_C, CAST_TRIGGERED);
+                m_creature->ForcedDespawn(5000);
+                uiPhase = PHASE_END;
+                return;
+            }
+        }
+
+        if (m_uiEventTimer < uiDiff)
+        {
+            switch(uiPhase)
+            {
+                case PHASE_1ST_SPEACH:
+                    DoScriptText(YELL_1ST, m_creature);
+                    m_uiEventTimer = 2 *MINUTE*IN_MILLISECONDS;
+                    break;
+
+                case PHASE_2ND_SPEACH:
+                    DoScriptText(YELL_2ND, m_creature);
+                    m_uiEventTimer = 0.5 *MINUTE*IN_MILLISECONDS;
+                    break;
+                case PHASE_FAIL:
+                    DoScriptText(YELL_FAIL, m_creature);
+                    m_creature->ForcedDespawn(10000);
+                    for (GUIDList::iterator itr = lFireBunnies.begin(); itr != lFireBunnies.end(); ++itr)
+                        if (Creature* pFireBunny = m_creature->GetMap()->GetCreature(*itr))
+                        {
+                            if (pFireBunny->HasAura(SPELL_FLAMES_LARGE))
+                                pFireBunny->RemoveAurasDueToSpell(SPELL_FLAMES_LARGE);
+                            pFireBunny->CastSpell(m_creature, SPELL_SMOKE, true);
+                            pFireBunny->ForcedDespawn(60000);
+                        }
+                    break;
+            }
+            ++uiPhase;
+            DoCastSpellIfCan(m_creature, SPELL_LAUGH_DELAYED_8);
+        }
+        else
+            m_uiEventTimer -= uiDiff;
+
+        if (m_uiConflagrationTimer < uiDiff)
+        {
+            bIsConflagrating = !bIsConflagrating;
+            m_creature->GetMotionMaster()->MovementExpired();
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+            m_uiConflagrationProcTimer = 1500;
+            m_uiConflagrationTimer = bIsConflagrating ? 10000 : 30000;
+            if (bIsConflagrating)
+                DoScriptText(YELL_CONFLAGRATION, m_creature);
+        }
+        else
+            m_uiConflagrationTimer -= uiDiff;
+
+        if (bIsConflagrating)
+            if (m_uiConflagrationProcTimer < uiDiff)
+            {
+                m_uiConflagrationProcTimer = 1500;
+                if (lFireBunnies.empty())
+                {
+                    std::list<Creature*> tempFireBunnies;
+                    GetCreatureListWithEntryInGrid(tempFireBunnies, m_creature, NPC_FIRE_BUNNY, 50.0f);
+                    for (std::list<Creature*>::iterator itr = tempFireBunnies.begin(); itr != tempFireBunnies.end(); ++itr)
+                        lFireBunnies.push_back((*itr)->GetObjectGuid());
+                }
+
+                if (lFireBunnies.empty())
+                {
+                    m_creature->ForcedDespawn(5000);
+                    error_log("Missing DB spawns of Fire Bunnies (Horseman Village Event)");
+                    uiPhase = PHASE_END;
+                    return;
+                }
+
+                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                    return;
+                
+                for (GUIDList::iterator itr = lFireBunnies.begin(); itr != lFireBunnies.end(); ++itr)
+                    if (Creature* pFireBunny = m_creature->GetMap()->GetCreature(*itr))
+                        if (!pFireBunny->HasAura(SPELL_FLAMES_LARGE))
+                        {
+                            if (m_creature->GetDistance(pFireBunny) > 25.0f)
+                            {
+                                float x,y,z;
+                                pFireBunny->GetPosition(x,y,z);
+                                m_creature->GetMotionMaster()->MovePoint(0, x, y, z+20);
+                            }
+                            else
+                            {
+                                DoCastSpellIfCan(pFireBunny, SPELL_CONFLAGRATE, CAST_TRIGGERED);
+                                break;
+                            }
+                        }
+            }
+            else
+                m_uiConflagrationProcTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_npc_shade_of_horseman(Creature* pCreature)
+{
+    return new npc_shade_of_horsemanAI (pCreature);
+};
+/*
+-- Headless Horseman fire bunny
+UPDATE creature_template SET unit_flags = 0, AIName = '', faction_a = 35, faction_h = 35, ScriptName = 'npc_horseman_fire_bunny' WHERE entry = 23686;
+UPDATE creature_template SET InhabitType = 4, ScriptName = 'npc_shade_of_horseman' WHERE entry = 23543;
+
+DELETE FROM script_texts WHERE entry BETWEEN -1100006 AND -1100001;
+INSERT INTO script_texts (entry, content_default, TYPE, sound) VALUES
+(-1100001, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!",1,11966),
+(-1100002, "The sky is dark. The fire burns. You strive in vain as Fate's wheel turns.",1,12570),
+(-1100003, "The town still burns, a cleansing fire! Time is short, I'll soon retire!",1,12571),
+
+(-1100004, "Fire consumes! You've tried and failed. Let there be no doubt, justice prevailed!",1,11967),
+(-1100005, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.",1,11968),
+(-1100006, "Harken, cur! Tis you I spurn! Now feel... the burn!",1,12573);
+
+DELETE FROM game_event WHERE entry = 101;
+INSERT INTO game_event (entry,start_time,end_time,occurence,LENGTH,description) VALUES
+(101,'2011-11-02 14:20:00','2020-12-31 09:00:00','15','6','Hallows End - Horseman Village Attack');
+
+SELECT modelid_1 FROM creature_template WHERE entry = 23686; -- 5187
+UPDATE creature_template SET modelid_1 = 1 WHERE entry = 23686;
+
+DELETE FROM creature WHERE id IN (23543,23686);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+('300042','23543','0','1','1','0','1870','-9482.45','64.2219','76.6803','6.12238','900','0','0','2220','0','0','2'),
+
+
+('300031','23686','0','1','65535','0','0','-9452.44','43.7669','57.1428','5.22336','900','0','0','7000','7196','0','0'),
+('300032','23686','0','1','65535','0','0','-9452.64','80.2419','57.3832','1.73619','900','0','0','7000','7196','0','0'),
+('300033','23686','0','1','65535','0','0','-9468.36','80.5987','57.8556','0.0829242','900','0','0','7000','7196','0','0'),
+('300034','23686','0','1','65535','0','0','-9480.96','27.9996','57.6236','5.36473','900','0','0','7000','7196','0','0'),
+('300035','23686','0','1','65535','0','0','-9480.17','42.3062','56.8661','5.91844','900','0','0','7000','7196','0','0'),
+('300036','23686','0','1','65535','0','0','-9468.42','44.794','56.701','4.52043','900','0','0','7000','7196','0','0'),
+('300037','23686','0','1','65535','0','0','-9481.29','22.6125','56.6316','4.51144','900','0','0','7000','7196','0','0'),
+('300038','23686','0','1','65535','0','0','-9479.57','34.7349','56.7651','5.96836','900','0','0','7000','7196','0','0'),
+('300039','23686','0','1','65535','0','0','-9460.17','81.0493','57.8907','1.49396','900','0','0','7000','7196','0','0'),
+('300040','23686','0','1','65535','0','0','-9474.11','43.5743','56.591','4.30175','900','0','0','7000','7196','0','0'),
+('300041','23686','0','1','65535','0','0','-9458.88','45.7095','56.6641','4.82405','900','0','0','7000','7196','0','0');
+
+DELETE FROM game_event_creature WHERE guid IN (SELECT guid FROM creature WHERE id IN (23543,23686));
+INSERT INTO game_event_creature (guid,EVENT) SELECT guid, 101 FROM creature WHERE id IN (23543,23686);
+*/
+
 void AddSC_npcs_special()
 {
     Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_horseman_fire_bunny";
+    newscript->GetAI = &GetAI_npc_horseman_fire_bunny;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_shade_of_horseman";
+    newscript->GetAI = &GetAI_npc_shade_of_horseman;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_air_force_bots";
