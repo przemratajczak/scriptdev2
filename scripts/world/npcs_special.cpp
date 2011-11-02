@@ -2662,48 +2662,6 @@ CreatureAI* GetAI_npc_shade_of_horseman(Creature* pCreature)
 {
     return new npc_shade_of_horsemanAI (pCreature);
 };
-/*
--- Headless Horseman fire bunny
-UPDATE creature_template SET unit_flags = 0, AIName = '', faction_a = 35, faction_h = 35, ScriptName = 'npc_horseman_fire_bunny' WHERE entry = 23686;
-UPDATE creature_template SET InhabitType = 4, ScriptName = 'npc_shade_of_horseman' WHERE entry = 23543;
-
-DELETE FROM script_texts WHERE entry BETWEEN -1100006 AND -1100001;
-INSERT INTO script_texts (entry, content_default, TYPE, sound) VALUES
-(-1100001, "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each of you shall pay the final sum. Cry for mercy, the reckoning has come!",1,11966),
-(-1100002, "The sky is dark. The fire burns. You strive in vain as Fate's wheel turns.",1,12570),
-(-1100003, "The town still burns, a cleansing fire! Time is short, I'll soon retire!",1,12571),
-
-(-1100004, "Fire consumes! You've tried and failed. Let there be no doubt, justice prevailed!",1,11967),
-(-1100005, "My flames have died, left not a spark. I shall send you myself, to the lifeless dark.",1,11968),
-(-1100006, "Harken, cur! Tis you I spurn! Now feel... the burn!",1,12573);
-
-DELETE FROM game_event WHERE entry = 101;
-INSERT INTO game_event (entry,start_time,end_time,occurence,LENGTH,description) VALUES
-(101,'2011-11-02 14:20:00','2020-12-31 09:00:00','15','6','Hallows End - Horseman Village Attack');
-
-SELECT modelid_1 FROM creature_template WHERE entry = 23686; -- 5187
-UPDATE creature_template SET modelid_1 = 1 WHERE entry = 23686;
-
-DELETE FROM creature WHERE id IN (23543,23686);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
-('300042','23543','0','1','1','0','1870','-9482.45','64.2219','76.6803','6.12238','900','0','0','2220','0','0','2'),
-
-
-('300031','23686','0','1','65535','0','0','-9452.44','43.7669','57.1428','5.22336','900','0','0','7000','7196','0','0'),
-('300032','23686','0','1','65535','0','0','-9452.64','80.2419','57.3832','1.73619','900','0','0','7000','7196','0','0'),
-('300033','23686','0','1','65535','0','0','-9468.36','80.5987','57.8556','0.0829242','900','0','0','7000','7196','0','0'),
-('300034','23686','0','1','65535','0','0','-9480.96','27.9996','57.6236','5.36473','900','0','0','7000','7196','0','0'),
-('300035','23686','0','1','65535','0','0','-9480.17','42.3062','56.8661','5.91844','900','0','0','7000','7196','0','0'),
-('300036','23686','0','1','65535','0','0','-9468.42','44.794','56.701','4.52043','900','0','0','7000','7196','0','0'),
-('300037','23686','0','1','65535','0','0','-9481.29','22.6125','56.6316','4.51144','900','0','0','7000','7196','0','0'),
-('300038','23686','0','1','65535','0','0','-9479.57','34.7349','56.7651','5.96836','900','0','0','7000','7196','0','0'),
-('300039','23686','0','1','65535','0','0','-9460.17','81.0493','57.8907','1.49396','900','0','0','7000','7196','0','0'),
-('300040','23686','0','1','65535','0','0','-9474.11','43.5743','56.591','4.30175','900','0','0','7000','7196','0','0'),
-('300041','23686','0','1','65535','0','0','-9458.88','45.7095','56.6641','4.82405','900','0','0','7000','7196','0','0');
-
-DELETE FROM game_event_creature WHERE guid IN (SELECT guid FROM creature WHERE id IN (23543,23686));
-INSERT INTO game_event_creature (guid,EVENT) SELECT guid, 101 FROM creature WHERE id IN (23543,23686);
-*/
 
 void AddSC_npcs_special()
 {
