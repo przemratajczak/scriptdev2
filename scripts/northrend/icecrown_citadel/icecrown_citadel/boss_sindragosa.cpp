@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
             if (m_bIs25Man && m_bIsHeroic)
                 max = 6;
 
-            for (int i = 0; i < 1/*max*/; ++i)
+            for (int i = 0; i < max; ++i)
             {
                 if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_FROST_BEACON, SELECT_FLAG_PLAYER))
                     m_creature->CastSpell(pTarget, SPELL_FROST_BEACON, true);
