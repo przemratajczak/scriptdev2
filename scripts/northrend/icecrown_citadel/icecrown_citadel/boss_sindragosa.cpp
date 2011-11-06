@@ -152,6 +152,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SINDRAGOSA, FAIL);
 
+        SetCombatMovement(true);
         m_creature->SetLevitate(false);
         m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
     }
@@ -251,14 +252,13 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 // Health Check
                 if (m_creature->GetHealthPercent() <= 30.0f)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_MYSTIC_BUFFET, CAST_TRIGGERED))
-                    {
-                        m_uiPhase = PHASE_THREE;
-                        DoScriptText(SAY_PHASE_3, m_creature);
-                        m_uiFrostBeaconTimer = 10000;
-                        m_uiIceTombTimer = 15000;
-                        return;
-                    }
+                    m_creature->CastSpell(m_creature, SPELL_MYSTIC_BUFFET, true);
+
+                    m_uiPhase = PHASE_THREE;
+                    DoScriptText(SAY_PHASE_3, m_creature);
+                    m_uiFrostBeaconTimer = 10000;
+                    m_uiIceTombTimer = 15000;
+                    return;
                 }
 
                 // Cleave
@@ -316,7 +316,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 if (m_uiBlisteringColdTimer <= uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_BLISTERING_COLD) == CAST_OK)
-                        m_uiBlisteringColdTimer = 36000;
+                        m_uiBlisteringColdTimer = 35000;
                 }
                 else
                     m_uiBlisteringColdTimer -= uiDiff;
@@ -457,7 +457,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 if (m_uiBlisteringColdTimer <= uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_BLISTERING_COLD) == CAST_OK)
-                        m_uiBlisteringColdTimer = urand(35000, 60000);
+                        m_uiBlisteringColdTimer = 35000;
                 }
                 else
                     m_uiBlisteringColdTimer -= uiDiff;
