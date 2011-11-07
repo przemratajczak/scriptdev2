@@ -672,6 +672,8 @@ struct MANGOS_DLL_DECL boss_taldaram_iccAI : public base_blood_prince_council_bo
         {
             pSummoned->AddThreat(pTarget, 1000000.0f, true);
             pSummoned->AI()->AttackStart(pTarget);
+            if (m_bIsEmpowered)
+                pSummoned->CastSpell(pSummoned, SPELL_BALL_FLAMES_PERIODIC, true);
         }
     }
 
@@ -816,8 +818,6 @@ struct MANGOS_DLL_DECL mob_ball_of_flamesAI : public ScriptedAI
         m_bIsStarted = false;
 
         DoCastSpellIfCan(m_creature, SPELL_BALL_FLAMES_VISUAL, CAST_TRIGGERED);
-        if (m_creature->GetMap()->GetDifficulty() > RAID_DIFFICULTY_25MAN_NORMAL)
-            DoCastSpellIfCan(m_creature, SPELL_BALL_FLAMES_PERIODIC, CAST_TRIGGERED);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -850,7 +850,7 @@ struct MANGOS_DLL_DECL mob_ball_of_flamesAI : public ScriptedAI
             }
             else
             {
-                DoCastSpellIfCan(m_creature, SPELL_FLAMES_BUFF, CAST_TRIGGERED);
+                m_creature->CastSpell(m_creature, SPELL_FLAMES_BUFF, true);
                 m_uiStartTimer -= uiDiff;
             }
         }
@@ -936,7 +936,6 @@ struct MANGOS_DLL_DECL mob_kinetic_bombAI : public ScriptedAI
                 {
                     m_bHasCast = true;
                     m_creature->ForcedDespawn(3000);
-                    m_creature->RemoveAllAuras();
                 }
             }
         }
