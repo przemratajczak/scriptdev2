@@ -26,6 +26,7 @@ EndScriptData
 #include "escort_ai.h"
 #include "ObjectMgr.h"
 #include "GameEventMgr.h"
+#include "follower_ai.h"
 
 /* ContentData
 npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
@@ -2663,144 +2664,199 @@ CreatureAI* GetAI_npc_shade_of_horseman(Creature* pCreature)
     return new npc_shade_of_horsemanAI (pCreature);
 };
 
+enum
+{
+    SPELL_CREATE_POO                = 37688,
+    SPELL_TELL_DOG_I_JUST_DIED      = 37689,
+    POINT_LAST_DEAD_HELBOAR         = 0
+};
+
+struct MANGOS_DLL_DECL npc_fel_guard_houndAI : public FollowerAI
+{
+    npc_fel_guard_houndAI(Creature* pCreature) : FollowerAI(pCreature) {Reset();}
+
+    void Reset()
+    {
+        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+            StartFollow(pOwner);
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_TELL_DOG_I_JUST_DIED)
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
+            {
+                //m_creature->GetMotionMaster()->MovementExpired();
+                SetFollowPaused(true);
+                float x, y, z;
+                pCaster->GetPosition(x, y, z);
+                m_creature->GetMotionMaster()->MovePoint(POINT_LAST_DEAD_HELBOAR, x, y, z);
+            }
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiPointId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiPointId == POINT_LAST_DEAD_HELBOAR)
+        {
+            m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
+            DoCastSpellIfCan(m_creature, SPELL_CREATE_POO);
+            m_creature->GetMotionMaster()->MovementExpired();
+            SetFollowPaused(false);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
+{
+    return new npc_fel_guard_houndAI(pCreature);
+};
+
 void AddSC_npcs_special()
 {
-    Script* newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "npc_horseman_fire_bunny";
-    newscript->GetAI = &GetAI_npc_horseman_fire_bunny;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_fel_guard_hound";
+    pNewScript->GetAI = &GetAI_npc_fel_guard_hound;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_shade_of_horseman";
-    newscript->GetAI = &GetAI_npc_shade_of_horseman;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_horseman_fire_bunny";
+    pNewScript->GetAI = &GetAI_npc_horseman_fire_bunny;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_air_force_bots";
-    newscript->GetAI = &GetAI_npc_air_force_bots;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_shade_of_horseman";
+    pNewScript->GetAI = &GetAI_npc_shade_of_horseman;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_chicken_cluck";
-    newscript->GetAI = &GetAI_npc_chicken_cluck;
-    newscript->pQuestAcceptNPC =   &QuestAccept_npc_chicken_cluck;
-    newscript->pQuestRewardedNPC = &QuestRewarded_npc_chicken_cluck;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_air_force_bots";
+    pNewScript->GetAI = &GetAI_npc_air_force_bots;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_dancing_flames";
-    newscript->GetAI = &GetAI_npc_dancing_flames;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_chicken_cluck";
+    pNewScript->GetAI = &GetAI_npc_chicken_cluck;
+    pNewScript->pQuestAcceptNPC =   &QuestAccept_npc_chicken_cluck;
+    pNewScript->pQuestRewardedNPC = &QuestRewarded_npc_chicken_cluck;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_injured_patient";
-    newscript->GetAI = &GetAI_npc_injured_patient;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_dancing_flames";
+    pNewScript->GetAI = &GetAI_npc_dancing_flames;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_doctor";
-    newscript->GetAI = &GetAI_npc_doctor;
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_doctor;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_injured_patient";
+    pNewScript->GetAI = &GetAI_npc_injured_patient;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_garments_of_quests";
-    newscript->GetAI = &GetAI_npc_garments_of_quests;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_doctor";
+    pNewScript->GetAI = &GetAI_npc_doctor;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_doctor;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_guardian";
-    newscript->GetAI = &GetAI_npc_guardian;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_garments_of_quests";
+    pNewScript->GetAI = &GetAI_npc_garments_of_quests;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_innkeeper";
-    newscript->pGossipHello = &GossipHello_npc_innkeeper;
-    newscript->pGossipSelect = &GossipSelect_npc_innkeeper;
-    newscript->RegisterSelf(false);                         // script and error report disabled, but script can be used for custom needs, adding ScriptName
+    pNewScript = new Script;
+    pNewScript->Name = "npc_guardian";
+    pNewScript->GetAI = &GetAI_npc_guardian;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_kingdom_of_dalaran_quests";
-    newscript->pGossipHello =  &GossipHello_npc_kingdom_of_dalaran_quests;
-    newscript->pGossipSelect = &GossipSelect_npc_kingdom_of_dalaran_quests;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_innkeeper";
+    pNewScript->pGossipHello = &GossipHello_npc_innkeeper;
+    pNewScript->pGossipSelect = &GossipSelect_npc_innkeeper;
+    pNewScript->RegisterSelf(false);                         // script and error report disabled, but script can be used for custom needs, adding ScriptName
 
-    newscript = new Script;
-    newscript->Name = "npc_lunaclaw_spirit";
-    newscript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
-    newscript->pGossipSelect = &GossipSelect_npc_lunaclaw_spirit;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_kingdom_of_dalaran_quests";
+    pNewScript->pGossipHello =  &GossipHello_npc_kingdom_of_dalaran_quests;
+    pNewScript->pGossipSelect = &GossipSelect_npc_kingdom_of_dalaran_quests;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_mount_vendor";
-    newscript->pGossipHello =  &GossipHello_npc_mount_vendor;
-    newscript->pGossipSelect = &GossipSelect_npc_mount_vendor;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_lunaclaw_spirit";
+    pNewScript->pGossipHello =  &GossipHello_npc_lunaclaw_spirit;
+    pNewScript->pGossipSelect = &GossipSelect_npc_lunaclaw_spirit;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_rogue_trainer";
-    newscript->pGossipHello =  &GossipHello_npc_rogue_trainer;
-    newscript->pGossipSelect = &GossipSelect_npc_rogue_trainer;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_mount_vendor";
+    pNewScript->pGossipHello =  &GossipHello_npc_mount_vendor;
+    pNewScript->pGossipSelect = &GossipSelect_npc_mount_vendor;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_sayge";
-    newscript->pGossipHello = &GossipHello_npc_sayge;
-    newscript->pGossipSelect = &GossipSelect_npc_sayge;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_rogue_trainer";
+    pNewScript->pGossipHello =  &GossipHello_npc_rogue_trainer;
+    pNewScript->pGossipSelect = &GossipSelect_npc_rogue_trainer;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_tabard_vendor";
-    newscript->pGossipHello =  &GossipHello_npc_tabard_vendor;
-    newscript->pGossipSelect = &GossipSelect_npc_tabard_vendor;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_sayge";
+    pNewScript->pGossipHello = &GossipHello_npc_sayge;
+    pNewScript->pGossipSelect = &GossipSelect_npc_sayge;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_locksmith";
-    newscript->pGossipHello =  &GossipHello_npc_locksmith;
-    newscript->pGossipSelect = &GossipSelect_npc_locksmith;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_tabard_vendor";
+    pNewScript->pGossipHello =  &GossipHello_npc_tabard_vendor;
+    pNewScript->pGossipSelect = &GossipSelect_npc_tabard_vendor;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_mirror_image";
-    newscript->GetAI = &GetAI_npc_mirror_image;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_locksmith";
+    pNewScript->pGossipHello =  &GossipHello_npc_locksmith;
+    pNewScript->pGossipSelect = &GossipSelect_npc_locksmith;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_runeblade";
-    newscript->GetAI = &GetAI_npc_rune_blade;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_mirror_image";
+    pNewScript->GetAI = &GetAI_npc_mirror_image;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_death_knight_gargoyle";
-    newscript->GetAI = &GetAI_npc_death_knight_gargoyle;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_runeblade";
+    pNewScript->GetAI = &GetAI_npc_rune_blade;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_risen_ally";
-    newscript->GetAI = &GetAI_npc_risen_ally;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_death_knight_gargoyle";
+    pNewScript->GetAI = &GetAI_npc_death_knight_gargoyle;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_explosive_decoy";
-    newscript->GetAI = &GetAI_npc_explosive_decoy;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_risen_ally";
+    pNewScript->GetAI = &GetAI_npc_risen_ally;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_eye_of_kilrogg";
-    newscript->GetAI = &GetAI_npc_eye_of_kilrogg;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_explosive_decoy";
+    pNewScript->GetAI = &GetAI_npc_explosive_decoy;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_experience_eliminator";
-    newscript->pGossipHello = &GossipHello_npc_experience_eliminator;
-    newscript->pGossipSelect = &GossipSelect_npc_experience_eliminator;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_eye_of_kilrogg";
+    pNewScript->GetAI = &GetAI_npc_eye_of_kilrogg;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_experience_eliminator";
+    pNewScript->pGossipHello = &GossipHello_npc_experience_eliminator;
+    pNewScript->pGossipSelect = &GossipSelect_npc_experience_eliminator;
+    pNewScript->RegisterSelf();
     
-    newscript = new Script;
-    newscript->Name = "mob_risen_ghoul";
-    newscript->GetAI = &GetAI_mob_risen_ghoul;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_risen_ghoul";
+    pNewScript->GetAI = &GetAI_mob_risen_ghoul;
+    pNewScript->RegisterSelf();
 }
