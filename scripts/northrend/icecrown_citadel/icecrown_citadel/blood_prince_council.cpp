@@ -391,7 +391,7 @@ struct MANGOS_DLL_DECL base_blood_prince_council_bossAI : public base_icc_bossAI
                 }
             }
 
-            if (Creature *pTmp = m_pInstance->GetSingleCreatureFromStorage(NPC_LANATHEL))
+            if (Creature *pTmp = m_pInstance->GetSingleCreatureFromStorage(NPC_LANATHEL_INTRO))
             {
                 if (pTmp->isAlive())
                     pTmp->DealDamage(pTmp, pTmp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
