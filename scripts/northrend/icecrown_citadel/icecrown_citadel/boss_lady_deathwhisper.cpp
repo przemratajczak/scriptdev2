@@ -62,6 +62,8 @@ enum BossSpells
 
         // Vengeful Shade
         NPC_VENGEFUL_SHADE                      = 38222,
+        SPELL_SUMMON_SPIRIT                     = 71363, // not used since trigger npc is missing (something must be the target of this spell, it can't be player)
+        SPELL_SUMMON_SPIRIT_TRIGGERED           = 71426,
         SPELL_VENGEFUL_BLAST_AURA               = 71494, // must proc on melee hit
 };
 
@@ -318,16 +320,16 @@ struct MANGOS_DLL_DECL boss_lady_deathwhisperAI : public boss_lady_deathwhisper_
 
     void DoSummonShade()
     {
-        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, uint32(0), SELECT_FLAG_PLAYER))
         {
             float x, y, z;
             pTarget->GetNearPoint(pTarget, x, y, z, pTarget->GetObjectBoundingRadius(), 10.0f, frand(-M_PI_F, M_PI_F));
 
-            if (Creature *pShade = m_creature->SummonCreature(NPC_VENGEFUL_SHADE, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+            if (Creature *pShade = m_creature->SummonCreature(NPC_VENGEFUL_SHADE, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 7000))
             {
                 pShade->SetSpeedRate(MOVE_RUN, 0.5f);
+                pShade->AddThreat(pTarget, 100000.0f);
                 pShade->AI()->AttackStart(pTarget);
-                pShade->CastSpell(pShade, SPELL_VENGEFUL_BLAST_AURA, true);
             }
         }
     }

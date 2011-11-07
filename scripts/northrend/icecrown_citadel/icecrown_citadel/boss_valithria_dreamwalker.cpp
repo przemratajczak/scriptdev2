@@ -716,7 +716,7 @@ struct MANGOS_DLL_DECL mob_blazing_skeletonAI : public ScriptedAI
     void Reset()
     {
         m_uiFireballTimer = urand(3000, 5000);
-        m_uiLayWasteTimer = urand(5000, 15000);
+        m_uiLayWasteTimer = urand(10000, 15000);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -740,7 +740,7 @@ struct MANGOS_DLL_DECL mob_blazing_skeletonAI : public ScriptedAI
         if (m_uiLayWasteTimer <= uiDiff)
         {
             if (DoCastSpellIfCan(m_creature, SPELL_LAY_WASTE) == CAST_OK)
-                m_uiLayWasteTimer = urand(10000, 15000);
+                m_uiLayWasteTimer = urand(20000, 25000);
         }
         else
             m_uiLayWasteTimer -= uiDiff;
@@ -757,13 +757,7 @@ CreatureAI* GetAI_mob_blazing_skeleton(Creature *pCreature)
 // Suppresser
 struct MANGOS_DLL_DECL mob_suppresserAI : public ScriptedAI
 {
-    mob_suppresserAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        m_bIsCasting = false;
-    }
-
-    bool m_bIsCasting;
-
+    mob_suppresserAI(Creature *pCreature) : ScriptedAI(pCreature){}
     void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
@@ -771,13 +765,9 @@ struct MANGOS_DLL_DECL mob_suppresserAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (!m_bIsCasting)
+        if (m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
         {
-            if (m_creature->CanReachWithMeleeAttack(m_creature->getVictim()))
-            {
-                if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUPPRESSION) == CAST_OK)
-                    m_bIsCasting = true;
-            }
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUPPRESSION);
         }
     }
 };
