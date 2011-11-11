@@ -99,6 +99,9 @@ UPDATE `creature_template` SET `scriptname`='mob_fel_infernal', `AIName` ='' WHE
 UPDATE `creature_template` SET `scriptname`='mob_nether_portal', `AIName` ='' WHERE `entry` = 34825;
 UPDATE `creature_template` SET `scriptname`='mob_mistress_of_pain', `AIName` ='' WHERE `entry` = 34826;
 
+-- allow interrupting
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` & ~33554432 WHERE `entry` IN (34780, 35216, 35268, 35269);
+
 -- Valkiries
 UPDATE `creature_template` SET `scriptname` = 'boss_fjola', `AIName` ='' WHERE `entry`=34497;
 UPDATE `creature_template` SET `scriptname` = 'boss_eydis', `AIName` ='' WHERE `entry`=34496;
