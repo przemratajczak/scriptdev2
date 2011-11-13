@@ -2641,12 +2641,13 @@ struct MANGOS_DLL_DECL npc_shade_of_horsemanAI : public ScriptedAI
                     if (Creature* pFireBunny = m_creature->GetMap()->GetCreature(*itr))
                         if (!pFireBunny->HasAura(SPELL_FLAMES_LARGE))
                         {
-                            if (DoCastSpellIfCan(pFireBunny, SPELL_CONFLAGRATE, true) != SPELL_CAST_OK)
+                            if (DoCastSpellIfCan(pFireBunny, SPELL_CONFLAGRATE) != CAST_OK)
                             {
                                 float x,y,z;
                                 pFireBunny->GetPosition(x,y,z);
                                 pFireBunny->GetClosePoint(x,y,z,0,5,0);
                                 m_creature->GetMotionMaster()->MovePoint(0, x,y,z+15);
+                                break;
                             }
                         }
             }
