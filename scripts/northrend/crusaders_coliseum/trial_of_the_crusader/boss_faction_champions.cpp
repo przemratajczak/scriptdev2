@@ -850,14 +850,14 @@ struct MANGOS_DLL_DECL mob_toc_priestAI : public boss_faction_championsAI
             m_uiPsychicScreamTimer = urand(8000, 20000);
         }else m_uiPsychicScreamTimer -= uiDiff;
 
-        if(m_uiManaBurnTimer < uiDiff)
+        /*if(m_uiManaBurnTimer < uiDiff)
         {
             if (Unit* pTarget = SelectEnemyTargetWithinMana())
             {
                 DoCastSpellIfCan(pTarget, SPELL_MANA_BURN);
                 m_uiManaBurnTimer = urand(6000, 15000);
             }
-        }else m_uiManaBurnTimer -= uiDiff;
+        }else m_uiManaBurnTimer -= uiDiff;*/
             
         boss_faction_championsAI::UpdateAI(uiDiff);
     }
