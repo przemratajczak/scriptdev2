@@ -427,7 +427,7 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         if(CCTimer < uiDiff)
         {
             RemoveCC();
-            CCTimer = 5*IN_MINUTE;
+            CCTimer = 5*MINUTE;
         }
         else CCTimer -= uiDiff;
 
