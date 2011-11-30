@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
 
     void Init()
     {
-        CCTimer = rand()%10000;
+        CCTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
         ThreatTimer = 5000;
         m_uiChangeTargetTimer = 6000;
         resetTimers();
@@ -321,18 +321,7 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
             if(who->GetTypeId() != TYPEID_PLAYER)
                   if (Unit* player = doSelectRandomPlayerAtRange(80.0f))
                        m_creature->AddThreat(player, 100.0f);
-    }
-
-    void ChangeTarget()
-    {
-        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-        {
-            m_creature->AddThreat(pTarget, 100.0f);
-            m_creature->TauntApply(pTarget);
-            AttackStart(pTarget);
-        }
-    }
-        
+    }    
 
     //add
     Unit* SelectEnemyTargetWithinMana()
@@ -423,8 +412,6 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
     {
         if(m_uiChangeTargetTimer < uiDiff)
         {
-            //DoResetThreat();
-            //ChangeTarget();
             UpdateThreat();
             m_uiChangeTargetTimer = 6000;
         }else m_uiChangeTargetTimer -= uiDiff;
@@ -440,7 +427,7 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         if(CCTimer < uiDiff)
         {
             RemoveCC();
-            CCTimer = 8000+rand()%2000;
+            CCTimer = 5*IN_MINUTE;
         }
         else CCTimer -= uiDiff;
 
