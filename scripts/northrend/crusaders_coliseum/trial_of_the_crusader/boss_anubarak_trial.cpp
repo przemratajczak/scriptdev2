@@ -932,3 +932,4 @@ void AddSC_boss_anubarak_trial()
     newscript->RegisterSelf();
  
 }
+ 
