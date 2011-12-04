@@ -26,9 +26,21 @@ EndScriptData */
 
 enum BossSpells
 {
-        SPELL_BERSERK                           = 26662,
+    // all phases
+    SPELL_BERSERK                       = 26662,
+    SPELL_SHROUD_OF_SORROW              = 70986,
 
-        SPELL_SHROUD_OF_SORROW                  = 70986,
+    // phase ground
+    SPELL_DELIRIOUS_SLASH               = 71623,
+    SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
+    SPELL_SWARMING_SHADOWS              = 71861,
+    SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
+
+    // phase air
+    SPELL_INCITE_HORROR                 = 73070,
+    SPELL_BLOODBOLT_WHIRL               = 71772,
+
+/*
         SPELL_DELRIOUS_SLASH                    = 71623,
         SPELL_BLOOD_MIRROR                      = 70445,
         SPELL_BLOOD_MIRROR_MARK                 = 70451,
@@ -46,6 +58,7 @@ enum BossSpells
         NPC_SWARMING_SHADOWS                    = 38163,
         SPELL_SWARMING_SHADOWS_VISUAL           = 71267,
         THIRST_QUENCHED_AURA                    = 72154,
+*/
 };
 
 // talks
