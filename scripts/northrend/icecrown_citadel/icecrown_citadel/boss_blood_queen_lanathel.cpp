@@ -16,11 +16,11 @@
 
 /* ScriptData
 SDName: boss_blood_queen_lanathel
-SD%Complete: 70%
-SDComment: by /dev/rsa
+SD%Complete: 
+SDComment: 
 SDCategory: Icecrown Citadel
 EndScriptData */
-// Need correct work of spells and timers
+
 #include "precompiled.h"
 #include "icecrown_citadel.h"
 
@@ -67,7 +67,79 @@ static Locations SpawnLoc[]=
     {4595.904785f, 2769.315918f, 421.838623f},  // 1 Fly
 };
 
+#define PHASE_GROUND 1
+#define PHASE_AIR 2
 
+/**
+ * Queen Lana'thel
+ */
+struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
+{
+    boss_blood_queen_lanathelAI(Creature* pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiPhase;
+
+    void Reset()
+    {
+        m_uiPhase           = PHASE_GROUND;
+    }
+
+    void JustReachedHome()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_LANATHEL, FAIL);
+    }
+
+    void KilledUnit(Unit* pVictim)
+    {
+        // entry missing in sd2 database
+        if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            m_creature->MonsterYell("Is that all you got?", 0);
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        if (!m_pInstance) 
+            m_pInstance->SetData(TYPE_LANATHEL, IN_PROGRESS);
+
+        DoScriptText(SAY_AGGRO, m_creature);
+    }
+
+    void JustDied(Unit *pKiller)
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_LANATHEL, DONE);
+
+        DoScriptText(SAY_DEATH, m_creature);
+    }
+
+
+    void UpdateAI(const uint32 diff)
+    {
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiPhase == PHASE_GROUND)
+        {
+            DoMeleeAttackIfReady();
+        }
+        else
+        {
+            // do nothing
+        }
+    }
+};
+
+CreatureAI* GetAI_boss_blood_queen_lanathel(Creature* pCreature)
+{
+    return new boss_blood_queen_lanathelAI(pCreature);
+}
+
+/*
 struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 {
     boss_blood_queen_lanathelAI(Creature* pCreature) : BSWScriptedAI(pCreature)
@@ -268,11 +340,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public BSWScriptedAI
 };
 
 
-CreatureAI* GetAI_boss_blood_queen_lanathel(Creature* pCreature)
-{
-    return new boss_blood_queen_lanathelAI(pCreature);
-}
-
 struct MANGOS_DLL_DECL mob_swarming_shadowsAI : public ScriptedAI
 {
     mob_swarming_shadowsAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -308,12 +375,7 @@ struct MANGOS_DLL_DECL mob_swarming_shadowsAI : public ScriptedAI
 
     }
 };
-
-CreatureAI* GetAI_mob_swarming_shadows(Creature* pCreature)
-{
-     return new mob_swarming_shadowsAI (pCreature);
-}
-
+*/
 
 void AddSC_boss_blood_queen_lanathel()
 {
@@ -324,8 +386,8 @@ void AddSC_boss_blood_queen_lanathel()
     newscript->GetAI = &GetAI_boss_blood_queen_lanathel;
     newscript->RegisterSelf();
 
-    newscript = new Script;
+    /*newscript = new Script;
     newscript->Name = "mob_swarming_shadows";
     newscript->GetAI = &GetAI_mob_swarming_shadows;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf();*/
 }
