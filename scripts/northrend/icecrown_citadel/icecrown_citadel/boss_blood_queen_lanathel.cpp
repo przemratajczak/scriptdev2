@@ -26,8 +26,9 @@ EndScriptData */
 
 enum BossSpells
 {
-        SPELL_BERSERK                           = 47008,
-        SPELL_SHROUD_OF_SORROW                  = 72981,
+        SPELL_BERSERK                           = 26662,
+
+        SPELL_SHROUD_OF_SORROW                  = 70986,
         SPELL_DELRIOUS_SLASH                    = 71623,
         SPELL_BLOOD_MIRROR                      = 70445,
         SPELL_BLOOD_MIRROR_MARK                 = 70451,
@@ -82,9 +83,13 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
     uint32 m_uiPhase;
 
+    uint32 m_uiEnrageTimer;
+
     void Reset()
     {
         m_uiPhase           = PHASE_GROUND;
+
+        m_uiEnrageTimer     = (5 * MINUTE + 30) * IN_MILLISECONDS;
     }
 
     void JustReachedHome()
@@ -106,6 +111,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             m_pInstance->SetData(TYPE_LANATHEL, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
+        DoCastSpellIfCan(m_creature, SPELL_SHROUD_OF_SORROW, CAST_TRIGGERED);
     }
 
     void JustDied(Unit *pKiller)
@@ -117,11 +123,23 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     }
 
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        // Enrage
+        if (m_uiEnrageTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+            {
+                DoScriptText(SAY_BERSERK, m_creature);
+                m_uiEnrageTimer = (5 * MINUTE + 30) * IN_MILLISECONDS;
+            }
+        }
+        else
+            m_uiEnrageTimer -= uiDiff;
 
         if (m_uiPhase == PHASE_GROUND)
         {
