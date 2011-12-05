@@ -89,8 +89,9 @@ static Locations QueenLocs[]=
 };
 
 #define PHASE_GROUND 1
-#define PHASE_FLYING 2
+#define PHASE_RUNNING 2
 #define PHASE_AIR 3
+#define PHASE_FLYING 4
 
 #define POINT_CENTER_GROUND 1
 #define POINT_CENTER_AIR 2
@@ -164,7 +165,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
         if (uiData == POINT_CENTER_GROUND)
         {
-            if (m_uiPhase == PHASE_GROUND)
+            if (m_uiPhase == PHASE_RUNNING)
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_uiPhase = PHASE_AIR; // start counting timer for Bloodbolt Whirl immediately
@@ -179,7 +180,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             else
             {
                 m_uiPhase = PHASE_GROUND;
-                m_creature->SetLevitate(false)
+                m_creature->SetLevitate(false);
                 SetCombatMovement(true);
                 if (m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -216,7 +217,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 // phase change timer
                 if (m_uiPhaseTimer <= uiDiff)
                 {
-                    m_uiPhase = PHASE_FLYING;
                     SetCombatMovement(false);
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_GROUND, QueenLocs[0].x, QueenLocs[0].y, QueenLocs[0].z);
                     m_uiPhaseTimer = 8 * IN_MILLISECONDS;
@@ -263,6 +263,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 DoMeleeAttackIfReady();
                 break;
             }
+            case PHASE_RUNNING:
             case PHASE_FLYING:
             {
                 // wait for arriving at the point
