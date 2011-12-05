@@ -35,6 +35,13 @@ enum BossSpells
     SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
     SPELL_SWARMING_SHADOWS              = 71861,
     SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
+    SPELL_VAMPIRIC_BITE                 = 71837,
+ // SPELL_VAMPIRIC_BITE_TRIGGERED       = 71726, // triggered spell with effects
+ // SPELL_VAMPIRIC_BITE_PLAYER          = 70946, // used by players
+    SPELL_TWILIGHT_BLOODBOLT            = 71445,
+ // SPELL_TWILIGHT_BLOODBOLT_VISUAL     = 72313, // dummy effect
+ // SPELL_TWILIGHT_BLOODBOLT_TRIGGERED1 = 71446, // one of the triggered spells
+ // SPELL_TWILIGHT_BLOODBOLT_TRIGGERED2 = 71818, // another of the triggered spells. same effects but other spell id...
 
     // phase air
     SPELL_INCITE_HORROR                 = 73070,
@@ -82,7 +89,8 @@ static Locations SpawnLoc[]=
 };
 
 #define PHASE_GROUND 1
-#define PHASE_AIR 2
+#define PHASE_FLYING 2
+#define PHASE_AIR 3
 
 /**
  * Queen Lana'thel
@@ -98,13 +106,21 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
     uint32 m_uiEnrageTimer;
     uint32 m_uiPhaseTimer;
+    uint32 m_uiVampiricBiteTimer;
+    uint32 m_uiBloodboltTimer;
+    uint32 m_uiPactTimer;
+    uint32 m_uiSwarmingShadowsTimer;
 
     void Reset()
     {
-        m_uiPhase           = PHASE_GROUND;
+        m_uiPhase               = PHASE_GROUND;
 
-        m_uiPhaseTimer      = 2 * MINUTE * IN_MILLISECONDS;
-        m_uiEnrageTimer     = (5 * MINUTE + 30) * IN_MILLISECONDS;
+        m_uiPhaseTimer          = 2 * MINUTE * IN_MILLISECONDS;
+        m_uiEnrageTimer         = (5 * MINUTE + 30) * IN_MILLISECONDS;
+        m_uiVampiricBiteTimer   = 15000;
+        m_uiBloodboltTimer      = urand(15000, 20000);
+        m_uiPactTimer           = urand(20000, 25000);
+        m_uiSwarmingShadowsTimer= urand(30000, 35000);
     }
 
     void JustReachedHome()
@@ -137,7 +153,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         DoScriptText(SAY_DEATH, m_creature);
     }
 
-
     void UpdateAI(const uint32 uiDiff)
     {
 
@@ -169,6 +184,42 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
+
+                // Vampiric Bite
+                if (m_uiVampiricBiteTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
+                        m_uiVampiricBiteTimer = 60000;
+                }
+                else
+                    m_uiVampiricBiteTimer -= uiDiff;
+
+                // Twilight Bloodbolt
+                if (m_uiBloodboltTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_TWILIGHT_BLOODBOLT) == CAST_OK)
+                        m_uiBloodboltTimer = urand(15000, 20000);
+                }
+                else
+                    m_uiBloodboltTimer -= uiDiff;
+
+                // Pact of the Darkfallen
+                if (m_uiPactTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_PACT_OF_THE_DARKFALLEN) == CAST_OK)
+                        m_uiPactTimer = urand(20000, 25000);
+                }
+                else
+                    m_uiPactTimer -= uiDiff;
+
+                // Swarming Shadows
+                if (m_uiSwarmingShadowsTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_SWARMING_SHADOWS) == CAST_OK)
+                        m_uiSwarmingShadowsTimer = urand(30000, 35000);
+                }
+                else
+                    m_uiSwarmingShadowsTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
                 break;
