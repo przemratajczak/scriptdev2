@@ -173,7 +173,7 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public BSWScriptedAI
                     }
                 }
             }
-            m_uiNetherPowerTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
+            m_uiNetherPowerTimer = urand(40*IN_MILLISECONDS, 60*IN_MILLISECONDS);
         }else m_uiNetherPowerTimer -= uiDiff;
 
         if(m_uiFelFireballTimer <= uiDiff)
