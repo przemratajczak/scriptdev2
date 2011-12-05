@@ -31,8 +31,10 @@ enum BossSpells
     SPELL_SHROUD_OF_SORROW              = 70986,
 
     // phase ground
-    SPELL_DELIRIOUS_SLASH               = 71623,
-    SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
+    SPELL_BLOOD_MIRROR                  = 70450, // cast at main target, then dummy effect finds the mirror target
+    SPELL_DELIRIOUS_SLASH               = 72261,
+ // SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
+ // SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
     SPELL_SWARMING_SHADOWS              = 71861,
     SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
     SPELL_VAMPIRIC_BITE                 = 71837,
@@ -114,6 +116,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     uint32 m_uiBloodboltTimer;
     uint32 m_uiPactTimer;
     uint32 m_uiSwarmingShadowsTimer;
+    uint32 m_uiDeliriousSlashTimer;
 
     bool m_bHasBitten;
 
@@ -125,6 +128,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
         m_uiPhaseTimer          = 2 * MINUTE * IN_MILLISECONDS;
         m_uiEnrageTimer         = (5 * MINUTE + 30) * IN_MILLISECONDS;
+        m_uiDeliriousSlashTimer = 20000;
         m_uiVampiricBiteTimer   = 15000;
         m_uiBloodboltTimer      = urand(15000, 20000);
         m_uiPactTimer           = urand(20000, 25000);
@@ -151,6 +155,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_SHROUD_OF_SORROW, CAST_TRIGGERED);
+        DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOOD_MIRROR, CAST_TRIGGERED);
     }
 
     void JustDied(Unit *pKiller)
@@ -240,6 +245,15 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
+
+                // Delirious Slash
+                if (m_uiDeliriousSlashTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_DELIRIOUS_SLASH) == CAST_OK)
+                        m_uiDeliriousSlashTimer = 15000;
+                }
+                else
+                    m_uiDeliriousSlashTimer -= uiDiff;
 
                 // Vampiric Bite
                 if (!m_bHasBitten)
