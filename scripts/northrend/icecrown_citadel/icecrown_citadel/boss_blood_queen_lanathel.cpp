@@ -179,6 +179,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             else
             {
                 m_uiPhase = PHASE_GROUND;
+                m_creature->SetLevitate(false)
                 SetCombatMovement(true);
                 if (m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
