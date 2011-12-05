@@ -82,7 +82,7 @@ enum
     SAY_DEATH                   = -1631129,
 };
 
-static Locations SpawnLoc[]=
+static Locations QueenLocs[]=
 {
     {4595.640137f, 2769.195557f, 400.137054f},  // 0 Phased
     {4595.904785f, 2769.315918f, 421.838623f},  // 1 Fly
@@ -91,6 +91,9 @@ static Locations SpawnLoc[]=
 #define PHASE_GROUND 1
 #define PHASE_FLYING 2
 #define PHASE_AIR 3
+
+#define POINT_CENTER_GROUND 1
+#define POINT_CENTER_AIR 2
 
 /**
  * Queen Lana'thel
@@ -110,6 +113,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     uint32 m_uiBloodboltTimer;
     uint32 m_uiPactTimer;
     uint32 m_uiSwarmingShadowsTimer;
+    uint32 m_uiBloodboltWhirlTimer;
 
     void Reset()
     {
@@ -153,6 +157,39 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         DoScriptText(SAY_DEATH, m_creature);
     }
 
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiData == POINT_CENTER_GROUND)
+        {
+            if (m_uiPhase == PHASE_GROUND)
+            {
+                m_creature->GetMotionMaster()->Clear();
+                m_uiPhase = PHASE_AIR; // start counting timer for Bloodbolt Whirl immediately
+                m_uiBloodboltWhirlTimer = 6000;
+
+                if (DoCastSpellIfCan(m_creature, SPELL_INCITE_HORROR) == CAST_OK)
+                {
+                    m_creature->SetLevitate(true);
+                    m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_AIR, QueenLocs[1].x, QueenLocs[1].y, QueenLocs[1].z, false);
+                }
+            }
+            else
+            {
+                m_uiPhase = PHASE_GROUND;
+                SetCombatMovement(true);
+                if (m_creature->getVictim())
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            }
+        }
+        else if (uiData == POINT_CENTER_AIR)
+        {
+            m_uiPhase = PHASE_AIR;
+        }
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
 
@@ -179,7 +216,8 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 if (m_uiPhaseTimer <= uiDiff)
                 {
                     m_uiPhase = PHASE_FLYING;
-                    // do fly
+                    SetCombatMovement(false);
+                    m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_GROUND, QueenLocs[0].x, QueenLocs[0].y, QueenLocs[0].z);
                     m_uiPhaseTimer = 8 * IN_MILLISECONDS;
                 }
                 else
@@ -231,11 +269,22 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             }
             case PHASE_AIR:
             {
+                // Bloodbolt Whirl
+                if (m_uiBloodboltWhirlTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_BLOODBOLT_WHIRL) == CAST_OK)
+                        m_uiBloodboltWhirlTimer = 7000;
+                }
+                else
+                    m_uiBloodboltWhirlTimer -= uiDiff;
+
                 // phase change timer
                 if (m_uiPhaseTimer <= uiDiff)
                 {
-                    m_uiPhase = PHASE_GROUND;
+                    m_uiPhase = PHASE_FLYING;
                     m_uiPhaseTimer = 2 * MINUTE * IN_MILLISECONDS;
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_GROUND, QueenLocs[0].x, QueenLocs[0].y, QueenLocs[0].z);
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
