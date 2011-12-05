@@ -540,6 +540,11 @@ struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
         m_uiPortalGuid = 0;
     }
 
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+    }
+
     void UpdateAI(const uint32 diff)
     {
       if(!pInstance) return;
