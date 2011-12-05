@@ -115,9 +115,13 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     uint32 m_uiPactTimer;
     uint32 m_uiSwarmingShadowsTimer;
 
+    bool m_bHasBitten;
+
     void Reset()
     {
         m_uiPhase               = PHASE_GROUND;
+
+        m_bHasBitten            = false; // for Vampiric Bite
 
         m_uiPhaseTimer          = 2 * MINUTE * IN_MILLISECONDS;
         m_uiEnrageTimer         = (5 * MINUTE + 30) * IN_MILLISECONDS;
@@ -233,13 +237,16 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                     m_uiPhaseTimer -= uiDiff;
 
                 // Vampiric Bite
-                if (m_uiVampiricBiteTimer <= uiDiff)
+                if (!m_bHasBitten)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
-                        m_uiVampiricBiteTimer = 60000;
+                    if (m_uiVampiricBiteTimer <= uiDiff)
+                    {
+                        if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
+                            m_bHasBitten = true;
+                    }
+                    else
+                        m_uiVampiricBiteTimer -= uiDiff;
                 }
-                else
-                    m_uiVampiricBiteTimer -= uiDiff;
 
                 // Twilight Bloodbolt
                 if (m_uiBloodboltTimer <= uiDiff)
