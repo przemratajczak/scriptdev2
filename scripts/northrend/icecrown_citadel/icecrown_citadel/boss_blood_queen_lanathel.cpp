@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     {
         m_uiPhase               = PHASE_GROUND;
 
-        m_uiPhaseTimer          = 5000; // 2 * MINUTE * IN_MILLISECONDS;
+        m_uiPhaseTimer          = 2 * MINUTE * IN_MILLISECONDS;
         m_uiEnrageTimer         = (5 * MINUTE + 30) * IN_MILLISECONDS;
         m_uiVampiricBiteTimer   = 15000;
         m_uiBloodboltTimer      = urand(15000, 20000);
@@ -220,7 +220,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                     m_uiPhase = PHASE_RUNNING;
                     SetCombatMovement(false);
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_GROUND, QueenLocs[0].x, QueenLocs[0].y, QueenLocs[0].z);
-                    m_uiPhaseTimer = 8 * IN_MILLISECONDS;
+                    m_uiPhaseTimer = 13000;
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
@@ -285,7 +285,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 if (m_uiPhaseTimer <= uiDiff)
                 {
                     m_uiPhase = PHASE_FLYING;
-                    m_uiPhaseTimer = 2 * MINUTE * IN_MILLISECONDS;
+                    m_uiPhaseTimer = 2 * MINUTE * IN_MILLISECONDS - 13000; // substract the air phase duration
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_GROUND, QueenLocs[0].x, QueenLocs[0].y, QueenLocs[0].z);
                 }
