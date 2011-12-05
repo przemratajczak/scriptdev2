@@ -97,11 +97,13 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     uint32 m_uiPhase;
 
     uint32 m_uiEnrageTimer;
+    uint32 m_uiPhaseTimer;
 
     void Reset()
     {
         m_uiPhase           = PHASE_GROUND;
 
+        m_uiPhaseTimer      = 2 * MINUTE * IN_MILLISECONDS;
         m_uiEnrageTimer     = (5 * MINUTE + 30) * IN_MILLISECONDS;
     }
 
@@ -154,13 +156,40 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         else
             m_uiEnrageTimer -= uiDiff;
 
-        if (m_uiPhase == PHASE_GROUND)
+        switch (m_uiPhase)
         {
-            DoMeleeAttackIfReady();
-        }
-        else
-        {
-            // do nothing
+            case PHASE_GROUND:
+            {
+                // phase change timer
+                if (m_uiPhaseTimer <= uiDiff)
+                {
+                    m_uiPhase = PHASE_FLYING;
+                    // do fly
+                    m_uiPhaseTimer = 8 * IN_MILLISECONDS;
+                }
+                else
+                    m_uiPhaseTimer -= uiDiff;
+
+                DoMeleeAttackIfReady();
+                break;
+            }
+            case PHASE_FLYING:
+            {
+                // wait for arriving at the point
+                break;
+            }
+            case PHASE_AIR:
+            {
+                // phase change timer
+                if (m_uiPhaseTimer <= uiDiff)
+                {
+                    m_uiPhase = PHASE_GROUND;
+                    m_uiPhaseTimer = 2 * MINUTE * IN_MILLISECONDS;
+                }
+                else
+                    m_uiPhaseTimer -= uiDiff;
+                break;
+            }
         }
     }
 };
