@@ -71,7 +71,7 @@ enum Spells
     //Priest Discipline
     SPELL_RENEW                 = 66177,
     SPELL_SHIELD                = 66099,
-    SPELL_FLASH_HEAL_P            = 66104,
+    SPELL_FLASH_HEAL_P          = 66104,
     SPELL_DISPEL                = 65546,
     SPELL_PSYCHIC_SCREAM        = 65543,
     SPELL_MANA_BURN             = 66100,
@@ -144,73 +144,71 @@ enum Spells
     ********************************************************************/
 
     //Warrior Arms
-    SPELL_BLADESTORM           = 65947,
-    SPELL_INTIMIDATING_SHOUT   = 65930,
-    SPELL_MORTAL_STRIKE        = 65926,
-    SPELL_CHARGE               = 68764,
-    SPELL_DISARM               = 65935,
-    SPELL_OVERPOWER            = 65924,
-    SPELL_SUNDER_ARMOR         = 65936,
-    SPELL_SHATTERING_THROW     = 65940,
-    SPELL_RETALIATION          = 65932,
+    SPELL_BLADESTORM            = 65947,
+    SPELL_INTIMIDATING_SHOUT    = 65930,
+    SPELL_MORTAL_STRIKE         = 65926,
+    SPELL_CHARGE                = 68764,
+    SPELL_DISARM                = 65935,
+    SPELL_OVERPOWER             = 65924,
+    SPELL_SUNDER_ARMOR          = 65936,
+    SPELL_SHATTERING_THROW      = 65940,
+    SPELL_RETALIATION           = 65932,
 
     //Death Knight
-    SPELL_CHAINS             = 66020,    //8sec
-    SPELL_DEATH_COLI         = 66019,    //5sec
-    SPELL_DEATH_GRIP         = 66017,    //35sec
-    SPELL_FROST_STRIKE       = 66047,    //6sec
-    SPELL_ICEBOUND           = 66023,    //1min
-    SPELL_ICE_TOUCH          = 66021,    //8sec
-    SPELL_STRANGULATE        = 66018,    //2min
-
+    SPELL_CHAINS                = 66020,    //8sec
+    SPELL_DEATH_COLI            = 66019,    //5sec
+    SPELL_DEATH_GRIP            = 66017,    //35sec
+    SPELL_FROST_STRIKE          = 66047,    //6sec
+    SPELL_ICEBOUND              = 66023,    //1min
+    SPELL_ICE_TOUCH             = 66021,    //8sec
+    SPELL_STRANGULATE           = 66018,    //2min
 
     //Rogue
-    SPELL_FAN_OF_KNIVES        = 65955, //2sec
-    SPELL_BLIND                = 65960, //2min
-    SPELL_CLOAK                = 65961, //90sec
-    SPELL_BLADE_FLURRY         = 65956, //2min
-    SPELL_SHADOWSTEP           = 66178, //30sec
-    SPELL_HEMORRHAGE           = 65954,
-    SPELL_EVISCERATE           = 65957,
-    SPELL_WOUND_POISON         = 65962,
-
+    SPELL_FAN_OF_KNIVES         = 65955, //2sec
+    SPELL_BLIND                 = 65960, //2min
+    SPELL_CLOAK                 = 65961, //90sec
+    SPELL_BLADE_FLURRY          = 65956, //2min
+    SPELL_SHADOWSTEP            = 66178, //30sec
+    SPELL_HEMORRHAGE            = 65954,
+    SPELL_EVISCERATE            = 65957,
+    SPELL_WOUND_POISON          = 65962,
 
     //Shaman En
-    SPELL_LAVA_LASH        = 65974,
-    SPELL_STORMSTRIKE      = 65970,
-    SPELL_WINDFURY         = 65976,
-    SPELL_MALESTROM        = 65986,
+    SPELL_LAVA_LASH             = 65974,
+    SPELL_STORMSTRIKE           = 65970,
+    SPELL_WINDFURY              = 65976,
+    SPELL_MALESTROM             = 65986,
     //Heroism
     //Earth Shock
 
-    SPELL_TOTEM_WIND        = 39586,
-    SPELL_TOTEM_GROUND      = 65989,
-    SPELL_TOTEM_HEAL        = 71984,
-    SPELL_TOTEM_TREMOR      = 65992,
-    SPELL_TOTEM_STR         = 65991,
-    SPELL_TOTEM_SEARING     = 39588,
+    SPELL_TOTEM_WIND            = 39586,
+    SPELL_TOTEM_GROUND          = 65989,
+    SPELL_TOTEM_HEAL            = 71984,
+    SPELL_TOTEM_TREMOR          = 65992,
+    SPELL_TOTEM_STR             = 65991,
+    SPELL_TOTEM_SEARING         = 39588,
 
 
     //Paladyn Retri
-    SPELL_AVENGING_WRATH       = 66011, //3min cd
-    SPELL_STRIKE               = 66003, //6sec cd
-    SPELL_STORM                = 66006, //10sec cd
-    SPELL_JUDGEMENT_COMAND     = 66005, //8sec cd
-    SPELL_REPENTANCE           = 66008, //60sec cd
-    SPELL_SEAL_COMAND          = 66004, //no cd
+    SPELL_AVENGING_WRATH        = 66011, //3min cd
+    SPELL_STRIKE                = 66003, //6sec cd
+    SPELL_STORM                 = 66006, //10sec cd
+    SPELL_JUDGEMENT_COMAND      = 66005, //8sec cd
+    SPELL_REPENTANCE            = 66008, //60sec cd
+    SPELL_SEAL_COMAND           = 66004, //no cd
     //SPELL_Divine_Shield       = 66010, //5min cd
     //SPELL_Hand_of_Protection  = 66009, //5min cd
-    //SPELL_HAMMER_OF_JUSTICE    = 66007, //40sec cd
+    //SPELL_HAMMER_OF_JUSTICE   = 66007, //40sec cd
 
     //Felhunter
-    SPELL_DEVOUR_MAGIC  = 67518,
-    SPELL_SPELL_LOCK  = 67519,
+    SPELL_DEVOUR_MAGIC          = 67518,
+    SPELL_SPELL_LOCK            = 67519,
 
     //Cat
-    SPELL_CLAW  = 67793,
+    SPELL_CLAW                  = 67793,
 
     //Other
-    //SPELL_TRINKET               = 65547, //5min cd
+    //SPELL_TRINKET             = 65547, //5min cd
     SPELL_HEROISM               = 65983,
     SPELL_BLOODLUST             = 65980,
     AURA_EXHAUSTION             = 57723,
@@ -219,8 +217,8 @@ enum Spells
     SPELL_BLOCK                 = 45438,
 
     //NPC
-    NPC_FELHUNTER = 35465,
-    NPC_CAT     = 35610,
+    NPC_FELHUNTER               = 35465,
+    NPC_CAT                     = 35610,
 
 };
 
@@ -256,6 +254,57 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
     void Reset()
     {
         if(m_pInstance) m_pInstance->SetData(TYPE_CRUSADERS, NOT_STARTED);
+    }
+
+    void JustDied(Unit *killer)
+    {
+        if(m_pInstance) m_pInstance->SetData(TYPE_CRUSADERS_COUNT, 0);
+    }
+
+    void Aggro(Unit *who)
+    {
+        if(!m_pInstance) return;
+        m_pInstance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
+        m_creature->CastSpell(m_creature, SPELL_ANTI_AOE, true);
+            if(who->GetTypeId() != TYPEID_PLAYER)
+                  if (Unit* player = doSelectRandomPlayerAtRange(80.0f))
+                       m_creature->AddThreat(player, 100.0f);
+    }   
+
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho) return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            if(mAIType==AI_MELEE)
+            {
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+            }
+            else
+                DoStartMovement(pWho, 40.0f);
+
+            if(mAIType==AI_HEALER)
+            {
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+            }
+            else
+                DoStartMovement(pWho, 40.0f);
+
+            if(mAIType==AI_RANGED)
+            {
+                m_creature->GetMotionMaster()->MoveChase(pWho);
+            }
+            else
+                DoStartMovement(pWho, 40.0f);
+
+
+            SetCombatMovement(true);
+        }
     }
 
     void JustReachedHome()
@@ -310,20 +359,7 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         //DoCast(m_creature, SPELL_PVP_TRINKET);
     }
 
-    void JustDied(Unit *killer)
-    {
-        if(m_pInstance) m_pInstance->SetData(TYPE_CRUSADERS_COUNT, 0);
-    }
-
-    void Aggro(Unit *who)
-    {
-        if(!m_pInstance) return;
-        m_pInstance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
-        m_creature->CastSpell(m_creature, SPELL_ANTI_AOE, true);
-            if(who->GetTypeId() != TYPEID_PLAYER)
-                  if (Unit* player = doSelectRandomPlayerAtRange(80.0f))
-                       m_creature->AddThreat(player, 100.0f);
-    }    
+ 
 
     //add
     Unit* SelectEnemyTargetWithinMana()
@@ -383,32 +419,6 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         return NULL;
     }
 
-    void AttackStart(Unit* pWho)
-    {
-        if (!pWho) return;
-
-        if (m_creature->Attack(pWho, true))
-        {
-            m_creature->AddThreat(pWho);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
-
-            if(mAIType==AI_MELEE)
-            {
-                
-                m_creature->GetMotionMaster()->MoveChase(pWho);
-            }
-            else
-                DoStartMovement(pWho, 20.0f);
-
-            if(mAIType==AI_HEALER)
-            {
-                m_creature->GetMotionMaster()->Clear();
-            }
-
-            SetCombatMovement(true);
-        }
-    }
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -828,13 +838,13 @@ struct MANGOS_DLL_DECL mob_toc_priestAI : public boss_faction_championsAI
             if(Unit* target = DoSelectLowestHpFriendly(40.0f))
             {
                 DoCastSpellIfCan(target, SPELL_FLASH_HEAL_P);
-                m_creature->CastSpell(target, SPELL_DISPEL, true);
                 m_uiFlashHealTimer = urand(1500, 5000);
             }
         }else m_uiFlashHealTimer -= uiDiff;
 
         if(m_uiPsychicScreamTimer < uiDiff)
         {
+            m_creature->CastSpell(m_creature->getVictim(), SPELL_DISPEL, true);
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_PSYCHIC_SCREAM);
             m_uiPsychicScreamTimer = urand(8000, 20000);
         }else m_uiPsychicScreamTimer -= uiDiff;
