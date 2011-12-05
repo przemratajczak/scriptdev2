@@ -114,7 +114,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     uint32 m_uiBloodboltTimer;
     uint32 m_uiPactTimer;
     uint32 m_uiSwarmingShadowsTimer;
-    uint32 m_uiBloodboltWhirlTimer;
 
     void Reset()
     {
@@ -143,7 +142,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
     void Aggro(Unit* pWho)
     {
-        if (!m_pInstance) 
+        if (m_pInstance) 
             m_pInstance->SetData(TYPE_LANATHEL, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
@@ -169,18 +168,21 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             {
                 m_creature->GetMotionMaster()->Clear();
                 m_uiPhase = PHASE_AIR; // start counting timer for Bloodbolt Whirl immediately
-                m_uiBloodboltWhirlTimer = 4000;
 
                 if (DoCastSpellIfCan(m_creature, SPELL_INCITE_HORROR) == CAST_OK)
                 {
+                    m_creature->SetWalk(true);
                     m_creature->SetLevitate(true);
+                    m_creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_AIR, QueenLocs[1].x, QueenLocs[1].y, QueenLocs[1].z, false);
                 }
             }
             else
             {
+                m_creature->SetWalk(false);
                 m_uiPhase = PHASE_GROUND;
                 m_creature->SetLevitate(false);
+                m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
                 SetCombatMovement(true);
                 if (m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -188,7 +190,12 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         }
         else if (uiData == POINT_CENTER_AIR)
         {
-            m_uiPhase = PHASE_AIR;
+            // Bloodbolt Whirl
+            if (DoCastSpellIfCan(m_creature, SPELL_BLOODBOLT_WHIRL) == CAST_OK)
+            {
+                m_uiPhase = PHASE_AIR;
+                m_uiPhaseTimer = 7000;
+            }
         }
     }
 
@@ -262,6 +269,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                     m_uiSwarmingShadowsTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
+
                 break;
             }
             case PHASE_RUNNING:
@@ -272,15 +280,6 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             }
             case PHASE_AIR:
             {
-                // Bloodbolt Whirl
-                if (m_uiBloodboltWhirlTimer <= uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_BLOODBOLT_WHIRL) == CAST_OK)
-                        m_uiBloodboltWhirlTimer = 30000; // just dont cast it again
-                }
-                else
-                    m_uiBloodboltWhirlTimer -= uiDiff;
-
                 // phase change timer
                 if (m_uiPhaseTimer <= uiDiff)
                 {
@@ -291,6 +290,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
+
                 break;
             }
         }
