@@ -175,18 +175,23 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
                 if (DoCastSpellIfCan(m_creature, SPELL_INCITE_HORROR) == CAST_OK)
                 {
+                    // fly up
                     m_creature->SetWalk(true);
                     m_creature->SetLevitate(true);
                     m_creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
+
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_AIR, QueenLocs[1].x, QueenLocs[1].y, QueenLocs[1].z, false);
                 }
             }
             else
             {
-                m_creature->SetWalk(false);
                 m_uiPhase = PHASE_GROUND;
+
+                // stop flying
+                m_creature->SetWalk(false);
                 m_creature->SetLevitate(false);
                 m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
+
                 SetCombatMovement(true);
                 if (m_creature->getVictim())
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
