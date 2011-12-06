@@ -36,6 +36,7 @@ enum BossSpells
  // SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
  // SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
     SPELL_SWARMING_SHADOWS              = 71861,
+    SPELL_SWARMING_SHADOWS_TRIGGERED    = 71864, // triggered by previous
     SPELL_SWARMING_SHADOWS_AURA         = 71267,
     SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
     SPELL_VAMPIRIC_BITE                 = 71837,
@@ -196,6 +197,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             {
                 m_uiPhase = PHASE_AIR;
                 m_uiPhaseTimer = 7000;
+                DoScriptText(SAY_AIR_PHASE, m_creature);
             }
         }
     }
@@ -248,7 +250,10 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                     if (m_uiVampiricBiteTimer <= uiDiff)
                     {
                         if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
+                        {
                             m_bHasBitten = true;
+                            DoScriptText(SAY_BITE_1 - urand(0, 1), m_creature);
+                        }
                     }
                     else
                         m_uiVampiricBiteTimer -= uiDiff;
@@ -267,7 +272,10 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 if (m_uiPactTimer <= uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_PACT_OF_THE_DARKFALLEN) == CAST_OK)
+                    {
                         m_uiPactTimer = urand(20000, 25000);
+                        DoScriptText(SAY_PACT, m_creature);
+                    }
                 }
                 else
                     m_uiPactTimer -= uiDiff;
@@ -275,8 +283,20 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 // Swarming Shadows
                 if (m_uiSwarmingShadowsTimer <= uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_SWARMING_SHADOWS) == CAST_OK)
-                        m_uiSwarmingShadowsTimer = urand(30000, 35000);
+                    /**
+                     * spell which handles picking targets
+                     * but we can use SelectAttackingTarget() here
+                     * if (DoCastSpellIfCan(m_creature, SPELL_SWARMING_SHADOWS) == CAST_OK)
+                     */
+                    /*if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1,
+                            SPELL_SWARMING_SHADOWS_TRIGGERED, SELECT_FLAG_PLAYER | SELECT_FLAG_NOT_IN_MELEE_RANGE))
+                    {
+                        if (DoCastSpellIfCan(pTarget, SPELL_SWARMING_SHADOWS_TRIGGERED) == CAST_OK)
+                        {
+                            m_uiSwarmingShadowsTimer = urand(30000, 35000);
+                            DoScriptText(SAY_SHADOWS, m_creature);
+                        }
+                    }*/
                 }
                 else
                     m_uiSwarmingShadowsTimer -= uiDiff;
