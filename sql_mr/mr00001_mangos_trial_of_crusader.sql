@@ -163,4 +163,3 @@ flags_extra, ScriptName) VALUES ('198722', '0', '0', '0', '0', '17612', '1126', 
 UPDATE `creature_template` SET `modelid_1` = 17612, `modelid_2` = 1126, `name` = 'Anub\'arak Permafrost', `subname` = 0, 
 `unit_flags` = 516 WHERE `entry` = 198722;
 
->>>>>>> 91d49d402bc0cc27e3357b32715306c30a022298
