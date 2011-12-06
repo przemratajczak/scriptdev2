@@ -564,6 +564,7 @@ struct MANGOS_DLL_DECL boss_keleseth_iccAI : public base_blood_prince_council_bo
 
         m_bHasCastShadowPrison = false;
         m_uiShadowLanceTimer = urand(2000, 5000);
+        m_uiSphereTimer = 4000;
     }
 
     void KilledUnit(Unit *pVictim)

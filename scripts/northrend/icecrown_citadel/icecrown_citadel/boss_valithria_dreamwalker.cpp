@@ -165,28 +165,36 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public ScriptedAI
     uint32 m_uiSummonPortalsTimer;
     uint32 m_uiOutroTimer;
 
-    uint32 m_uiSummonCounter;
-    uint32 m_uiSummonIter;
-    uint32 m_uiSummonAddTimer;
     uint32 m_uiSummonSuppresserTimer;
+    uint32 m_uiSummonAbominationTimer;
+    uint32 m_uiSummonZombieTimer;
+    uint32 m_uiSummonSkeletonTimer;
+    uint32 m_uiSummonArchmageTimer;
+
+    uint32 m_uiSummonSuppresserCounter;
+    uint32 m_uiSummonSkeletonCounter;
 
     void Reset()
     {
-        m_bCombatStarted        = false;
-        m_bIsEnrage             = false;
-        m_bSaidOver25           = false;
-        m_bSaidOver75           = false;
-        m_bIsHealed             = false;
+        m_bCombatStarted            = false;
+        m_bIsEnrage                 = false;
+        m_bSaidOver25               = false;
+        m_bSaidOver75               = false;
+        m_bIsHealed                 = false;
 
-        m_uiEnrageTimer         = 7 * MINUTE * IN_MILLISECONDS;
-        m_uiHealthCheckTimer    = 30000; // no need to check in the beginning of the fight
-        m_uiOutroTimer          = 4000;
-        m_uiSummonPortalsTimer  = 30000;
+        m_uiEnrageTimer             = 7 * MINUTE * IN_MILLISECONDS;
+        m_uiHealthCheckTimer        = 30000; // no need to check in the beginning of the fight
+        m_uiOutroTimer              = 4000;
+        m_uiSummonPortalsTimer      = 30000;
 
-        m_uiSummonCounter       = 0;
-        m_uiSummonIter          = 9;
-        m_uiSummonAddTimer      = 20000;
-        m_uiSummonSuppresserTimer = 25000;
+        m_uiSummonSuppresserTimer   = 60000;
+        m_uiSummonAbominationTimer  = 30000;
+        m_uiSummonZombieTimer       = 35000;
+        m_uiSummonSkeletonTimer     = 45000;
+        m_uiSummonArchmageTimer     = 40000;
+
+        m_uiSummonSuppresserCounter = 0;
+        m_uiSummonSkeletonCounter   = 0;
 
         m_creature->SetHealth(m_creature->GetMaxHealth() / 2.0f);
         DoCastSpellIfCan(m_creature, SPELL_CORRUPTION, CAST_TRIGGERED);
@@ -253,18 +261,28 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public ScriptedAI
         m_creature->SetRespawnDelay(60);
     }
 
-    void DoSummonAdd()
+    void DoSummonAdd(uint32 uiEntry)
     {
         uint32 loc = urand(1, 2 + (m_bIs25Man ? 2 : 0));
-        uint32 uiEntry = m_uiSummonedAddsEntries[m_uiSummonIter];
-        m_uiSummonIter = (m_uiSummonIter + 1) % SUMMON_TYPES_NUMBER;
-
         m_creature->SummonCreature(uiEntry, SpawnLoc[loc].x, SpawnLoc[loc].y, SpawnLoc[loc].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+
+        // some additional control of summoning adds (anti flood system)
+        if (!m_bIsEnrage)
+        {
+            if (m_uiSummonAbominationTimer < 5000)
+                m_uiSummonAbominationTimer += 5000;
+            else if (m_uiSummonZombieTimer < 5000)
+                m_uiSummonZombieTimer += 5000;
+
+            if (m_uiSummonArchmageTimer < 5000)
+                m_uiSummonArchmageTimer += 5000;
+            else if (m_uiSummonSkeletonTimer < 5000)
+                m_uiSummonSkeletonTimer += 5000;
+        }
     }
 
     void JustSummoned(Creature *pCreature)
     {
-        ++m_uiSummonCounter;
         pCreature->SetInCombatWithZone();
 
         if (pCreature->GetEntry() == NPC_SUPPRESSER)
@@ -272,40 +290,6 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public ScriptedAI
             pCreature->AddThreat(m_creature, 100000);
             pCreature->GetMotionMaster()->MoveChase(m_creature);
         }
-    }
-
-    uint32 GetNextSummonTimer()
-    {
-        uint32 min = 4000;
-        uint32 max = 9000;
-
-        if (m_uiSummonCounter > 10)
-        {
-            min = 3500;
-            max = 8500;
-        }
-        if (m_uiSummonCounter > 20)
-        {
-            min = 3000;
-            max = 8000;
-        }
-        if (m_uiSummonCounter > 30)
-        {
-            min = 2500;
-            max = 7000;
-        }
-        if (m_uiSummonCounter > 40)
-        {
-            min = 2000;
-            max = 6000;
-        }
-        if (m_uiSummonCounter > 50) // almost 7 minutes - considered as enrage
-        {
-            min = 1500;
-            max = 5000;
-        }
-
-        return m_bIsEnrage ? 3000 : 8000 + urand(min, max);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -407,40 +391,64 @@ struct MANGOS_DLL_DECL boss_valithria_dreamwalkerAI : public ScriptedAI
         else
             m_uiSummonPortalsTimer -= uiDiff;
 
-        // Summon Adds
-        if (m_uiSummonAddTimer <= uiDiff)
-        {
-            DoSummonAdd();
-            m_uiSummonAddTimer = GetNextSummonTimer();
-        }
-        else
-            m_uiSummonAddTimer -= uiDiff;
+        // Summon adds
 
         // Summon Suppresser
         if (m_uiSummonSuppresserTimer <= uiDiff)
         {
-            uint32 max = 1;
-            if (roll_chance_i(30))
-                ++max;
-            if (m_bIsEnrage)
-                ++max;
+            uint32 uiReduction;
 
-            for (uint32 i = 0; i < max; ++i)
-            {
-                uint32 loc = urand(1, 2 + (m_bIs25Man ? 2 : 0));
-                m_creature->SummonCreature(NPC_SUPPRESSER, SpawnLoc[loc].x, SpawnLoc[loc].y, SpawnLoc[loc].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            for (uint32 i = 0; i < urand(1, m_bIs25Man ? 3 : 2) + m_uiSummonSuppresserCounter; ++i)
+                DoSummonAdd(NPC_SUPPRESSER);
 
-                if (m_bIsEnrage)
-                {
-                    loc = urand(1, 2 + (m_bIs25Man ? 2 : 0));
-                    m_creature->SummonCreature(NPC_BLAZING_SKELETON, SpawnLoc[loc].x, SpawnLoc[loc].y, SpawnLoc[loc].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-                }
-            }
-
-            m_uiSummonSuppresserTimer = m_bIsEnrage ? urand(10000, 15000) : urand(15000, 30000);
+            // 5s faster each summoning
+            uiReduction = m_uiSummonSuppresserCounter >= 10 ? 50000 : (m_uiSummonSuppresserCounter * 5000);
+            m_uiSummonSuppresserTimer = 60000 - uiReduction; 
+            ++m_uiSummonSuppresserCounter;
         }
         else
             m_uiSummonSuppresserTimer -= uiDiff;
+
+        // Summon Blazing Skeleton
+        if (m_uiSummonSkeletonTimer <= uiDiff)
+        {
+            uint32 uiReduction;
+
+            DoSummonAdd(NPC_BLAZING_SKELETON);
+            // 5s faster each summoning
+            uiReduction = m_uiSummonSkeletonCounter >= 10 ? 50000 : (m_uiSummonSkeletonCounter * 5000);
+            m_uiSummonSkeletonTimer = 60000 - uiReduction;
+            ++m_uiSummonSkeletonCounter;
+        }
+        else
+            m_uiSummonSkeletonTimer -= uiDiff;
+
+        // Summon Abomination
+        if (m_uiSummonAbominationTimer <= uiDiff)
+        {
+            DoSummonAdd(NPC_GLUTTONOUS_ABOMINATION);
+            m_uiSummonAbominationTimer = urand(30000, 60000);
+        }
+        else
+            m_uiSummonAbominationTimer -= uiDiff;
+
+        // Summon Zombie
+        if (m_uiSummonZombieTimer <= uiDiff)
+        {
+            DoSummonAdd(NPC_BLISTERING_ZOMBIE);
+            m_uiSummonZombieTimer = urand(25000, 50000);
+        }
+        else
+            m_uiSummonZombieTimer -= uiDiff;
+
+        // Summon Archmage
+        if (m_uiSummonArchmageTimer <= uiDiff)
+        {
+            DoSummonAdd(NPC_RISEN_ARCHMAGE);
+            m_uiSummonArchmageTimer = urand(20000, 50000);
+        }
+        else
+            m_uiSummonArchmageTimer -= uiDiff;
     }
 };
 
@@ -716,7 +724,7 @@ struct MANGOS_DLL_DECL mob_blazing_skeletonAI : public ScriptedAI
     void Reset()
     {
         m_uiFireballTimer = urand(3000, 5000);
-        m_uiLayWasteTimer = urand(10000, 15000);
+        m_uiLayWasteTimer = urand(15000, 30000);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -757,11 +765,26 @@ CreatureAI* GetAI_mob_blazing_skeleton(Creature *pCreature)
 // Suppresser
 struct MANGOS_DLL_DECL mob_suppresserAI : public ScriptedAI
 {
-    mob_suppresserAI(Creature *pCreature) : ScriptedAI(pCreature){}
+    mob_suppresserAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance *m_pInstance;
+
     void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_VALITHRIA) == FAIL)
+            {
+                m_creature->ForcedDespawn();
+                return;
+            }
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
