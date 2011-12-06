@@ -36,7 +36,7 @@ enum BossSpells
  // SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
  // SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
     SPELL_SWARMING_SHADOWS              = 71861,
-    SPELL_SWARMING_SHADOWS_TRIGGERED    = 71864, // triggered by previous
+    SPELL_SWARMING_SHADOWS_TRIGGERED    = 71264, // triggered by previous
     SPELL_SWARMING_SHADOWS_AURA         = 71267,
     SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
     SPELL_VAMPIRIC_BITE                 = 71837,
