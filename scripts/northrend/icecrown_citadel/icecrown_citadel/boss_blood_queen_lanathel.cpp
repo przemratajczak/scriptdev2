@@ -32,15 +32,15 @@ enum BossSpells
 
     // phase ground
     SPELL_BLOOD_MIRROR                  = 70450, // cast at main target, then dummy effect finds the mirror target
-    SPELL_DELIRIOUS_SLASH               = 72261,
- // SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
- // SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
+ // SPELL_DELIRIOUS_SLASH               = 72261,
+    SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
+    SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
     SPELL_SWARMING_SHADOWS              = 71861,
     SPELL_SWARMING_SHADOWS_TRIGGERED    = 71264, // triggered by previous
     SPELL_SWARMING_SHADOWS_AURA         = 71267,
     SPELL_PACT_OF_THE_DARKFALLEN        = 71336,
-    SPELL_VAMPIRIC_BITE                 = 71837,
- // SPELL_VAMPIRIC_BITE_TRIGGERED       = 71726, // triggered spell with effects
+ // SPELL_VAMPIRIC_BITE                 = 71837,
+    SPELL_VAMPIRIC_BITE_TRIGGERED       = 71726, // triggered spell with effects
  // SPELL_VAMPIRIC_BITE_PLAYER          = 70946, // used by players
     SPELL_TWILIGHT_BLOODBOLT            = 71445,
  // SPELL_TWILIGHT_BLOODBOLT_VISUAL     = 72313, // dummy effect
@@ -202,6 +202,53 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         }
     }
 
+    Unit* SelectClosestFriendlyTarget(Unit *pVictim)
+    {
+        Unit *pResult = NULL;
+
+        if (m_pInstance)
+        {
+            float lastDist = 500.0f;
+            const Map::PlayerList &players = m_pInstance->instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                if ((*itr).getSource()->isGameMaster() ||                            // don't target GMs
+                    (*itr).getSource()->GetObjectGuid() == pVictim->GetObjectGuid()) // don't target current victim
+                    continue;
+
+                float dist = pVictim->GetDistance((*itr).getSource());
+                if (dist < lastDist)
+                {
+                    pResult = (*itr).getSource();
+                    lastDist = dist;
+                }
+            }
+        }
+
+        return pResult;
+    }
+
+    Unit* SelectVampiricBiteTarget()
+    {
+        const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+        ThreatList::const_iterator itr = threatList.begin();
+        std::advance(itr, 1);
+        for (;itr != threatList.end(); ++itr)
+        {
+            if (Unit *pVictim = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+            {
+                if (!pVictim->HasAuraOfDifficulty(70867) &&
+                    !pVictim->HasAuraOfDifficulty(70877) &&
+                    !pVictim->HasAuraOfDifficulty(70923))
+                {
+                    return pVictim;
+                }
+            }
+        }
+
+        return NULL;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
 
@@ -238,8 +285,21 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 // Delirious Slash
                 if (m_uiDeliriousSlashTimer <= uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_DELIRIOUS_SLASH) == CAST_OK)
-                        m_uiDeliriousSlashTimer = 15000;
+                    /**
+                     * Spell that handles targeting - we can do this here.
+                     * if (DoCastSpellIfCan(m_creature, SPELL_DELIRIOUS_SLASH) == CAST_OK)
+                     */
+                    if (Unit *pTarget = SelectClosestFriendlyTarget(m_creature->getVictim()))
+                    {
+                        uint32 spell = SPELL_DELIRIOUS_SLASH_1;
+
+                        // if target is not in 5yd range then cast spell with charge effect
+                        if (!m_creature->IsWithinDist(pTarget, 5.0f))
+                            spell = SPELL_DELIRIOUS_SLASH_2;
+
+                        if (DoCastSpellIfCan(pTarget, spell) == CAST_OK)
+                            m_uiDeliriousSlashTimer = 15000;
+                    }
                 }
                 else
                     m_uiDeliriousSlashTimer -= uiDiff;
@@ -249,10 +309,17 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 {
                     if (m_uiVampiricBiteTimer <= uiDiff)
                     {
-                        if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
+                        /**
+                         * Spell handles targeting, but we can do this here.
+                         * if (DoCastSpellIfCan(m_creature, SPELL_VAMPIRIC_BITE) == CAST_OK)
+                         */
+                        if (Unit *pTarget = SelectVampiricBiteTarget())
                         {
-                            m_bHasBitten = true;
-                            DoScriptText(SAY_BITE_1 - urand(0, 1), m_creature);
+                            if (DoCastSpellIfCan(pTarget, SPELL_VAMPIRIC_BITE_TRIGGERED) == CAST_OK)
+                            {
+                                m_bHasBitten = true;
+                                DoScriptText(SAY_BITE_1 - urand(0, 1), m_creature);
+                            }
                         }
                     }
                     else
