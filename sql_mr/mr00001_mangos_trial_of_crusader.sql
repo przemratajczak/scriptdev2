@@ -65,6 +65,7 @@ UPDATE `creature_template` SET `name` = 'Kavina Grovesong' WHERE `entry` = 34469
 UPDATE `creature_template` SET `modelid_1` = 29781 WHERE `entry` = 34469;
 UPDATE `creature_template` SET `PowerType` = 3 WHERE entry IN (34472, 34454);
 UPDATE `creature_template` SET `mechanic_immune_mask` = 1 WHERE `entry` IN (34460, 34463, 34461, 34472, 34475, 34471, 34473, 34468, 34467, 34474, 34470, 34466, 34465, 34469, 34451, 34455, 34458, 34454, 34453, 34456, 34441, 34449, 34448, 34450, 34444, 34447, 34445, 34459);
+UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE entry IN (34460, 34463, 34461, 34472, 34475, 34471, 34473, 34468, 34467, 34474, 34470, 34466, 34465, 34469, 34451, 34455, 34458, 34454, 34453, 34456, 34441, 34449, 34448, 34450, 34444, 34447, 34445, 34459);
 
 
 UPDATE `creature_template` SET `lootid`= 0 WHERE  `entry` IN
