@@ -195,11 +195,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
             if (m_bIs25Man && m_bIsHeroic)
                 max = 6;
 
-            for (int i = 0; i < max; ++i)
-            {
-                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_FROST_BEACON, SELECT_FLAG_PLAYER))
-                    m_creature->CastSpell(pTarget, SPELL_FROST_BEACON, true);
-            }
+            DoMark(max);
 
             // set timers
             m_uiIceTombTimer    = 6000;
@@ -226,6 +222,50 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
         z = SindragosaLoc[0].z;
 
         m_creature->CastSpell(x, y, z, SPELL_FROST_BOMB, false);
+    }
+
+    void DoMark(uint32 count)
+    {
+        // get threat list
+        std::list<Unit*> targetUnitList;
+        const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+        for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+        {
+            if (!(*itr)->getUnitGuid().IsPlayer())
+                continue;
+
+            if (m_creature->getVictim() &&
+                (*itr)->getUnitGuid() == m_creature->getVictim()->GetObjectGuid())
+            {
+                continue;
+            }
+
+            if (Unit *pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+                targetUnitList.push_back(pUnit);
+        }
+
+        // random targets
+        while (targetUnitList.size() > count)
+        {
+            uint32 poz = urand(0, targetUnitList.size()-1);
+            for (std::list<Unit*>::iterator itr = targetUnitList.begin(); itr != targetUnitList.end(); ++itr, --poz)
+            {
+                if (!*itr) continue;
+
+                if (!poz)
+                {
+                    targetUnitList.erase(itr);
+                    break;
+                }
+            }
+        }
+
+        // cast
+        for (std::list<Unit*>::iterator itr = targetUnitList.begin(); itr != targetUnitList.end(); ++itr)
+        {
+            if (Unit *pTarget = (*itr))
+                m_creature->CastSpell(pTarget, SPELL_FROST_BEACON, true);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -481,6 +521,7 @@ struct MANGOS_DLL_DECL mob_ice_tombAI : public ScriptedAI
     {
         SetCombatMovement(false);
         m_uiCheckTimer = 30000;
+        m_creature->SetRespawnDelay(7 * DAY * IN_MILLISECONDS);
     }
 
     uint32 m_uiCheckTimer;
