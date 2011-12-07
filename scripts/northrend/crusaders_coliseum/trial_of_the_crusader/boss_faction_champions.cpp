@@ -2126,13 +2126,15 @@ struct MANGOS_DLL_DECL  mob_toc_pet_warlockAI : public boss_faction_championsAI
 
     void Reset()
     {
-        boss_faction_championsAI::Reset();
         m_uiDevourMagicTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         m_uiSpellLockTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
+       if (m_pInstance && m_pInstance->GetData(TYPE_CRUSADERS) != IN_PROGRESS) 
+            m_creature->ForcedDespawn();
+
         if(!m_creature->SelectHostileTarget() || !m_creature->getVictim()) return;
 
         if(m_uiDevourMagicTimer <= uiDiff)
@@ -2173,6 +2175,9 @@ struct MANGOS_DLL_DECL  mob_toc_pet_hunterAI : public boss_faction_championsAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+       if (m_pInstance && m_pInstance->GetData(TYPE_CRUSADERS) != IN_PROGRESS) 
+            m_creature->ForcedDespawn();
+
         if(!m_creature->SelectHostileTarget() || !m_creature->getVictim()) return;
 
         if(m_uiClawTimer <= uiDiff)
