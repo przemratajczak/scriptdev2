@@ -1812,8 +1812,11 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
 
         if(m_uiHemorrhageTimer <= uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HEMORRHAGE);
-            m_uiHemorrhageTimer = urand(8*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+            if(m_creature->IsWithinDist(m_creature->getVictim(), 3.0f))
+            {
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_HEMORRHAGE);
+                m_uiHemorrhageTimer = urand(8*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+            }
         }else m_uiHemorrhageTimer -= uiDiff;
 
         if(m_uiEviscerateTimer <= uiDiff)
