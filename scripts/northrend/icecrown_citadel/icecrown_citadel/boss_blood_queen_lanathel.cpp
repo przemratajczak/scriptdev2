@@ -31,7 +31,7 @@ enum BossSpells
     SPELL_SHROUD_OF_SORROW              = 70986,
 
     // phase ground
-    SPELL_BLOOD_MIRROR                  = 70450, // cast at main target, then dummy effect finds the mirror target
+    SPELL_BLOOD_MIRROR                  = 70445,
  // SPELL_DELIRIOUS_SLASH               = 72261,
     SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
     SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
@@ -98,6 +98,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
     uint32 m_uiPhase;
 
+    uint32 m_uiBloodMirrorTimer;
     uint32 m_uiEnrageTimer;
     uint32 m_uiPhaseTimer;
     uint32 m_uiVampiricBiteTimer;
@@ -116,6 +117,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
         m_uiPhaseTimer          = 2 * MINUTE * IN_MILLISECONDS;
         m_uiEnrageTimer         = (5 * MINUTE + 30) * IN_MILLISECONDS;
+        m_uiBloodMirrorTimer    = 0;
         m_uiDeliriousSlashTimer = 20000;
         m_uiVampiricBiteTimer   = 15000;
         m_uiBloodboltTimer      = urand(15000, 20000);
@@ -212,7 +214,9 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             const Map::PlayerList &players = m_pInstance->instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if ((*itr).getSource()->isGameMaster() ||                            // don't target GMs
+                if (!(*itr).getSource()->IsInWorld() ||                              // don't target not in world players
+                    !(*itr).getSource()->isAlive() ||                                // don't target dead players
+                    (*itr).getSource()->isGameMaster() ||                            // don't target GMs
                     (*itr).getSource()->GetObjectGuid() == pVictim->GetObjectGuid()) // don't target current victim
                     continue;
 
@@ -239,8 +243,7 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
             {
                 if (!pVictim->HasAuraOfDifficulty(70867) && // Essence of the Blood Queen
                     !pVictim->HasAuraOfDifficulty(70877) && // Frenzied Bloodthirst
-                    !pVictim->HasAuraOfDifficulty(70451) && // Blood Mirror
-                    !pVictim->HasAuraOfDifficulty(70445) &&
+                    !pVictim->HasAuraOfDifficulty(70445) && // Blood Mirror
                     !pVictim->HasAuraOfDifficulty(70923))   // Uncontrollable Frenzy
                 {
                     return pVictim;
@@ -283,6 +286,18 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
+
+                // Blood Mirror
+                if (m_uiBloodMirrorTimer <= uiDiff)
+                {
+                    if (Unit *pVictim = SelectClosestFriendlyTarget(m_creature->getVictim()))
+                    {
+                        pVictim->CastSpell(m_creature->getVictim(), SPELL_BLOOD_MIRROR, true, 0, 0, pVictim->GetObjectGuid());
+                        m_uiBloodMirrorTimer = 5000;
+                    }
+                }
+                else
+                    m_uiBloodMirrorTimer -= uiDiff;
 
                 // Delirious Slash
                 if (m_uiDeliriousSlashTimer <= uiDiff)

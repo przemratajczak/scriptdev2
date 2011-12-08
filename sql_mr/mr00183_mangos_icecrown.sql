@@ -315,9 +315,22 @@ UPDATE `gameobject` SET `state` = '0' WHERE `id` IN (201376);
 UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lanathel', `AIName`='' WHERE `entry`= 37955;
 UPDATE `creature_template` SET  `minlevel` = 80, `maxlevel` = 80, `AIName` ='', `faction_A`= 14, `faction_H` = 14,`ScriptName`='mob_swarming_shadows' WHERE `entry`= 38163;
 UPDATE `gameobject_template` SET `faction` = '0', `ScriptName` = 'go_frostwing_sigil' WHERE `gameobject_template`.`entry` IN (202181);
+
+-- Essence of the Blood Queen
 DELETE FROM `spell_proc_event` WHERE entry IN (70871);
 INSERT INTO `spell_proc_event` VALUES
 (70871, 0x7F,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0.000000, 0.000000, 0);
+
+-- Mirror Soul proc on melee hits
+DELETE FROM `spell_proc_event` WHERE entry IN (70445);
+INSERT INTO `spell_proc_event` VALUES
+(70445, 0x7F,  0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x00000000, 0, 100, 0);
+
+-- Presence of the Darkfallen
+DELETE FROM spell_script_target WHERE entry IN (70995, 71952);
+INSERT INTO spell_script_target VALUES
+(71952, 1, 37955),
+(70995, 1, 37955);
 
 DELETE FROM `creature_model_info` WHERE (`modelid`=31165);
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (31165, 3, 5, 2, 0, 0);
