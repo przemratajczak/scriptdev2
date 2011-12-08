@@ -1289,7 +1289,7 @@ struct MANGOS_DLL_DECL mob_toc_hunterAI : public boss_faction_championsAI
             {
                 m_creature->CastSpell(m_creature->getVictim(), SPELL_WING_CLIP, true);
                 m_creature->CastSpell(m_creature, SPELL_DISENGAGE, true);
-                m_uiLeapTimer = 0; //urand(8000, 15000); 
+                m_uiLeapTimer = urand(8000, 15000); 
             }
         }else m_uiLeapTimer -= uiDiff;
 
@@ -1570,7 +1570,7 @@ struct MANGOS_DLL_DECL mob_toc_warriorAI : public boss_faction_championsAI
             if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 DoCastSpellIfCan(pTarget, SPELL_CHARGE);
-                m_uiChargeTimer = urand(3000, 16000);
+                m_uiChargeTimer = urand(6*IN_MILLISECONDS, 16*IN_MILLISECONDS);
             }
         }else m_uiChargeTimer -= uiDiff;
 
@@ -1583,31 +1583,31 @@ struct MANGOS_DLL_DECL mob_toc_warriorAI : public boss_faction_championsAI
         if(m_uiMortalStrikeTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
-            m_uiMortalStrikeTimer = urand(6000, 15000);
+            m_uiMortalStrikeTimer = urand(10*IN_MILLISECONDS, 18*IN_MILLISECONDS);
         }else m_uiMortalStrikeTimer -= uiDiff;
 
         if(m_uiSunderArmorTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
-            m_uiSunderArmorTimer = urand(4000, 16000);
+            m_uiSunderArmorTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
         }else m_uiSunderArmorTimer -= uiDiff;
 
         if(m_uiRetaliationTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_RETALIATION);
-            m_uiRetaliationTimer = urand(25000, 52000);
+            m_uiRetaliationTimer = 5*MINUTE*IN_MILLISECONDS;
         }else m_uiRetaliationTimer -= uiDiff;
 
         if(m_uiOverpowerTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_OVERPOWER);
-            m_uiOverpowerTimer = urand(1000, 19000);
+            m_uiOverpowerTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
         }else m_uiOverpowerTimer -= uiDiff;
 
         if(m_uiDisarmTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_DISARM);
-            m_uiDisarmTimer = urand(20000, 40000);
+            m_uiDisarmTimer = 40*IN_MILLISECONDS;
         }else m_uiDisarmTimer -= uiDiff;
 
         if(m_uiShatteringThrowTimer < uiDiff)
