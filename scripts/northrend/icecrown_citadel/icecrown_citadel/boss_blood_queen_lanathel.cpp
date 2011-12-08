@@ -232,14 +232,16 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     {
         const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
         ThreatList::const_iterator itr = threatList.begin();
-        std::advance(itr, 1);
+        std::advance(itr, 1); // don't target the main tank
         for (;itr != threatList.end(); ++itr)
         {
             if (Unit *pVictim = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
             {
-                if (!pVictim->HasAuraOfDifficulty(70867) &&
-                    !pVictim->HasAuraOfDifficulty(70877) &&
-                    !pVictim->HasAuraOfDifficulty(70923))
+                if (!pVictim->HasAuraOfDifficulty(70867) && // Essence of the Blood Queen
+                    !pVictim->HasAuraOfDifficulty(70877) && // Frenzied Bloodthirst
+                    !pVictim->HasAuraOfDifficulty(70451) && // Blood Mirror
+                    !pVictim->HasAuraOfDifficulty(70445) &&
+                    !pVictim->HasAuraOfDifficulty(70923))   // Uncontrollable Frenzy
                 {
                     return pVictim;
                 }
