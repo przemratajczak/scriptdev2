@@ -1888,11 +1888,11 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
     void Reset()
     {
         m_uiHeroismOrBloodlustTimer = urand(25*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-        m_uiEarthShockTimer = urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS);
-        m_uiStormstrikeTimer = urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+        m_uiEarthShockTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+        m_uiStormstrikeTimer = urand(9*IN_MILLISECONDS, 20*IN_MILLISECONDS);
         m_uiLavaLashTimer = urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS);
         m_uiWindFuryTimer = urand(5000, 15000);
-        m_uiKillPlayerTimer = 1000;
+        m_uiKillPlayerTimer = 0;
         m_uiSummonTotemTimer = 0;
 
         SetEquipmentSlots(false, 51803, 48013, EQUIP_NO_CHANGE);
@@ -1910,6 +1910,7 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
                 break;
         }
     }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if(!m_creature->SelectHostileTarget() || !m_creature->getVictim()) return;
@@ -1940,19 +1941,19 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
         if(m_uiEarthShockTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_EARTH_SHOCK);
-            m_uiEarthShockTimer = urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS);
+            m_uiEarthShockTimer = urand(12*IN_MILLISECONDS, 15*IN_MILLISECONDS);
         }else m_uiEarthShockTimer -= uiDiff;
 
         if(m_uiStormstrikeTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_STORMSTRIKE);
-            m_uiStormstrikeTimer = urand(8*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+            m_uiStormstrikeTimer = urand(14*IN_MILLISECONDS, 20*IN_MILLISECONDS);
         }else m_uiStormstrikeTimer -= uiDiff;
 
         if(m_uiLavaLashTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_LAVA_LASH);
-            m_uiLavaLashTimer = urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS);
+            m_uiLavaLashTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
         }else m_uiLavaLashTimer -= uiDiff;
 
         //Its not blizzlike but work.
@@ -1961,14 +1962,14 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
             if(m_creature->IsWithinDist(m_creature->getVictim(), 3.0f))
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_WINDFURY);
-                m_uiWindFuryTimer = urand(5000, 15000);
+                m_uiWindFuryTimer = urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             }
         }else m_uiWindFuryTimer -= uiDiff;
 
         if(m_uiTotemTimer < uiDiff)
         {
             Totems();
-            m_uiTotemTimer = urand(1500, 3000);
+            m_uiTotemTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
         }else m_uiTotemTimer -= uiDiff;
 
         if(m_uiSummonTotemTimer < uiDiff)
@@ -1978,7 +1979,7 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
             m_creature->CastSpell(m_creature, SPELL_TOTEM_STR, true);
             m_creature->CastSpell(m_creature, SPELL_TOTEM_WIND, true);
 
-            m_uiSummonTotemTimer = urand(15000, 25000);
+            m_uiSummonTotemTimer = urand(18*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         }else m_uiSummonTotemTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
