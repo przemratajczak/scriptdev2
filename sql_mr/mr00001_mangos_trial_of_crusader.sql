@@ -54,7 +54,7 @@ UPDATE `creature_template` SET `scriptname`='mob_toc_warlock' WHERE `entry` IN (
 UPDATE `creature_template` SET `scriptname`='mob_toc_pet_warlock', `AIName` ='' WHERE `entry` IN (35465);
 UPDATE `creature_template` SET `scriptname`='mob_toc_pet_hunter', `AIName` ='' WHERE `entry` IN (35610);
 
-UPDATE `creature_template` SET `mindmg` = 417, `maxdmg` = 582, `attackpower` = 608, `unit_flags` = 64, `minrangedmg` = 341, `maxrangedmg` = 506, `rangedattackpower` = 80, `PowerType` = 3  WHERE `entry` IN (34454, 34472);
+UPDATE `creature_template` SET `mindmg` = 417, `maxdmg` = 582, `attackpower` = 608, `unit_flags` = 64, `minrangedmg` = 341, `maxrangedmg` = 506, `rangedattackpower` = 80, `PowerType` = 3, `dmg_multiplier` = 10  WHERE `entry` IN (34454, 34472);
 UPDATE `creature_template` SET `modelid_1` = 29781 WHERE `entry` = 34459;
 UPDATE `creature_template` SET `modelid_1` = 29780 WHERE `entry` = 34451;
 UPDATE `creature_template` SET `name` = 'Erin Misthoof' WHERE `entry` = 34451;
@@ -63,7 +63,6 @@ UPDATE `creature_template` SET `name` = 'Melador Valestrider' WHERE `entry` = 34
 UPDATE `creature_template` SET `modelid_1` = 29780 WHERE `entry` = 34460;
 UPDATE `creature_template` SET `name` = 'Kavina Grovesong' WHERE `entry` = 34469;
 UPDATE `creature_template` SET `modelid_1` = 29781 WHERE `entry` = 34469;
-UPDATE `creature_template` SET `PowerType` = 3 WHERE entry IN (34472, 34454);
 UPDATE `creature_template` SET `mechanic_immune_mask` = 1 WHERE `entry` IN (34460, 34463, 34461, 34472, 34475, 34471, 34473, 34468, 34467, 34474, 34470, 34466, 34465, 34469, 34451, 34455, 34458, 34454, 34453, 34456, 34441, 34449, 34448, 34450, 34444, 34447, 34445, 34459);
 UPDATE `creature_template` SET `faction_A` = 14, `faction_H` = 14 WHERE entry IN (34460, 34463, 34461, 34472, 34475, 34471, 34473, 34468, 34467, 34474, 34470, 34466, 34465, 34469, 34451, 34455, 34458, 34454, 34453, 34456, 34441, 34449, 34448, 34450, 34444, 34447, 34445, 34459);
 
@@ -144,7 +143,7 @@ UPDATE `creature_template` SET `modelid_1` = 25144, `modelid_2` = 0, `modelid_3`
 UPDATE `creature_template` SET `scriptname`='mob_swarm_scarab', `AIName` ='' WHERE `entry`=34605;
 UPDATE `creature_template` SET `scriptname`='mob_nerubian_borrower', `AIName` ='' WHERE `entry`=34607;
 UPDATE `creature_template` SET `scriptname`='mob_anubarak_spike', `faction_A` = 14, `minlevel` = 80, `maxlevel` = 80,`faction_H` = 14, `AIName` ='' WHERE `entry`=34660;
-
+UPDATE `creature_template` SET `speed_walk` = 1.5, `speed_run` = 1.42857 WHERE `entry` = 34564;
 
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854363 WHERE `entry` = 34564;
 UPDATE `creature_template` SET `spell1` = 0, `spell2` = 0, `spell3` = 0 WHERE `entry` = 34564;
