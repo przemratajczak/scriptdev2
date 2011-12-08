@@ -1765,14 +1765,14 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
     void Reset()
     {
         m_uiFanOfKnivesTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-        m_uiHemorrhageTimer = 0;
-        m_uiEviscerateTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-        m_uiShadowstepTimer = urand(10*IN_MILLISECONDS, 80*IN_MILLISECONDS);
-        m_uiBlindTimer = urand(7*IN_MILLISECONDS, 8*IN_MILLISECONDS);
-        m_uiCloakTimer = 20*IN_MILLISECONDS;
+        m_uiHemorrhageTimer  = 0;
+        m_uiEviscerateTimer  = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+        m_uiShadowstepTimer  = urand(10*IN_MILLISECONDS, 80*IN_MILLISECONDS);
+        m_uiBlindTimer       = urand(7*IN_MILLISECONDS, 8*IN_MILLISECONDS);
+        m_uiCloakTimer       = 0;
         m_uiBladeFlurryTimer = urand(12*IN_MILLISECONDS, 120*IN_MILLISECONDS);
         m_uiWoundPoisonTimer = urand(1000, 3000);
-        m_uiKillPlayerTimer = 0;
+        m_uiKillPlayerTimer  = 0;
         
         SetEquipmentSlots(false, 47422, 49982, EQUIP_NO_CHANGE);
     }
@@ -1797,7 +1797,7 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
             if(m_creature->IsWithinDist(m_creature->getVictim(), 3.0f))
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_WOUND_POISON);
-                m_uiWoundPoisonTimer = urand(1000, 3000);
+                m_uiWoundPoisonTimer = urand(10*IN_MILLISECONDS, 16*IN_MILLISECONDS);
             }
         }else m_uiWoundPoisonTimer -= uiDiff;
 
@@ -1812,14 +1812,14 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
 
         if(m_uiHemorrhageTimer <= uiDiff)
         {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_HEMORRHAGE, true);
-            m_uiHemorrhageTimer = urand(5000, 8000);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HEMORRHAGE);
+            m_uiHemorrhageTimer = urand(8*IN_MILLISECONDS, 15*IN_MILLISECONDS);
         }else m_uiHemorrhageTimer -= uiDiff;
 
         if(m_uiEviscerateTimer <= uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_EVISCERATE);
-            m_uiEviscerateTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+            m_uiEviscerateTimer = urand(20*IN_MILLISECONDS, 35*IN_MILLISECONDS);
         }else m_uiEviscerateTimer -= uiDiff;
 
         if(m_uiShadowstepTimer <= uiDiff)
@@ -1827,7 +1827,7 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
             if (m_creature->IsInRange(m_creature->getVictim(), 10.0f, 40.0f))
             {
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHADOWSTEP);
-                m_uiShadowstepTimer = urand(10*IN_MILLISECONDS, 80*IN_MILLISECONDS);
+                m_uiShadowstepTimer = 1*MINUTE*IN_MILLISECONDS;
             }
         }else m_uiShadowstepTimer -= uiDiff;
 
