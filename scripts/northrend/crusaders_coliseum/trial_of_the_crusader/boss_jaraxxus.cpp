@@ -403,6 +403,11 @@ struct MANGOS_DLL_DECL mob_fel_infernalAI : public BSWScriptedAI
         AttackStart(who);
     }
 
+    void JustDied(Unit* pKiller)
+    {
+        m_creature->ForcedDespawn();
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_pInstance->GetData(TYPE_JARAXXUS) != IN_PROGRESS) 
@@ -485,6 +490,11 @@ struct MANGOS_DLL_DECL mob_nether_portalAI : public BSWScriptedAI
         if (!m_pInstance) return;
     }
 
+    void JustDied(Unit* pKiller)
+    {
+        m_creature->ForcedDespawn();
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
@@ -537,6 +547,11 @@ struct MANGOS_DLL_DECL mob_mistress_of_painAI : public BSWScriptedAI
     {
         if (!m_pInstance) return;
         DoScriptText(-1713523,m_creature, who);
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        m_creature->ForcedDespawn();
     }
 
     Unit* SelectEnemyTargetWithinMana()
@@ -657,7 +672,3 @@ void AddSC_boss_jaraxxus()
     newscript->GetAI = &GetAI_mob_mistress_of_pain;
     newscript->RegisterSelf();
 }
-
-/*
-UPDATE `creature_template` SET `spell1` = '0', `spell2` = '0', `spell3` = '0', `spell4` = '0' WHERE `entry` = 34780;
-*/
