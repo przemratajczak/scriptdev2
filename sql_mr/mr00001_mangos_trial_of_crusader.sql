@@ -54,7 +54,9 @@ UPDATE `creature_template` SET `scriptname`='mob_toc_warlock' WHERE `entry` IN (
 UPDATE `creature_template` SET `scriptname`='mob_toc_pet_warlock', `AIName` ='' WHERE `entry` IN (35465);
 UPDATE `creature_template` SET `scriptname`='mob_toc_pet_hunter', `AIName` ='' WHERE `entry` IN (35610);
 
+
 UPDATE `creature_template` SET `mindmg` = 417, `maxdmg` = 582, `attackpower` = 608, `unit_flags` = 64, `minrangedmg` = 341, `maxrangedmg` = 506, `rangedattackpower` = 80, `PowerType` = 3, `dmg_multiplier` = 10  WHERE `entry` IN (34454, 34472);
+
 UPDATE `creature_template` SET `modelid_1` = 29781 WHERE `entry` = 34459;
 UPDATE `creature_template` SET `modelid_1` = 29780 WHERE `entry` = 34451;
 UPDATE `creature_template` SET `name` = 'Erin Misthoof' WHERE `entry` = 34451;
