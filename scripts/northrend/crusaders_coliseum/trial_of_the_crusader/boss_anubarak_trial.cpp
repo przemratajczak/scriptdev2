@@ -491,9 +491,9 @@ struct MANGOS_DLL_DECL mob_nerubian_borrowerAI : public BSWScriptedAI
                     if(Creature* pTemp = GetClosestCreatureWithEntry(m_creature, NPC_BURROWER, 12.0f))
                     {
                         DoCastSpellIfCan(m_creature, SPELL_FRENZY);
+                        m_uiFrenzyTimer = 1000;
                     }
-                    m_uiFrenzyTimer = 1000;
-                }
+                }else m_uiFrenzyTimer -= uiDiff;
  
                 if(m_uiExposeTimer < uiDiff)
                 {
@@ -619,7 +619,7 @@ struct MANGOS_DLL_DECL mob_frost_sphereAI : public BSWScriptedAI
        if (m_pInstance && m_pInstance->GetData(TYPE_ANUBARAK) != IN_PROGRESS) 
             m_creature->ForcedDespawn();
  
-       if(m_uiSummonTimer <= uiDiff)
+       /*if(m_uiSummonTimer <= uiDiff)
        {
             float x = m_creature->GetPositionX();
             float y = m_creature->GetPositionY();
@@ -627,7 +627,7 @@ struct MANGOS_DLL_DECL mob_frost_sphereAI : public BSWScriptedAI
  
             m_creature->SummonCreature(NPC_ANUBARAK_PERMAFROST, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
             m_uiSummonTimer = 30000;
-       }else m_uiSummonTimer -= uiDiff;
+       }else m_uiSummonTimer -= uiDiff;*/
  
     }
 };
