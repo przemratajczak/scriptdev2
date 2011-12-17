@@ -213,6 +213,8 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_PUTRICIDE, FAIL);
+
+        EnterEvadeMode();
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -266,6 +268,18 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         {
             if (Unit *pOrange = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, SpawnLoc[4].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
                 DoCastSpellIfCan(m_creature, SPELL_ORANGE_OOZE_SUMMON, CAST_TRIGGERED);
+        }
+    }
+
+    void JustSummoned(Creature *pSummoned)
+    {
+        if (pSummoned->GetEntry() != NPC_GREEN_ORANGE_OOZE_STALKER)
+            pSummoned->SetInCombatWithZone();
+
+        if (pSummoned->GetEntry() == NPC_GROWING_OOZE_PUDDLE)
+        {
+            DoCastSpellIfCan(pSummoned, SPELL_SLIME_PUDDLE_MISSILE, CAST_TRIGGERED);
+            pSummoned->CastSpell(pSummoned, SPELL_SLIME_PUDDLE_AURA, true);
         }
     }
 
@@ -325,8 +339,13 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
-                        m_uiPuddleTimer = 30000;
+                    /*for (int i = 0; i < 2; ++i)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                    }*/
+
+                    m_uiPuddleTimer = 30000;
                 }
                 else
                     m_uiPuddleTimer -= uiDiff;
@@ -512,12 +531,10 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
 {
     mob_icc_gas_cloudAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        Reset();
+        m_creature->SetInCombatWithZone();
     }
 
-    void Reset()
-    {
-    }
+    void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -537,12 +554,10 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
 {
     mob_icc_volatile_oozeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        Reset();
+        m_creature->SetInCombatWithZone();
     }
 
-    void Reset()
-    {
-    }
+    void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -558,7 +573,7 @@ CreatureAI* GetAI_mob_icc_volatile_ooze(Creature* pCreature)
 // passive mob AI struct
 struct MANGOS_DLL_DECL mob_choking_gas_bombAI : public ScriptedAI
 {
-    mob_choking_gas_bombAI(Creature *pCreature) : ScriptedAI(pCreature){}
+    mob_choking_gas_bombAI(Creature *pCreature) : ScriptedAI(pCreature){SetCombatMovement(false);}
     void Reset(){}
     void AttackStart(Unit *pWho){}
     void UpdateAI(const uint32 uiDiff){}
@@ -571,7 +586,7 @@ CreatureAI* GetAI_mob_choking_gas_bomb(Creature* pCreature)
 // passive mob AI struct
 struct MANGOS_DLL_DECL mob_ooze_puddleAI : public ScriptedAI
 {
-    mob_ooze_puddleAI(Creature *pCreature) : ScriptedAI(pCreature){}
+    mob_ooze_puddleAI(Creature *pCreature) : ScriptedAI(pCreature){SetCombatMovement(false);}
     void Reset(){}
     void AttackStart(Unit *who){}
     void UpdateAI(const uint32 uiDiff){}
