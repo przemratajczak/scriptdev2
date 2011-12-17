@@ -42,8 +42,8 @@ enum BossSpells
     SPELL_GREEN_OOZE_SUMMON         = 71412,
     SPELL_ORANGE_OOZE_SUMMON        = 71415,
 
+    SPELL_SLIME_PUDDLE              = 70341,
     SPELL_SLIME_PUDDLE_SUMMON       = 70342,
-    SPELL_SLIME_PUDDLE_MISSILE      = 70341,
     SPELL_SLIME_PUDDLE_AURA         = 70343,
  // SPELL_SLIME_PUDDLE_TRIGGER      = 71424, // trigger summon spell from target?
  // SPELL_SLIME_PUDDLE_SUMMON_TRIG  = 71425,
@@ -51,6 +51,7 @@ enum BossSpells
     SPELL_CHOKING_GAS_BOMB          = 71255,
     SPELL_CHOKING_GAS_BOMB_AURA     = 71259,
     SPELL_CHOKING_GAS_BOMB_EXPL_AUR = 71280,
+    SPELL_CHOKING_GAS_EXPLOSION     = 71279,
 
     // phase transitions
     SPELL_TEAR_GAS_1                = 71615,
@@ -167,7 +168,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         m_bIsGreenOoze              = true; // first ooze summoned is always green
 
         m_uiHealthCheckTimer        = 1000;
-        m_uiTransitionTimer         = 20000;
+        m_uiTransitionTimer         = 10000;
         m_uiEnrageTimer             = 10 * MINUTE * IN_MILLISECONDS;
         m_uiPuddleTimer             = 10000;
         m_uiUnstableExperimentTimer = 20000;
@@ -215,9 +216,11 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_PUTRICIDE, FAIL);
 
-        EnterEvadeMode(); // prevent weird bug of not regenerating hp after wipe (related to vehicle accessories?)
         if (VehicleKit *pKit = m_creature->GetVehicleKit())
+        {
+            pKit->RemoveAllPassengers();
             pKit->Reset();
+        }
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -279,10 +282,22 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (pSummoned->GetEntry() != NPC_GREEN_ORANGE_OOZE_STALKER)
             pSummoned->SetInCombatWithZone();
 
-        if (pSummoned->GetEntry() == NPC_GROWING_OOZE_PUDDLE)
+        switch (pSummoned->GetEntry())
         {
-            DoCastSpellIfCan(pSummoned, SPELL_SLIME_PUDDLE_MISSILE, CAST_TRIGGERED);
-            pSummoned->CastSpell(pSummoned, SPELL_SLIME_PUDDLE_AURA, true);
+            case NPC_GROWING_OOZE_PUDDLE:
+            {
+                pSummoned->CastSpell(pSummoned, SPELL_SLIME_PUDDLE_AURA, true);
+                pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                break;
+            }
+            case NPC_CHOKING_GAS_BOMB:
+            {
+                pSummoned->CastSpell(pSummoned, SPELL_CHOKING_GAS_BOMB_AURA, true);
+                // creature is already despawned and spell doesn't hit anybody, this need proper implementation in core
+                // pSummoned->CastSpell(pSummoned, SPELL_CHOKING_GAS_BOMB_EXPL_AUR, true);
+                pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                break;
+            }
         }
     }
 
@@ -345,7 +360,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     for (int i = 0; i < 2; ++i)
                     {
                         if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
-                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE, CAST_TRIGGERED);
                     }
 
                     m_uiPuddleTimer = 30000;
@@ -374,7 +389,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    m_uiTransitionTimer = 20000;
+                    m_uiTransitionTimer = 10000;
                     m_uiPhase = PHASE_TWO;
 
                     if (m_bIsHeroic)
@@ -424,7 +439,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     for (int i = 0; i < 2; ++i)
                     {
                         if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
-                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE, CAST_TRIGGERED);
                     }
 
                     m_uiPuddleTimer = 30000;
@@ -457,7 +472,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Choking Gas
                 if (m_uiChokingGasBombTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_CHOKING_GAS_BOMB) == CAST_OK)
                         m_uiChokingGasBombTimer = urand(25000, 30000);
                 }
                 else
@@ -471,7 +486,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    m_uiTransitionTimer = 20000;
+                    m_uiTransitionTimer = 10000;
                     m_uiPhase = PHASE_THREE;
 
                     if (m_bIsHeroic)
@@ -495,7 +510,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     for (int i = 0; i < 2; ++i)
                     {
                         if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
-                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE, CAST_TRIGGERED);
                     }
 
                     m_uiPuddleTimer = 30000;
@@ -515,7 +530,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Choking Gas
                 if (m_uiChokingGasBombTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_CHOKING_GAS_BOMB) == CAST_OK)
                         m_uiChokingGasBombTimer = urand(25000, 30000);
                 }
                 else
@@ -545,14 +560,25 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
     mob_icc_gas_cloudAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_creature->SetInCombatWithZone();
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
     }
 
+    ScriptedInstance *m_pInstance;
+    
     void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+                m_creature->ForcedDespawn();
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        // check distance
     }
 };
 CreatureAI* GetAI_mob_icc_gas_cloud(Creature* pCreature)
@@ -568,14 +594,25 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
     mob_icc_volatile_oozeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_creature->SetInCombatWithZone();
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
     }
+
+    ScriptedInstance *m_pInstance;
 
     void Reset(){}
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+                m_creature->ForcedDespawn();
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        // check distance
     }
 };
 CreatureAI* GetAI_mob_icc_volatile_ooze(Creature* pCreature)
@@ -586,10 +623,26 @@ CreatureAI* GetAI_mob_icc_volatile_ooze(Creature* pCreature)
 // passive mob AI struct
 struct MANGOS_DLL_DECL mob_choking_gas_bombAI : public ScriptedAI
 {
-    mob_choking_gas_bombAI(Creature *pCreature) : ScriptedAI(pCreature){SetCombatMovement(false);}
+    mob_choking_gas_bombAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        SetCombatMovement(false);
+        m_uiExplosionTimer = 9500;
+    }
+
+    uint32 m_uiExplosionTimer;
+
     void Reset(){}
     void AttackStart(Unit *pWho){}
-    void UpdateAI(const uint32 uiDiff){}
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiExplosionTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_CHOKING_GAS_EXPLOSION, CAST_TRIGGERED);
+            m_uiExplosionTimer = 9500;
+        }
+        else
+            m_uiExplosionTimer -= uiDiff;
+    }
 };
 CreatureAI* GetAI_mob_choking_gas_bomb(Creature* pCreature)
 {
@@ -599,10 +652,43 @@ CreatureAI* GetAI_mob_choking_gas_bomb(Creature* pCreature)
 // passive mob AI struct
 struct MANGOS_DLL_DECL mob_ooze_puddleAI : public ScriptedAI
 {
-    mob_ooze_puddleAI(Creature *pCreature) : ScriptedAI(pCreature){SetCombatMovement(false);}
+    mob_ooze_puddleAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        SetCombatMovement(false);
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_uiGrowTimer = 5000;
+        m_creature->SetObjectScale(0.3f);
+    }
+
+    ScriptedInstance *m_pInstance;
+
+    uint32 m_uiGrowTimer;
+
     void Reset(){}
-    void AttackStart(Unit *who){}
-    void UpdateAI(const uint32 uiDiff){}
+    void AttackStart(Unit *pWho){}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+                m_creature->ForcedDespawn();
+        }
+
+        if (m_uiGrowTimer <= uiDiff)
+        {
+            // store radius info in mmiscvalue
+            if (Aura *aur = m_creature->GetAura(SPELL_SLIME_PUDDLE_AURA, EFFECT_INDEX_0))
+            {
+                aur->GetModifier()->m_miscvalue += 1;
+                m_creature->SetObjectScale(m_creature->GetObjectScale() + 0.01);
+            }
+
+            m_uiGrowTimer = 1000;
+        }
+        else
+            m_uiGrowTimer -= uiDiff;
+    }
 };
 CreatureAI* GetAI_mob_ooze_puddle(Creature* pCreature)
 {
