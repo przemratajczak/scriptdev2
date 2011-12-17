@@ -63,6 +63,7 @@ enum BossSpells
     SPELL_CREATE_CONCOCTION         = 71621,
     SPELL_GUZZLE_POTIONS            = 71893,
 
+    SPELL_MUTATED_PLAGUE            = 72451,
 
     NPC_GREEN_ORANGE_OOZE_STALKER   = 37824, // casts orange and green visual spell and then summons add
     NPC_GROWING_OOZE_PUDDLE         = 37690,
@@ -153,6 +154,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
     uint32 m_uiUnstableExperimentTimer;
     uint32 m_uiMalleableGooTimer;
     uint32 m_uiChokingGasBombTimer;
+    uint32 m_uiMutatedPlagueTimer;
 
     // used to determine whether he is assisting one of his pupils or having his own encounter
     bool m_bIsAssistingOnly;
@@ -174,6 +176,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         m_uiUnstableExperimentTimer = 20000;
         m_uiMalleableGooTimer       = 5000;
         m_uiChokingGasBombTimer     = urand(10000, 15000);
+        m_uiMutatedPlagueTimer      = 0;
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
@@ -504,6 +507,15 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             case PHASE_THREE:
             {
+                // Mutated Plague (proc cooldown for creatures doesn't work)
+                if (m_uiMutatedPlagueTimer <= uiDiff)
+                {
+                    if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MUTATED_PLAGUE) == CAST_OK)
+                        m_uiMutatedPlagueTimer = 10000;
+                }
+                else
+                    m_uiMutatedPlagueTimer -= uiDiff;
+
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
                 {
