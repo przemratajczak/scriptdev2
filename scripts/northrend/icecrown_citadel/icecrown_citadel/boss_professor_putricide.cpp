@@ -170,7 +170,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         m_bIsGreenOoze              = true; // first ooze summoned is always green
 
         m_uiHealthCheckTimer        = 1000;
-        m_uiTransitionTimer         = 10000;
+        m_uiTransitionTimer         = 15000;
         m_uiEnrageTimer             = 10 * MINUTE * IN_MILLISECONDS;
         m_uiPuddleTimer             = 10000;
         m_uiUnstableExperimentTimer = 20000;
@@ -224,6 +224,9 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             pKit->RemoveAllPassengers();
             pKit->Reset();
         }
+
+        // some weird bug with not regenerating health after wipe ;/
+        m_creature->SetHealth(m_creature->GetMaxHealth());
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -348,6 +351,9 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                             DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
                         }
 
+                        if (m_pInstance)
+                            m_pInstance->SetData(TYPE_PUTRICIDE, SPECIAL);
+
                         m_creature->GetMotionMaster()->MovePoint(POINT_PUTRICIDE_SPAWN, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
                         m_uiPhase = PHASE_RUNNING_ONE;
                         return;
@@ -392,8 +398,11 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    m_uiTransitionTimer = 10000;
+                    m_uiTransitionTimer = 15000;
                     m_uiPhase = PHASE_TWO;
+
+                    if (m_pInstance)
+                            m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
                     if (m_bIsHeroic)
                     {
@@ -426,6 +435,9 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                             DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS, CAST_TRIGGERED);
                             DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
                         }
+
+                        if (m_pInstance)
+                            m_pInstance->SetData(TYPE_PUTRICIDE, SPECIAL);
 
                         m_creature->GetMotionMaster()->MovePoint(POINT_PUTRICIDE_SPAWN, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
                         m_uiPhase = PHASE_RUNNING_TWO;
@@ -489,8 +501,11 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    m_uiTransitionTimer = 10000;
+                    m_uiTransitionTimer = 15000;
                     m_uiPhase = PHASE_THREE;
+
+                    if (m_pInstance)
+                            m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
                     if (m_bIsHeroic)
                     {
@@ -583,7 +598,8 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            uint32 data = m_pInstance->GetData(TYPE_PUTRICIDE);
+            if (data != IN_PROGRESS && data != SPECIAL)
                 m_creature->ForcedDespawn();
         }
 
@@ -617,7 +633,8 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            uint32 data = m_pInstance->GetData(TYPE_PUTRICIDE);
+            if (data != IN_PROGRESS && data != SPECIAL)
                 m_creature->ForcedDespawn();
         }
 
@@ -683,7 +700,13 @@ struct MANGOS_DLL_DECL mob_ooze_puddleAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            uint32 data = m_pInstance->GetData(TYPE_PUTRICIDE);
+            if (data == SPECIAL)
+            {
+                // don't grow while Putricide is mutating between phases
+                return;
+            }
+            else if (data != IN_PROGRESS)
                 m_creature->ForcedDespawn();
         }
 
