@@ -241,6 +241,9 @@ INSERT INTO `spell_script_target` VALUES
 (71415, 1, 37824), -- Orange Ooze
 (71617, 1, 38317); -- Tear Gas
 
+-- delete some weird Grow Stacker - grows too fast
+DELETE FROM `creature_template_addon` WHERE `entry` = 37690;
+
 -- -----------
 -- Abomination
 -- -----------

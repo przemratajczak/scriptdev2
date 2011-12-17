@@ -23,6 +23,7 @@ EndScriptData */
 
 #include "precompiled.h"
 #include "icecrown_citadel.h"
+#include "Vehicle.h"
 
 enum BossSpells
 {
@@ -214,7 +215,9 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_PUTRICIDE, FAIL);
 
-        EnterEvadeMode();
+        EnterEvadeMode(); // prevent weird bug of not regenerating hp after wipe (related to vehicle accessories?)
+        if (VehicleKit *pKit = m_creature->GetVehicleKit())
+            pKit->Reset();
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -339,11 +342,11 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
                 {
-                    /*for (int i = 0; i < 2; ++i)
+                    for (int i = 0; i < 2; ++i)
                     {
                         if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
                             DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
-                    }*/
+                    }
 
                     m_uiPuddleTimer = 30000;
                 }
@@ -418,8 +421,13 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
-                        m_uiPuddleTimer = 30000;
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                    }
+
+                    m_uiPuddleTimer = 30000;
                 }
                 else
                     m_uiPuddleTimer -= uiDiff;
@@ -484,8 +492,13 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
-                        m_uiPuddleTimer = 30000;
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SLIME_PUDDLE_SUMMON, SELECT_FLAG_PLAYER))
+                            DoCastSpellIfCan(pTarget, SPELL_SLIME_PUDDLE_SUMMON, CAST_TRIGGERED);
+                    }
+
+                    m_uiPuddleTimer = 30000;
                 }
                 else
                     m_uiPuddleTimer -= uiDiff;
