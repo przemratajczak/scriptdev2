@@ -27,11 +27,26 @@ EndScriptData */
 enum BossSpells
 {
     SPELL_BERSERK                   = 47008,
+
+    // controlled abomination
+    SPELL_MUTATED_TRANSFORMATION    = 70311,
+    SPELL_EAT_OOZE                  = 72527,
+    SPELL_REGURGITATED_OOZE         = 70539,
+    SPELL_MUTATED_SLASH             = 70542,
+    SPELL_MUTATED_AURA              = 70405,
+    SPELL_ABOMINATION_POWER_DRAIN   = 70385, // prevents normal regen of abomination's power
+
+    SPELL_UNSTABLE_EXPERIMENT       = 70351,
+    SPELL_VOLATILE_EXPERIMENT       = 72842, // heroic
+    SPELL_GREEN_OOZE_SUMMON         = 71412,
+    SPELL_ORANGE_OOZE_SUMMON        = 71415,
+
     SPELL_SLIME_PUDDLE_SUMMON       = 70342,
     SPELL_SLIME_PUDDLE_MISSILE      = 70341,
     SPELL_SLIME_PUDDLE_AURA         = 70343,
  // SPELL_SLIME_PUDDLE_TRIGGER      = 71424, // trigger summon spell from target?
  // SPELL_SLIME_PUDDLE_SUMMON_TRIG  = 71425,
+
     SPELL_CHOKING_GAS_BOMB          = 71255,
     SPELL_CHOKING_GAS_BOMB_AURA     = 71259,
     SPELL_CHOKING_GAS_BOMB_EXPL_AUR = 71280,
@@ -42,38 +57,19 @@ enum BossSpells
     SPELL_TEAR_GAS_2                = 71618,
     SPELL_TEAR_GAS_PERIODIC_AURA    = 73170,
     SPELL_TEAR_GAS_CANCEL           = 71620,
+
     SPELL_CREATE_CONCOCTION         = 71621,
     SPELL_GUZZLE_POTIONS            = 71893,
 
+
+    NPC_GREEN_ORANGE_OOZE_STALKER   = 37824, // casts orange and green visual spell and then summons add
     NPC_GROWING_OOZE_PUDDLE         = 37690,
     NPC_GROWING_OOZE_PUDDLE_TRIG    = 38234,
     NPC_CHOKING_GAS_BOMB            = 38159,
+    NPC_VOLATILE_OOZE               = 37697,
+    NPC_MUTATED_ABOMINATION         = 37672,
+
 /*
-    SPELL_UNSTABLE_EXPERIMENT     = 70351, // Script effect not work on 10154. Spawn manually.
-    SPELL_TEAR_GAS                = 71617,
-    SPELL_TEAR_GAS_1              = 71615,
-    SPELL_TEAR_GAS_2              = 71618,
-    SPELL_CREATE_CONCOCTION       = 71621,
-    SPELL_MALLEABLE_GOO           = 70852,
-    SPELL_GUZZLE_POTIONS          = 71893,
-    SPELL_MUTATED_STRENGTH        = 71603,
-    SPELL_MUTATED_PLAGUE          = 72672,
-    SPELL_OOZE_THROW              = 70342, // is triggered spell
-
-    SPELL_GREEN_BOTTLE_0          = 71826,
-    SPELL_ORANGE_BOTTLE_0         = 71827,
-    SPELL_GREEN_BOTTLE_1          = 71702,
-    SPELL_ORANGE_BOTTLE_1         = 71703,
-
-    SPELL_THROW_BOTTLE_1          = 71273,
-    SPELL_THROW_BOTTLE_2          = 71275,
-    SPELL_THROW_BOTTLE_3          = 71276,
-
-    NPC_GAS_CLOUD                 = 37562,
-    SPELL_GASEOUS_BLOAT           = 70672,
-    SPELL_EXPUNGED_GAS            = 70701,
-
-    NPC_VOLATILE_OOZE             = 37697,
     SPELL_OOZE_ADHESIVE           = 70447,
     SPELL_OOZE_ERUPTION           = 70492,
 
@@ -81,25 +77,8 @@ enum BossSpells
     SPELL_OOZE_BEAM_PROTECTION    = 71530,
     SPELL_OOZE_TANK_PROTECTION    = 71770,
 
-    NPC_MUTATED_ABOMINATION       = 37672,
-    SPELL_MUTATED_TRANSFORMATION  = 70311,
-    SPELL_EAT_OOZE                = 72527,
-    SPELL_REGURGITATED_OOZE       = 70539,
-    SPELL_MUTATED_SLASH           = 70542,
-    SPELL_MUTATED_AURA            = 70405,
-
-    NPC_CHOKING_GAS_BOMB          = 38159,
-    SPELL_CHOKING_GAS             = 71259,
-    SPELL_CHOKING_GAS_AURA        = 71278,
-    SPELL_CHOKING_GAS_EXPLODE     = 71279,
-    SPELL_CHOKING_GAS_EXPLODE_TRIGGER = 71280,
     SPELL_ORANGE_RADIATION        = 45857, //Additional visual
 
-    NPC_OOZE_PUDDLE               = 37690,
-    SPELL_SLIME_PUDDLE            = 70343,
-    SPELL_SLIME_PUDDLE_AURA       = 70346,
-
-    SPELL_BERSERK                 = 47008,
     QUEST_24749                   = 71518,
     SHADOW_INFUSION_AURA          = 71516,
 
@@ -135,6 +114,8 @@ static Locations SpawnLoc[]=
     {4356.779785f, 3263.510010f, 389.398010f, 1.586f},  // 0 Putricide start point o=1.586
     {4295.081055f, 3188.883545f, 389.330261f, 4.270f},  // 1 Puticide Festergut say, o=4.27
     {4417.302246f, 3188.219971f, 389.332520f, 5.102f},  // 2 Putricide Rotface say o=5.102
+    {4388.1f, 3213.29f, 408.7399f, 3.8397f},            // 3 Ooze stalker - green
+    {4324.7212f, 3214.6428f, 408.7399f, 5.5764f},       // 3 Ooze stalker - orange
 };
 
 #define POINT_PUTRICIDE_SPAWN 1
@@ -174,11 +155,15 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
     // used to determine whether he is assisting one of his pupils or having his own encounter
     bool m_bIsAssistingOnly;
 
+    bool m_bIsGreenOoze; // green or orange ooze to summon
+
     void Reset()
     {
         m_uiPhase                   = PHASE_ONE;
         m_bIsAssistingOnly          = false;
         SetCombatMovement(true);
+
+        m_bIsGreenOoze              = true; // first ooze summoned is always green
 
         m_uiHealthCheckTimer        = 1000;
         m_uiTransitionTimer         = 20000;
@@ -205,18 +190,14 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         if (!m_pInstance)
             return;
 
-        // need moving to other scripts
-        /*if (m_pInstance->GetData(TYPE_FESTERGUT) == IN_PROGRESS || m_pInstance->GetData(TYPE_ROTFACE) == IN_PROGRESS)
+        if (m_pInstance->GetData(TYPE_FESTERGUT) == IN_PROGRESS || m_pInstance->GetData(TYPE_ROTFACE) == IN_PROGRESS)
         {
-            // m_creature->NearTeleportTo(SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z, SpawnLoc[1].o);
-            // m_creature->NearTeleportTo(SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, SpawnLoc[2].o);
             SetCombatMovement(false);
             m_bIsAssistingOnly = true;
             return;
-        }*/
+        }
 
         m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
-
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
@@ -243,14 +224,48 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         {
             if (m_uiPhase == PHASE_RUNNING_ONE)
             {
-                DoCastSpellIfCan(m_creature, SPELL_CREATE_CONCOCTION);
+                if (m_bIsHeroic)
+                {
+                    DoScriptText(SAY_PHASE_CHANGE, m_creature);
+                    m_uiTransitionTimer = 30000;
+                }
+                else
+                {
+                    DoCastSpellIfCan(m_creature, SPELL_CREATE_CONCOCTION);
+                    DoScriptText(SAY_TRANSFORM_1, m_creature);
+                }
+
                 m_uiPhase = PHASE_TRANSITION_ONE; // counter for entering phase 2
             }
             else if (m_uiPhase == PHASE_RUNNING_TWO)
             {
-                DoCastSpellIfCan(m_creature, SPELL_GUZZLE_POTIONS);
-                m_uiPhase = PHASE_TRANSITION_TWO; // counter for entering phase 3
+                if (m_bIsHeroic)
+                {
+                    DoScriptText(SAY_PHASE_CHANGE, m_creature);
+                    m_uiTransitionTimer = 30000;
+                }
+                else
+                {
+                    DoCastSpellIfCan(m_creature, SPELL_GUZZLE_POTIONS);
+                    DoScriptText(SAY_TRANSFORM_2, m_creature);
+                    m_uiPhase = PHASE_TRANSITION_TWO; // counter for entering phase 3
+                }
             }
+        }
+    }
+
+    void DoExperiment(bool green, bool both = false)
+    {
+        if (green || both)
+        {
+            if (Unit *pGreen = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[3].x, SpawnLoc[3].y, SpawnLoc[3].z, SpawnLoc[3].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                DoCastSpellIfCan(m_creature, SPELL_GREEN_OOZE_SUMMON, CAST_TRIGGERED);
+        }
+
+        if (!green || both)
+        {
+            if (Unit *pOrange = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, SpawnLoc[4].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                DoCastSpellIfCan(m_creature, SPELL_ORANGE_OOZE_SUMMON, CAST_TRIGGERED);
         }
     }
 
@@ -286,8 +301,18 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 80.0f)
                     {
-                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS, CAST_TRIGGERED);
-                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
+                        if (m_bIsHeroic)
+                        {
+                            DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
+                            DoExperiment(true, true);
+                            DoScriptText(SAY_PHASE_CHANGE, m_creature);
+                        }
+                        else
+                        {
+                            DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS, CAST_TRIGGERED);
+                            DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
+                        }
+
                         m_creature->GetMotionMaster()->MovePoint(POINT_PUTRICIDE_SPAWN, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
                         m_uiPhase = PHASE_RUNNING_ONE;
                         return;
@@ -309,8 +334,12 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Unstable Experiment
                 if (m_uiUnstableExperimentTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_UNSTABLE_EXPERIMENT) == CAST_OK)
+                    {
+                        DoExperiment(m_bIsGreenOoze);
                         m_uiUnstableExperimentTimer = 30000;
+                        m_bIsGreenOoze = !m_bIsGreenOoze;
+                    }
                 }
                 else
                     m_uiUnstableExperimentTimer -= uiDiff;
@@ -319,16 +348,20 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             case PHASE_TRANSITION_ONE:
             {
-                // 10 seconds every phase transition
                 if (m_uiTransitionTimer <= uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_CANCEL) == CAST_OK)
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    m_uiTransitionTimer = 20000;
+                    m_uiPhase = PHASE_TWO;
+
+                    if (m_bIsHeroic)
                     {
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                        m_uiTransitionTimer = 20000;
-                        m_uiPhase = PHASE_TWO;
+                        DoCastSpellIfCan(m_creature, SPELL_CREATE_CONCOCTION);
+                        DoScriptText(SAY_TRANSFORM_1, m_creature);
                     }
+                    else
+                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_CANCEL, CAST_TRIGGERED);
                 }
                 else
                     m_uiTransitionTimer -= uiDiff;
@@ -342,8 +375,18 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 35.0f)
                     {
-                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS, CAST_TRIGGERED);
-                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
+                        if (m_bIsHeroic)
+                        {
+                            DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
+                            DoExperiment(true, true);
+                            DoScriptText(SAY_PHASE_CHANGE, m_creature);
+                        }
+                        else
+                        {
+                            DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS, CAST_TRIGGERED);
+                            DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_1, CAST_TRIGGERED);
+                        }
+
                         m_creature->GetMotionMaster()->MovePoint(POINT_PUTRICIDE_SPAWN, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z);
                         m_uiPhase = PHASE_RUNNING_TWO;
                         return;
@@ -365,8 +408,12 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Unstable Experiment
                 if (m_uiUnstableExperimentTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_UNSTABLE_EXPERIMENT) == CAST_OK)
+                    {
+                        DoExperiment(m_bIsGreenOoze);
                         m_uiUnstableExperimentTimer = 30000;
+                        m_bIsGreenOoze = !m_bIsGreenOoze;
+                    }
                 }
                 else
                     m_uiUnstableExperimentTimer -= uiDiff;
@@ -393,13 +440,20 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             case PHASE_TRANSITION_TWO:
             {
-                // 10 seconds every phase transition
                 if (m_uiTransitionTimer <= uiDiff)
                 {
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    m_uiTransitionTimer = 10000;
+                    m_uiTransitionTimer = 20000;
                     m_uiPhase = PHASE_THREE;
+
+                    if (m_bIsHeroic)
+                    {
+                        DoCastSpellIfCan(m_creature, SPELL_GUZZLE_POTIONS);
+                        DoScriptText(SAY_TRANSFORM_2, m_creature);
+                    }
+                    else
+                        DoCastSpellIfCan(m_creature, SPELL_TEAR_GAS_CANCEL, CAST_TRIGGERED);
                 }
                 else
                     m_uiTransitionTimer -= uiDiff;

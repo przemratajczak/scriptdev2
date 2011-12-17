@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL boss_festergutAI : public ScriptedAI
 
             if (Creature *pProfessor = m_pInstance->GetSingleCreatureFromStorage(NPC_PROFESSOR_PUTRICIDE))
             {
-                pProfessor->NearTeleportTo(SpawnLoc[m_bIsHeroic ? 1 : 0].x, SpawnLoc[m_bIsHeroic ? 1 : 0].y, SpawnLoc[m_bIsHeroic ? 1 : 0].z, SpawnLoc[m_bIsHeroic ? 1 : 0].o);
+                pProfessor->NearTeleportTo(SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z, SpawnLoc[1].o);
                 pProfessor->SetInCombatWithZone();
             }
         }
