@@ -55,6 +55,8 @@ enum BossSpells
  // SPELL_SLIME_PUDDLE_TRIGGER      = 71424, // trigger summon spell from target?
  // SPELL_SLIME_PUDDLE_SUMMON_TRIG  = 71425,
 
+    SPELL_MALLEABLE_GOO_MISSILE     = 70852,
+
     SPELL_CHOKING_GAS_BOMB          = 71255,
     SPELL_CHOKING_GAS_BOMB_AURA     = 71259,
     SPELL_CHOKING_GAS_BOMB_EXPL_AUR = 71280,
@@ -78,6 +80,7 @@ enum BossSpells
     NPC_CHOKING_GAS_BOMB            = 38159,
     NPC_VOLATILE_OOZE               = 37697,
     NPC_MUTATED_ABOMINATION         = 37672,
+    NPC_MALLEABLE_GOO               = 38556,
 
 /*
     SPELL_OOZE_ADHESIVE           = 70447,
@@ -485,8 +488,19 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Malleable Goo
                 if (m_uiMalleableGooTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
-                        m_uiMalleableGooTimer = 20000;
+                    for (int i = 0; i < (m_bIs25Man ? 2 : 1); ++i)
+                    {
+                        if (Unit *pTarget = SelectRandomRangedTarget(m_creature))
+                        {
+                            float x, y, z;
+                            pTarget->GetPosition(x, y, z);
+                            if (Creature *pTmp = m_creature->SummonCreature(NPC_MALLEABLE_GOO, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                            {
+                                DoCastSpellIfCan(pTmp, SPELL_MALLEABLE_GOO_MISSILE);
+                                m_uiMalleableGooTimer = 20000;
+                            }
+                        }
+                    }
                 }
                 else
                     m_uiMalleableGooTimer -= uiDiff;
@@ -555,8 +569,19 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 // Malleable Goo
                 if (m_uiMalleableGooTimer <= uiDiff)
                 {
-                    // if (DoCastSpellIfCan() == CAST_OK)
-                        m_uiMalleableGooTimer = 20000;
+                    for (int i = 0; i < (m_bIs25Man ? 2 : 1); ++i)
+                    {
+                        if (Unit *pTarget = SelectRandomRangedTarget(m_creature))
+                        {
+                            float x, y, z;
+                            pTarget->GetPosition(x, y, z);
+                            if (Creature *pTmp = m_creature->SummonCreature(NPC_MALLEABLE_GOO, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                            {
+                                DoCastSpellIfCan(pTmp, SPELL_MALLEABLE_GOO_MISSILE);
+                                m_uiMalleableGooTimer = 20000;
+                            }
+                        }
+                    }
                 }
                 else
                     m_uiMalleableGooTimer -= uiDiff;
@@ -609,6 +634,7 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
         m_uiWaitTimer   = 3000;
         SetCombatMovement(false);
         m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
+        DoCastSpellIfCan(m_creature, SPELL_GASEOUS_BLOAT_VISUAL, CAST_TRIGGERED);
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
