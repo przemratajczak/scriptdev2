@@ -235,6 +235,23 @@ UPDATE `creature_template` SET `ScriptName`='mob_choking_gas_bomb', `AIName`='',
 UPDATE `creature_template` SET `ScriptName`='mob_ooze_puddle',`scale` = '1.0', `AIName`='', `minlevel` = 82, `maxlevel` = 82, `modelid_1` = 11686, `modelid_2` = 11686, `modelid_3` = 11686, `modelid_4` = 11686, `faction_A` = 14, `faction_H` = 14  WHERE `entry`= 37690;
 UPDATE `gameobject_template` SET `faction` = '0', `ScriptName` = 'go_plague_sigil' WHERE `gameobject_template`.`entry` IN (202182);
 
+DELETE FROM `spell_script_target` WHERE `entry` IN (71412, 71415, 71617);
+INSERT INTO `spell_script_target` VALUES
+(71412, 1, 37824), -- Green Ooze
+(71415, 1, 37824), -- Orange Ooze
+(71617, 1, 38317); -- Tear Gas
+
+-- delete some weird Grow Stacker - grows too fast
+DELETE FROM `creature_template_addon` WHERE `entry` = 37690;
+
+-- remove proc from Mutated Strength - currently cooldown for creatures not handled in core
+DELETE FROM `spell_proc_event` WHERE `entry` IN (71604, 72673, 72674, 72675);
+INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
+(71604, 256),
+(72673, 256),
+(72674, 256),
+(72675, 256);
+
 -- -----------
 -- Abomination
 -- -----------
