@@ -152,11 +152,11 @@ struct MANGOS_DLL_DECL instance_trial_of_the_crusader : public BSWScriptedInstan
         case TYPE_ANUBARAK:  m_auiEncounter[6] = uiData; 
                             if(uiData == IN_PROGRESS)
                             {
-                                DoCloseDoor(GO_WEB_DOOR);
+                                // DoCloseDoor(GO_WEB_DOOR);
                             }
                             if(uiData == FAIL)
                             {
-                                DoOpenDoor(GO_WEB_DOOR);
+                                // DoOpenDoor(GO_WEB_DOOR);
                             }
                             if (uiData == DONE) {
                             if (Difficulty == RAID_DIFFICULTY_10MAN_HEROIC)
