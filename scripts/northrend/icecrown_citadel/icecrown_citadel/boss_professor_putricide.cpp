@@ -54,6 +54,8 @@ enum BossSpells
     SPELL_SLIME_PUDDLE_AURA         = 70343,
  // SPELL_SLIME_PUDDLE_TRIGGER      = 71424, // trigger summon spell from target?
  // SPELL_SLIME_PUDDLE_SUMMON_TRIG  = 71425,
+    SPELL_GROW_STACKER              = 70345,
+    SPELL_GROW_STACKER_GROW_AURA    = 70347,
 
     SPELL_MALLEABLE_GOO_MISSILE     = 70852,
 
@@ -850,13 +852,11 @@ struct MANGOS_DLL_DECL mob_ooze_puddleAI : public ScriptedAI
     {
         SetCombatMovement(false);
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        m_uiGrowTimer = 5000;
-        m_creature->SetObjectScale(0.3f);
+        m_creature->SetObjectScale(0.2f);
+        DoCastSpellIfCan(m_creature, SPELL_GROW_STACKER, CAST_TRIGGERED);
     }
 
     ScriptedInstance *m_pInstance;
-
-    uint32 m_uiGrowTimer;
 
     void Reset(){}
     void AttackStart(Unit *pWho){}
@@ -874,20 +874,6 @@ struct MANGOS_DLL_DECL mob_ooze_puddleAI : public ScriptedAI
             else if (data != IN_PROGRESS)
                 m_creature->ForcedDespawn();
         }
-
-        if (m_uiGrowTimer <= uiDiff)
-        {
-            // store radius info in mmiscvalue
-            if (Aura *aur = m_creature->GetAura(SPELL_SLIME_PUDDLE_AURA, EFFECT_INDEX_0))
-            {
-                aur->GetModifier()->m_miscvalue += 1;
-                m_creature->SetObjectScale(m_creature->GetObjectScale() + 0.01);
-            }
-
-            m_uiGrowTimer = 1000;
-        }
-        else
-            m_uiGrowTimer -= uiDiff;
     }
 };
 CreatureAI* GetAI_mob_ooze_puddle(Creature* pCreature)
