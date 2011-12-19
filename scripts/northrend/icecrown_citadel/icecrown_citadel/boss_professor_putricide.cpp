@@ -85,9 +85,6 @@ enum BossSpells
     NPC_MALLEABLE_GOO               = 38556,
 
 /*
-    SPELL_OOZE_ADHESIVE           = 70447,
-    SPELL_OOZE_ERUPTION           = 70492,
-
     SPELL_OOZE_GAS_PROTECTION     = 70812,
     SPELL_OOZE_BEAM_PROTECTION    = 71530,
     SPELL_OOZE_TANK_PROTECTION    = 71770,
@@ -250,7 +247,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         {
             if (m_uiPhase == PHASE_RUNNING_ONE)
             {
-                if (m_bIsHeroic)
+                if (m_bIsHeroic && m_bIs25Man)
                 {
                     DoScriptText(SAY_PHASE_CHANGE, m_creature);
                     m_uiTransitionTimer = 30000;
@@ -265,7 +262,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             else if (m_uiPhase == PHASE_RUNNING_TWO)
             {
-                if (m_bIsHeroic)
+                if (m_bIsHeroic && m_bIs25Man)
                 {
                     DoScriptText(SAY_PHASE_CHANGE, m_creature);
                     m_uiTransitionTimer = 30000;
@@ -351,7 +348,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 80.0f)
                     {
-                        if (m_bIsHeroic)
+                        if (m_bIsHeroic && m_bIs25Man)
                         {
                             DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
                             DoExperiment(true, true);
@@ -416,7 +413,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     if (m_pInstance)
                             m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
-                    if (m_bIsHeroic)
+                    if (m_bIsHeroic && m_bIs25Man)
                     {
                         DoCastSpellIfCan(m_creature, SPELL_CREATE_CONCOCTION);
                         DoScriptText(SAY_TRANSFORM_1, m_creature);
@@ -436,7 +433,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 35.0f)
                     {
-                        if (m_bIsHeroic)
+                        if (m_bIsHeroic && m_bIs25Man)
                         {
                             DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
                             DoExperiment(true, true);
@@ -530,7 +527,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     if (m_pInstance)
                             m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
-                    if (m_bIsHeroic)
+                    if (m_bIsHeroic && m_bIs25Man)
                     {
                         DoCastSpellIfCan(m_creature, SPELL_GUZZLE_POTIONS);
                         DoScriptText(SAY_TRANSFORM_2, m_creature);
@@ -777,9 +774,9 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
                     {
                         Unit *pTarget = NULL;
 
-                        pTarget = pProf->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_OOZE_ADHESIVE, SELECT_FLAG_PLAYER);
-                        if (!pTarget)
-                            pTarget = pProf->getVictim();
+                        pTarget = pProf->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_OOZE_ADHESIVE, SELECT_FLAG_PLAYER);
+                        /*if (!pTarget)
+                            pTarget = pProf->getVictim();*/
 
                         if (pTarget)
                         {
