@@ -76,6 +76,13 @@ enum BossSpells
 
     SPELL_MUTATED_PLAGUE            = 72451,
 
+    // heroic
+    SPELL_UNBOUND_PLAGUE            = 70911,
+    SPELL_OOZE_VARIABLE             = 70352, // aura 303 - dont allow taking damage from attacker with linked aura303?
+    SPELL_OOZE_VARIABLE_OOZE        = 74118, // anyway, implemented as hardcoded in script
+    SPELL_GAS_VARIABLE              = 70353,
+    SPELL_GAS_VARIABLE_GAS          = 74119,
+
     NPC_GREEN_ORANGE_OOZE_STALKER   = 37824, // casts orange and green visual spell and then summons add
     NPC_GROWING_OOZE_PUDDLE         = 37690,
     NPC_GROWING_OOZE_PUDDLE_TRIG    = 38234,
@@ -164,6 +171,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
     uint32 m_uiMalleableGooTimer;
     uint32 m_uiChokingGasBombTimer;
     uint32 m_uiMutatedPlagueTimer;
+    uint32 m_uiUnboundPlagueTimer;
 
     // used to determine whether he is assisting one of his pupils or having his own encounter
     bool m_bIsAssistingOnly;
@@ -186,6 +194,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         m_uiMalleableGooTimer       = 5000;
         m_uiChokingGasBombTimer     = urand(10000, 15000);
         m_uiMutatedPlagueTimer      = 0;
+        m_uiUnboundPlagueTimer      = 10000;
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
@@ -247,7 +256,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
         {
             if (m_uiPhase == PHASE_RUNNING_ONE)
             {
-                if (m_bIsHeroic && m_bIs25Man)
+                if (m_bIsHeroic)
                 {
                     DoScriptText(SAY_PHASE_CHANGE, m_creature);
                     m_uiTransitionTimer = 30000;
@@ -262,7 +271,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             else if (m_uiPhase == PHASE_RUNNING_TWO)
             {
-                if (m_bIsHeroic && m_bIs25Man)
+                if (m_bIsHeroic)
                 {
                     DoScriptText(SAY_PHASE_CHANGE, m_creature);
                     m_uiTransitionTimer = 30000;
@@ -290,6 +299,46 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             if (Unit *pOrange = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, SpawnLoc[4].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
                 DoCastSpellIfCan(m_creature, SPELL_ORANGE_OOZE_SUMMON, CAST_TRIGGERED);
         }
+
+        // variable
+        if (both && m_bIs25Man)
+            DoVariable();
+    }
+
+    void DoVariable()
+    {
+        std::list<Unit*> lGasVariables, lOozeVariables;
+        bool bIsOoze = true;
+        ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+
+        for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
+        {
+            if (!(*i)->getUnitGuid().IsPlayer())
+                continue;
+
+            if (Unit* pTmp = m_creature->GetMap()->GetUnit((*i)->getUnitGuid()))
+            {
+                if (pTmp->GetVehicle())
+                    continue;
+                else
+                {
+                    if (bIsOoze)
+                        lGasVariables.push_back(pTmp);
+                    else
+                        lOozeVariables.push_back(pTmp);
+
+                    bIsOoze = !bIsOoze;
+                }
+            }
+        }
+
+        // gas vars
+        for(std::list<Unit*>::iterator i = lGasVariables.begin(); i != lGasVariables.end(); ++i)
+            (*i)->CastSpell(*i, SPELL_GAS_VARIABLE, true);
+
+        // ooze vars
+        for(std::list<Unit*>::iterator i = lOozeVariables.begin(); i != lOozeVariables.end(); ++i)
+            (*i)->CastSpell(*i, SPELL_OOZE_VARIABLE, true);
     }
 
     void JustSummoned(Creature *pSummoned)
@@ -348,7 +397,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 80.0f)
                     {
-                        if (m_bIsHeroic && m_bIs25Man)
+                        if (m_bIsHeroic)
                         {
                             DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
                             DoExperiment(true, true);
@@ -371,6 +420,21 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 }
                 else
                     m_uiHealthCheckTimer -= uiDiff;
+
+                // Unbound Plague
+                if (m_bIsHeroic)
+                {
+                    if (m_uiUnboundPlagueTimer <= uiDiff)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_UNBOUND_PLAGUE, SELECT_FLAG_PLAYER))
+                        {
+                            if (DoCastSpellIfCan(pTarget, SPELL_UNBOUND_PLAGUE) == CAST_OK)
+                                m_uiUnboundPlagueTimer = 70000;
+                        }
+                    }
+                    else
+                        m_uiUnboundPlagueTimer -= uiDiff;
+                }
 
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
@@ -413,7 +477,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     if (m_pInstance)
                             m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
-                    if (m_bIsHeroic && m_bIs25Man)
+                    if (m_bIsHeroic)
                     {
                         DoCastSpellIfCan(m_creature, SPELL_CREATE_CONCOCTION);
                         DoScriptText(SAY_TRANSFORM_1, m_creature);
@@ -433,7 +497,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 {
                     if (m_creature->GetHealthPercent() <= 35.0f)
                     {
-                        if (m_bIsHeroic && m_bIs25Man)
+                        if (m_bIsHeroic)
                         {
                             DoCastSpellIfCan(m_creature, SPELL_VOLATILE_EXPERIMENT);
                             DoExperiment(true, true);
@@ -456,6 +520,21 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                 }
                 else
                     m_uiHealthCheckTimer -= uiDiff;
+
+                // Unbound Plague
+                if (m_bIsHeroic)
+                {
+                    if (m_uiUnboundPlagueTimer <= uiDiff)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_UNBOUND_PLAGUE, SELECT_FLAG_PLAYER))
+                        {
+                            if (DoCastSpellIfCan(pTarget, SPELL_UNBOUND_PLAGUE) == CAST_OK)
+                                m_uiUnboundPlagueTimer = 70000;
+                        }
+                    }
+                    else
+                        m_uiUnboundPlagueTimer -= uiDiff;
+                }
 
                 // Slime Puddle
                 if (m_uiPuddleTimer <= uiDiff)
@@ -527,7 +606,7 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
                     if (m_pInstance)
                             m_pInstance->SetData(TYPE_PUTRICIDE, IN_PROGRESS);
 
-                    if (m_bIsHeroic && m_bIs25Man)
+                    if (m_bIsHeroic)
                     {
                         DoCastSpellIfCan(m_creature, SPELL_GUZZLE_POTIONS);
                         DoScriptText(SAY_TRANSFORM_2, m_creature);
@@ -542,6 +621,21 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
             }
             case PHASE_THREE:
             {
+                // Unbound Plague
+                if (m_bIsHeroic)
+                {
+                    if (m_uiUnboundPlagueTimer <= uiDiff)
+                    {
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_UNBOUND_PLAGUE, SELECT_FLAG_PLAYER))
+                        {
+                            if (DoCastSpellIfCan(pTarget, SPELL_UNBOUND_PLAGUE) == CAST_OK)
+                                m_uiUnboundPlagueTimer = 70000;
+                        }
+                    }
+                    else
+                        m_uiUnboundPlagueTimer -= uiDiff;
+                }
+
                 // Mutated Plague (proc cooldown for creatures doesn't work)
                 if (m_uiMutatedPlagueTimer <= uiDiff)
                 {
@@ -619,6 +713,16 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
     {
         m_creature->SetInCombatWithZone();
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsVariable = false;
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) == SPECIAL)
+            {
+                DoCastSpellIfCan(m_creature, SPELL_GAS_VARIABLE_GAS, CAST_TRIGGERED);
+                m_bIsVariable = true;
+            }
+        }
+        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
         Reset();
     }
 
@@ -626,23 +730,47 @@ struct MANGOS_DLL_DECL mob_icc_gas_cloudAI : public ScriptedAI
 
     uint32 m_uiWaitTimer;
     bool m_bIsWaiting;
+    bool m_bIsVariable;
 
     void Reset()
     {
         m_bIsWaiting    = true;
         m_uiWaitTimer   = 3000;
         SetCombatMovement(false);
-        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
         DoCastSpellIfCan(m_creature, SPELL_GASEOUS_BLOAT_VISUAL, CAST_TRIGGERED);
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
     {
+        if (m_bIsVariable)
+        {
+            if (pDealer->HasAura(SPELL_GAS_VARIABLE, EFFECT_INDEX_0))
+            {
+                uiDamage = 0;
+                return;
+            }
+        }
+
         if (uiDamage > m_creature->GetHealth())
         {
             m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
             if (m_creature->getVictim())
                 m_creature->getVictim()->RemoveAurasDueToSpell(SPELL_GASEOUS_BLOAT);
+
+            // remove variable debuffs
+            if (m_bIsVariable)
+            {
+                ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+
+                for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
+                {
+                    if (!(*i)->getUnitGuid().IsPlayer())
+                        continue;
+
+                    if (Unit* pTmp = m_creature->GetMap()->GetUnit((*i)->getUnitGuid()))
+                        pTmp->RemoveAurasDueToSpell(SPELL_GAS_VARIABLE);
+                }
+            }
         }
     }
 
@@ -721,6 +849,16 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
     {
         m_creature->SetInCombatWithZone();
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsVariable = false;
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) == SPECIAL)
+            {
+                DoCastSpellIfCan(m_creature, SPELL_OOZE_VARIABLE_OOZE, CAST_TRIGGERED);
+                m_bIsVariable = true;
+            }
+        }
+        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
         Reset();
     }
 
@@ -728,22 +866,46 @@ struct MANGOS_DLL_DECL mob_icc_volatile_oozeAI : public ScriptedAI
 
     uint32 m_uiWaitTimer;
     bool m_bIsWaiting;
+    bool m_bIsVariable;
 
     void Reset()
     {
         m_bIsWaiting    = true;
         m_uiWaitTimer   = 3000;
         SetCombatMovement(false);
-        m_creature->SetSpeedRate(MOVE_RUN, 1.0f);
     }
 
     void DamageTaken(Unit *pDealer, uint32 &uiDamage)
     {
+        if (m_bIsVariable)
+        {
+            if (pDealer->HasAura(SPELL_OOZE_VARIABLE, EFFECT_INDEX_0))
+            {
+                uiDamage = 0;
+                return;
+            }
+        }
+
         if (uiDamage > m_creature->GetHealth())
         {
             m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
             if (m_creature->getVictim())
                 m_creature->getVictim()->RemoveAurasDueToSpell(SPELL_OOZE_ADHESIVE);
+
+            // remove variable debuffs
+            if (m_bIsVariable)
+            {
+                ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+
+                for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
+                {
+                    if (!(*i)->getUnitGuid().IsPlayer())
+                        continue;
+
+                    if (Unit* pTmp = m_creature->GetMap()->GetUnit((*i)->getUnitGuid()))
+                        pTmp->RemoveAurasDueToSpell(SPELL_OOZE_VARIABLE);
+                }
+            }
         }
     }
 

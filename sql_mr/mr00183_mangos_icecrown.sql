@@ -260,8 +260,8 @@ INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
 
 DELETE FROM `creature_template_addon` WHERE (`entry`=37672);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES (37672, '70385 70405');
-UPDATE `creature_template` SET `vehicle_id`=587 WHERE `entry` in (36678,38431,38585,38586);
-UPDATE `creature_template` SET `vehicle_id`=591 WHERE `entry` in (37672,38605,38786,38787);
+UPDATE `creature_template` SET `PowerType` = 3, `vehicle_id`=587 WHERE `entry` in (36678,38431,38585,38586);
+UPDATE `creature_template` SET `PowerType` = 3, `vehicle_id`=591 WHERE `entry` in (37672,38605,38786,38787);
 DELETE FROM `spell_script_target` WHERE `entry` IN (70360);
 INSERT INTO `spell_script_target` VALUES (70360,1,37690);
 
