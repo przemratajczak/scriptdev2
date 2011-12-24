@@ -319,6 +319,15 @@ struct MANGOS_DLL_DECL mob_little_oozeAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            {
+                m_creature->ForcedDespawn();
+                return;
+            }
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -350,14 +359,16 @@ struct MANGOS_DLL_DECL mob_big_oozeAI : public ScriptedAI
     ScriptedInstance *m_pInstance;
     uint32 m_uiStickyOozeTimer;
     uint32 m_uiCheckTimer;
+    bool m_bHasSaid;
 
     void Reset()
     {
         m_uiStickyOozeTimer = 5000;
         m_uiCheckTimer = 1000;
+        m_bHasSaid = false;
     }
 
-    void EnterEvadeMode()
+    void JustReachedHome()
     {
         m_creature->ForcedDespawn();
     }
@@ -373,30 +384,42 @@ struct MANGOS_DLL_DECL mob_big_oozeAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            {
+                m_creature->ForcedDespawn();
+                return;
+            }
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // Unstable Ooze
-        if (m_uiCheckTimer <= uiDiff)
+        if (!m_bHasSaid)
         {
-            if (SpellAuraHolderPtr holder= m_creature->GetSpellAuraHolder(SPELL_UNSTABLE_OOZE))
+            if (m_uiCheckTimer <= uiDiff)
             {
-                if (holder->GetStackAmount() >= 5)
+                if (SpellAuraHolderPtr holder= m_creature->GetSpellAuraHolder(SPELL_UNSTABLE_OOZE))
                 {
-                    if (m_pInstance)
+                    if (holder->GetStackAmount() >= 5)
                     {
-                        if (Creature *pRotface = m_pInstance->GetSingleCreatureFromStorage(NPC_ROTFACE))
+                        if (m_pInstance)
                         {
-                            DoScriptText(SAY_OOZE_EXPLODE, pRotface);
-                            m_uiCheckTimer = 10000;
+                            if (Creature *pRotface = m_pInstance->GetSingleCreatureFromStorage(NPC_ROTFACE))
+                            {
+                                DoScriptText(SAY_OOZE_EXPLODE, pRotface);
+                                m_bHasSaid = true;
+                            }
                         }
                     }
                 }
+                m_uiCheckTimer = 1000;
             }
-            m_uiCheckTimer = 1000;
+            else
+                m_uiCheckTimer -= uiDiff;
         }
-        else
-            m_uiCheckTimer -= uiDiff;
 
         // Sticky Ooze
         if (m_uiStickyOozeTimer <= uiDiff)
@@ -416,6 +439,22 @@ CreatureAI* GetAI_mob_big_ooze(Creature* pCreature)
     return new mob_big_oozeAI(pCreature);
 }
 
+// Ooze explosion stalker
+struct MANGOS_DLL_DECL mob_ooze_explosion_stalkerAI : public ScriptedAI
+{
+    mob_ooze_explosion_stalkerAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        pCreature->ForcedDespawn(10000);
+    }
+    void Reset(){}
+    void UpdateAI(const uint32 uiDiff){}
+};
+
+CreatureAI* GetAI_mob_ooze_explosion_stalker(Creature* pCreature)
+{
+    return new mob_ooze_explosion_stalkerAI(pCreature);
+}
+
 struct MANGOS_DLL_DECL mob_sticky_oozeAI : public ScriptedAI
 {
     mob_sticky_oozeAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -429,7 +468,17 @@ struct MANGOS_DLL_DECL mob_sticky_oozeAI : public ScriptedAI
     {
         uiDamage = 0;
     }
-    void UpdateAI(const uint32 uiDiff){}
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_PUTRICIDE) != IN_PROGRESS)
+            {
+                m_creature->ForcedDespawn();
+                return;
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_mob_sticky_ooze(Creature* pCreature)
@@ -463,5 +512,10 @@ void AddSC_boss_rotface()
     newscript = new Script;
     newscript->Name = "mob_sticky_ooze";
     newscript->GetAI = &GetAI_mob_sticky_ooze;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_ooze_explosion_stalker";
+    newscript->GetAI = &GetAI_mob_ooze_explosion_stalker;
     newscript->RegisterSelf();
 }
