@@ -459,9 +459,12 @@ struct MANGOS_DLL_DECL mob_sticky_oozeAI : public ScriptedAI
 {
     mob_sticky_oozeAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         SetCombatMovement(false);
         pCreature->CastSpell(pCreature, SPELL_STICKY_AURA, true);
     }
+
+    ScriptedInstance *m_pInstance;
 
     void Reset(){}
     void DamageTaken(Unit* pDealer, uint32& uiDamage)
