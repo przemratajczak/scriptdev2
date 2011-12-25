@@ -218,6 +218,7 @@ UPDATE `creature_template` SET `unit_flags` = `unit_flags` | 33554432 | 2 WHERE 
 -- -------------------
 
 UPDATE `creature_template` SET `ScriptName`='boss_professor_putricide', `AIName`='' WHERE `entry`= 36678;
+UPDATE `creature_template` SET `vehicle_id`=587 WHERE `entry` in (36678,38431,38585,38586);
 UPDATE `gameobject_template` SET `faction` = '114',`data0` = '0' WHERE `gameobject_template`.`entry` IN (201372,201614,201613, 201612);
 UPDATE `gameobject` SET `state` = '1' WHERE `id` IN (201612,201614,201613);
 UPDATE `gameobject` SET `state` = '0' WHERE `id` IN (201372);
@@ -252,7 +253,6 @@ INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
 
 DELETE FROM `creature_template_addon` WHERE (`entry`=37672);
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES (37672, '70385 70405');
-UPDATE `creature_template` SET `PowerType` = 3, `vehicle_id`=587 WHERE `entry` in (36678,38431,38585,38586);
 UPDATE `creature_template` SET `PowerType` = 3, `vehicle_id`=591 WHERE `entry` in (37672,38605,38786,38787);
 DELETE FROM `spell_script_target` WHERE `entry` IN (70360);
 INSERT INTO `spell_script_target` VALUES (70360,1,37690);
