@@ -14,18 +14,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* ScriptData
-SDName: boss_the_lich_king
-SD%Complete: 70%
-SDComment: by /dev/rsa
-SDCategory: Icecrown Citadel
-EndScriptData */
-// Need implement "in sword" phase
+/**
+ * ScriptData
+ * SDName: boss_the_lich_king
+ * SD%Complete:
+ * SDComment:
+ * SDCategory: Icecrown Citadel
+ */
+
 #include "precompiled.h"
 #include "icecrown_citadel.h"
 
 enum BossSpells
 {
+/*
     SPELL_INFEST                     = 70541,
     SPELL_NECROTIC_PLAGUE            = 70337,
     SPELL_PLAGUE_SIPHON              = 74074,
@@ -93,7 +95,7 @@ enum BossSpells
     NPC_RAGING_SPIRIT                = 36701,
     NPC_VILE_SPIRIT                  = 37799,
     NPC_STRANGULATE_VEHICLE          = 36598,
-
+*/
 };
 
 // talks
@@ -153,6 +155,30 @@ static Locations SpawnLoc[]=
     {520.311f, -2124.709961f, 1040.859985f},      // 7 Frostmourne
 };
 
+/**
+ * The Lich King
+ */
+struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
+{
+    boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature)
+    {
+    }
+
+    void Reset()
+    {
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+    }
+};
+
+CreatureAI* GetAI_boss_the_lich_king_icc(Creature* pCreature)
+{
+    return new boss_the_lich_king_iccAI(pCreature);
+}
+
+/*
 struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public BSWScriptedAI
 {
     boss_the_lich_king_iccAI(Creature* pCreature) : BSWScriptedAI(pCreature)
@@ -688,13 +714,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public BSWScriptedAI
         }
     }
 };
-
-
-CreatureAI* GetAI_boss_the_lich_king_icc(Creature* pCreature)
-{
-    return new boss_the_lich_king_iccAI(pCreature);
-};
-
+*/
+/*
 struct MANGOS_DLL_DECL boss_tirion_iccAI : public ScriptedAI
 {
     boss_tirion_iccAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -939,10 +960,9 @@ struct MANGOS_DLL_DECL boss_tirion_iccAI : public ScriptedAI
             return;
         DoMeleeAttackIfReady();
     }
-
-
 };
-
+*/
+/*
 bool GossipHello_boss_tirion_icc(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance;
@@ -978,8 +998,9 @@ bool GossipSelect_boss_tirion_icc(Player* pPlayer, Creature* pCreature, uint32 u
 CreatureAI* GetAI_boss_tirion_icc(Creature* pCreature)
 {
     return new boss_tirion_iccAI(pCreature);
-};
-
+}
+*/
+/*
 struct MANGOS_DLL_DECL  mob_ice_sphere_iccAI : public BSWScriptedAI
 {
     mob_ice_sphere_iccAI(Creature *pCreature) : BSWScriptedAI(pCreature)
@@ -1029,8 +1050,9 @@ struct MANGOS_DLL_DECL  mob_ice_sphere_iccAI : public BSWScriptedAI
 CreatureAI* GetAI_mob_ice_sphere_icc(Creature* pCreature)
 {
     return new mob_ice_sphere_iccAI(pCreature);
-};
-
+}
+*/
+/*
 struct MANGOS_DLL_DECL mob_defiler_iccAI : public BSWScriptedAI
 {
     mob_defiler_iccAI(Creature *pCreature) : BSWScriptedAI(pCreature)
@@ -1082,13 +1104,14 @@ struct MANGOS_DLL_DECL mob_defiler_iccAI : public BSWScriptedAI
 
     }
 
-};
+}
 
 CreatureAI* GetAI_mob_defiler_icc(Creature* pCreature)
 {
     return new mob_defiler_iccAI(pCreature);
 }
-
+*/
+/*
 struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public ScriptedAI
 {
     mob_strangulate_vehicleAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -1122,7 +1145,8 @@ CreatureAI* GetAI_mob_strangulate_vehicle(Creature* pCreature)
 {
     return new mob_strangulate_vehicleAI(pCreature);
 }
-
+*/
+/*
 struct MANGOS_DLL_DECL  mob_vile_spiritAI : public BSWScriptedAI
 {
     mob_vile_spiritAI(Creature *pCreature) : BSWScriptedAI(pCreature)
@@ -1178,7 +1202,8 @@ CreatureAI* GetAI_mob_vile_spirit(Creature* pCreature)
 {
     return new mob_vile_spiritAI(pCreature);
 }
-
+*/
+/*
 struct MANGOS_DLL_DECL  mob_raging_spiritAI : public BSWScriptedAI
 {
     mob_raging_spiritAI(Creature *pCreature) : BSWScriptedAI(pCreature)
@@ -1211,6 +1236,7 @@ CreatureAI* GetAI_mob_raging_spirit(Creature* pCreature)
 {
     return new mob_raging_spiritAI(pCreature);
 }
+*/
 
 void AddSC_boss_lich_king_icc()
 {
@@ -1220,7 +1246,7 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "boss_the_lich_king_icc";
     newscript->GetAI = &GetAI_boss_the_lich_king_icc;
     newscript->RegisterSelf();
-
+/*
     newscript = new Script;
     newscript->Name = "boss_tirion_icc";
     newscript->GetAI = &GetAI_boss_tirion_icc;
@@ -1252,5 +1278,5 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "mob_raging_spirit";
     newscript->GetAI = &GetAI_mob_raging_spirit;
     newscript->RegisterSelf();
-
-};
+*/
+}
