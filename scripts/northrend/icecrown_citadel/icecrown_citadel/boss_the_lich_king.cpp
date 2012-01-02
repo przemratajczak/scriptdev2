@@ -143,6 +143,14 @@ enum Common
      FINAL_ARTHAS_MOVIE             = 16,
 };
 
+enum Phase
+{
+    PHASE_INTRO                     = 0,
+    PHASE_ONE                       = 1,
+    PHASE_RUNNING_WINTER            = 2,
+    PHASE_TWO                       = 3
+};
+
 static Locations SpawnLoc[]=
 {
     {459.93689f, -2124.638184f, 1040.860107f},    // 0 Lich King Intro
@@ -160,16 +168,57 @@ static Locations SpawnLoc[]=
  */
 struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 {
-    boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature)
-    {
-    }
+    boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature){}
+
+    uint32 m_uiPhase;
 
     void Reset()
     {
+        m_uiPhase               = PHASE_INTRO;
+    }
+
+    void Aggro(Unit *pWho)
+    {
+        m_uiPhase = PHASE_ONE;
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
+        switch(m_uiPhase)
+        {
+            case PHASE_INTRO:
+            {
+                // wait until set in combat
+                break;
+            }
+            case PHASE_ONE:
+            {
+                if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                    return;
+
+                // check HP
+                if (m_creature->GetHealthPercent() <= 70.0f)
+                {
+                    // phase transition
+                    m_uiPhase = PHASE_RUNNING_WINTER;
+                }
+
+                // cast some stuff
+
+                DoMeleeAttackIfReady();
+                break;
+            }
+            case PHASE_RUNNING_WINTER:
+            {
+                // wait for waypoint arrival
+                break;
+            }
+            case PHASE_TWO:
+            {
+                // remorseless winter, casting some stuff, summoning some creatures
+                break;
+            }
+        }
     }
 };
 
