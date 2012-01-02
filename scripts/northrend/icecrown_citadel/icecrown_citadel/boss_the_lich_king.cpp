@@ -96,6 +96,7 @@ enum BossSpells
     NPC_VILE_SPIRIT                  = 37799,
     NPC_STRANGULATE_VEHICLE          = 36598,
 */
+    SPELL_BERSERK               = 47008
 };
 
 // talks
@@ -140,18 +141,18 @@ enum
 
 enum Common
 {
-     FINAL_ARTHAS_MOVIE             = 16,
+     FINAL_ARTHAS_MOVIE         = 16,
 };
 
 enum Phase
 {
-    PHASE_INTRO                     = 0,
-    PHASE_ONE                       = 1,
-    PHASE_RUNNING_WINTER            = 2,
-    PHASE_TWO                       = 3
+    PHASE_INTRO                 = 0,
+    PHASE_ONE                   = 1,
+    PHASE_RUNNING_WINTER        = 2,
+    PHASE_TWO                   = 3
 };
 
-static Locations SpawnLoc[]=
+static Locations SpawnLoc[] =
 {
     {459.93689f, -2124.638184f, 1040.860107f},    // 0 Lich King Intro
     {503.15652f, -2124.516602f, 1040.860107f},    // 1 Lich king move end
@@ -171,19 +172,37 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature){}
 
     uint32 m_uiPhase;
+    uint32 m_uiBerserkTimer;
 
     void Reset()
     {
         m_uiPhase               = PHASE_INTRO;
+        m_uiBerserkTimer        = 15 * MINUTE * IN_MILLISECONDS;
     }
 
     void Aggro(Unit *pWho)
     {
+        DoScriptText(SAY_AGGRO, m_creature);
         m_uiPhase = PHASE_ONE;
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_uiPhase != PHASE_INTRO)
+        {
+            // Berserk
+            if (m_uiBerserkTimer <= uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
+                {
+                    DoScriptText(SAY_ENRAGE, m_creature);
+                    m_uiBerserkTimer = 30 * MINUTE * IN_MILLISECONDS;
+                }
+            }
+            else
+                m_uiBerserkTimer -= uiDiff;
+        }
+
         switch(m_uiPhase)
         {
             case PHASE_INTRO:
