@@ -173,11 +173,21 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
     uint32 m_uiPhase;
     uint32 m_uiBerserkTimer;
+    uint32 m_uiGhoulsTimer;
+    uint32 m_uiHorrorTimer;
+    uint32 m_uiNecroticPlagueTimer;
+    uint32 m_uiInfestTimer;
+    uint32 m_uiShadowTrapTimer;
 
     void Reset()
     {
         m_uiPhase               = PHASE_INTRO;
         m_uiBerserkTimer        = 15 * MINUTE * IN_MILLISECONDS;
+        m_uiGhoulsTimer         = 13000;
+        m_uiHorrorTimer         = 21000;
+        m_uiInfestTimer         = 20000;
+        m_uiNecroticPlagueTimer = 23000;
+        m_uiShadowTrapTimer     = 15000;
     }
 
     void Aggro(Unit *pWho)
@@ -191,7 +201,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         if (m_uiPhase != PHASE_INTRO)
         {
             // Berserk
-            if (m_uiBerserkTimer <= uiDiff)
+            if (m_uiBerserkTimer < uiDiff)
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
                 {
@@ -222,7 +232,53 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiPhase = PHASE_RUNNING_WINTER;
                 }
 
-                // cast some stuff
+                // Necrotic Plague
+                if (m_uiNecroticPlagueTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_NECROTIC_PLAGUE) == CAST_OK)
+                        m_uiNecroticPlagueTimer = 15000;
+                }
+                else
+                    m_uiNecroticPlagueTimer -= uiDiff;
+
+                // Infest
+                if (m_uiInfestTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_INFEST) == CAST_OK)
+                        m_uiInfestTimer = urand(20000, 25000);
+                }
+                else
+                    m_uiInfestTimer -= uiDiff;
+
+                // Summon Ghouls
+                if (m_uiGhoulsTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_GHOULS) == CAST_OK)
+                    m_uiGhoulsTimer = 20000;
+                }
+                else
+                    m_uiGhoulsTimer -= uiDiff;
+
+                // Summon Shambling Horror
+                if (m_uiHorrorTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_HORROR) == CAST_OK)
+                        m_uiHorrorTimer = 60000;
+                }
+                else
+                    m_uiHorrorTimer -= uiDiff;
+
+                // Shadow Trap (heroic)
+                if (m_bIsHeroic)
+                {
+                    if (m_uiShadowTrapTimer < uiDiff)
+                    {
+                        // if (DoCastSpellIfCan(m_creature, SPELL_SHADOW_TRAP) == CAST_OK)
+                            m_uiShadowTrapTimer = 15000;
+                    }
+                    else
+                        m_uiShadowTrapTimer -= uiDiff;
+                }
 
                 DoMeleeAttackIfReady();
                 break;
