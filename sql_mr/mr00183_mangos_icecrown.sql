@@ -412,7 +412,8 @@ INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES (37186, 70022);
 -- Lich King
 -- ---------
 
-UPDATE `creature_template` SET `ScriptName`='boss_the_lich_king_icc', `AIName`='' WHERE `entry`= 36597;
+UPDATE `creature_template` SET `ScriptName`='boss_the_lich_king_icc', `AIName`='' WHERE `entry` = 36597;
+UPDATE `creature_template` SET `speed_walk` = 1.0, `speed_run` = 1.33 WHERE `entry` IN (36597, 39166, 39167, 39168);
 UPDATE `creature_template` SET `ScriptName`='boss_tirion_icc', `npcflag`=1, `AIName`='' WHERE `entry`= 38995;
 INSERT IGNORE INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES ('71614', '1', '38995');
 

@@ -146,16 +146,29 @@ enum Common
 
 enum Phase
 {
-    PHASE_INTRO                 = 0,
-    PHASE_ONE                   = 1,
-    PHASE_RUNNING_WINTER        = 2,
-    PHASE_TWO                   = 3
+    PHASE_INTRO                 = 0,    // intro
+    PHASE_ONE                   = 1,    // phase one
+    PHASE_RUNNING_WINTER_ONE    = 2,    // running to center of platform to cast Remorseless Winter
+    PHASE_TRANSITION_ONE        = 3,    // Remorseless Winter aura and casting spells, summoning orbs and spirits
+    PHASE_QUAKE_ONE             = 4,    // casting Quake
+    PHASE_TWO                   = 5,    // phase two with val'kyrs and some more spells
+    PHASE_RUNNING_WINTER_TWO    = 6,    // running to center of platform to cast Remorseless Winter again
+    PHASE_TRANSITION_TWO        = 7,    // second Remorseless Winter phase
+    PHASE_QUAKE_TWO             = 8,    // second Quake casting
+    PHASE_THREE                 = 9,    // phase three, casting Soul Harvest (Frostmourne phase)
+    PHASE_CUTSCENE              = 10,   // phase when LK kills raid, Terenas comes etc.
+    PHASE_DEATH_AWAITS          = 11,   // strangulating Lich King, raid group finishing him
+};
+
+enum Point
+{
+    POINT_CENTER_LAND           = 1
 };
 
 static Locations SpawnLoc[] =
 {
     {459.93689f, -2124.638184f, 1040.860107f},    // 0 Lich King Intro
-    {503.15652f, -2124.516602f, 1040.860107f},    // 1 Lich king move end
+    {503.15652f, -2124.516602f, 1040.860107f},    // 1 Center of the platform
     {491.27118f, -2124.638184f, 1040.860107f},    // 2 Tirion 1
     {481.69797f, -2124.638184f, 1040.860107f},    // 3 Tirion 2
     {498.00448f, -2201.573486f, 1046.093872f},    // 4 Valkyrs?
@@ -172,34 +185,90 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature){}
 
     uint32 m_uiPhase;
+    uint32 m_uiPhaseTimer;
     uint32 m_uiBerserkTimer;
     uint32 m_uiGhoulsTimer;
     uint32 m_uiHorrorTimer;
     uint32 m_uiNecroticPlagueTimer;
     uint32 m_uiInfestTimer;
     uint32 m_uiShadowTrapTimer;
+    uint32 m_uiPainSufferingTimer;
+    uint32 m_uiRagingSpiritTimer;
+    uint32 m_uiIceSphereTimer;
 
     void Reset()
     {
         m_uiPhase               = PHASE_INTRO;
         m_uiBerserkTimer        = 15 * MINUTE * IN_MILLISECONDS;
+        m_uiPhaseTimer          = 60000; // first transition phase duration
         m_uiGhoulsTimer         = 13000;
         m_uiHorrorTimer         = 21000;
         m_uiInfestTimer         = 20000;
         m_uiNecroticPlagueTimer = 23000;
         m_uiShadowTrapTimer     = 15000;
+        m_uiPainSufferingTimer  = 2000;
+        m_uiRagingSpiritTimer   = 20000;
+        m_uiIceSphereTimer      = 6000;
     }
 
     void Aggro(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         m_uiPhase = PHASE_ONE;
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
+    }
+
+    void KilledUnit(Unit *pWho)
+    {
+        if (pWho->GetTypeId() == TYPEID_PLAYER)
+            DoScriptText(SAY_SLAY_1 - urand(0, 1), m_creature);
+    }
+
+    void JustDied(Unit *pKiller)
+    {
+        // play cinematic
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LICH_KING, DONE);
+    }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_LICH_KING, FAIL);
+    }
+
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        switch(uiData)
+        {
+            case POINT_CENTER_LAND:
+            {
+                // Remorseless Winter
+                DoScriptText(SAY_REMORSELESS_WINTER, m_creature);
+                // DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER);
+                if (m_uiPhase == PHASE_RUNNING_WINTER_ONE)
+                    m_uiPhase = PHASE_TRANSITION_ONE;
+                else if (m_uiPhase == PHASE_RUNNING_WINTER_TWO)
+                    m_uiPhase = PHASE_TRANSITION_TWO;
+
+                break;
+            }
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPhase != PHASE_INTRO)
         {
+            // check evade
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+
             // Berserk
             if (m_uiBerserkTimer < uiDiff)
             {
@@ -218,18 +287,19 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             case PHASE_INTRO:
             {
                 // wait until set in combat
-                break;
+                return;
             }
             case PHASE_ONE:
             {
-                if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-                    return;
-
                 // check HP
                 if (m_creature->GetHealthPercent() <= 70.0f)
                 {
                     // phase transition
-                    m_uiPhase = PHASE_RUNNING_WINTER;
+                    SetCombatMovement(false);
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_LAND, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
+                    m_uiPhaseTimer = 60000;
+                    m_uiPhase = PHASE_RUNNING_WINTER_ONE;
                 }
 
                 // Necrotic Plague
@@ -283,14 +353,92 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 DoMeleeAttackIfReady();
                 break;
             }
-            case PHASE_RUNNING_WINTER:
+            case PHASE_RUNNING_WINTER_ONE:
+            case PHASE_RUNNING_WINTER_TWO:
             {
                 // wait for waypoint arrival
                 break;
             }
+            case PHASE_TRANSITION_ONE:
+            case PHASE_TRANSITION_TWO:
+            {
+                if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                    return;
+
+                // remorseless winter, casting some stuff, summoning some creatures
+                // phase end timer
+                if (m_uiPhaseTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_QUAKE) == CAST_OK)
+                    {
+                        DoScriptText(SAY_SHATTER_ARENA, m_creature);
+                        m_uiPhase = (m_uiPhase == PHASE_TRANSITION_ONE ? PHASE_QUAKE_ONE : PHASE_QUAKE_TWO);
+                        m_uiPhaseTimer = 3000;
+                    }
+                }
+                else
+                    m_uiPhaseTimer -= uiDiff;
+
+                // Pain and Suffering
+                if (m_uiPainSufferingTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_PAIN_AND_SUFFERING) == CAST_OK)
+                        m_uiPainSufferingTimer = urand(1000, 3000);
+                }
+                else
+                    m_uiPainSufferingTimer -= uiDiff;
+
+                // Summon Ice Sphere
+                if (m_uiIceSphereTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_ICE_SPHERE) == CAST_OK)
+                        m_uiIceSphereTimer = 6000;
+                }
+                else
+                    m_uiIceSphereTimer -= uiDiff;
+
+                // Summon Raging Spirit
+                if (m_uiRagingSpiritTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGING_SPIRIT) == CAST_OK)
+                        m_uiRagingSpiritTimer = (m_uiPhase == PHASE_TRANSITION_ONE ? 20000 : 15000);
+                }
+                else
+                    m_uiRagingSpiritTimer -= uiDiff;
+
+                break;
+            }
+            case PHASE_QUAKE_ONE:
+            case PHASE_QUAKE_TWO:
+            {
+                // Casting Quake spell - phase end timer
+                if (m_uiPhaseTimer < uiDiff)
+                {
+                    m_uiPhase = (m_uiPhase == PHASE_QUAKE_ONE ? PHASE_TWO : PHASE_THREE);
+                    SetCombatMovement(true);
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    return;
+                }
+                else
+                    m_uiPhaseTimer -= uiDiff;
+
+                break;
+            }
             case PHASE_TWO:
             {
-                // remorseless winter, casting some stuff, summoning some creatures
+                // check HP
+                if (m_creature->GetHealthPercent() <= 40.0f)
+                {
+                    // phase transition
+                    SetCombatMovement(false);
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_LAND, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
+                    m_uiPhaseTimer = 60000;
+                    m_uiPhase = PHASE_RUNNING_WINTER_TWO;
+                }
+
+                DoMeleeAttackIfReady();
                 break;
             }
         }
