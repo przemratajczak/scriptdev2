@@ -241,6 +241,10 @@ bool GossipSelect_npcs_rutgar_and_frankal(Player* pPlayer, Creature* pCreature, 
 #define GOSSIP_ITEM_2 "You will listen to this, wille duke! I am not your Twillight's Hammer lapdog! I am here to challenge you! Come! Come, and meet your death..."
 #define GOSSIP_ITEM_3 "The day of judgement has come, friend! I challenge you, no battle!"
 
+#define GOSSIP_TEXT_1 "A faint whisper is heard form within the stone... Greetings, little one. Do you have news for the Templar?"
+#define GOSSIP_TEXT_2 "A clear voice rises form within the stone...You come to us with litle and so we will listen, but do not try our patience. The council has no time for idle gossip from one such as you."
+#define GOSSIP_TEXT_3 "A thunderous voice bellows form the stone... Greetings, commander. What news of Sillithus do you bring the Lords of the Council?"
+
 enum
 {
     //Lesser Wind Stone
@@ -275,10 +279,6 @@ enum
     ITEM_ROBE               = 20407,
     ITEM_MEDALION           = 20422,
     ITEM_RING               = 20451,
-
-    GOSSIP_TEXT_1           = -3649011,
-    GOSSIP_TEXT_2           = -3649012,
-    GOSSIP_TEXT_3           = -3649013,
 };
 
 bool GOGossipHello_go_lesser_wind_stone(Player* pPlayer,  GameObject* pGo)
@@ -288,7 +288,7 @@ bool GOGossipHello_go_lesser_wind_stone(Player* pPlayer,  GameObject* pGo)
     if(pPlayer->HasItemOrGemWithIdEquipped(ITEM_MANTLE, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_COWL, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_ROBE, 1))
     {
         pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_1, pGo->GetObjectGuid());
+        pPlayer->SEND_GOSSIP_MENU(100001, pGo->GetObjectGuid());
     }
 
     return true;
@@ -330,7 +330,7 @@ bool GOGossipHello_go_wind_stone(Player* pPlayer, GameObject* pGo)
     if(pPlayer->HasItemOrGemWithIdEquipped(ITEM_MANTLE, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_COWL, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_ROBE, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_MEDALION, 1))
     {
         pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_2, pGo->GetObjectGuid());
+        pPlayer->SEND_GOSSIP_MENU(100001, pGo->GetObjectGuid());
     }
 
     return true;
@@ -371,7 +371,7 @@ bool GOGossipHello_go_great_wind_stone(Player* pPlayer, GameObject* pGo)
     if(pPlayer->HasItemOrGemWithIdEquipped(ITEM_MANTLE, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_COWL, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_ROBE, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_MEDALION, 1) && pPlayer->HasItemOrGemWithIdEquipped(ITEM_RING, 1))
     {
         pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_3, pGo->GetObjectGuid());
+        pPlayer->SEND_GOSSIP_MENU(100001, pGo->GetObjectGuid());
     }
 
     return true;
@@ -403,6 +403,7 @@ bool GOGossipSelect_go_great_wind_stone(Player* pPlayer, GameObject* pGo, uint32
 
     return true;
 }
+
 void AddSC_silithus()
 {
     Script *newscript;
