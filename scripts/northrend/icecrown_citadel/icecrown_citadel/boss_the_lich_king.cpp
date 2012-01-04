@@ -495,7 +495,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             case PHASE_THREE:
             {
                 // check HP
-                if (m_creature->GetHealthPercent() <= 40.0f)
+                if (m_creature->GetHealthPercent() <= 10.0f)
                 {
                     m_creature->GetMotionMaster()->Clear();
                     SetCombatMovement(false);
