@@ -195,6 +195,11 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     uint32 m_uiPainSufferingTimer;
     uint32 m_uiRagingSpiritTimer;
     uint32 m_uiIceSphereTimer;
+    uint32 m_uiValkyrTimer;
+    uint32 m_uiDefileTimer;
+    uint32 m_uiSoulReaperTimer;
+    uint32 m_uiHarvestSoulTimer;
+    uint32 m_uiVileSpiritsTimer;
 
     void Reset()
     {
@@ -209,6 +214,11 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         m_uiPainSufferingTimer  = 2000;
         m_uiRagingSpiritTimer   = 20000;
         m_uiIceSphereTimer      = 6000;
+        m_uiValkyrTimer         = 10000;
+        m_uiDefileTimer         = 30000;
+        m_uiSoulReaperTimer     = 25000;
+        m_uiHarvestSoulTimer    = 5000;
+        m_uiVileSpiritsTimer    = 20000;
     }
 
     void Aggro(Unit *pWho)
@@ -437,6 +447,83 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiPhaseTimer = 60000;
                     m_uiPhase = PHASE_RUNNING_WINTER_TWO;
                 }
+
+                // Soul Reaper
+                if (m_uiSoulReaperTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature->getVictim, SPELL_SOUL_REAPER) == CAST_OK)
+                        m_uiSoulReaperTimer = 30000;
+                }
+                else
+                    m_uiSoulReaperTimer -= uiDiff;
+
+                // Infest
+                if (m_uiInfestTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_INFEST) == CAST_OK)
+                        m_uiInfestTimer = urand(20000, 25000);
+                }
+                else
+                    m_uiInfestTimer -= uiDiff;
+
+                // Defile
+                if (m_uiDefileTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_DEFILE) == CAST_OK)
+                        m_uiDefileTimer = 30000;
+                }
+                else
+                    m_uiDefileTimer -= uiDiff;
+
+                // Summon Val'kyr
+                if (m_uiValkyrTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_VALKYR) == CAST_OK)
+                        m_uiValkyrTimer = 50000;
+                }
+                else
+                    m_uiValkyrTimer -= uiDiff;
+
+                DoMeleeAttackIfReady();
+                break;
+            }
+            case PHASE_THREE:
+            {
+                // Soul Reaper
+                if (m_uiSoulReaperTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature->getVictim, SPELL_SOUL_REAPER) == CAST_OK)
+                        m_uiSoulReaperTimer = 30000;
+                }
+                else
+                    m_uiSoulReaperTimer -= uiDiff;
+
+                // Defile
+                if (m_uiDefileTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_DEFILE) == CAST_OK)
+                        m_uiDefileTimer = 30000;
+                }
+                else
+                    m_uiDefileTimer -= uiDiff;
+
+                // Harvest Soul
+                if (m_uiHarvestSoulTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_HARVEST_SOUL) == CAST_OK)
+                        m_uiHarvestSoulTimer = urand(60000, 70000);
+                }
+                else
+                    m_uiHarvestSoulTimer -= uiDiff;
+
+                // Vile Spirits (start moving after 15seconds)
+                if (m_uiVileSpiritsTimer < uiDiff)
+                {
+                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_VILE_SPIRITS) == CAST_OK)
+                        m_uiVileSpiritsTimer = 30000;
+                }
+                else
+                    m_uiVileSpiritsTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
                 break;
