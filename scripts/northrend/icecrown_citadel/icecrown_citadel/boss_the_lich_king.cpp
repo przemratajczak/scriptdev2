@@ -156,8 +156,9 @@ enum Phase
     PHASE_TRANSITION_TWO        = 7,    // second Remorseless Winter phase
     PHASE_QUAKE_TWO             = 8,    // second Quake casting
     PHASE_THREE                 = 9,    // phase three, casting Soul Harvest (Frostmourne phase)
-    PHASE_CUTSCENE              = 10,   // phase when LK kills raid, Terenas comes etc.
-    PHASE_DEATH_AWAITS          = 11,   // strangulating Lich King, raid group finishing him
+    PHASE_IN_FROSTMOURNE        = 10,   // phase three, waiting untill whole raid leaves Frostmourne
+    PHASE_CUTSCENE              = 11,   // phase when LK kills raid, Terenas comes etc.
+    PHASE_DEATH_AWAITS          = 12,   // strangulating Lich King, raid group finishing him
 };
 
 enum Point
@@ -238,9 +239,10 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
     void JustDied(Unit *pKiller)
     {
-        // play cinematic
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LICH_KING, DONE);
+
+        // DoCastSpellIfCan(m_creature, SPELL_LK_CINEMATIC, CAST_TRIGGERED);
     }
 
     void JustReachedHome()
@@ -479,7 +481,10 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 if (m_uiValkyrTimer < uiDiff)
                 {
                     // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_VALKYR) == CAST_OK)
+                    {
+                        DoScriptText(SAY_SUMMON_VALKYR, m_creature);
                         m_uiValkyrTimer = 50000;
+                    }
                 }
                 else
                     m_uiValkyrTimer -= uiDiff;
@@ -489,6 +494,16 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             }
             case PHASE_THREE:
             {
+                // check HP
+                if (m_creature->GetHealthPercent() <= 40.0f)
+                {
+                    m_creature->GetMotionMaster()->Clear();
+                    SetCombatMovement(false);
+                    // DoCastSpellIfCan(m_creature, SPELL_FURY_OF_FROSTMOURNE);
+                    DoScriptText(SAY_LAST_PHASE, m_creature);
+                    m_uiPhase = PHASE_CUTSCENE;
+                }
+
                 // Soul Reaper
                 if (m_uiSoulReaperTimer < uiDiff)
                 {
@@ -511,7 +526,10 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 if (m_uiHarvestSoulTimer < uiDiff)
                 {
                     // if (DoCastSpellIfCan(m_creature, SPELL_HARVEST_SOUL) == CAST_OK)
+                    {
+                        DoScriptText(SAY_HARVEST_SOUL, m_creature);
                         m_uiHarvestSoulTimer = urand(60000, 70000);
+                    }
                 }
                 else
                     m_uiHarvestSoulTimer -= uiDiff;
@@ -526,6 +544,22 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiVileSpiritsTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
+                break;
+            }
+            case PHASE_IN_FROSTMOURNE:
+            {
+                // check if players are alive before entering evade mode?
+                // wait until they leave Frostmourne
+                break;
+            }
+            case PHASE_CUTSCENE:
+            {
+                // cutscene
+                break;
+            }
+            case PHASE_DEATH_AWAITS:
+            {
+                // wait for swift death
                 break;
             }
         }
