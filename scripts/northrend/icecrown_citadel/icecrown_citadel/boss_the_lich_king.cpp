@@ -96,7 +96,12 @@ enum BossSpells
     NPC_VILE_SPIRIT                  = 37799,
     NPC_STRANGULATE_VEHICLE          = 36598,
 */
-    SPELL_BERSERK               = 47008
+    SPELL_BERSERK               = 47008,
+
+    // Phase transition
+    SPELL_REMORSELESS_WINTER    = 68981,
+    SPELL_PAIN_AND_SUFFERING    = 72133,
+    SPELL_QUAKE                 = 72262,
 };
 
 // talks
@@ -183,7 +188,12 @@ static Locations SpawnLoc[] =
  */
 struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 {
-    boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature){}
+    boss_the_lich_king_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+        m_uiPlatformOriginalFlag = 0;
+        m_bPillarsDestroyed = false;
+    }
 
     uint32 m_uiPhase;
     uint32 m_uiPhaseTimer;
@@ -202,17 +212,22 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     uint32 m_uiHarvestSoulTimer;
     uint32 m_uiVileSpiritsTimer;
 
+    uint32 m_uiPlatformOriginalFlag;
+    uint32 m_uiRespawnPlatformTimer;
+    uint32 m_uiDestroyPillarsTimer;
+    bool m_bPillarsDestroyed;
+    bool m_bPlatformDestroyed;
+
     void Reset()
     {
         m_uiPhase               = PHASE_INTRO;
         m_uiBerserkTimer        = 15 * MINUTE * IN_MILLISECONDS;
-        m_uiPhaseTimer          = 60000; // first transition phase duration
         m_uiGhoulsTimer         = 13000;
         m_uiHorrorTimer         = 21000;
         m_uiInfestTimer         = 20000;
         m_uiNecroticPlagueTimer = 23000;
         m_uiShadowTrapTimer     = 15000;
-        m_uiPainSufferingTimer  = 2000;
+        m_uiPainSufferingTimer  = 6000;
         m_uiRagingSpiritTimer   = 20000;
         m_uiIceSphereTimer      = 6000;
         m_uiValkyrTimer         = 10000;
@@ -220,12 +235,19 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         m_uiSoulReaperTimer     = 25000;
         m_uiHarvestSoulTimer    = 5000;
         m_uiVileSpiritsTimer    = 20000;
+        m_uiDestroyPillarsTimer = 3000;
+        m_uiRespawnPlatformTimer= 3000;
+
+        DoRespawnPlatform();
+        SetCombatMovement(true);
     }
 
     void Aggro(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         m_uiPhase = PHASE_ONE;
+
+        m_creature->SetWalk(false);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
@@ -260,17 +282,82 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         {
             case POINT_CENTER_LAND:
             {
+                if (m_uiPhase == PHASE_RUNNING_WINTER_ONE)
+                {
+                    m_uiPhase = PHASE_TRANSITION_ONE;
+                    m_uiPhaseTimer          = 62000;
+                }
+                else if (m_uiPhase == PHASE_RUNNING_WINTER_TWO)
+                {
+                    m_uiRespawnPlatformTimer = 3000; // respawn platform after spell is cast
+                    m_uiPhase = PHASE_TRANSITION_TWO;
+                    m_uiPhaseTimer          = 62000;
+                }
+
                 // Remorseless Winter
                 DoScriptText(SAY_REMORSELESS_WINTER, m_creature);
-                // DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER);
-                if (m_uiPhase == PHASE_RUNNING_WINTER_ONE)
-                    m_uiPhase = PHASE_TRANSITION_ONE;
-                else if (m_uiPhase == PHASE_RUNNING_WINTER_TWO)
-                    m_uiPhase = PHASE_TRANSITION_TWO;
+                DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER);
+
+                // set phase initial timers
+                m_uiPainSufferingTimer  = 6000;
+                m_uiRagingSpiritTimer   = 20000;
+                m_uiIceSphereTimer      = 6000;
 
                 break;
             }
         }
+    }
+
+    void DoDestroyPillars()
+    {
+        if (m_pInstance)
+        {
+            if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_ICESHARD_1))
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_ICESHARD_2))
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_ICESHARD_3))
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_ICESHARD_4))
+                pGo->SetGoState(GO_STATE_ACTIVE);
+        }
+    }
+
+    void DoDestroyPlatform()
+    {
+        if (!m_pInstance)
+            return;
+
+        if (GameObject* pGoFloor = m_pInstance->GetSingleGameObjectFromStorage(GO_ARTHAS_PLATFORM))
+        {
+             pGoFloor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+             m_uiPlatformOriginalFlag = pGoFloor->GetUInt32Value(GAMEOBJECT_BYTES_1);
+             pGoFloor->SetUInt32Value(GAMEOBJECT_BYTES_1,8449);
+        }
+
+        if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_FROSTY_WIND))
+            pGo->SetGoState(GO_STATE_READY);
+        if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_SNOW_EDGE))
+            pGo->SetGoState(GO_STATE_READY);
+
+        m_bPlatformDestroyed = true;
+    }
+
+    void DoRespawnPlatform()
+    {
+        if (!m_pInstance)
+            return;
+
+        if (GameObject* pGoFloor = m_pInstance->GetSingleGameObjectFromStorage(GO_ARTHAS_PLATFORM))
+        {
+            pGoFloor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+            pGoFloor->SetUInt32Value(GAMEOBJECT_BYTES_1, m_uiPlatformOriginalFlag);
+        }
+
+        if (GameObject* pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_FROSTY_WIND))
+            pGo->SetGoState(GO_STATE_ACTIVE);
+
+        m_bPlatformDestroyed = false;
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -310,8 +397,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     SetCombatMovement(false);
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_LAND, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
-                    m_uiPhaseTimer = 60000;
                     m_uiPhase = PHASE_RUNNING_WINTER_ONE;
+                    return;
                 }
 
                 // Necrotic Plague
@@ -377,25 +464,50 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
                     return;
 
-                // remorseless winter, casting some stuff, summoning some creatures
                 // phase end timer
                 if (m_uiPhaseTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_QUAKE) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_QUAKE) == CAST_OK)
                     {
                         DoScriptText(SAY_SHATTER_ARENA, m_creature);
                         m_uiPhase = (m_uiPhase == PHASE_TRANSITION_ONE ? PHASE_QUAKE_ONE : PHASE_QUAKE_TWO);
-                        m_uiPhaseTimer = 3000;
+                        m_uiPhaseTimer = 6000;
                     }
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
 
+                // destroy pillars
+                if (!m_bPillarsDestroyed)
+                {
+                    if (m_uiDestroyPillarsTimer < uiDiff)
+                    {
+                        DoDestroyPillars();
+                        m_bPillarsDestroyed = true;
+                    }
+                    else
+                        m_uiDestroyPillarsTimer -= uiDiff;
+                }
+
+                // respawning platform
+                if (m_bPlatformDestroyed)
+                {
+                    if (m_uiRespawnPlatformTimer < uiDiff)
+                    {
+                        DoRespawnPlatform();
+                    }
+                    else
+                        m_uiRespawnPlatformTimer -= uiDiff;
+                }
+
                 // Pain and Suffering
                 if (m_uiPainSufferingTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_PAIN_AND_SUFFERING) == CAST_OK)
-                        m_uiPainSufferingTimer = urand(1000, 3000);
+                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_PAIN_AND_SUFFERING, SELECT_FLAG_PLAYER))
+                    {
+                        if (DoCastSpellIfCan(m_creature, SPELL_PAIN_AND_SUFFERING, CAST_TRIGGERED) == CAST_OK)
+                            m_uiPainSufferingTimer = urand(1000, 3000);
+                    }
                 }
                 else
                     m_uiPainSufferingTimer -= uiDiff;
@@ -426,6 +538,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Casting Quake spell - phase end timer
                 if (m_uiPhaseTimer < uiDiff)
                 {
+                    DoDestroyPlatform();
                     m_uiPhase = (m_uiPhase == PHASE_QUAKE_ONE ? PHASE_TWO : PHASE_THREE);
                     SetCombatMovement(true);
                     m_creature->GetMotionMaster()->Clear();
