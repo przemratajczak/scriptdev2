@@ -408,6 +408,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         Reset();
         m_uiPlatformOriginalFlag = 0;
         m_bPillarsDestroyed = false;
+        m_bIsFirstAttempt = true;
     }
 
     uint32 m_uiPhase;
@@ -432,6 +433,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     uint32 m_uiDestroyPillarsTimer;
     bool m_bPillarsDestroyed;
     bool m_bPlatformDestroyed;
+    bool m_bIsFirstAttempt;
 
     void Reset()
     {
@@ -459,14 +461,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
     void Aggro(Unit *pWho)
     {
-        if (m_pInstance)
-        {
-            if (Creature *pTirion = m_pInstance->GetSingleCreatureFromStorage(NPC_TIRION))
-            {
-                if (pTirion->GetSpellAuraHolder(SPELL_ICE_LOCK))
-                    DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
-            }
-        }
+        if (!m_bIsFirstAttempt)
+            DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
 
         m_uiPhase = PHASE_ONE;
 
@@ -496,6 +492,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             m_pInstance->SetData(TYPE_LICH_KING, FAIL);
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+
+        m_bIsFirstAttempt = false;
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
