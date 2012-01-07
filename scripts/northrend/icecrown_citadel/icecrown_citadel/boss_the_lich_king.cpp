@@ -210,14 +210,16 @@ enum Phase
 
 enum Point
 {
-    POINT_CENTER_LAND           = 1
+    POINT_CENTER_LAND           = 1,
+    POINT_CENTER_LAND_TIRION    = 2,
+    POINT_TELEPORTER_TIRION     = 3
 };
 
 static Locations SpawnLoc[] =
 {
     {458.58889f, -2122.710284f, 1040.860107f},    // 0 Lich King Intro
     {503.15652f, -2124.516602f, 1040.860107f},    // 1 Center of the platform
-    {491.27118f, -2124.638184f, 1040.860107f},    // 2 Tirion 1
+    {500.15652f, -2124.516602f, 1040.860107f},    // 2 Tirion strikes Lich King
     {481.69797f, -2124.638184f, 1040.860107f},    // 3 Tirion 2
     {498.00448f, -2201.573486f, 1046.093872f},    // 4 Valkyrs?
     {517.48291f, -2124.905762f, 1040.861328f},    // 5 Tirion?
@@ -307,15 +309,18 @@ struct MANGOS_DLL_DECL boss_tirion_iccAI : public base_icc_bossAI
         if (uiMovementType != POINT_MOTION_TYPE)
             return;
 
-        if (uiData == 1)
+        if (uiData == POINT_CENTER_LAND_TIRION)
+        {
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SPECIALATTACK1H);
+            NextStep(1000);
+        }
+        else if (POINT_TELEPORTER_TIRION)
         {
             if (m_pInstance)
             {
                 if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
                     m_creature->SetFacingToObject(pLichKing);
             }
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SPECIALATTACK1H);
-            NextStep(1000);
         }
     }
 
@@ -477,10 +482,8 @@ struct MANGOS_DLL_DECL boss_tirion_iccAI : public base_icc_bossAI
                     {
                         if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
                         {
-                            float x, y, z;
-                            pLichKing->GetClosePoint(x, y, z, pLichKing->GetObjectBoundingRadius(), 3.0f, pLichKing->GetAngle(m_creature));
                             m_creature->SetWalk(false);
-                            m_creature->GetMotionMaster()->MovePoint(1, x, y, z, false);
+                            m_creature->GetMotionMaster()->MovePoint(POINT_CENTER_LAND_TIRION, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, false);
                         }
                     }
 
@@ -521,6 +524,7 @@ struct MANGOS_DLL_DECL boss_tirion_iccAI : public base_icc_bossAI
                 case 20:
                 {
                     DoScriptText(SAY_OUTRO_8, m_creature);
+                    m_creature->GetMotionMaster()->MovePoint(POINT_TELEPORTER_TIRION, SpawnLoc[6].x, SpawnLoc[6].y, SpawnLoc[6].z, false);
                     
                     if (m_pInstance)
                     {
@@ -745,7 +749,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         if (!m_bIsFirstAttempt)
             DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
 
-        m_uiPhase = PHASE_THREE;// PHASE_ONE;
+        m_uiPhase = PHASE_ONE;
 
         m_creature->SetWalk(false);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
