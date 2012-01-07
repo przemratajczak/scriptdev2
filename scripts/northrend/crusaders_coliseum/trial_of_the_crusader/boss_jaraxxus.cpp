@@ -238,7 +238,8 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public BSWScriptedAI
             m_uiBerserkTimer = 6*MINUTE*IN_MILLISECONDS;
         }else m_uiBerserkTimer -= uiDiff;
 
-        if(m_bIsHeroicMode)
+        //SPELL IS NOT WORK!!
+        /*if(m_bIsHeroicMode)
         {
             if (m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
@@ -248,7 +249,7 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public BSWScriptedAI
                 }
                 m_uiTouchOfJaraxxusTimer = urand(30*IN_MILLISECONDS, 35*IN_MILLISECONDS);
             }else m_uiTouchOfJaraxxusTimer -= uiDiff;
-        }
+        }*/
 
         DoMeleeAttackIfReady();
     }
