@@ -97,11 +97,29 @@ enum BossSpells
     NPC_STRANGULATE_VEHICLE          = 36598,
 */
     SPELL_BERSERK               = 47008,
+    SPELL_SIT_EMOTE_NO_SHEATH   = 73220,
+    SPELL_PLAGUE_AVOIDANCE      = 72846,
+
+    // Intro
+    SPELL_ICE_LOCK              = 71614,
 
     // Phase transition
-    SPELL_REMORSELESS_WINTER    = 68981,
-    SPELL_PAIN_AND_SUFFERING    = 72133,
+    SPELL_REMORSELESS_WINTER_1  = 68981,
+    SPELL_REMORSELESS_WINTER_2  = 72259,
     SPELL_QUAKE                 = 72262,
+    SPELL_PAIN_AND_SUFFERING    = 72133,
+    SPELL_RAGING_SPIRIT         = 69200,
+    SPELL_SUMMON_ICE_SPHERE     = 69103,
+    SPELL_ICE_SPHERE            = 69104, // missile and summon effect
+
+    // Raging Spirit
+    SPELL_SOUL_SHRIEK           = 69242,
+    SPELL_RAGING_SPIRIT_VISUAL  = 69198, // clone effect (clone of player)
+
+    // Ice Sphere
+    SPELL_ICE_SPHERE_VISUAL     = 69090,
+    SPELL_ICE_BURST_AURA        = 69109,
+    SPELL_ICE_BURST             = 69108,
 };
 
 // talks
@@ -173,7 +191,7 @@ enum Point
 
 static Locations SpawnLoc[] =
 {
-    {459.93689f, -2124.638184f, 1040.860107f},    // 0 Lich King Intro
+    {458.58889f, -2122.710284f, 1040.860107f},    // 0 Lich King Intro
     {503.15652f, -2124.516602f, 1040.860107f},    // 1 Center of the platform
     {491.27118f, -2124.638184f, 1040.860107f},    // 2 Tirion 1
     {481.69797f, -2124.638184f, 1040.860107f},    // 3 Tirion 2
@@ -182,6 +200,203 @@ static Locations SpawnLoc[] =
     {529.85302f, -2124.709961f, 1040.859985f},    // 6 Lich king final, o=3.1146
     {520.311f, -2124.709961f, 1040.859985f},      // 7 Frostmourne
 };
+
+#define GOSSIP_TIRION_START_EVENT "We are prepared, Highlord. Let us battle for the fate of Azeroth! For the light of dawn!"
+
+/**
+ * Tirion
+ */
+struct MANGOS_DLL_DECL boss_tirion_iccAI : public base_icc_bossAI
+{
+    boss_tirion_iccAI(Creature* pCreature) : base_icc_bossAI(pCreature){}
+
+    bool m_bIsEventStarted;
+    bool m_bIsFrozen;
+    uint32 m_uiEventStep;
+    uint32 m_uiEventTimer;
+
+    void Reset()
+    {
+        m_bIsEventStarted   = false;
+        m_bIsFrozen         = false;
+    }
+
+    void EnterEvadeMode()
+    {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
+                base_icc_bossAI::EnterEvadeMode();
+        }
+    }
+
+    void DoStartEvent()
+    {
+        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        m_bIsEventStarted = true;
+    }
+
+    void NextStep(uint32 uiTimer)
+    {
+        ++m_uiEventStep;
+        m_uiEventTimer = uiTimer;
+    }
+
+    void DoLichKingText(int32 iText)
+    {
+        if (m_pInstance)
+        {
+            if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                DoScriptText(iText, pLichKing);
+        }
+    }
+
+    void DoLichKingEmote(uint32 uiEmote)
+    {
+        if (m_pInstance)
+        {
+            if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                pLichKing->HandleEmote(uiEmote);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_bIsEventStarted)
+            return;
+
+        // intro
+        if (!m_bIsFrozen)
+        {
+            if (m_uiEventTimer < uiDiff)
+            {
+                switch(m_uiEventStep)
+                {
+                    case 0:
+                    {
+                        if (m_pInstance)
+                        {
+                            if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                                pLichKing->GetMotionMaster()->MovePoint(0, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, false);
+                        }
+                        DoLichKingText(SAY_INTRO_1);
+                        NextStep(12000);
+                        break;
+                    }
+                    case 1:
+                    {
+                        DoScriptText(SAY_INTRO_2, m_creature);
+                        NextStep(6000);
+                        break;
+                    }
+                    case 2:
+                    {
+                        DoLichKingText(SAY_INTRO_3);
+                        NextStep(4000);
+                        break;
+                    }
+                    case 3:
+                    {
+                        DoLichKingEmote(EMOTE_ONESHOT_SHOUT);
+                        NextStep(4000);
+                        break;
+                    }
+                    case 4:
+                    {
+                        DoLichKingEmote(EMOTE_ONESHOT_POINT);
+                        NextStep(4000);
+                        break;
+                    }
+                    case 5:
+                    {
+                        DoLichKingEmote(EMOTE_ONESHOT_SHOUT);
+                        NextStep(6000);
+                        break;
+                    }
+                    case 6:
+                    {
+                        DoScriptText(SAY_INTRO_4, m_creature);
+                        m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
+                        NextStep(5000);
+                        break;
+                    }
+                    case 7:
+                    {
+                        if (m_pInstance)
+                        {
+                            if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                            {
+                                m_creature->GetMotionMaster()->MoveChase(pLichKing);
+                                pLichKing->CastSpell(m_creature, SPELL_ICE_LOCK, false);
+                                DoScriptText(SAY_INTRO_5, pLichKing);
+                            }
+                        }
+                        NextStep(1000);
+                        break;
+                    }
+                    case 8:
+                    {
+                        if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                        {
+                            pLichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                            pLichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            pLichKing->SetInCombatWithZone();
+                        }
+
+                        NextStep(0);
+                        break;
+                    }
+                    case 9:
+                    {
+                        // battle with Lich King
+                        break;
+                    }
+                }
+            }
+            else
+                m_uiEventTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_boss_tirion_icc(Creature* pCreature)
+{
+    return new boss_tirion_iccAI(pCreature);
+}
+
+bool GossipHello_boss_tirion_icc(Player* pPlayer, Creature* pCreature)
+{
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+
+    if (!pInstance)
+        return true;
+
+    if (pInstance->GetData(TYPE_LICH_KING) != NOT_STARTED &&
+        pInstance->GetData(TYPE_LICH_KING) != FAIL )
+    {
+        return false;
+    }
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TIRION_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+    return true;
+}
+
+bool GossipSelect_boss_tirion_icc(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+
+        if (boss_tirion_iccAI *pTirionAI = dynamic_cast<boss_tirion_iccAI*>(pCreature->AI()))
+            pTirionAI->DoStartEvent();
+
+        return true;
+    }
+    else
+        return false;
+}
+
 
 /**
  * The Lich King
@@ -244,7 +459,15 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
     void Aggro(Unit *pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        if (m_pInstance)
+        {
+            if (Creature *pTirion = m_pInstance->GetSingleCreatureFromStorage(NPC_TIRION))
+            {
+                if (pTirion->GetSpellAuraHolder(SPELL_ICE_LOCK))
+                    DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
+            }
+        }
+
         m_uiPhase = PHASE_ONE;
 
         m_creature->SetWalk(false);
@@ -271,6 +494,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LICH_KING, FAIL);
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -282,21 +507,21 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         {
             case POINT_CENTER_LAND:
             {
+                DoScriptText(SAY_REMORSELESS_WINTER, m_creature);
+
                 if (m_uiPhase == PHASE_RUNNING_WINTER_ONE)
                 {
+                    DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER_1);
                     m_uiPhase = PHASE_TRANSITION_ONE;
                     m_uiPhaseTimer          = 62000;
                 }
                 else if (m_uiPhase == PHASE_RUNNING_WINTER_TWO)
                 {
+                    DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER_2);
                     m_uiRespawnPlatformTimer = 3000; // respawn platform after spell is cast
                     m_uiPhase = PHASE_TRANSITION_TWO;
                     m_uiPhaseTimer          = 62000;
                 }
-
-                // Remorseless Winter
-                DoScriptText(SAY_REMORSELESS_WINTER, m_creature);
-                DoCastSpellIfCan(m_creature, SPELL_REMORSELESS_WINTER);
 
                 // set phase initial timers
                 m_uiPainSufferingTimer  = 6000;
@@ -332,7 +557,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         {
              pGoFloor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
              m_uiPlatformOriginalFlag = pGoFloor->GetUInt32Value(GAMEOBJECT_BYTES_1);
-             pGoFloor->SetUInt32Value(GAMEOBJECT_BYTES_1,8449);
+             pGoFloor->SetUInt32Value(GAMEOBJECT_BYTES_1, 8449);
         }
 
         if (GameObject *pGo = m_pInstance->GetSingleGameObjectFromStorage(GO_FROSTY_WIND))
@@ -471,7 +696,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     {
                         DoScriptText(SAY_SHATTER_ARENA, m_creature);
                         m_uiPhase = (m_uiPhase == PHASE_TRANSITION_ONE ? PHASE_QUAKE_ONE : PHASE_QUAKE_TWO);
-                        m_uiPhaseTimer = 6000;
+                        m_uiPhaseTimer = 6500;
                     }
                 }
                 else
@@ -1752,14 +1977,14 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "boss_the_lich_king_icc";
     newscript->GetAI = &GetAI_boss_the_lich_king_icc;
     newscript->RegisterSelf();
-/*
+
     newscript = new Script;
     newscript->Name = "boss_tirion_icc";
     newscript->GetAI = &GetAI_boss_tirion_icc;
     newscript->pGossipHello = &GossipHello_boss_tirion_icc;
     newscript->pGossipSelect = &GossipSelect_boss_tirion_icc;
     newscript->RegisterSelf();
-
+/*
     newscript = new Script;
     newscript->Name = "mob_ice_sphere_icc";
     newscript->GetAI = &GetAI_mob_ice_sphere_icc;

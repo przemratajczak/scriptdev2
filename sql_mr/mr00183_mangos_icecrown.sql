@@ -423,15 +423,10 @@ UPDATE `creature_template` SET `ScriptName`='mob_strangulate_vehicle', `AIName`=
 UPDATE `creature_template` SET `ScriptName`='mob_vile_spirit', `AIName`='' WHERE `entry`= 37799;
 UPDATE `creature_template` SET `ScriptName`='mob_raging_spirit', `AIName`='' WHERE `entry`= 36701;
 
-DELETE FROM `npc_text` WHERE `ID` IN (721001,721002);
-INSERT INTO `npc_text` (`ID`, `Text0_0`) VALUES
-(721001, 'Greetings $N! Are you ready to battle with Lich King?'),
-(721002, 'Instance script designed by /dev/rsa especially for\n http://wow.teletoria.ru\n Thanks to:\n Vladimir Mangos\n Insider42\n Wowka321\n Selector\n and many other !\n');
-
-DELETE FROM `locales_npc_text` WHERE `entry` IN (721001,721002);
-INSERT INTO `locales_npc_text` (`entry`, `Text0_0_loc1`, `Text0_0_loc2`, `Text0_0_loc3`, `Text0_0_loc4`, `Text0_0_loc5`, `Text0_0_loc6`, `Text0_0_loc7`, `Text0_0_loc8`) VALUES
-(721001, 'Greetings $N! Are you ready to battle with Lich King?', NULL, NULL, NULL, NULL, NULL, NULL, 'Приветствую, $N! Поможешь мне прихлопнуть главного засранца WOW?'),
-(721002, 'Instance script designed by /dev/rsa especially for\n http://wow.teletoria.ru\n Thanks to:\n Vladimir Mangos\n Insider42\n Wowka321\n Selector\n and many other !\n', NULL, NULL, NULL, NULL, NULL, NULL, 'Скрипт инстанса разработан специально для\n http://wow.teletoria.ru\n Благодарности:\n Vladimir Mangos\n Insider42\n Wowka321\n Selector\n и многим другим!\n (c) /dev/rsa 2010 год');
+-- Tirion gossip
+DELETE FROM `npc_gossip` WHERE npc_guid = 115781;
+INSERT INTO `npc_gossip` (`npc_guid`, `textid`) VALUES
+(115781, 15290);
 
 -- -----------------
 -- EAI YTDB CLEAN UP
