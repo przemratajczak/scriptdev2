@@ -101,7 +101,6 @@ enum BossSpells
     SPELL_PLAGUE_AVOIDANCE      = 72846,
 
     // Intro
-    SPELL_STANDUP               = 73220,
     SPELL_ICE_LOCK              = 71614,
 
     // Outro
