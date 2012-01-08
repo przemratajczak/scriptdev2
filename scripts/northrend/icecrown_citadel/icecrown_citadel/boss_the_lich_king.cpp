@@ -124,6 +124,11 @@ enum BossSpells
     SPELL_MASS_RESURRECTION     = 72429, // dummy
     SPELL_MASS_RESURRECTION2    = 72423, // actual res
 
+    // Phase One
+    SPELL_SUMMON_GHOULS         = 70358,
+    SPELL_SUMMON_HORROR         = 70372,
+    SPELL_SHADOW_TRAP           = 73539,
+
     // Phase transition
     SPELL_REMORSELESS_WINTER_1  = 68981,
     SPELL_REMORSELESS_WINTER_2  = 72259,
@@ -133,6 +138,11 @@ enum BossSpells
     SPELL_SUMMON_RAGING_SPIRIT  = 69201,
     SPELL_SUMMON_ICE_SPHERE     = 69103,
     SPELL_ICE_SPHERE            = 69104, // missile and summon effect
+
+    // Shambling Horror
+    SPELL_FRENZY                = 28747,
+    SPELL_ENRAGE                = 72143,
+    SPELL_SHOCKWAVE             = 72149,
 
     // Raging Spirit
     SPELL_SOUL_SHRIEK           = 69242,
@@ -994,8 +1004,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Summon Ghouls
                 if (m_uiGhoulsTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_GHOULS) == CAST_OK)
-                    m_uiGhoulsTimer = 20000;
+                    if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_GHOULS) == CAST_OK)
+                        m_uiGhoulsTimer = 32000;
                 }
                 else
                     m_uiGhoulsTimer -= uiDiff;
@@ -1003,7 +1013,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Summon Shambling Horror
                 if (m_uiHorrorTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_HORROR) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_HORROR) == CAST_OK)
                         m_uiHorrorTimer = 60000;
                 }
                 else
@@ -1272,9 +1282,218 @@ CreatureAI* GetAI_boss_the_lich_king_icc(Creature* pCreature)
 }
 
 /**
+ * Drudge Ghoul
+ */
+struct MANGOS_DLL_DECL mob_drudge_ghoulAI : public base_icc_bossAI
+{
+    mob_drudge_ghoulAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiReadyTimer;
+    bool m_bIsReady;
+    bool m_bIsSpawned;
+
+    void Reset()
+    {
+        m_bIsReady          = false;
+        m_bIsSpawned        = false;
+        m_uiReadyTimer      = 5000;
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+        if (!m_bIsReady)
+            return;
+        else
+            base_icc_bossAI::AttackStart(pWho);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_bIsReady)
+        {
+            if (!m_bIsSpawned)
+            {
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                m_bIsSpawned = true;
+            }
+
+            if (m_uiReadyTimer <= uiDiff)
+            {
+                m_bIsReady = true;
+                if (m_creature->getVictim())
+                    AttackStart(m_creature->getVictim());
+                else
+                    m_creature->SetInCombatWithZone();
+            }
+            else
+                m_uiReadyTimer -= uiDiff;
+
+            return;
+        }
+
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_drudge_ghoul(Creature* pCreature)
+{
+    return new mob_drudge_ghoulAI(pCreature);
+}
+
+/**
+ * Shambling Horror
+ */
+struct MANGOS_DLL_DECL mob_shambling_horrorAI : public base_icc_bossAI
+{
+    mob_shambling_horrorAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiShockwaveTimer;
+    uint32 m_uiEnrageTimer;
+    uint32 m_uiReadyTimer;
+    bool m_bHasCastFrenzy;
+    bool m_bIsReady;
+    bool m_bIsSpawned;
+
+    void Reset()
+    {
+        m_bIsReady          = false;
+        m_bIsSpawned        = false;
+        m_uiReadyTimer      = 5000;
+
+        m_uiShockwaveTimer  = 12000;
+        m_uiEnrageTimer     = 6000;
+        m_bHasCastFrenzy    = false;
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->ForcedDespawn();
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+        if (!m_bIsReady)
+            return;
+        else
+            base_icc_bossAI::AttackStart(pWho);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_bIsReady)
+        {
+            if (!m_bIsSpawned)
+            {
+                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                m_bIsSpawned = true;
+            }
+
+            if (m_uiReadyTimer <= uiDiff)
+            {
+                m_bIsReady = true;
+                if (m_creature->getVictim())
+                    AttackStart(m_creature->getVictim());
+                else
+                    m_creature->SetInCombatWithZone();
+            }
+            else
+                m_uiReadyTimer -= uiDiff;
+
+            return;
+        }
+
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        // Frenzy on heroic
+        if (m_bIsHeroic)
+        {
+            if (!m_bHasCastFrenzy)
+            {
+                if (m_creature->GetHealthPercent() <= 20.0f)
+                {
+                    if (DoCastSpellIfCan(m_creature, SPELL_FRENZY) == CAST_OK)
+                        m_bHasCastFrenzy = true;
+                }
+            }
+        }
+
+        // Enrage
+        if (m_uiEnrageTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_ENRAGE) == CAST_OK)
+            {
+                m_uiEnrageTimer = 20000;
+                m_uiShockwaveTimer = urand(5000, 7000);
+            }
+        }
+        else
+            m_uiEnrageTimer -= uiDiff;
+
+        // Shockwave
+        if (m_uiShockwaveTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHOCKWAVE) == CAST_OK)
+                m_uiShockwaveTimer = 20000;
+        }
+        else
+            m_uiShockwaveTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_shambling_horror(Creature* pCreature)
+{
+    return new mob_shambling_horrorAI(pCreature);
+}
+
+/**
+ * Shadow Trap
+ */
+struct MANGOS_DLL_DECL mob_shadow_trapAI : public base_icc_bossAI
+{
+    mob_shadow_trapAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        SetCombatMovement(false);
+    }
+    void Reset(){}
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+    }
+};
+
+CreatureAI* GetAI_mob_shadow_trap(Creature* pCreature)
+{
+    return new mob_shadow_trapAI(pCreature);
+}
+
+/**
  * Ice Sphere
  */
-struct MANGOS_DLL_DECL  mob_ice_sphere_iccAI : public base_icc_bossAI
+struct MANGOS_DLL_DECL mob_ice_sphere_iccAI : public base_icc_bossAI
 {
     mob_ice_sphere_iccAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
@@ -1300,7 +1519,10 @@ CreatureAI* GetAI_mob_ice_sphere_icc(Creature* pCreature)
     return new mob_ice_sphere_iccAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL  mob_raging_spiritAI : public base_icc_bossAI
+/**
+ * Raging Spirit
+ */
+struct MANGOS_DLL_DECL mob_raging_spiritAI : public base_icc_bossAI
 {
     mob_raging_spiritAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
@@ -2062,6 +2284,26 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "mob_ice_sphere_icc";
     newscript->GetAI = &GetAI_mob_ice_sphere_icc;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_shambling_horror";
+    newscript->GetAI = &GetAI_mob_shambling_horror;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_drudge_ghoul";
+    newscript->GetAI = &GetAI_mob_drudge_ghoul;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_shadow_trap";
+    newscript->GetAI = &GetAI_mob_shadow_trap;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_raging_spirit";
+    newscript->GetAI = &GetAI_mob_raging_spirit;
+    newscript->RegisterSelf();
 /*
     newscript = new Script;
     newscript->Name = "mob_defiler_icc";
@@ -2078,9 +2320,4 @@ void AddSC_boss_lich_king_icc()
     newscript->GetAI = &GetAI_mob_vile_spirit;
     newscript->RegisterSelf();
 */
-    newscript = new Script;
-    newscript->Name = "mob_raging_spirit";
-    newscript->GetAI = &GetAI_mob_raging_spirit;
-    newscript->RegisterSelf();
-
 }
