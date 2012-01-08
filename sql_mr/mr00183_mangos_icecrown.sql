@@ -425,7 +425,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_vile_spirit', `AIName`='' WHERE
 UPDATE `creature_template` SET `ScriptName`='mob_raging_spirit', `AIName`='' WHERE `entry`= 36701;
 UPDATE `creature_template` SET `ScriptName`='mob_drudge_ghoul', `AIName`='' WHERE `entry`= 37695;
 UPDATE `creature_template` SET `ScriptName`='mob_shambling_horror', `AIName`='' WHERE `entry`= 37698;
-UPDATE `creature_template` SET `ScriptName`='mob_shadow_trap', `AIName`='' WHERE `entry`= 39137;
+UPDATE `creature_template` SET `ScriptName`='mob_shadow_trap', `AIName`='', `faction_A` = 14, `faction_H` = 14, `unit_flags` = `unit_flags` | 2 | 33554432 WHERE `entry`= 39137;
 
 -- Tirion gossip
 DELETE FROM `npc_gossip` WHERE npc_guid = 115781;

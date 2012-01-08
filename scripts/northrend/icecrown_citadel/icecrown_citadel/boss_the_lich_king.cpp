@@ -144,6 +144,10 @@ enum BossSpells
     SPELL_ENRAGE                = 72143,
     SPELL_SHOCKWAVE             = 72149,
 
+    // Shadow Trap
+    SPELL_SHADOW_TRAP_VISUAL    = 73530,
+    SPELL_SHADOW_TRAP_AURA      = 73525,
+
     // Raging Spirit
     SPELL_SOUL_SHRIEK           = 69242,
     SPELL_RAGING_SPIRIT_VISUAL  = 69198, // clone effect (clone of player)
@@ -155,6 +159,7 @@ enum BossSpells
     SPELL_ICE_PULSE             = 69091,
 
     // NPCs
+    NPC_SHADOW_TRAP             = 39137,
     NPC_FROSTMOURNE             = 38584,
     NPC_ICE_SPHERE              = 36633,
     NPC_RAGING_SPIRIT           = 36701,
@@ -844,6 +849,10 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiPainSufferingTimer  = 6000;
                     m_uiRagingSpiritTimer   = 20000;
                     m_uiIceSphereTimer      = 6000;
+
+                    // on heroic despawn Shadow Traps
+                    if (m_bIsHeroic)
+                        DoDespawnShadowTraps();
                 }
                 else if (m_uiPhase == PHASE_RUNNING_WINTER_TWO)
                 {
@@ -917,6 +926,24 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             pGo->SetGoState(GO_STATE_ACTIVE);
 
         m_bPlatformDestroyed = false;
+    }
+
+    void DoDespawnShadowTraps()
+    {
+        std::list<Creature*> lTraps;
+        GetCreatureListWithEntryInGrid(lTraps, m_creature, NPC_SHADOW_TRAP, 120.0f);
+        if (!lTraps.empty())
+        {
+            for(std::list<Creature*>::iterator i = lTraps.begin(); i != lTraps.end();)
+            {
+                std::list<Creature*>::iterator next = i;
+                ++next;
+                if (*i)
+                    (*i)->ForcedDespawn();
+
+                i = next;
+            }
+        }
     }
 
     Unit* SelectTargetForIceSphere()
@@ -1024,8 +1051,11 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 {
                     if (m_uiShadowTrapTimer < uiDiff)
                     {
-                        // if (DoCastSpellIfCan(m_creature, SPELL_SHADOW_TRAP) == CAST_OK)
-                            m_uiShadowTrapTimer = 15000;
+                        if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_SHADOW_TRAP, SELECT_FLAG_PLAYER))
+                        {
+                            if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_TRAP) == CAST_OK)
+                                m_uiShadowTrapTimer = 15000;
+                        }
                     }
                     else
                         m_uiShadowTrapTimer -= uiDiff;
@@ -1476,12 +1506,40 @@ struct MANGOS_DLL_DECL mob_shadow_trapAI : public base_icc_bossAI
     mob_shadow_trapAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
         SetCombatMovement(false);
+        DoCastSpellIfCan(m_creature, SPELL_SHADOW_TRAP_VISUAL, CAST_TRIGGERED);
+        m_uiShadowTrapTimer = 5000;
+        m_bHasCastAura = false;
     }
+
+    uint32 m_uiShadowTrapTimer;
+    bool m_bHasCastAura;
+
     void Reset(){}
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        uiDamage = 0;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
             m_creature->ForcedDespawn();
+
+        // Shadow Trap
+        if (!m_bHasCastAura)
+        {
+            if (m_uiShadowTrapTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_SHADOW_TRAP_AURA) == CAST_OK)
+                {
+                    m_creature->RemoveAurasDueToSpell(SPELL_SHADOW_TRAP_VISUAL);
+                    m_bHasCastAura = true;
+                }
+            }
+            else
+                m_uiShadowTrapTimer -= uiDiff;
+        }
     }
 };
 
