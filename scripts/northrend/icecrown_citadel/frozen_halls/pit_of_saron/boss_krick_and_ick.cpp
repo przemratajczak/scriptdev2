@@ -268,7 +268,7 @@ struct MANGOS_DLL_DECL boss_ickAI : public ScriptedAI
                 {
                     m_creature->CastSpell(m_creature, SPELL_ROOT_SELF, true);
                     m_uiPhase = PHASE_BARRAGE;
-                    m_uiExplosivBarrageTimer = 25000; //45sec
+                    m_uiExplosivBarrageTimer = 45000; //45sec
                 }else m_uiExplosivBarrageTimer -= uiDiff;
                 
                 DoMeleeAttackIfReady();
@@ -509,7 +509,7 @@ struct MANGOS_DLL_DECL boss_krickAI : public ScriptedAI
                     m_uiSummonOrbsTimer = 1000;
                     m_uiSummonOverTimer = 18000;
                     m_uiPhase = PHASE_BARRAGE;
-                    m_uiExplosivBarrageTimer = 25000; //45sec
+                    m_uiExplosivBarrageTimer = 45000; //45sec
                 }else m_uiExplosivBarrageTimer -= uiDiff;
 
                 break;
