@@ -18,7 +18,7 @@
  * ScriptData
  * SDName: boss_the_lich_king
  * SD%Complete:
- * SDComment:
+ * SDComment: 
  * SDCategory: Icecrown Citadel
  */
 
@@ -130,6 +130,7 @@ enum BossSpells
     SPELL_QUAKE                 = 72262,
     SPELL_PAIN_AND_SUFFERING    = 72133,
     SPELL_RAGING_SPIRIT         = 69200,
+    SPELL_SUMMON_RAGING_SPIRIT  = 69201,
     SPELL_SUMMON_ICE_SPHERE     = 69103,
     SPELL_ICE_SPHERE            = 69104, // missile and summon effect
 
@@ -141,9 +142,12 @@ enum BossSpells
     SPELL_ICE_SPHERE_VISUAL     = 69090,
     SPELL_ICE_BURST_AURA        = 69109,
     SPELL_ICE_BURST             = 69108,
+    SPELL_ICE_PULSE             = 69091,
 
     // NPCs
     NPC_FROSTMOURNE             = 38584,
+    NPC_ICE_SPHERE              = 36633,
+    NPC_RAGING_SPIRIT           = 36701,
 };
 
 // talks
@@ -795,6 +799,22 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         m_bIsFirstAttempt = false;
     }
 
+    void JustSummoned(Creature *pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_ICE_SPHERE)
+        {
+            pSummoned->SetInCombatWithZone();
+
+            if (Unit *pTarget = SelectTargetForIceSphere())
+            {
+                pSummoned->AddThreat(pTarget, 100000.0f);
+                pSummoned->AI()->AttackStart(pTarget);
+                pSummoned->CastSpell(pSummoned, SPELL_ICE_BURST_AURA, true);
+                pSummoned->CastSpell(pTarget, SPELL_ICE_PULSE, true);
+            }
+        }
+    }
+
     void MovementInform(uint32 uiMovementType, uint32 uiData)
     {
         if (uiMovementType != POINT_MOTION_TYPE)
@@ -824,7 +844,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiPhaseTimer          = 62000;
                     // set phase initial timers
                     m_uiPainSufferingTimer  = 6000;
-                    m_uiRagingSpiritTimer   = 20000;
+                    m_uiRagingSpiritTimer   = 15000;
                     m_uiIceSphereTimer      = 6000;
                 }
                 else if (m_uiPhase == PHASE_DEATH_AWAITS)
@@ -887,6 +907,29 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             pGo->SetGoState(GO_STATE_ACTIVE);
 
         m_bPlatformDestroyed = false;
+    }
+
+    Unit* SelectTargetForIceSphere()
+    {
+        std::list<ObjectGuid> lPotentialTargets;
+        const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+        for (ThreatList::const_iterator itr = threatList.begin();itr != threatList.end(); ++itr)
+        {
+            if (Unit *pVictim = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+            {
+                if (!pVictim->HasAuraOfDifficulty(SPELL_ICE_PULSE))
+                    lPotentialTargets.push_back((*itr)->getUnitGuid());
+            }
+        }
+
+        if (!lPotentialTargets.empty())
+        {
+            std::list<ObjectGuid>::iterator i = lPotentialTargets.begin();
+            std::advance(i, urand(0, lPotentialTargets.size() - 1));
+            return m_creature->GetMap()->GetUnit(*i);
+        }
+        else
+            return m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_ICE_PULSE, SELECT_FLAG_PLAYER);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -1044,7 +1087,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Summon Ice Sphere
                 if (m_uiIceSphereTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_ICE_SPHERE) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_ICE_SPHERE) == CAST_OK)
                         m_uiIceSphereTimer = 6000;
                 }
                 else
@@ -1053,8 +1096,15 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Summon Raging Spirit
                 if (m_uiRagingSpiritTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_RAGING_SPIRIT) == CAST_OK)
+                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_RAGING_SPIRIT, SELECT_FLAG_PLAYER))
+                    {
+                        // some targeting issues with script effect spell
+                        // but we dont need it in sd2 ;)
+                        // if (DoCastSpellIfCan(m_creature, SPELL_RAGING_SPIRIT, CAST_TRIGGERED) == CAST_OK)
+
+                        pTarget->CastSpell(pTarget, SPELL_SUMMON_RAGING_SPIRIT, true);
                         m_uiRagingSpiritTimer = (m_uiPhase == PHASE_TRANSITION_ONE ? 20000 : 15000);
+                    }
                 }
                 else
                     m_uiRagingSpiritTimer -= uiDiff;
@@ -1219,6 +1269,86 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 CreatureAI* GetAI_boss_the_lich_king_icc(Creature* pCreature)
 {
     return new boss_the_lich_king_iccAI(pCreature);
+}
+
+/**
+ * Ice Sphere
+ */
+struct MANGOS_DLL_DECL  mob_ice_sphere_iccAI : public base_icc_bossAI
+{
+    mob_ice_sphere_iccAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        m_creature->SetWalk(true);
+    }
+
+    void Reset(){}
+
+    void JustDied(Unit *pKiller)
+    {
+        m_creature->ForcedDespawn();
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+    }
+};
+
+CreatureAI* GetAI_mob_ice_sphere_icc(Creature* pCreature)
+{
+    return new mob_ice_sphere_iccAI(pCreature);
+}
+
+struct MANGOS_DLL_DECL  mob_raging_spiritAI : public base_icc_bossAI
+{
+    mob_raging_spiritAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiSoulShriekTimer;
+    bool m_bHasCloned;
+
+    void Reset()
+    {
+        m_uiSoulShriekTimer = 8000;
+        m_bHasCloned = false;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (!m_bHasCloned)
+        {
+            if (Unit *pCreator = m_creature->GetCreator())
+            {
+                pCreator->CastSpell(m_creature, SPELL_RAGING_SPIRIT_VISUAL, true);
+                m_bHasCloned = true;
+            }
+        }
+
+        // Soul Shriek
+        if (m_uiSoulShriekTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SOUL_SHRIEK) == CAST_OK)
+                m_uiSoulShriekTimer = 10000;
+        }
+        else
+            m_uiSoulShriekTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_raging_spirit(Creature* pCreature)
+{
+    return new mob_raging_spiritAI(pCreature);
 }
 
 /*
@@ -1758,343 +1888,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public BSWScriptedAI
     }
 };
 */
-/*
-struct MANGOS_DLL_DECL boss_tirion_iccAI : public ScriptedAI
-{
-    boss_tirion_iccAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
-    }
 
-    ScriptedInstance *pInstance;
-    uint32 UpdateTimer;
-    uint32 nextEvent;
-    uint32 nextPoint;
-    bool movementstarted;
-    ObjectGuid MenethilGUID;
-
-    void EnterEvadeMode()
-    {
-        if (!pInstance) return;
-        if (pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS) return;
-        ScriptedAI::EnterEvadeMode();
-    }
-
-    void Reset()
-    {
-        if(!pInstance) return;
-        movementstarted = false;
-        m_creature->RemoveAurasDueToSpell(SPELL_ICEBLOCK_TRIGGER);
-        m_creature->SetOrientation(M_PI_F);
-    }
-
-    void StartMovement(uint32 id, uint32 _nextEvent)
-    {
-        nextPoint = id;
-        nextEvent = _nextEvent;
-        m_creature->GetMotionMaster()->MovePoint(id, SpawnLoc[id].x, SpawnLoc[id].y, SpawnLoc[id].z);
-        pInstance->SetData(TYPE_EVENT,0);
-        movementstarted = true;
-    }
-
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if (type != POINT_MOTION_TYPE || !movementstarted) return;
-        if (id == nextPoint)
-        {
-            movementstarted = false;
-            pInstance->SetData(TYPE_EVENT,nextEvent);
-            m_creature->GetMotionMaster()->MovementExpired();
-        }
-    }
-
-    void doSendCinematic()
-    {
-        Map::PlayerList const &pList = m_creature->GetMap()->GetPlayers();
-        if (pList.isEmpty()) return;
-        for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
-             if (Player* pPlayer = i->getSource())
-                 if (pPlayer && pPlayer->isAlive() && pPlayer->IsInMap(m_creature))
-                     pPlayer->SendMovieStart(FINAL_ARTHAS_MOVIE);
-    }
-
-    void doRevivePlayers()
-    {
-        Creature* pMenethil = m_creature->GetMap()->GetCreature(MenethilGUID);
-        Map::PlayerList const &pList = pMenethil->GetMap()->GetPlayers();
-        if (pList.isEmpty()) return;
-        for (Map::PlayerList::const_iterator i = pList.begin(); i != pList.end(); ++i)
-            {
-               if (Player* pPlayer = i->getSource())
-               {
-                   if (pPlayer && !pPlayer->isAlive() && pPlayer->IsInMap(pMenethil))
-                   {
-                       pMenethil->CastSpell(pPlayer, SPELL_REVALL, true);
-                       pPlayer->ResurrectPlayer(100, false);
-                   }
-                }
-             };
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-
-        if (pInstance->GetData(TYPE_LICH_KING) == FAIL && m_creature->HasAura(SPELL_ICEBLOCK_TRIGGER))
-        {
-            m_creature->RemoveAurasDueToSpell(SPELL_ICEBLOCK_TRIGGER);
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-            Reset();
-        }
-
-        if (pInstance->GetData(TYPE_EVENT_NPC) == NPC_TIRION)
-        {
-            UpdateTimer = pInstance->GetData(TYPE_EVENT_TIMER);
-            if (UpdateTimer <= diff)
-            {
-            debug_log("EventMGR: creature %u received signal %u ",m_creature->GetEntry(),pInstance->GetData(TYPE_EVENT));
-            switch (pInstance->GetData(TYPE_EVENT))
-                {
-                case 12030:
-                          m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_TALK);
-                          DoScriptText(SAY_INTRO_2, m_creature);
-                          UpdateTimer = 9000;
-                          pInstance->SetData(TYPE_EVENT,12040);
-                          break;
-                case 12050:
-                          m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_POINT_NOSHEATHE);
-                          DoScriptText(SAY_INTRO_4, m_creature);
-                          UpdateTimer = 3000;
-                          pInstance->SetData(TYPE_EVENT,12051);
-                          break;
-                case 12051:
-                          m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                          UpdateTimer = 1000;
-                          pInstance->SetData(TYPE_EVENT,12052);
-                          break;
-                case 12052:
-                          m_creature->SetWalk(false);
-                          StartMovement(3,12053);
-                          break;
-                case 12053:
-                          UpdateTimer = 3000;
-                          pInstance->SetData(TYPE_EVENT,12060);
-                          m_creature->CastSpell(m_creature, SPELL_ICEBLOCK_TRIGGER, true);
-                          break;
-                case 13110:
-                          DoScriptText(SAY_OUTRO_6, m_creature);
-                          UpdateTimer = 6000;
-                          m_creature->CastSpell(m_creature, SPELL_TIRION_LIGHT, false);
-                          pInstance->SetData(TYPE_EVENT,13120);
-                          break;
-                case 13130:
-                          SetCombatMovement(false);
-                          m_creature->RemoveAurasDueToSpell(SPELL_ICEBLOCK_TRIGGER);
-                          UpdateTimer = 500;
-                          m_creature->SetOrientation(0.0f);
-                          pInstance->SetData(TYPE_EVENT,13131);
-                          break;
-                case 13131:
-                          m_creature->SetWalk(false);
-                          StartMovement(2,13132);
-                          break;
-                case 13132:
-                          StartMovement(5,13140);
-                          DoScriptText(SAY_OUTRO_8, m_creature);
-                          m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
-                          break;
-                case 13150:
-                          UpdateTimer = 1000;
-                          pInstance->SetData(TYPE_EVENT,13160);
-                          break;
-                case 13170:
-                          UpdateTimer = 2000;
-                          pInstance->SetData(TYPE_EVENT,13180);
-                          break;
-                case 13190:
-                          UpdateTimer = 500;
-                          pInstance->SetData(TYPE_EVENT,13200);
-                          break;
-                case 13210:
-                          UpdateTimer = 3000;
-                          pInstance->SetData(TYPE_EVENT,13230);
-                          break;
-                case 13230:
-                          UpdateTimer = 12000;
-                          {
-                              Creature* pMenethil = m_creature->SummonCreature(NPC_MENETHIL, m_creature->GetPositionX()+5, m_creature->GetPositionY()+5, m_creature->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
-                              MenethilGUID = pMenethil->GetObjectGuid();
-                          }
-                          pInstance->SetData(TYPE_EVENT,13250);
-                          DoScriptText(SAY_OUTRO_9, m_creature->GetMap()->GetCreature(MenethilGUID));
-                          break;
-                case 13250:
-                          UpdateTimer = 6000;
-                          pInstance->SetData(TYPE_EVENT,13270);
-                          {
-                              Creature* pMenethil = m_creature->GetMap()->GetCreature(MenethilGUID);
-                              DoScriptText(SAY_OUTRO_10, pMenethil);
-                              pMenethil->CastSpell(pMenethil, SPELL_REVIVE_VISUAL, false);
-                          }
-                          doRevivePlayers();
-                          break;
-                case 13270:
-                          UpdateTimer = 6000;
-                          pInstance->SetData(TYPE_EVENT,13280);
-                          if (Creature* pLichKing = pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
-                          {
-                              m_creature->SetInCombatWith(pLichKing);
-                              pLichKing->SetInCombatWith(m_creature);
-                              pLichKing->AddThreat(m_creature, 1000.0f);
-                              m_creature->AI()->AttackStart(pLichKing);
-                              Creature* pMenethil = m_creature->GetMap()->GetCreature(MenethilGUID);
-                              pMenethil->AI()->AttackStart(pLichKing);
-                              SetCombatMovement(true);
-                              m_creature->GetMotionMaster()->MoveChase(pLichKing);
-                          };
-                          break;
-                case 13290:
-                          UpdateTimer = 5000;
-                          pInstance->SetData(TYPE_EVENT,13310);
-                          break;
-                case 13310:
-                          UpdateTimer = 5000;
-                          pInstance->SetData(TYPE_EVENT,13330);
-                          break;
-                case 13330:
-                          UpdateTimer = 5000;
-                          pInstance->SetData(TYPE_EVENT,13350);
-                          break;
-                case 13350:
-                          UpdateTimer = 2000;
-                          pInstance->SetData(TYPE_EVENT,13370);
-                          break;
-                case 14010:
-                          m_creature->AttackStop();
-                          SetCombatMovement(false);
-                          UpdateTimer =90000;
-                          pInstance->SetData(TYPE_EVENT,14030);
-                          m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                          if (Creature* pLichKing = pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
-                              pLichKing->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                          doSendCinematic();
-                          break;
-                case 14030:
-                          UpdateTimer = 20000;
-                          pInstance->SetData(TYPE_EVENT,14030);
-                          {
-                              if (Creature* pMenethil = m_creature->GetMap()->GetCreature(MenethilGUID))
-                                  if (pMenethil->isAlive())
-                                      pMenethil->ForcedDespawn();
-                              if (Creature* pLichKing = pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
-                                  pLichKing->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                          }
-                          pInstance->SetData(TYPE_EVENT,0);
-                          EnterEvadeMode();
-                          break;
-                default:
-                          break;
-                }
-             } else UpdateTimer -= diff;
-             pInstance->SetData(TYPE_EVENT_TIMER, UpdateTimer);
-        }
-
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-        DoMeleeAttackIfReady();
-    }
-};
-*/
-/*
-bool GossipHello_boss_tirion_icc(Player* pPlayer, Creature* pCreature)
-{
-    ScriptedInstance* pInstance;
-    pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-
-    if (pInstance->GetData(TYPE_LICH_KING) != NOT_STARTED &&
-        pInstance->GetData(TYPE_LICH_KING) != FAIL )
-    {
-        pPlayer->PlayerTalkClass->SendGossipMenu(721002, pCreature->GetObjectGuid());
-        return true;
-    };
-
-    pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, -3631608, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-    pPlayer->PlayerTalkClass->SendGossipMenu(721001, pCreature->GetObjectGuid());
-    return true;
-};
-
-bool GossipSelect_boss_tirion_icc(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    ScriptedInstance* pInstance;
-    pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-    if (!pInstance) return false;
-
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
-    {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
-        pInstance->SetData(TYPE_EVENT,12000);
-        return true;
-    } else return false;
-};
-
-CreatureAI* GetAI_boss_tirion_icc(Creature* pCreature)
-{
-    return new boss_tirion_iccAI(pCreature);
-}
-*/
-/*
-struct MANGOS_DLL_DECL  mob_ice_sphere_iccAI : public BSWScriptedAI
-{
-    mob_ice_sphere_iccAI(Creature *pCreature) : BSWScriptedAI(pCreature)
-    {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
-    }
-
-    ScriptedInstance *pInstance;
-
-    void Reset()
-    {
-        resetTimers();
-        doCast(SPELL_ICE_SPHERE_VISUAL);
-        m_creature->SetWalk(true);
-    }
-
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!pInstance || pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
-              m_creature->ForcedDespawn();
-
-        if (!hasAura(SPELL_ICE_SPHERE_VISUAL))
-            doCast(SPELL_ICE_SPHERE_VISUAL);
-
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            {
-                if (Unit* pTarget = doSelectRandomPlayerAtRange(120.0f))
-                {
-                   m_creature->SetInCombatWith(pTarget);
-                   m_creature->AddThreat(pTarget,100.0f);
-                }
-            return;
-            }
-
-        if (m_creature->getVictim()->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        timedCast(SPELL_ICE_PULSE, uiDiff);
-
-        if (m_creature->IsWithinDistInMap(m_creature->getVictim(), 1.0f))
-            timedCast(SPELL_ICE_BURST,uiDiff);
-    }
-};
-
-CreatureAI* GetAI_mob_ice_sphere_icc(Creature* pCreature)
-{
-    return new mob_ice_sphere_iccAI(pCreature);
-}
-*/
 /*
 struct MANGOS_DLL_DECL mob_defiler_iccAI : public BSWScriptedAI
 {
@@ -2246,40 +2040,7 @@ CreatureAI* GetAI_mob_vile_spirit(Creature* pCreature)
     return new mob_vile_spiritAI(pCreature);
 }
 */
-/*
-struct MANGOS_DLL_DECL  mob_raging_spiritAI : public BSWScriptedAI
-{
-    mob_raging_spiritAI(Creature *pCreature) : BSWScriptedAI(pCreature)
-    {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
-    }
 
-    ScriptedInstance *pInstance;
-
-    void Reset()
-    {
-        resetTimers();
-        m_creature->SetDisplayId(10771);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!pInstance || pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
-              m_creature->ForcedDespawn();
-
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-            timedCast(SPELL_SOUL_SHRIEK, uiDiff);
-    }
-};
-
-CreatureAI* GetAI_mob_raging_spirit(Creature* pCreature)
-{
-    return new mob_raging_spiritAI(pCreature);
-}
-*/
 
 void AddSC_boss_lich_king_icc()
 {
@@ -2296,12 +2057,12 @@ void AddSC_boss_lich_king_icc()
     newscript->pGossipHello = &GossipHello_boss_tirion_icc;
     newscript->pGossipSelect = &GossipSelect_boss_tirion_icc;
     newscript->RegisterSelf();
-/*
+
     newscript = new Script;
     newscript->Name = "mob_ice_sphere_icc";
     newscript->GetAI = &GetAI_mob_ice_sphere_icc;
     newscript->RegisterSelf();
-
+/*
     newscript = new Script;
     newscript->Name = "mob_defiler_icc";
     newscript->GetAI = &GetAI_mob_defiler_icc;
@@ -2316,10 +2077,10 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "mob_vile_spirit";
     newscript->GetAI = &GetAI_mob_vile_spirit;
     newscript->RegisterSelf();
-
+*/
     newscript = new Script;
     newscript->Name = "mob_raging_spirit";
     newscript->GetAI = &GetAI_mob_raging_spirit;
     newscript->RegisterSelf();
-*/
+
 }
