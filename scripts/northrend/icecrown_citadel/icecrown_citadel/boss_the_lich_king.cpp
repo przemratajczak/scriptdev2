@@ -125,6 +125,7 @@ enum BossSpells
     SPELL_MASS_RESURRECTION2    = 72423, // actual res
 
     // Phase One
+    SPELL_INFEST                = 70541,
     SPELL_SUMMON_GHOULS         = 70358,
     SPELL_SUMMON_HORROR         = 70372,
     SPELL_SHADOW_TRAP           = 73539,
@@ -138,6 +139,10 @@ enum BossSpells
     SPELL_SUMMON_RAGING_SPIRIT  = 69201,
     SPELL_SUMMON_ICE_SPHERE     = 69103,
     SPELL_ICE_SPHERE            = 69104, // missile and summon effect
+
+    // Phase Two
+    SPELL_SUMMON_VALKYR         = 69037,
+    SPELL_SUMMON_VALKYRS        = 74361, // 25man
 
     // Shambling Horror
     SPELL_FRENZY                = 28747,
@@ -157,6 +162,13 @@ enum BossSpells
     SPELL_ICE_BURST_AURA        = 69109,
     SPELL_ICE_BURST             = 69108,
     SPELL_ICE_PULSE             = 69091,
+
+    // Val'kyr Shadowguard
+    SPELL_LIFE_SIPHON           = 73783,
+    SPELL_VALKYR_CHARGE         = 74399,
+    SPELL_VALKYR_CARRY          = 68985,
+    SPELL_EJECT_PASSENGERS      = 68576,
+    SPELL_WINGS_OF_THE_DAMNED   = 74352,
 
     // NPCs
     NPC_SHADOW_TRAP             = 39137,
@@ -231,7 +243,9 @@ enum Point
 {
     POINT_CENTER_LAND           = 1,
     POINT_CENTER_LAND_TIRION    = 2,
-    POINT_TELEPORTER_TIRION     = 3
+    POINT_TELEPORTER_TIRION     = 3,
+    POINT_VALKYR_THROW          = 4,
+    POINT_VALKYR_CENTER         = 5
 };
 
 static Locations SpawnLoc[] =
@@ -243,7 +257,9 @@ static Locations SpawnLoc[] =
     {498.00448f, -2201.573486f, 1046.093872f},    // 4 Valkyrs?
     {517.48291f, -2124.905762f, 1040.861328f},    // 5 Tirion?
     {529.85302f, -2124.709961f, 1040.859985f},    // 6 Lich king final, o=3.1146
-    {520.311f, -2124.709961f, 1040.859985f},      // 7 Frostmourne
+    {520.311f,   -2124.709961f, 1040.859985f},    // 7 Frostmourne
+    {453.80f,    -2088.20f,     1040.859985f},    // 8 Val'kyr drop point right to Frozen Throne
+    {457.03f,    -2155.08f,     1040.859985f},    // 9 Val'kyr drop point left to Frozen Throne
 };
 
 #define GOSSIP_TIRION_START_EVENT "We are prepared, Highlord. Let us battle for the fate of Azeroth! For the light of dawn!"
@@ -768,7 +784,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         if (!m_bIsFirstAttempt)
             DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
 
-        m_uiPhase = PHASE_ONE;
+        m_uiPhase = PHASE_TWO;//PHASE_ONE;
 
         m_creature->SetWalk(false);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
@@ -1022,7 +1038,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Infest
                 if (m_uiInfestTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_INFEST) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_INFEST) == CAST_OK)
                         m_uiInfestTimer = urand(20000, 25000);
                 }
                 else
@@ -1212,7 +1228,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Summon Val'kyr
                 if (m_uiValkyrTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_VALKYR) == CAST_OK)
+                    if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_VALKYR) == CAST_OK)
                     {
                         DoScriptText(SAY_SUMMON_VALKYR, m_creature);
                         m_uiValkyrTimer = 50000;
@@ -1556,6 +1572,7 @@ struct MANGOS_DLL_DECL mob_ice_sphere_iccAI : public base_icc_bossAI
     mob_ice_sphere_iccAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
         m_creature->SetWalk(true);
+        m_creature->SetSpeedRate(MOVE_WALK, 1.1f);
     }
 
     void Reset(){}
@@ -1629,6 +1646,219 @@ struct MANGOS_DLL_DECL mob_raging_spiritAI : public base_icc_bossAI
 CreatureAI* GetAI_mob_raging_spirit(Creature* pCreature)
 {
     return new mob_raging_spiritAI(pCreature);
+}
+
+/**
+ * Val'kyr Shadowguard
+ */
+struct MANGOS_DLL_DECL mob_valkyr_shadowguardAI : public base_icc_bossAI
+{
+    mob_valkyr_shadowguardAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+        DoCastSpellIfCan(m_creature, SPELL_WINGS_OF_THE_DAMNED, CAST_TRIGGERED);
+        SetCombatMovement(false);
+        m_creature->SetLevitate(true);
+        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
+        m_creature->NearTeleportTo(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 15.0f, 0.0f);
+        m_bIsHeroic = true;
+    }
+
+    uint32 m_uiCatchTimer;
+    uint32 m_uiLifeSiphonTimer;
+    bool m_bIsReady;
+    bool m_bIsCarrying;
+    bool m_bIsCastingLifeSiphon;
+
+    void Reset()
+    {
+        m_bIsReady = false;
+        m_bIsCarrying = true;
+        m_bIsCastingLifeSiphon = false;
+        m_uiCatchTimer = 2000;
+        m_uiLifeSiphonTimer = 2000;
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+        if (m_bIsCastingLifeSiphon)
+            base_icc_bossAI::AttackStart(pWho);
+    }
+
+    Unit* DoCatchTarget()
+    {
+        if (m_pInstance)
+        {
+            if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+            {
+                // search for proper target
+                std::list<ObjectGuid> lPotentialTargets;
+                ThreatList const &lThreatList = pLichKing->getThreatManager().getThreatList();
+
+                if (!lThreatList.empty())
+                {
+                    for (ThreatList::const_iterator i = lThreatList.begin(); i != lThreatList.end(); ++i)
+                    {
+                        if (Unit *pTmp = m_pInstance->instance->GetUnit((*i)->getUnitGuid()))
+                        {
+                            if (/*pTmp != pLichKing->getVictim() &&*/
+                                pTmp->GetTypeId() == TYPEID_PLAYER &&
+                                !pTmp->GetVehicle())
+                            {
+                                lPotentialTargets.push_back(pTmp->GetObjectGuid());
+                            }
+                        }
+                    }
+                }
+
+                // select random target
+                if (!lPotentialTargets.empty())
+                {
+                    std::list<ObjectGuid>::iterator i = lPotentialTargets.begin();
+                    std::advance(i, urand(0, lPotentialTargets.size() - 1));
+
+                    if (Unit *pTarget = m_pInstance->instance->GetUnit(*i))
+                    {
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                        // charge isn't properly implemented...
+                        DoCastSpellIfCan(pTarget, SPELL_VALKYR_CHARGE, CAST_TRIGGERED);
+                        m_creature->NearTeleportTo(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ() + 3.0f, 0.0f);
+                        pTarget->CastSpell(m_creature, SPELL_VALKYR_CARRY, true);
+                        m_bIsCarrying = true;
+                        return pTarget;
+                    }
+                }
+            }
+        }
+
+        return NULL;
+    }
+
+    void DoFlyAway(Unit *pTarget)
+    {
+        float curX, curY, curZ;
+        float destX, destY, destZ;
+        pTarget->GetPosition(curX, curY, curZ);
+
+        // don't fly into Frozen Throne
+        if (curX < 480.0f)
+        {
+            if (curY > -2124.0f)
+                m_creature->GetMotionMaster()->MovePoint(POINT_VALKYR_THROW, SpawnLoc[8].x, SpawnLoc[8].y, SpawnLoc[8].z + 3.0f, false);
+            else
+                m_creature->GetMotionMaster()->MovePoint(POINT_VALKYR_THROW, SpawnLoc[9].x, SpawnLoc[9].y, SpawnLoc[9].z + 3.0f, false);
+
+            return;
+        }
+
+        // angle to center
+        float angle = m_creature->GetAngle(SpawnLoc[1].x, SpawnLoc[1].y);
+        // angle away from center
+        angle += M_PI_F;
+        if (angle > 2 * M_PI_F)
+            angle -= (2 * M_PI_F);
+
+        // don't fly into Frozen Throne
+        if (angle < 3.8f && angle > 2.3f)
+        {
+            if (angle > 3.05f)
+                angle = 3.8f;
+            else
+                angle = 2.3f;
+        }
+
+        float fDistToCenter = m_creature->GetDistance2d(SpawnLoc[1].x, SpawnLoc[1].y);
+        float fDist = 60.0f - fDistToCenter;
+
+        m_creature->GetNearPoint(m_creature, destX, destY, destZ, 0.0f, fDist, angle);
+        m_creature->GetMotionMaster()->MovePoint(POINT_VALKYR_THROW, destX, destY, SpawnLoc[1].z + 3.0f, false);
+    }
+
+    void DoThrowAndGoBack()
+    {
+        DoCastSpellIfCan(m_creature, SPELL_EJECT_PASSENGERS, CAST_TRIGGERED);
+        m_creature->GetMotionMaster()->Clear();
+        m_creature->GetMotionMaster()->MovePoint(POINT_VALKYR_CENTER, SpawnLoc[1].x + frand(-3.0f, 3.0f), SpawnLoc[1].y + frand(-3.0f, 3.0f), SpawnLoc[1].z + 12.0f, false);
+    }
+
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiData == POINT_VALKYR_THROW)
+        {
+            DoThrowAndGoBack();
+        }
+        else if (uiData == POINT_VALKYR_CENTER)
+        {
+            if (m_bIsHeroic)
+            {
+                // start casting Life Siphon
+                if (m_creature->GetHealthPercent() <= 50.0f)
+                    m_bIsCarrying = false;
+            }
+            else
+            {
+                // catch another target
+                m_bIsReady = false;
+            }
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        // on heroic start casting Life Siphon at 50% HP
+        if (m_bIsHeroic && !m_bIsCastingLifeSiphon)
+        {
+            if (m_creature->GetHealthPercent() <= 50.0f)
+            {
+                m_bIsReady = true;
+                m_bIsCarrying = true;
+                m_bIsCastingLifeSiphon = true;
+                DoThrowAndGoBack();
+            }
+        }
+
+        if (!m_bIsReady)
+        {
+            if (m_uiCatchTimer < uiDiff)
+            {
+                if (Unit *pTarget = DoCatchTarget())
+                {
+                    m_bIsReady = true;
+                    DoFlyAway(pTarget);
+                }
+            }
+            else
+                m_uiCatchTimer -= uiDiff;
+        }
+
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_bIsHeroic && !m_bIsCarrying)
+        {
+            // Life Siphon
+            if (m_uiLifeSiphonTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_LIFE_SIPHON) == CAST_OK)
+                    m_uiLifeSiphonTimer = 5000;
+            }
+            else
+                m_uiLifeSiphonTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_mob_valkyr_shadowguard(Creature* pCreature)
+{
+    return new mob_valkyr_shadowguardAI(pCreature);
 }
 
 /*
@@ -2361,6 +2591,11 @@ void AddSC_boss_lich_king_icc()
     newscript = new Script;
     newscript->Name = "mob_raging_spirit";
     newscript->GetAI = &GetAI_mob_raging_spirit;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_valkyr_shadowguard";
+    newscript->GetAI = &GetAI_mob_valkyr_shadowguard;
     newscript->RegisterSelf();
 /*
     newscript = new Script;
