@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11570, 11590, 11608, 11676, 11692, 11708, 11919, 11940, 11961. Taxi vendors.
+SDComment: Quest support: 11570, 11590, 11608, 11676, 11692, 11708, 11881, 11919, 11940, 11961. Taxi vendors.
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -35,6 +35,7 @@ npc_nexus_drake
 go_scourge_cage
 npc_beryl_sorcerer
 npc_seaforium_depth_charge
+npc_jenny
 EndContentData */
 
 #include "precompiled.h"
@@ -2913,6 +2914,7 @@ CreatureAI* GetAI_npc_jenny(Creature* pCreature)
 {
     return new npc_jennyAI(pCreature);
 }
+
 void AddSC_borean_tundra()
 {
     Script* pNewScript;
