@@ -125,6 +125,8 @@ enum BossSpells
     SPELL_MASS_RESURRECTION2    = 72423, // actual res
 
     // Phase One
+    SPELL_NECROTIC_PLAGUE       = 70337,
+    SPELL_NECROTIC_PLAGUE_STACK = 70338,
     SPELL_INFEST                = 70541,
     SPELL_SUMMON_GHOULS         = 70358,
     SPELL_SUMMON_HORROR         = 70372,
@@ -797,7 +799,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         if (!m_bIsFirstAttempt)
             DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
 
-        m_uiPhase = PHASE_TWO;//PHASE_ONE;
+        m_uiPhase = PHASE_THREE;//PHASE_ONE;
 
         m_creature->SetWalk(false);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
@@ -998,6 +1000,33 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             return m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_ICE_PULSE, SELECT_FLAG_PLAYER);
     }
 
+    Unit* SelectTargetForNecroticPlague()
+    {
+        std::list<ObjectGuid> lPotentialTargets;
+        const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+        for (ThreatList::const_iterator itr = threatList.begin();itr != threatList.end(); ++itr)
+        {
+            if (Unit *pVictim = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+            {
+                if (pVictim != m_creature->getVictim() &&
+                    !pVictim->HasAuraOfDifficulty(SPELL_NECROTIC_PLAGUE) &&
+                    !pVictim->HasAuraOfDifficulty(SPELL_NECROTIC_PLAGUE_STACK))
+                {
+                    lPotentialTargets.push_back((*itr)->getUnitGuid());
+                }
+            }
+        }
+
+        if (!lPotentialTargets.empty())
+        {
+            std::list<ObjectGuid>::iterator i = lPotentialTargets.begin();
+            std::advance(i, urand(0, lPotentialTargets.size() - 1));
+            return m_creature->GetMap()->GetUnit(*i);
+        }
+        else
+            return NULL;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPhase != PHASE_INTRO && m_uiPhase != PHASE_DEATH_AWAITS)
@@ -1042,8 +1071,11 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Necrotic Plague
                 if (m_uiNecroticPlagueTimer < uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature, SPELL_NECROTIC_PLAGUE) == CAST_OK)
-                        m_uiNecroticPlagueTimer = 30000;
+                    if (Unit *pTarget = SelectTargetForNecroticPlague())
+                    {
+                        if (DoCastSpellIfCan(pTarget, SPELL_NECROTIC_PLAGUE) == CAST_OK)
+                            m_uiNecroticPlagueTimer = 30000;
+                    }
                 }
                 else
                     m_uiNecroticPlagueTimer -= uiDiff;
@@ -2016,33 +2048,17 @@ CreatureAI* GetAI_mob_vile_spirit(Creature* pCreature)
     return new mob_vile_spiritAI(pCreature);
 }
 
-/*
+
 struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public ScriptedAI
 {
     mob_strangulate_vehicleAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
-        Reset();
-    }
-
-    ScriptedInstance *m_pInstance;
-
-    void Reset()
-    {
         SetCombatMovement(false);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void AttackStart(Unit *pWho)
-    {
-        return;
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-       m_creature->ForcedDespawn();
-    }
+    void Reset(){}
+    void AttackStart(Unit *pWho){}
+    void UpdateAI(const uint32 uiDiff){}
 
 };
 
@@ -2050,7 +2066,6 @@ CreatureAI* GetAI_mob_strangulate_vehicle(Creature* pCreature)
 {
     return new mob_strangulate_vehicleAI(pCreature);
 }
-*/
 
 
 void AddSC_boss_lich_king_icc()
@@ -2108,10 +2123,10 @@ void AddSC_boss_lich_king_icc()
     newscript->Name = "mob_vile_spirit";
     newscript->GetAI = &GetAI_mob_vile_spirit;
     newscript->RegisterSelf();
-/*
+
     newscript = new Script;
     newscript->Name = "mob_strangulate_vehicle";
     newscript->GetAI = &GetAI_mob_strangulate_vehicle;
     newscript->RegisterSelf();
-*/
+
 }
