@@ -150,6 +150,28 @@ enum BossSpells
 
     // Phase Three
     SPELL_VILE_SPIRITS          = 70498,
+    SPELL_HARVEST_SOUL          = 68980, // stun aura and periodic damage, triggers summoning of vehicle
+    SPELL_HARVEST_SOUL_TP_FM    = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura
+    SPELL_HARVEST_SOUL_CLONE    = 71372,
+    /*
+    69866 same as below but with no tooltip
+    70070 dummy aura causing strangulation emote
+    73659 script effect with spell 72597 which has script effect and teleport effect, targets Lich King script target?
+    71372 clone aura and triggers 76706 which looks the same. has visual effect of explosion (soul goes to frostmourne)
+    72597 teleport and dummy (for buff harvested soul?)
+    teleports need coordinates (in DB?)
+    71440 dummy effect with script target (for Lich King? maybe for the buff if player dies?)
+    72627 instakill script effect and trigger from target spell (no idea what, we die instantly and thats all in log)
+        this might be cast when aura 60sec expires and soul is harvested, so triggered should be spell which buffs
+        or trigger teleport first and then after teleporting cast buff to lich king (72597)
+    73655 dot and teleport, used on heroic only prolly
+    68984 script effect with 68985 in basepoints, for controlling vehicle
+    72546 teleport, dummy aura (for normal prolly) and send script event
+    75127 instakill Kill Frostmourne players
+    74276 in frostmourne room - maybe used on lich king not to enter evade mode?
+
+    60183 instakill and buff (weird icon, maybe not related to Lich King)
+    */
 
     // Shambling Horror
     SPELL_FRENZY                = 28747,
@@ -260,7 +282,8 @@ enum Point
     POINT_CENTER_LAND_TIRION    = 2,
     POINT_TELEPORTER_TIRION     = 3,
     POINT_VALKYR_THROW          = 4,
-    POINT_VALKYR_CENTER         = 5
+    POINT_VALKYR_CENTER         = 5,
+    POINT_TP_TO_FM              = 6, // point where strangulate vehicle moves, after reaching player is teleported into frostmourne
 };
 
 static Locations SpawnLoc[] =
@@ -1314,7 +1337,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 }
 
                 // Soul Reaper
-                if (m_uiSoulReaperTimer < uiDiff)
+                /*if (m_uiSoulReaperTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SOUL_REAPER) == CAST_OK)
                         m_uiSoulReaperTimer = 30000;
@@ -1332,28 +1355,29 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     }
                 }
                 else
-                    m_uiDefileTimer -= uiDiff;
+                    m_uiDefileTimer -= uiDiff;*/
 
                 // Harvest Soul
                 if (m_uiHarvestSoulTimer < uiDiff)
                 {
-                    // if (DoCastSpellIfCan(m_creature, SPELL_HARVEST_SOUL) == CAST_OK)
-                    {
-                        DoScriptText(SAY_HARVEST_SOUL, m_creature);
-                        m_uiHarvestSoulTimer = urand(60000, 70000);
-                    }
+                    // doesn't work (why?;/) so lets use normal casting without checks
+                    //if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HARVEST_SOUL) == CAST_OK)
+
+                    m_creature->CastSpell(m_creature->getVictim(), SPELL_HARVEST_SOUL, false);
+                    DoScriptText(SAY_HARVEST_SOUL, m_creature);
+                    m_uiHarvestSoulTimer = 15000;//urand(60000, 70000);
                 }
                 else
                     m_uiHarvestSoulTimer -= uiDiff;
 
                 // Vile Spirits (start moving after 15seconds)
-                if (m_uiVileSpiritsTimer < uiDiff)
+                /*if (m_uiVileSpiritsTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_VILE_SPIRITS) == CAST_OK)
                         m_uiVileSpiritsTimer = 30000;
                 }
                 else
-                    m_uiVileSpiritsTimer -= uiDiff;
+                    m_uiVileSpiritsTimer -= uiDiff;*/
 
                 DoMeleeAttackIfReady();
                 break;
@@ -2049,16 +2073,70 @@ CreatureAI* GetAI_mob_vile_spirit(Creature* pCreature)
 }
 
 
-struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public ScriptedAI
+struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
 {
-    mob_strangulate_vehicleAI(Creature *pCreature) : ScriptedAI(pCreature)
+    mob_strangulate_vehicleAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
         SetCombatMovement(false);
+        m_creature->SetWalk(true);
+        m_bIsSetUp = false;
+        m_bHasMoved = false;
+        m_uiMoveTimer = 2000;
     }
+
+    bool m_bIsSetUp;
+    bool m_bHasMoved;
+    uint32 m_uiMoveTimer;
 
     void Reset(){}
     void AttackStart(Unit *pWho){}
-    void UpdateAI(const uint32 uiDiff){}
+
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiData == POINT_TP_TO_FM)
+        {
+            if (Unit *pCreator = m_creature->GetCreator())
+            {
+                pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_CLONE, true);
+                pCreator->CastSpell(pCreator, SPELL_HARVEST_SOUL_TP_FM, true);
+            }
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_bIsSetUp)
+        {
+            if (Unit *pCreator = m_creature->GetCreator())
+            {
+                pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_VEHICLE, true);
+                m_bIsSetUp = true;
+            }
+        }
+
+        // move timer
+        if (!m_bHasMoved)
+        {
+            if (m_uiMoveTimer < uiDiff)
+            {
+                if (m_pInstance)
+                {
+                    if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                    {
+                        float x, y, z;
+                        pLichKing->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectBoundingRadius(), 5.0f, pLichKing->GetAngle(m_creature));
+                        m_creature->GetMotionMaster()->MovePoint(POINT_TP_TO_FM, x, y, z, false);
+                    }
+                }
+                m_bHasMoved = true;
+            }
+            else
+                m_uiMoveTimer -= uiDiff;
+        }
+    }
 
 };
 
