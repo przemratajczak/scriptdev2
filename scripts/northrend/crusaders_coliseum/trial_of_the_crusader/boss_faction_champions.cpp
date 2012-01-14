@@ -370,20 +370,6 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
         return NULL;
     }
 
-    Unit* KillPlayer()
-    {
-        ThreatList const& tList = m_creature->getThreatManager().getThreatList();
-        ThreatList::const_iterator iter;
-        for(iter = tList.begin(); iter!=tList.end(); ++iter)
-        {
-            Unit *target;
-            if(target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
-                if(target->GetHealthPercent() < 30.0f)
-                    return target;
-        }
-        return NULL;
-    }
-
     Unit* SelectTargetWithinDist()
     {
         ThreatList const& m_threatlist = m_creature->getThreatManager().getThreatList();
