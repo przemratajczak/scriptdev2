@@ -82,6 +82,10 @@ enum BossSpells
     SPELL_HARVEST_SOUL          = 68980, // stun aura and periodic damage, triggers summoning of vehicle
     SPELL_HARVEST_SOUL_TP_FM    = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura
     SPELL_HARVEST_SOUL_CLONE    = 71372,
+    SPELL_HARVESTED_SOUL_1      = 73028,
+    SPELL_HARVESTED_SOUL_2      = 74321,
+    SPELL_HARVESTED_SOUL_3      = 74322,
+    SPELL_HARVESTED_SOUL_4      = 74323,
 
     SPELL_FROSTMOURNE_TP_VISUAL = 73078,
     /*
@@ -202,6 +206,7 @@ enum
 enum Common
 {
      FINAL_ARTHAS_MOVIE         = 16,
+     EQUIP_FROSTMOURNE          = 49706,
 };
 
 enum Phase
@@ -521,6 +526,7 @@ struct MANGOS_DLL_DECL boss_tirion_iccAI : public base_icc_bossAI
                         if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
                         {
                             float x, y, z;
+                            pLichKing->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 0);
                             pLichKing->GetClosePoint(x, y, z, pLichKing->GetObjectBoundingRadius(), 3.0f, pLichKing->GetOrientation());
                             pLichKing->RemoveAurasDueToSpell(SPELL_RAISE_DEAD);
                             pLichKing->InterruptNonMeleeSpells(true);
@@ -773,6 +779,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         m_creature->SetWalk(false);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        m_creature->RemoveAurasDueToSpell(SPELL_SIT_EMOTE_NO_SHEATH);
+        SetEquipmentSlots(false, EQUIP_FROSTMOURNE);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
@@ -810,6 +818,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
         m_creature->SetStandState(UNIT_STAND_STATE_SIT);
+        DoCastSpellIfCan(m_creature, SPELL_SIT_EMOTE_NO_SHEATH, CAST_TRIGGERED);
+        m_creature->SetVirtualItem(VIRTUAL_ITEM_SLOT_0, 0);
 
         m_bIsFirstAttempt = false;
     }
@@ -1012,6 +1022,17 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, IN_PROGRESS);
+    }
+
+    void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+    {
+        if (pSpell->Id == SPELL_HARVESTED_SOUL_1 ||
+            pSpell->Id == SPELL_HARVESTED_SOUL_2 ||
+            pSpell->Id == SPELL_HARVESTED_SOUL_3 ||
+            pSpell->Id == SPELL_HARVESTED_SOUL_4)
+        {
+            DoScriptText(SAY_FM_PLAYER_DEATH, m_creature);
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -2240,20 +2261,23 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
     }
 
     uint32 m_uiSoulRipTimer;
-
-    void KilledUnit(Unit *pVictim)
-    {
-        if (pVictim->GetEntry() == NPC_TERENAS_FM_NORMAL)
-        {
-            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL);
-            m_creature->ForcedDespawn();
-        }
-    }
+    uint32 m_uiHarvestedSoulTimer;
 
     void Reset()
     {
         DoCastSpellIfCan(m_creature, SPELL_DARK_HUNGER, CAST_TRIGGERED);
         m_uiSoulRipTimer = 12000;
+        m_uiHarvestedSoulTimer = 66000;
+    }
+
+    void KilledUnit(Unit *pVictim)
+    {
+        if (pVictim->GetEntry() == NPC_TERENAS_FM_NORMAL)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
+            DoCastSpellIfCan(m_creature, SPELL_HARVESTED_SOUL_1, CAST_TRIGGERED);
+            m_creature->ForcedDespawn();
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -2269,6 +2293,14 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
         }
         else
             m_uiSoulRipTimer -= uiDiff;
+
+        // Harvest Soul 60sec aura wears off
+        if (m_uiHarvestedSoulTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
+        }
+        else
+            m_uiHarvestedSoulTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
