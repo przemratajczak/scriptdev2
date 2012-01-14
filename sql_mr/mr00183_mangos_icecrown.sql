@@ -435,8 +435,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_spirit_warden', `AIName`='' WHE
 -- damage of Terenas and Spirit Warden, they should be hitting each other for around 10-11k normal melee damage
 UPDATE `creature_template` SET `dmg_multiplier` = 24 WHERE `entry` IN (36823, 36824, 39296);
 
--- make Ice Spheres and Spirit Warden untauntable
-UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 256 WHERE `entry` IN (36633, 39305, 39306, 39307, 36824, 39296);
+-- make Ice Spheres untauntable
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 256 WHERE `entry` IN (36633, 39305, 39306, 39307);
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (71614, 74074, 73028, 74321, 74322, 74323, 72679, 74318, 74319, 74320);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES

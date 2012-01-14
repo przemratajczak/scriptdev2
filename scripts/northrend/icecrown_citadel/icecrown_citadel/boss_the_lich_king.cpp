@@ -80,7 +80,8 @@ enum BossSpells
     // Phase Three
     SPELL_VILE_SPIRITS          = 70498,
     SPELL_HARVEST_SOUL          = 68980, // stun aura and periodic damage, triggers summoning of vehicle
-    SPELL_HARVEST_SOUL_TP_FM    = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura
+    SPELL_HARVEST_SOUL_TP_FM_N  = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura (normal)
+    SPELL_HARVEST_SOUL_TP_FM_H  = 73655, // teleports to Frostmourne Room and applies 60sec DoT aura (heroic)
     SPELL_HARVEST_SOUL_CLONE    = 71372,
     SPELL_HARVESTED_SOUL_1      = 73028,
     SPELL_HARVESTED_SOUL_2      = 74321,
@@ -1345,13 +1346,12 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Harvest Soul
                 if (m_uiHarvestSoulTimer < uiDiff)
                 {
-                    // doesn't work (why?;/) so lets use normal casting without checks
-                    //if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HARVEST_SOUL) == CAST_OK)
-
-                    m_creature->CastSpell(m_creature->getVictim(), SPELL_HARVEST_SOUL, false);
-                    DoScriptText(SAY_HARVEST_SOUL, m_creature);
-                    m_uiHarvestSoulTimer = urand(65000, 70000);
-                    DoPrepareFrostmourneRoom();
+                    if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HARVEST_SOUL) == CAST_OK)
+                    {
+                        DoScriptText(SAY_HARVEST_SOUL, m_creature);
+                        m_uiHarvestSoulTimer = 70000;
+                        DoPrepareFrostmourneRoom();
+                    }
                 }
                 else
                     m_uiHarvestSoulTimer -= uiDiff;
@@ -2083,7 +2083,9 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_pInstance)
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+        else
         {
             if (m_pInstance->GetData(TYPE_FROSTMOURNE_ROOM) == DONE)
             {
@@ -2092,7 +2094,12 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
                     float x, y, z;
                     m_creature->GetPosition(x, y, z);
                     pCreator->NearTeleportTo(x, y, z, m_creature->GetOrientation(), true);
+                    // remove Harvest Soul aura
+                    pCreator->RemoveAurasDueToSpell(72546);
+                    pCreator->RemoveAurasDueToSpell(73655);
+
                     m_creature->ForcedDespawn();
+                    return;
                 }
             }
         }
@@ -2133,9 +2140,17 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
             {
                 if (Unit *pCreator = m_creature->GetCreator())
                 {
-                    pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_CLONE, true);
-                    pCreator->CastSpell(pCreator, SPELL_FROSTMOURNE_TP_VISUAL, true);
-                    pCreator->CastSpell(pCreator, SPELL_HARVEST_SOUL_TP_FM, true);
+                    if (pCreator->isAlive())
+                    {
+                        pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_CLONE, true);
+                        pCreator->CastSpell(pCreator, SPELL_FROSTMOURNE_TP_VISUAL, true);
+                        pCreator->CastSpell(pCreator, m_bIsHeroic ? SPELL_HARVEST_SOUL_TP_FM_H : SPELL_HARVEST_SOUL_TP_FM_N, true);
+                    }
+                    else
+                    {
+                        m_creature->ForcedDespawn();
+                        return;
+                    }
                 }
                 m_bHasTeleported = true;
             }
@@ -2160,7 +2175,7 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
         m_uiSayPhase = 0;
         m_uiSayTimer = 6000;
         m_bHasReleasedPlayer = false;
-        m_creature->ForcedDespawn(62000);
+        m_creature->ForcedDespawn(68000);
     }
 
     uint32 m_uiSayTimer;
@@ -2172,6 +2187,7 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
     void Aggro(Unit *pWho)
     {
         DoCastSpellIfCan(m_creature, SPELL_LIGHTS_FAVOR, CAST_TRIGGERED);
+        m_creature->SetHealthPercent(50.0f);
     }
 
     void EnterEvadeMode()
@@ -2236,6 +2252,9 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
         else
             m_uiSayTimer -= uiDiff;
 
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -2256,7 +2275,7 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
 {
     mob_spirit_wardenAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
-        m_creature->ForcedDespawn(62000);
+        m_creature->ForcedDespawn(68000);
         Reset();
     }
 
@@ -2276,6 +2295,8 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
         {
             DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
             DoCastSpellIfCan(m_creature, SPELL_HARVESTED_SOUL_1, CAST_TRIGGERED);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
             m_creature->ForcedDespawn();
         }
     }
@@ -2284,6 +2305,9 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
 
         // Soul Rip
         if (m_uiSoulRipTimer < uiDiff)
@@ -2297,6 +2321,9 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
         // Harvest Soul 60sec aura wears off
         if (m_uiHarvestedSoulTimer < uiDiff)
         {
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+
             DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
         }
         else
