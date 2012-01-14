@@ -1001,8 +1001,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         // Terenas + Spirit Warden
         if (!m_bIsHeroic)
         {
-            m_creature->SummonCreature(NPC_TERENAS_FM_NORMAL, SpawnLoc[10].x - 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 63000);
-            m_creature->SummonCreature(NPC_SPIRIT_WARDEN, SpawnLoc[10].x + 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 63000);
+            m_creature->SummonCreature(NPC_TERENAS_FM_NORMAL, SpawnLoc[10].x - 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            m_creature->SummonCreature(NPC_SPIRIT_WARDEN, SpawnLoc[10].x + 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
         // Terenas + Spirit Bombs and Spirits
         else
@@ -2070,7 +2070,8 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
                 {
                     float x, y, z;
                     m_creature->GetPosition(x, y, z);
-                    pCreator->NearTeleportTo(x, y, z, m_creature->GetOrientation());
+                    pCreator->NearTeleportTo(x, y, z, m_creature->GetOrientation(), true);
+                    m_creature->ForcedDespawn();
                 }
             }
         }
@@ -2094,7 +2095,7 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
                     if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
                     {
                         float x, y, z;
-                        pLichKing->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectBoundingRadius(), 5.0f, pLichKing->GetAngle(m_creature));
+                        pLichKing->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectBoundingRadius(), 8.0f, pLichKing->GetAngle(m_creature));
                         m_creature->GetMotionMaster()->MovePoint(POINT_TP_TO_FM, x, y, z, false);
                     }
                 }
@@ -2135,19 +2136,21 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
 {
     npc_terenas_fmAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
-        Reset();
+        m_uiSayPhase = 0;
+        m_uiSayTimer = 6000;
+        m_bHasReleasedPlayer = false;
+        m_creature->ForcedDespawn(62000);
     }
 
     uint32 m_uiSayTimer;
     uint32 m_uiSayPhase;
     bool m_bHasReleasedPlayer;
 
-    void Reset()
+    void Reset(){}
+
+    void Aggro(Unit *pWho)
     {
         DoCastSpellIfCan(m_creature, SPELL_LIGHTS_FAVOR, CAST_TRIGGERED);
-        m_uiSayPhase = 0;
-        m_uiSayTimer = 6000;
-        m_bHasReleasedPlayer = false;
     }
 
     void EnterEvadeMode()
@@ -2156,7 +2159,7 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
         {
             m_bHasReleasedPlayer = true;
             DoCastSpellIfCan(m_creature, SPELL_RESTORE_SOUL);
-            m_uiSayPhase = 0;
+            m_uiSayPhase = 5;
             m_uiSayTimer = 2000;
         }
     }
@@ -2232,10 +2235,20 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
 {
     mob_spirit_wardenAI(Creature *pCreature) : base_icc_bossAI(pCreature)
     {
+        m_creature->ForcedDespawn(62000);
         Reset();
     }
 
     uint32 m_uiSoulRipTimer;
+
+    void KilledUnit(Unit *pVictim)
+    {
+        if (pVictim->GetEntry() == NPC_TERENAS_FM_NORMAL)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL);
+            m_creature->ForcedDespawn();
+        }
+    }
 
     void Reset()
     {
