@@ -2286,7 +2286,7 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
     {
         DoCastSpellIfCan(m_creature, SPELL_DARK_HUNGER, CAST_TRIGGERED);
         m_uiSoulRipTimer = 12000;
-        m_uiHarvestedSoulTimer = 66000;
+        m_uiHarvestedSoulTimer = 61000;
     }
 
     void KilledUnit(Unit *pVictim)
@@ -2324,7 +2324,7 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
 
-            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
+            m_uiHarvestedSoulTimer = 60000;
         }
         else
             m_uiHarvestedSoulTimer -= uiDiff;
