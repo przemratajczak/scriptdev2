@@ -428,9 +428,15 @@ UPDATE `creature_template` SET `ScriptName`='mob_drudge_ghoul', `AIName`='' WHER
 UPDATE `creature_template` SET `ScriptName`='mob_shambling_horror', `AIName`='' WHERE `entry`= 37698;
 UPDATE `creature_template` SET `ScriptName`='mob_shadow_trap', `AIName`='', `faction_A` = 14, `faction_H` = 14, `unit_flags` = `unit_flags` | 2 | 33554432 WHERE `entry`= 39137;
 UPDATE `creature_template` SET `ScriptName`='mob_valkyr_shadowguard', `AIName`='' WHERE `entry`= 36609;
+UPDATE `creature_template` SET `ScriptName`='npc_terenas_fm', `AIName`='' WHERE `entry`= 36823; -- normal
+UPDATE `creature_template` SET `ScriptName`='npc_terenas_fm', `AIName`='' WHERE `entry`= 39217; -- heroic, different entry
+UPDATE `creature_template` SET `ScriptName`='mob_spirit_warden', `AIName`='' WHERE `entry`= 36824;
 
--- make Ice Spheres untauntable
-UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 256 WHERE `entry` IN (36633, 39305, 39306, 39307);
+-- damage of Terenas and Spirit Warden, they should be hitting each other for around 10-11k normal melee damage
+UPDATE `creature_template` SET `dmg_multiplier` = 22 WHERE `entry` IN (36823, 36824, 39296);
+
+-- make Ice Spheres and Spirit Warden untauntable
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 256 WHERE `entry` IN (36633, 39305, 39306, 39307, 36824, 39296);
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (71614, 74074);
 INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
@@ -441,6 +447,11 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 DELETE FROM `npc_gossip` WHERE npc_guid = 115781;
 INSERT INTO `npc_gossip` (`npc_guid`, `textid`) VALUES
 (115781, 15290);
+
+-- proc for Dark Hunger
+DELETE FROM `spell_proc_event` WHERE `entry` = 69383;
+INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
+(69383, 0x04 | 0x10 | 0x10000);
 
 -- -----------------
 -- EAI YTDB CLEAN UP
@@ -485,7 +496,7 @@ DELETE FROM `creature_template_addon` WHERE (`entry`=37133);
 INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `b2_0_sheath`, `b2_1_pvp_state`, `emote`, `moveflags`) VALUES (37133, 0, 0, 0, 0, 333, 0);
 -- end of weird addon fix
 
--- fix double spawn of dream dragon
-DELETE FROM `creature` WHERE `id`=37950;
+
+-- DELETE FROM `creature` WHERE `id`=37950;
 
 -- ------

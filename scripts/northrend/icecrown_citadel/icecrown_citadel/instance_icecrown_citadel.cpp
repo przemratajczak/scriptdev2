@@ -473,6 +473,9 @@ static Locations SpawnLoc[]=
              case TYPE_LICH_KING:
                 m_auiEncounter[TYPE_LICH_KING] = uiData;
                 break;
+             case TYPE_FROSTMOURNE_ROOM:
+                 m_auiEncounter[TYPE_FROSTMOURNE_ROOM] = uiData;
+                 break;
              case TYPE_ICECROWN_QUESTS:
                 m_auiEncounter[TYPE_ICECROWN_QUESTS] = uiData;
                 break;
@@ -526,6 +529,7 @@ static Locations SpawnLoc[]=
              case TYPE_SINDRAGOSA:
              case TYPE_KINGS_OF_ICC:
              case TYPE_LICH_KING:
+             case TYPE_FROSTMOURNE_ROOM:
              case TYPE_ICECROWN_QUESTS:
              case TYPE_COUNT:
                           return m_auiEncounter[uiType];

@@ -27,75 +27,6 @@
 
 enum BossSpells
 {
-/*
-    SPELL_INFEST                     = 70541,
-    SPELL_NECROTIC_PLAGUE            = 70337,
-    SPELL_PLAGUE_SIPHON              = 74074,
-    SPELL_SOUL_REAPER                = 69409,
-    SPELL_SPAWN_DEFILE               = 72762,
-    SPELL_HARVEST_SOUL               = 68980,
-    SPELL_HARVEST_SOUL_TELEPORT      = 71372,
-//
-    SPELL_CHANNEL_KING               = 71769,
-    SPELL_BROKEN_FROSTMOURNE         = 72398,
-    SPELL_BOOM_VISUAL                = 72726,
-    SPELL_ICEBLOCK_TRIGGER           = 71614,
-    SPELL_TIRION_LIGHT               = 71797,
-    SPELL_FROSTMOURNE_TRIGGER        = 72405,
-    SPELL_SUMMON_BROKEN_FROSTMOURNE  = 72406,
-    SPELL_SUMMON_BROKEN_FROSTMOURNE_2 = 73017,
-    SPELL_DISENGAGE                  = 61508,
-    SPELL_FURY_OF_FROSTMOURNE        = 70063,
-    SPELL_REVIVE_VISUAL              = 37755, //Override?
-    SPELL_REVIVE                     = 51918,
-    SPELL_CLONE_PLAYER               = 57507,
-    SPELL_BERSERK                    = 47008,
-
-//Transition phase
-    SPELL_REMORSELESS_WINTER         = 68981,
-    SPELL_PAIN_AND_SUFFERING         = 72133,
-    SPELL_QUAKE                      = 72262,
-
-//Raging spirit
-//    SPELL_SUMMON_RAGING_SPIRIT       = 69201, // triggered
-    SPELL_SUMMON_RAGING_SPIRIT       = 69200,
-    SPELL_SOUL_SHRIEK                = 69242,
-
-//Ice sphere
-    SPELL_SUMMON_ICE_SPHERE          = 69103,
-    SPELL_ICE_PULSE                  = 69099,
-    SPELL_ICE_BURST                  = 69108,
-    SPELL_ICE_SPHERE_VISUAL          = 69090,
-
-//Drudge ghouls
-    SPELL_SUMMON_DRUDGE_GHOULS       = 70358,
-
-//Shambling horror
-    SPELL_SUMMON_SHAMBLING_HORROR    = 70372,
-    SPELL_SHOCKWAVE                  = 72149,
-    SPELL_HORROR_ENRAGE              = 72143,
-
-//Vile spirits
-    SPELL_SUMMON_VILE_SPIRITS        = 70498,
-    SPELL_SPIRITS_BURST              = 70503,
-
-//Valkyr
-    SPELL_SUMMON_VALKYR              = 69037,
-    NPC_VALKYR                       = 36609,
-    SPELL_WINGS_OF_THE_DAMNED        = 74352,
-
-//Defile
-    SPELL_DEFILE                     = 72743,
-
-// Menethil
-    SPELL_REVALL                     = 26687,
-//
-    NPC_ICE_SPHERE                   = 36633,
-    NPC_DEFILER                      = 38757,
-    NPC_RAGING_SPIRIT                = 36701,
-    NPC_VILE_SPIRIT                  = 37799,
-    NPC_STRANGULATE_VEHICLE          = 36598,
-*/
     SPELL_BERSERK               = 47008,
     SPELL_SIT_EMOTE_NO_SHEATH   = 73220,
     SPELL_PLAGUE_AVOIDANCE      = 72846,
@@ -119,8 +50,6 @@ enum BossSpells
     SPELL_LIGHTS_BLESSING       = 71797, // after 5secs smashes Ice Lock
 
     // Terenas Menethil
-    SPELL_RESTORE_SOUL          = 72595,
-    SPELL_LIGHTS_FAVOR          = 69382,
     SPELL_MASS_RESURRECTION     = 72429, // dummy
     SPELL_MASS_RESURRECTION2    = 72423, // actual res
 
@@ -153,6 +82,8 @@ enum BossSpells
     SPELL_HARVEST_SOUL          = 68980, // stun aura and periodic damage, triggers summoning of vehicle
     SPELL_HARVEST_SOUL_TP_FM    = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura
     SPELL_HARVEST_SOUL_CLONE    = 71372,
+
+    SPELL_FROSTMOURNE_TP_VISUAL = 73078,
     /*
     69866 same as below but with no tooltip
     70070 dummy aura causing strangulation emote
@@ -169,6 +100,7 @@ enum BossSpells
     72546 teleport, dummy aura (for normal prolly) and send script event
     75127 instakill Kill Frostmourne players
     74276 in frostmourne room - maybe used on lich king not to enter evade mode?
+    73078 visual for teleportation to frostmourne room
 
     60183 instakill and buff (weird icon, maybe not related to Lich King)
     */
@@ -206,12 +138,25 @@ enum BossSpells
     // Vile Spirit
     SPELL_SPIRIT_BURST_AURA     = 70502,
 
+    // Spirit Warden
+    SPELL_DARK_HUNGER           = 69383,
+    SPELL_DESTROY_SOUL          = 74086,
+    SPELL_SOUL_RIP              = 69397, // 3500, each next one x2 (maybe based on HP of target?)
+
+    // Terenas in Frostmourne
+    SPELL_RESTORE_SOUL          = 72595,
+    SPELL_RESTORE_SOUL_HEROIC   = 73650,
+    SPELL_LIGHTS_FAVOR          = 69382,
+
     // NPCs
     NPC_SHADOW_TRAP             = 39137,
     NPC_FROSTMOURNE             = 38584,
     NPC_ICE_SPHERE              = 36633,
     NPC_RAGING_SPIRIT           = 36701,
     NPC_DEFILE                  = 38757,
+    NPC_SPIRIT_WARDEN           = 36824,
+    NPC_TERENAS_FM_NORMAL       = 36823,
+    NPC_TERENAS_FM_HEROIC       = 39217,
 };
 
 // talks
@@ -298,6 +243,7 @@ static Locations SpawnLoc[] =
     {520.311f,   -2124.709961f, 1040.859985f},    // 7 Frostmourne
     {453.80f,    -2088.20f,     1040.859985f},    // 8 Val'kyr drop point right to Frozen Throne
     {457.03f,    -2155.08f,     1040.859985f},    // 9 Val'kyr drop point left to Frozen Throne
+    {494.313f,   -2523.079f,    1249.87f},        // 10 center of platform inside Frostmourne
 };
 
 #define GOSSIP_TIRION_START_EVENT "We are prepared, Highlord. Let us battle for the fate of Azeroth! For the light of dawn!"
@@ -1050,6 +996,24 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             return NULL;
     }
 
+    void DoPrepareFrostmourneRoom()
+    {
+        // Terenas + Spirit Warden
+        if (!m_bIsHeroic)
+        {
+            m_creature->SummonCreature(NPC_TERENAS_FM_NORMAL, SpawnLoc[10].x - 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 63000);
+            m_creature->SummonCreature(NPC_SPIRIT_WARDEN, SpawnLoc[10].x + 5.0f, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 63000);
+        }
+        // Terenas + Spirit Bombs and Spirits
+        else
+        {
+            ;
+        }
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, IN_PROGRESS);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPhase != PHASE_INTRO && m_uiPhase != PHASE_DEATH_AWAITS)
@@ -1365,7 +1329,8 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
 
                     m_creature->CastSpell(m_creature->getVictim(), SPELL_HARVEST_SOUL, false);
                     DoScriptText(SAY_HARVEST_SOUL, m_creature);
-                    m_uiHarvestSoulTimer = 15000;//urand(60000, 70000);
+                    m_uiHarvestSoulTimer = urand(65000, 70000);
+                    DoPrepareFrostmourneRoom();
                 }
                 else
                     m_uiHarvestSoulTimer -= uiDiff;
@@ -2081,33 +2046,35 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
         m_creature->SetWalk(true);
         m_bIsSetUp = false;
         m_bHasMoved = false;
+        m_bHasTeleported = false;
         m_uiMoveTimer = 2000;
+        m_uiTeleportTimer = 6000;
     }
 
     bool m_bIsSetUp;
     bool m_bHasMoved;
+    bool m_bHasTeleported;
     uint32 m_uiMoveTimer;
+    uint32 m_uiTeleportTimer;
 
     void Reset(){}
     void AttackStart(Unit *pWho){}
 
-    void MovementInform(uint32 uiMovementType, uint32 uiData)
-    {
-        if (uiMovementType != POINT_MOTION_TYPE)
-            return;
-
-        if (uiData == POINT_TP_TO_FM)
-        {
-            if (Unit *pCreator = m_creature->GetCreator())
-            {
-                pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_CLONE, true);
-                pCreator->CastSpell(pCreator, SPELL_HARVEST_SOUL_TP_FM, true);
-            }
-        }
-    }
-
     void UpdateAI(const uint32 uiDiff)
     {
+        if (m_pInstance)
+        {
+            if (m_pInstance->GetData(TYPE_FROSTMOURNE_ROOM) == DONE)
+            {
+                if (Unit *pCreator = m_creature->GetCreator())
+                {
+                    float x, y, z;
+                    m_creature->GetPosition(x, y, z);
+                    pCreator->NearTeleportTo(x, y, z, m_creature->GetOrientation());
+                }
+            }
+        }
+
         if (!m_bIsSetUp)
         {
             if (Unit *pCreator = m_creature->GetCreator())
@@ -2136,13 +2103,167 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
             else
                 m_uiMoveTimer -= uiDiff;
         }
-    }
 
+        // teleport timer
+        if (!m_bHasTeleported)
+        {
+            if (m_uiTeleportTimer < uiDiff)
+            {
+                if (Unit *pCreator = m_creature->GetCreator())
+                {
+                    pCreator->CastSpell(m_creature, SPELL_HARVEST_SOUL_CLONE, true);
+                    pCreator->CastSpell(pCreator, SPELL_FROSTMOURNE_TP_VISUAL, true);
+                    pCreator->CastSpell(pCreator, SPELL_HARVEST_SOUL_TP_FM, true);
+                }
+                m_bHasTeleported = true;
+            }
+            else
+                m_uiTeleportTimer -= uiDiff;
+        }
+    }
 };
 
 CreatureAI* GetAI_mob_strangulate_vehicle(Creature* pCreature)
 {
     return new mob_strangulate_vehicleAI(pCreature);
+}
+
+/**
+ * Terenas Menethil in Frostmourne
+ */
+struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
+{
+    npc_terenas_fmAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiSayTimer;
+    uint32 m_uiSayPhase;
+    bool m_bHasReleasedPlayer;
+
+    void Reset()
+    {
+        DoCastSpellIfCan(m_creature, SPELL_LIGHTS_FAVOR, CAST_TRIGGERED);
+        m_uiSayPhase = 0;
+        m_uiSayTimer = 6000;
+        m_bHasReleasedPlayer = false;
+    }
+
+    void EnterEvadeMode()
+    {
+        if (!m_bHasReleasedPlayer)
+        {
+            m_bHasReleasedPlayer = true;
+            DoCastSpellIfCan(m_creature, SPELL_RESTORE_SOUL);
+            m_uiSayPhase = 0;
+            m_uiSayTimer = 2000;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiSayTimer < uiDiff)
+        {
+            switch (m_uiSayPhase)
+            {
+                case 0:
+                    if (Creature *pSpirit = GetClosestCreatureWithEntry(m_creature, NPC_SPIRIT_WARDEN, 20.0f))
+                    {
+                        AttackStart(pSpirit);
+                        pSpirit->AI()->AttackStart(m_creature);
+                        pSpirit->AddThreat(m_creature, 100000.0f);
+                    }
+                    ++m_uiSayPhase;
+                    m_uiSayTimer = 1000;
+                    break;
+                case 1:
+                    DoScriptText(SAY_FM_TERENAS_AID_1, m_creature);
+                    ++m_uiSayPhase;
+                    m_uiSayTimer = 8000;
+                    break;
+                case 2:
+                    DoScriptText(SAY_FM_TERENAS_AID_2, m_creature);
+                    ++m_uiSayPhase;
+                    m_uiSayTimer = 12000;
+                    break;
+                case 3:
+                    DoScriptText(SAY_FM_TERENAS_AID_3, m_creature);
+                    ++m_uiSayPhase;
+                    break;
+                case 4:
+                    // fight
+                    break;
+                case 5:
+                    // release soul
+                    if (m_pInstance)
+                    {
+                        m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+
+                        if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                            DoScriptText(SAY_FM_PLAYER_ESCAPE, pLichKing);
+                    }
+                    ++m_uiSayPhase;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+            m_uiSayTimer -= uiDiff;
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_terenas_fm(Creature* pCreature)
+{
+    return new npc_terenas_fmAI(pCreature);
+}
+
+
+/**
+ * Spirit Warden
+ */
+struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
+{
+    mob_spirit_wardenAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiSoulRipTimer;
+
+    void Reset()
+    {
+        DoCastSpellIfCan(m_creature, SPELL_DARK_HUNGER, CAST_TRIGGERED);
+        m_uiSoulRipTimer = 12000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        // Soul Rip
+        if (m_uiSoulRipTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SOUL_RIP) == CAST_OK)
+                m_uiSoulRipTimer = 20000;
+        }
+        else
+            m_uiSoulRipTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_spirit_warden(Creature* pCreature)
+{
+    return new mob_spirit_wardenAI(pCreature);
 }
 
 
@@ -2207,4 +2328,13 @@ void AddSC_boss_lich_king_icc()
     newscript->GetAI = &GetAI_mob_strangulate_vehicle;
     newscript->RegisterSelf();
 
+    newscript = new Script;
+    newscript->Name = "npc_terenas_fm";
+    newscript->GetAI = &GetAI_npc_terenas_fm;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_spirit_warden";
+    newscript->GetAI = &GetAI_mob_spirit_warden;
+    newscript->RegisterSelf();
 }
