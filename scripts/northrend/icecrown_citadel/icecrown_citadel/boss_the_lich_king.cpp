@@ -162,6 +162,8 @@ enum BossSpells
     NPC_SPIRIT_WARDEN           = 36824,
     NPC_TERENAS_FM_NORMAL       = 36823,
     NPC_TERENAS_FM_HEROIC       = 39217,
+    NPC_WICKED_SPIRIT           = 39190,
+    NPC_SPIRIT_BOMB             = 39189,
 };
 
 // talks
@@ -2294,9 +2296,10 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
         if (pVictim->GetEntry() == NPC_TERENAS_FM_NORMAL)
         {
             DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
-            DoCastSpellIfCan(m_creature, SPELL_HARVESTED_SOUL_1, CAST_TRIGGERED);
+
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+
             m_creature->ForcedDespawn();
         }
     }
