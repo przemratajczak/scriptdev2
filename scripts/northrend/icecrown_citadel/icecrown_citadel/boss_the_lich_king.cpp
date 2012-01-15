@@ -90,26 +90,6 @@ enum BossSpells
     SPELL_HARVESTED_SOUL_4      = 74323,
 
     SPELL_FROSTMOURNE_TP_VISUAL = 73078,
-    /*
-    69866 same as below but with no tooltip
-    70070 dummy aura causing strangulation emote
-    73659 script effect with spell 72597 which has script effect and teleport effect, targets Lich King script target?
-    71372 clone aura and triggers 76706 which looks the same. has visual effect of explosion (soul goes to frostmourne)
-    72597 teleport and dummy (for buff harvested soul?)
-    teleports need coordinates (in DB?)
-    71440 dummy effect with script target (for Lich King? maybe for the buff if player dies?)
-    72627 instakill script effect and trigger from target spell (no idea what, we die instantly and thats all in log)
-        this might be cast when aura 60sec expires and soul is harvested, so triggered should be spell which buffs
-        or trigger teleport first and then after teleporting cast buff to lich king (72597)
-    73655 dot and teleport, used on heroic only prolly
-    68984 script effect with 68985 in basepoints, for controlling vehicle
-    72546 teleport, dummy aura (for normal prolly) and send script event
-    75127 instakill Kill Frostmourne players
-    74276 in frostmourne room - maybe used on lich king not to enter evade mode?
-    73078 visual for teleportation to frostmourne room
-
-    60183 instakill and buff (weird icon, maybe not related to Lich King)
-    */
 
     // Shambling Horror
     SPELL_FRENZY                = 28747,
@@ -1022,6 +1002,29 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             return NULL;
     }
 
+    Unit* SelectTargetForDefile()
+    {
+        std::list<ObjectGuid> lPotentialTargets;
+        const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+        for (ThreatList::const_iterator itr = threatList.begin();itr != threatList.end(); ++itr)
+        {
+            if (Unit *pVictim = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+            {
+                if (pVictim->GetTypeId() == TYPEID_PLAYER && !pVictim->GetVehicle())
+                    lPotentialTargets.push_back((*itr)->getUnitGuid());
+            }
+        }
+
+        if (!lPotentialTargets.empty())
+        {
+            std::list<ObjectGuid>::iterator i = lPotentialTargets.begin();
+            std::advance(i, urand(0, lPotentialTargets.size() - 1));
+            return m_creature->GetMap()->GetUnit(*i);
+        }
+        else
+            return m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_DEFILE, SELECT_FLAG_PLAYER);
+    }
+
     void DoPrepareFrostmourneRoom()
     {
         // Terenas + Spirit Warden
@@ -1288,7 +1291,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Defile
                 if (m_uiDefileTimer < uiDiff)
                 {
-                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_DEFILE, SELECT_FLAG_PLAYER))
+                    if (Unit *pTarget = SelectTargetForDefile())
                     {
                         if (DoCastSpellIfCan(pTarget, SPELL_DEFILE) == CAST_OK)
                             m_uiDefileTimer = 30000;
@@ -1338,7 +1341,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 }
 
                 // Soul Reaper
-                /*if (m_uiSoulReaperTimer < uiDiff)
+                if (m_uiSoulReaperTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_SOUL_REAPER) == CAST_OK)
                         m_uiSoulReaperTimer = 30000;
@@ -1356,7 +1359,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     }
                 }
                 else
-                    m_uiDefileTimer -= uiDiff;*/
+                    m_uiDefileTimer -= uiDiff;
 
                 // Harvest Soul
                 if (m_uiHarvestSoulTimer < uiDiff)
@@ -1365,7 +1368,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     if (m_bIsHeroic)
                         pTarget = m_creature;
                     else
-                        pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_HARVEST_SOUL, SELECT_FLAG_PLAYER);
+                        pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_HARVEST_SOUL, SELECT_FLAG_PLAYER);
 
                     if (pTarget)
                     {
@@ -1391,13 +1394,13 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                     m_uiHarvestSoulTimer -= uiDiff;
 
                 // Vile Spirits (start moving after 15seconds)
-                /*if (m_uiVileSpiritsTimer < uiDiff)
+                if (m_uiVileSpiritsTimer < uiDiff)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_VILE_SPIRITS) == CAST_OK)
                         m_uiVileSpiritsTimer = 30000;
                 }
                 else
-                    m_uiVileSpiritsTimer -= uiDiff;*/
+                    m_uiVileSpiritsTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
                 break;
