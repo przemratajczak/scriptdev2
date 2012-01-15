@@ -83,6 +83,7 @@ enum BossSpells
     SPELL_HARVEST_SOUL_TP_FM_N  = 72546, // teleports to Frostmourne Room and applies 60sec dummy aura (normal)
     SPELL_HARVEST_SOUL_TP_FM_H  = 73655, // teleports to Frostmourne Room and applies 60sec DoT aura (heroic)
     SPELL_HARVEST_SOUL_CLONE    = 71372,
+    SPELL_HARVEST_SOULS         = 74296,
     SPELL_HARVESTED_SOUL_1      = 73028,
     SPELL_HARVESTED_SOUL_2      = 74321,
     SPELL_HARVESTED_SOUL_3      = 74322,
@@ -140,7 +141,7 @@ enum BossSpells
     SPELL_DEFILE_AURA           = 72743,
     SPELL_DEFILE_GROW           = 72756,
 
-    // Vile Spirit
+    // Vile Spirit and Wicked Spirit
     SPELL_SPIRIT_BURST_AURA     = 70502,
 
     // Spirit Warden
@@ -152,6 +153,13 @@ enum BossSpells
     SPELL_RESTORE_SOUL          = 72595,
     SPELL_RESTORE_SOUL_HEROIC   = 73650,
     SPELL_LIGHTS_FAVOR          = 69382,
+    SPELL_SUMMON_SPIRIT_BOMBS_1 = 73581, // heroic only, summons Spirit Bomb every 1 sec
+    SPELL_SUMMON_SPIRIT_BOMBS_2 = 74299, // 2 secs interval
+    SPELL_SUMMON_SPIRIT_BOMB    = 74300, // aura doesnt work somehow, so we will use manual summoning
+
+    // Spirit Bomb
+    SPELL_SPIRIT_BOMB_VISUAL    = 73572,
+    SPELL_EXPLOSION             = 73804,
 
     // NPCs
     NPC_SHADOW_TRAP             = 39137,
@@ -237,6 +245,7 @@ enum Point
     POINT_VALKYR_THROW          = 4,
     POINT_VALKYR_CENTER         = 5,
     POINT_TP_TO_FM              = 6, // point where strangulate vehicle moves, after reaching player is teleported into frostmourne
+    POINT_SPIRIT_BOMB           = 7, // Spirit Bomb moving down
 };
 
 static Locations SpawnLoc[] =
@@ -739,6 +748,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     uint32 m_uiDefileTimer;
     uint32 m_uiSoulReaperTimer;
     uint32 m_uiHarvestSoulTimer;
+    uint32 m_uiFrostmournePhaseTimer;
     uint32 m_uiVileSpiritsTimer;
 
     uint32 m_uiPlatformOriginalFlag;
@@ -777,7 +787,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         if (!m_bIsFirstAttempt)
             DoScriptText(SAY_AGGRO, m_creature); // say aggro if this is another attempt
 
-        m_uiPhase = PHASE_THREE;//PHASE_ONE;
+        m_uiPhase = PHASE_ONE;
 
         m_creature->SetWalk(false);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
@@ -816,7 +826,10 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LICH_KING, FAIL);
+            m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+        }
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
@@ -1020,7 +1033,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
         // Terenas + Spirit Bombs and Spirits
         else
         {
-            ;
+            m_creature->SummonCreature(NPC_TERENAS_FM_HEROIC, SpawnLoc[10].x, SpawnLoc[10].y, SpawnLoc[10].z, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
 
         if (m_pInstance)
@@ -1348,11 +1361,30 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 // Harvest Soul
                 if (m_uiHarvestSoulTimer < uiDiff)
                 {
-                    if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_HARVEST_SOUL) == CAST_OK)
+                    Unit *pTarget = NULL;
+                    if (m_bIsHeroic)
+                        pTarget = m_creature;
+                    else
+                        pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_HARVEST_SOUL, SELECT_FLAG_PLAYER);
+
+                    if (pTarget)
                     {
-                        DoScriptText(SAY_HARVEST_SOUL, m_creature);
-                        m_uiHarvestSoulTimer = 70000;
-                        DoPrepareFrostmourneRoom();
+                        if (DoCastSpellIfCan(pTarget, m_bIsHeroic ? SPELL_HARVEST_SOULS : SPELL_HARVEST_SOUL) == CAST_OK)
+                        {
+                            DoScriptText(SAY_HARVEST_SOUL, m_creature);
+                            m_uiHarvestSoulTimer = m_bIsHeroic ? 120000 : 70000;
+                            DoPrepareFrostmourneRoom();
+
+                            if (m_bIsHeroic)
+                            {
+                                m_uiPhase = PHASE_IN_FROSTMOURNE;
+                                SetCombatMovement(false);
+                                m_creature->StopMoving();
+                                m_creature->GetMotionMaster()->Clear();
+                                m_uiFrostmournePhaseTimer = 47000;
+                                m_uiDefileTimer = 1000;
+                            }
+                        }
                     }
                 }
                 else
@@ -1374,6 +1406,16 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
             {
                 // check if players are alive before entering evade mode?
                 // wait until they leave Frostmourne
+                if (m_uiFrostmournePhaseTimer < uiDiff)
+                {
+                    m_uiPhase = PHASE_THREE;
+                    if (m_creature->getVictim())
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    return;
+                }
+                else
+                    m_uiFrostmournePhaseTimer -= uiDiff;
+
                 break;
             }
             case PHASE_DEATH_AWAITS:
@@ -1724,7 +1766,6 @@ struct MANGOS_DLL_DECL mob_valkyr_shadowguardAI : public base_icc_bossAI
         m_creature->SetLevitate(true);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
         m_creature->NearTeleportTo(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 15.0f, 0.0f);
-        m_bIsHeroic = true;
     }
 
     uint32 m_uiCatchTimer;
@@ -1963,19 +2004,26 @@ struct MANGOS_DLL_DECL  mob_vile_spiritAI : public base_icc_bossAI
         m_creature->SetLevitate(true);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
         m_creature->SetInCombatWithZone();
+        m_creature->GetMotionMaster()->Clear();
         m_creature->NearTeleportTo(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 15.0f, 0.0f);
         m_creature->GetMotionMaster()->MovePoint(1, m_creature->GetPositionX() + frand(-3.0f, 3.0f), m_creature->GetPositionY() + frand(-3.0f, 3.0f), m_creature->GetPositionZ(), false);
         DoCastSpellIfCan(m_creature, SPELL_SPIRIT_BURST_AURA, CAST_TRIGGERED);
+
+        if (m_creature->GetEntry() == NPC_WICKED_SPIRIT)
+            m_creature->ForcedDespawn(41000);
+
         Reset();
     }
 
     bool m_bIsReady;
     uint32 m_uiReadyTimer;
+    uint32 m_uiSummonSpiritBombTimer;
 
     void Reset()
     {
         m_bIsReady = false;
-        m_uiReadyTimer = 15000;
+        m_uiReadyTimer = m_bIsHeroic ? urand(7000, 15000) : 15000;
+        m_uiSummonSpiritBombTimer = urand(1000, 10000);
     }
 
     void MovementInform(uint32 uiMovementType, uint32 uiData)
@@ -2033,12 +2081,39 @@ struct MANGOS_DLL_DECL  mob_vile_spiritAI : public base_icc_bossAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (!m_pInstance || m_pInstance->GetData(TYPE_FROSTMOURNE_ROOM) != IN_PROGRESS)
+        {
+            m_creature->ForcedDespawn();
+            return;
+        }
+
+        if (m_bIsHeroic)
+        {
+            // Summon Spirit Bomb
+            if (m_uiSummonSpiritBombTimer < uiDiff)
+            {
+                if (DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPIRIT_BOMB, CAST_TRIGGERED) == CAST_OK)
+                    m_uiSummonSpiritBombTimer = 2000;
+            }
+            else
+                m_uiSummonSpiritBombTimer -= uiDiff;
+        }
+
         // start chasing timer
         if (!m_bIsReady)
         {
             if (m_uiReadyTimer < uiDiff)
             {
-                if (Unit *pTarget = SelectTarget())
+                Unit *pTarget = NULL;
+
+                m_creature->SetInCombatWithZone();
+
+                if (m_creature->GetEntry() == NPC_WICKED_SPIRIT)
+                    pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_SPIRIT_BURST_AURA, SELECT_FLAG_PLAYER);
+                else
+                    pTarget = SelectTarget();
+
+                if (pTarget)
                 {
                     DoResetThreat();
                     m_creature->AddThreat(pTarget, 100000.0f);
@@ -2046,11 +2121,16 @@ struct MANGOS_DLL_DECL  mob_vile_spiritAI : public base_icc_bossAI
                     m_creature->StopMoving();
                     SetCombatMovement(true);
                     m_creature->GetMotionMaster()->Clear();
+
+                    if (m_creature->GetEntry() == NPC_WICKED_SPIRIT)
+                        m_creature->SetWalk(true);
+
                     AttackStart(pTarget);
                 }
             }
             else
                 m_uiReadyTimer -= uiDiff;
+
         }
     }
 };
@@ -2154,6 +2234,11 @@ struct MANGOS_DLL_DECL mob_strangulate_vehicleAI : public base_icc_bossAI
                         return;
                     }
                 }
+                if (m_pInstance)
+                {
+                    if (Creature *pLichKing = m_pInstance->GetSingleCreatureFromStorage(NPC_LICH_KING))
+                        pLichKing->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                }
                 m_bHasTeleported = true;
             }
             else
@@ -2176,12 +2261,19 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
     {
         m_uiSayPhase = 0;
         m_uiSayTimer = 6000;
+        m_uiReleaseTimer = 46000;
+        m_uiSummonWickedSpiritsTimer = 7000;
+        m_uiSummonSpiritBombTimer = 7000;
         m_bHasReleasedPlayer = false;
-        m_creature->ForcedDespawn(68000);
+
+        m_creature->ForcedDespawn(m_bIsHeroic ? 48000 : 68000);
     }
 
     uint32 m_uiSayTimer;
     uint32 m_uiSayPhase;
+    uint32 m_uiReleaseTimer;
+    uint32 m_uiSummonWickedSpiritsTimer;
+    uint32 m_uiSummonSpiritBombTimer;
     bool m_bHasReleasedPlayer;
 
     void Reset(){}
@@ -2203,6 +2295,40 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
         }
     }
 
+    void JustDied(Unit *pKiller)
+    {
+        if (pKiller->GetEntry() == NPC_SPIRIT_WARDEN)
+        {
+            pKiller->CastSpell(pKiller, SPELL_DESTROY_SOUL, true);
+
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+
+            ((Creature*)pKiller)->ForcedDespawn();
+        }
+    }
+
+    void DoSummonWickedSpirits(uint32 count)
+    {
+        for(uint32 i = 0; i < count; ++i)
+        {
+            float x, y, z;
+            m_creature->GetPosition(x, y, z);
+
+            z += 15.0f;
+            x += frand(-25.0f, 25.0f);
+            y += frand(-25.0f, 25.0f);
+
+            m_creature->SummonCreature(NPC_WICKED_SPIRIT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 41000);
+        }
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 uiDamage)
+    {
+        if (m_bIsHeroic)
+            uiDamage = 0;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiSayTimer < uiDiff)
@@ -2210,11 +2336,23 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
             switch (m_uiSayPhase)
             {
                 case 0:
-                    if (Creature *pSpirit = GetClosestCreatureWithEntry(m_creature, NPC_SPIRIT_WARDEN, 20.0f))
+                    if (!m_bIsHeroic)
                     {
-                        AttackStart(pSpirit);
-                        pSpirit->AI()->AttackStart(m_creature);
-                        pSpirit->AddThreat(m_creature, 100000.0f);
+                        if (Creature *pSpirit = GetClosestCreatureWithEntry(m_creature, NPC_SPIRIT_WARDEN, 20.0f))
+                        {
+                            AttackStart(pSpirit);
+                            pSpirit->AI()->AttackStart(m_creature);
+                            pSpirit->AddThreat(m_creature, 100000.0f);
+                        }
+                    }
+                    else
+                    {
+                        DoSummonWickedSpirits(15);
+                        m_uiSummonWickedSpiritsTimer = 15000;
+                        // summon Spirit Bomb every 2 seconds
+                        // aura doesnt work?;/
+                        // DoCastSpellIfCan(m_creature, SPELL_SUMMON_SPIRIT_BOMBS_2, CAST_TRIGGERED);
+                        DoCastSpellIfCan(m_creature, SPELL_RESTORE_SOUL_HEROIC);
                     }
                     ++m_uiSayPhase;
                     m_uiSayTimer = 1000;
@@ -2257,6 +2395,29 @@ struct MANGOS_DLL_DECL npc_terenas_fmAI : public base_icc_bossAI
         if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
             m_creature->ForcedDespawn();
 
+        if (m_bIsHeroic)
+        {
+            // Release Souls (heroic)
+            if (m_uiReleaseTimer < uiDiff)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
+
+                m_uiReleaseTimer = 46000;
+            }
+            else
+                m_uiReleaseTimer -= uiDiff;
+
+            // Summon Wicked Spirits
+            if (m_uiSummonWickedSpiritsTimer < uiDiff)
+            {
+                DoSummonWickedSpirits(1);
+                m_uiSummonWickedSpiritsTimer = 1000;
+            }
+            else
+                m_uiSummonWickedSpiritsTimer -= uiDiff;
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -2289,19 +2450,6 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
         DoCastSpellIfCan(m_creature, SPELL_DARK_HUNGER, CAST_TRIGGERED);
         m_uiSoulRipTimer = 12000;
         m_uiHarvestedSoulTimer = 61000;
-    }
-
-    void KilledUnit(Unit *pVictim)
-    {
-        if (pVictim->GetEntry() == NPC_TERENAS_FM_NORMAL)
-        {
-            DoCastSpellIfCan(m_creature, SPELL_DESTROY_SOUL, CAST_TRIGGERED);
-
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_FROSTMOURNE_ROOM, DONE);
-
-            m_creature->ForcedDespawn();
-        }
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -2339,6 +2487,54 @@ struct MANGOS_DLL_DECL mob_spirit_wardenAI : public base_icc_bossAI
 CreatureAI* GetAI_mob_spirit_warden(Creature* pCreature)
 {
     return new mob_spirit_wardenAI(pCreature);
+}
+
+/**
+ * Spirit Bomb
+ */
+struct MANGOS_DLL_DECL mob_spirit_bombAI : public base_icc_bossAI
+{
+    mob_spirit_bombAI(Creature *pCreature) : base_icc_bossAI(pCreature)
+    {
+        m_creature->ForcedDespawn(41000);
+        SetCombatMovement(false);
+        m_creature->SetLevitate(true);
+        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
+        m_creature->SetInCombatWithZone();
+        m_creature->GetMotionMaster()->Clear();
+
+        float x, y, z;
+        m_creature->GetPosition(x, y, z);
+
+        m_creature->NearTeleportTo(x, y, z + 20.0f, 0.0f);
+        m_creature->GetMotionMaster()->MovePoint(POINT_SPIRIT_BOMB, x, y, z, false);
+        DoCastSpellIfCan(m_creature, SPELL_SPIRIT_BOMB_VISUAL, CAST_TRIGGERED);
+    }
+
+    void Reset(){}
+
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiData == POINT_SPIRIT_BOMB)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_EXPLOSION);
+            m_creature->ForcedDespawn(1000);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_pInstance || m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+    }
+};
+
+CreatureAI* GetAI_mob_spirit_bomb(Creature* pCreature)
+{
+    return new mob_spirit_bombAI(pCreature);
 }
 
 
@@ -2411,5 +2607,10 @@ void AddSC_boss_lich_king_icc()
     newscript = new Script;
     newscript->Name = "mob_spirit_warden";
     newscript->GetAI = &GetAI_mob_spirit_warden;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_spirit_bomb";
+    newscript->GetAI = &GetAI_mob_spirit_bomb;
     newscript->RegisterSelf();
 }
