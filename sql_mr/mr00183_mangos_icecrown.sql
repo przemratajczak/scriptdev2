@@ -170,6 +170,9 @@ INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`,
 DELETE FROM `creature_model_info` WHERE (`modelid`=30483);
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`, `modelid_alternative`) VALUES (30483, 5, 1, 2, 0, 0);
 
+-- fix flags of Puddle Stalkers
+UPDATE `creature_template` SET `unit_flags` = 524288 WHERE `entry` = 37013;
+
 -- ---------
 -- Festergut
 -- ---------
