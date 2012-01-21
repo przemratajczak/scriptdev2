@@ -73,43 +73,46 @@ enum
 
 enum
 {
-        // Blood Power
-        SPELL_BLOOD_POWER                       = 72371,
-        SPELL_BLOOD_LINK_BEAST                  = 72176, // proc aura for Blood Beasts
-        SPELL_BLOOD_LINK                        = 72202, // cast on Saurfang to give 1 Blood Power
+    // Intro
+    SPELL_GRIP_OF_AGONY                     = 70572,
 
-        // Mark of the Fallen Champion
-        SPELL_MARK_OF_FALLEN_CHAMPION           = 72256, // proc on melee hit, dmg to marked targets
-        SPELL_MARK_OF_FALLEN_CHAMPION_DEBUFF    = 72293, // proc on death - heal Saurfang
-        SPELL_REMOVE_MARKS                      = 72257,
+    // Blood Power
+    SPELL_BLOOD_POWER                       = 72371,
+    SPELL_BLOOD_LINK_BEAST                  = 72176, // proc aura for Blood Beasts
+    SPELL_BLOOD_LINK                        = 72202, // cast on Saurfang to give 1 Blood Power
 
-        // Rune of Blood
-        SPELL_RUNE_OF_BLOOD                     = 72408, // cast on self on aggro
-        SPELL_RUNE_OF_BLOOD_DEBUFF              = 72410,
+    // Mark of the Fallen Champion
+    SPELL_MARK_OF_FALLEN_CHAMPION           = 72256, // proc on melee hit, dmg to marked targets
+    SPELL_MARK_OF_FALLEN_CHAMPION_DEBUFF    = 72293, // proc on death - heal Saurfang
+    SPELL_REMOVE_MARKS                      = 72257,
 
-        // Blood Nova
-        SPELL_BLOOD_NOVA                        = 72378,
+    // Rune of Blood
+    SPELL_RUNE_OF_BLOOD                     = 72408, // cast on self on aggro
+    SPELL_RUNE_OF_BLOOD_DEBUFF              = 72410,
 
-        // Boiling Blood
-        SPELL_BOILING_BLOOD                     = 72385,
+    // Blood Nova
+    SPELL_BLOOD_NOVA                        = 72378,
 
-        // Blood Beasts
-        SPELL_CALL_BLOOD_BEAST_1                = 72172,
-        SPELL_CALL_BLOOD_BEAST_2                = 72173,
-        SPELL_CALL_BLOOD_BEAST_3                = 72356,
-        SPELL_CALL_BLOOD_BEAST_4                = 72357,
-        SPELL_CALL_BLOOD_BEAST_5                = 72358,
+    // Boiling Blood
+    SPELL_BOILING_BLOOD                     = 72385,
 
-        SPELL_SCENT_OF_BLOOD                    = 72769,
-        SPELL_SCENT_OF_BLOOD_TRIGGERED          = 72771, // doesn't trigger, so cast in script...
-        SPELL_RESISTANT_SKIN                    = 72723,
+    // Blood Beasts
+    SPELL_CALL_BLOOD_BEAST_1                = 72172,
+    SPELL_CALL_BLOOD_BEAST_2                = 72173,
+    SPELL_CALL_BLOOD_BEAST_3                = 72356,
+    SPELL_CALL_BLOOD_BEAST_4                = 72357,
+    SPELL_CALL_BLOOD_BEAST_5                = 72358,
 
-        // enrage
-        SPELL_BERSERK                           = 26662,
-        SPELL_FRENZY                            = 72737,
+    SPELL_SCENT_OF_BLOOD                    = 72769,
+    SPELL_SCENT_OF_BLOOD_TRIGGERED          = 72771, // doesn't trigger, so cast in script...
+    SPELL_RESISTANT_SKIN                    = 72723,
 
-        //summons
-        NPC_BLOOD_BEAST                         = 38508
+    // enrage
+    SPELL_BERSERK                           = 26662,
+    SPELL_FRENZY                            = 72737,
+
+    //summons
+    NPC_BLOOD_BEAST                         = 38508
 };
 
 enum Equipment
