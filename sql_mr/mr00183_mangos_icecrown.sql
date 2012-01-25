@@ -384,6 +384,11 @@ INSERT INTO `spell_script_target` (`entry`, `type`, `targetEntry`) VALUES
 (72032, 1, 37950),
 (72033, 1, 37950);
 
+-- spawn Valithria in dream state
+DELETE FROM `creature` WHERE `id` = 37950;
+INSERT INTO `creature` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `curhealth`, `MovementType`) VALUES
+(37950, 631, 15, 16, 4203.1416, 2484.8616, 386.4849, 6.276, 604800, 0, 1, 0);
+
 DELETE FROM `creature` WHERE `guid` = 47738 AND `id` = 38589;
 DELETE FROM `pool_creature` WHERE `guid`=47738;
 
