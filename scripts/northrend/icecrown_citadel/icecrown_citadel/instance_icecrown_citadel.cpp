@@ -309,7 +309,7 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
                 if (m_auiEncounter[TYPE_ROTFACE] == DONE)
                 {
                     DoUseDoorOrButton(GO_SCIENTIST_DOOR_COLLISION);
-                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_GREEN);
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_ORANGE);
                 }
             }
             break;
@@ -322,7 +322,7 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
             {
                 if (m_auiEncounter[TYPE_FESTERGUT] == DONE)
                 {
-                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_ORANGE);
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_GREEN);
                     DoUseDoorOrButton(GO_SCIENTIST_DOOR_COLLISION);
                 }
             }
