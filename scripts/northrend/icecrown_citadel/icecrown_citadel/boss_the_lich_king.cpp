@@ -831,7 +831,7 @@ struct MANGOS_DLL_DECL boss_the_lich_king_iccAI : public base_icc_bossAI
                 pSummoned->AddThreat(pTarget, 100000.0f);
                 pSummoned->AI()->AttackStart(pTarget);
                 pSummoned->CastSpell(pSummoned, SPELL_ICE_BURST_AURA, true);
-                pSummoned->CastSpell(pTarget, SPELL_ICE_PULSE, true);
+                pSummoned->CastSpell(pTarget, SPELL_ICE_PULSE, false);
             }
         }
     }
