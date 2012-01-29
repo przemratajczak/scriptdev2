@@ -479,7 +479,16 @@ INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
 
 -- fix stats for some creatures
 -- Raging Spirit
-UPDATE `creature_template` SET `minhealth` = 885400, `maxhealth` = 885400 WHERE `entry` = 36701;
+UPDATE `creature_template` SET `minhealth` = 885400, `maxhealth` = 885400 WHERE `entry` = 36701; -- 10normal
+UPDATE `creature_template` SET `minhealth` = 2650000, `maxhealth` = 2650000 WHERE `entry` = 39302; -- 25normal
+UPDATE `creature_template` SET `minhealth` = 1230000, `maxhealth` = 1230000 WHERE `entry` = 39303; -- 10hero
+UPDATE `creature_template` SET `minhealth` = 4150000, `maxhealth` = 4150000 WHERE `entry` = 39304; -- 25hero
+
+-- Ice Sphere
+UPDATE `creature_template` SET `minhealth` = 6000, `maxhealth` = 6000 WHERE `entry` = 36633; -- 10normal
+UPDATE `creature_template` SET `minhealth` = 15200, `maxhealth` = 15200 WHERE `entry` = 39305; -- 25normal
+UPDATE `creature_template` SET `minhealth` = 15200, `maxhealth` = 15200 WHERE `entry` = 39306; -- 10hero
+UPDATE `creature_template` SET `minhealth` = 53200, `maxhealth` = 53200 WHERE `entry` = 39307; -- 25hero
 
 -- -----------------
 -- EAI YTDB CLEAN UP
