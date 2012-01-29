@@ -477,6 +477,10 @@ DELETE FROM `spell_proc_event` WHERE `entry` = 69383;
 INSERT INTO `spell_proc_event` (`entry`, `procFlags`) VALUES
 (69383, 0x04 | 0x10 | 0x10000);
 
+-- fix stats for some creatures
+-- Raging Spirit
+UPDATE `creature_template` SET `minhealth` = 885400, `maxhealth` = 885400 WHERE `entry` = 36701;
+
 -- -----------------
 -- EAI YTDB CLEAN UP
 -- -----------------
