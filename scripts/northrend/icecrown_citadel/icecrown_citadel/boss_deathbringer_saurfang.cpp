@@ -599,7 +599,6 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
     }
 
-    // used for unlocking bugged encounter
     void JustDied(Unit *pKiller)
     {
         if (m_pInstance)
