@@ -69,6 +69,7 @@ enum BossSpells
 
     SPELL_EMPOVERED_DARK   = 67215,
     SPELL_EMPOVERED_LIGHT  = 67218,
+    SPELL_POWERING_UP      = 67604,
 
     PHASE_NORMAL           = 1,
     PHASE_HEAL             = 2,
@@ -97,6 +98,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     uint32 m_uiSwitchPhaseTimer;
     uint32 m_uiHealTimer;
     uint32 m_uiSummonOrbsTimer;
+    uint32 m_uiTwinPowerTimer;
 
     void Reset()
     {
@@ -107,7 +109,8 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
         m_uiChangePhaseTimer = 0;
         m_uiSwitchPhaseTimer = 17000;
         m_uiHealTimer = 1000;
-        m_uiSummonOrbsTimer = 20000;
+        m_uiSummonOrbsTimer = 25000;
+        m_uiTwinPowerTimer = 2000;
         m_uiPhase = PHASE_NORMAL;
 
         m_creature->SetHealth(m_creature->GetMaxHealth());
@@ -200,7 +203,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 if(m_uiVortexTimer < uiDiff)
                 {
                     if(Unit* pPlayer = PlayerWithDarkEssence())
-                        m_creature->CastSpell(pPlayer, SPELL_LIGHT_VORTEX, false);
+                        m_creature->CastSpell(pPlayer, SPELL_DARK_VORTEX, false);
                     DoScriptText(-1713540,m_creature);
                     m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
                 }else m_uiVortexTimer -= uiDiff;
@@ -231,6 +234,16 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                     m_uiChangePhaseTimer = 0;
                 }else m_uiChangePhaseTimer -= uiDiff;
 
+                if(m_uiTwinPowerTimer < uiDiff)
+                {
+                    if(Creature* pFjola = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE))
+                    {
+                        if(pFjola->GetHealthPercent() <= 50.0f || pFjola->HasAura(SPELL_SHIELD_DARK))
+                            m_creature->CastSpell(m_creature, SPELL_TWIN_POWER, true);
+                    }
+                    m_uiTwinPowerTimer = 1*MINUTE*IN_MILLISECONDS;
+                }else m_uiTwinPowerTimer -= uiDiff;
+
                 DoMeleeAttackIfReady();
 
                 break;
@@ -241,27 +254,23 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 if(m_uiSpecialTimer < uiDiff)
                 {
                     m_creature->InterruptNonMeleeSpells(true);
-
                     DoCastSpellIfCan(m_creature, SPELL_SHIELD_LIGHT);
                     DoScriptText(-1713539,m_creature);
 
-                    if (Creature* pDarkbane = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE))
-                        m_creature->CastSpell(pDarkbane, SPELL_TWIN_POWER, true);
-
-                    m_uiSpecialTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSpecialTimer -= uiDiff;
 
                 if(m_uiHealTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, SPELL_TWIN_PACT_H);
-                    m_uiHealTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
 
                 if(m_uiSwitchPhaseTimer < uiDiff)
                 {
                     m_uiPhase = PHASE_NORMAL;
-                    m_uiChangePhaseTimer = 10*MINUTE*IN_MILLISECONDS;
-                    m_uiSwitchPhaseTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiChangePhaseTimer = 1*MINUTE*IN_MILLISECONDS;
+                    m_uiSwitchPhaseTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSwitchPhaseTimer -= uiDiff;
 
                 break;
@@ -297,6 +306,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     uint32 m_uiSwitchPhaseTimer;
     uint32 m_uiHealTimer;
     uint32 m_uiSummonOrbsTimer;
+    uint32 m_uiTwinPowerTimer;
 
     void Reset()
     {
@@ -308,6 +318,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
         m_uiSwitchPhaseTimer = 17000;
         m_uiHealTimer = 1000;
         m_uiSummonOrbsTimer = 25000;
+        m_uiTwinPowerTimer = 2000;
         m_uiPhase = PHASE_NORMAL;
 
         m_creature->SetHealth(m_creature->GetMaxHealth());
@@ -399,7 +410,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 if(m_uiVortexTimer < uiDiff)
                 {
                     if(Unit* pPlayer = PlayerWithLightEssence())
-                        m_creature->CastSpell(pPlayer, SPELL_DARK_VORTEX, false);
+                        m_creature->CastSpell(pPlayer, SPELL_LIGHT_VORTEX, false);
                     DoScriptText(-1713538, m_creature);
                     m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
                 }else m_uiVortexTimer -= uiDiff;
@@ -424,11 +435,20 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 if(m_uiChangePhaseTimer < uiDiff)
                 {
                     if(m_creature->GetHealthPercent() <= 50.0f)
-                    {
                         m_uiPhase = PHASE_HEAL;
-                    }
+
                     m_uiChangePhaseTimer = 0;
                 }else m_uiChangePhaseTimer -= uiDiff;
+
+                if(m_uiTwinPowerTimer < uiDiff)
+                {
+                    if(Creature* pFjola = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE))
+                    {
+                        if(pFjola->GetHealthPercent() <= 50.0f || pFjola->HasAura(SPELL_SHIELD_LIGHT))
+                            m_creature->CastSpell(m_creature, SPELL_TWIN_POWER, true);
+                    }
+                    m_uiTwinPowerTimer = 1*MINUTE*IN_MILLISECONDS;
+                }else m_uiTwinPowerTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
 
@@ -440,27 +460,23 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 if(m_uiSpecialTimer < uiDiff)
                 {
                     m_creature->InterruptNonMeleeSpells(true);
-
                     DoCastSpellIfCan(m_creature, SPELL_SHIELD_DARK);
                     DoScriptText(-1713539,m_creature);
 
-                    if (Creature* pLightbane = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE))
-                        m_creature->CastSpell(pLightbane, SPELL_TWIN_POWER, true);
-
-                    m_uiSpecialTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSpecialTimer -= uiDiff;
 
                 if(m_uiHealTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature, SPELL_TWIN_PACT_H);
-                    m_uiHealTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
 
                 if(m_uiSwitchPhaseTimer < uiDiff)
                 {
                     m_uiPhase = PHASE_NORMAL;
-                    m_uiChangePhaseTimer = 10*MINUTE*IN_MILLISECONDS;
-                    m_uiSwitchPhaseTimer = 10*MINUTE*IN_MILLISECONDS;
+                    m_uiChangePhaseTimer = 1*MINUTE*IN_MILLISECONDS;
+                    m_uiSwitchPhaseTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSwitchPhaseTimer -= uiDiff;
 
                 break;
@@ -621,7 +637,7 @@ struct MANGOS_DLL_DECL mob_unleashed_darkAI : public ScriptedAI
 
            if(pPlayer->IsWithinDistInMap(m_creature, 2.0f) && pPlayer->HasAura(SPELL_DARK_ESSENCE))
            {
-               m_creature->CastSpell(pPlayer, SPELL_EMPOVERED_DARK, true);
+               m_creature->CastSpell(pPlayer, SPELL_POWERING_UP, true);
                m_creature->ForcedDespawn();
            }
            if(pPlayer->IsWithinDistInMap(m_creature, 2.0f) && pPlayer->HasAura(SPELL_LIGHT_ESSENCE))
@@ -711,7 +727,7 @@ struct MANGOS_DLL_DECL mob_unleashed_lightAI : public ScriptedAI
 
            if(pPlayer->IsWithinDistInMap(m_creature, 2.0f) && pPlayer->HasAura(SPELL_LIGHT_ESSENCE))
            {
-               m_creature->CastSpell(pPlayer, SPELL_EMPOVERED_LIGHT, true);
+               m_creature->CastSpell(pPlayer, SPELL_POWERING_UP, true);
                m_creature->ForcedDespawn();
            }
            if(pPlayer->IsWithinDistInMap(m_creature, 2.0f) && pPlayer->HasAura(SPELL_DARK_ESSENCE))
