@@ -203,11 +203,8 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public BSWScriptedAI
 
         if(m_uiIncinerateFleshTimer <= uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1)) 
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_INCINERATE_FLESH, SELECT_FLAG_PLAYER)) 
             {
-                if (pTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
                 if(DoCastSpellIfCan(pTarget, SPELL_INCINERATE_FLESH) == CAST_OK)
                     DoScriptText(-1713522 ,m_creature, pTarget);
             }

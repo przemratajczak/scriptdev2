@@ -16,8 +16,12 @@
 
 /* ScriptData
 SDName: boss_deathbringer_saurfang
-SD%Complete: 99%
-SDComment: Events - intro and outro missing for alliance version
+SD%Complete: 90%
+SDComment:  by michalpolko with special thanks to:
+            mangosR2 team and all who are supporting us with feedback, testing and fixes
+            TrinityCore for some info about spells IDs
+            everybody whom I forgot to mention here ;)
+
 SDCategory: Icecrown Citadel
 EndScriptData */
 
@@ -599,7 +603,6 @@ struct MANGOS_DLL_DECL boss_deathbringer_saurfangAI : public base_icc_bossAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
     }
 
-    // used for unlocking bugged encounter
     void JustDied(Unit *pKiller)
     {
         if (m_pInstance)
