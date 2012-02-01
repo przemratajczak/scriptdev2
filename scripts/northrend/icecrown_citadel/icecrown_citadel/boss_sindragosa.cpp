@@ -357,15 +357,19 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 // Phase 2 (air)
                 if (m_uiPhaseTimer <= uiDiff)
                 {
-                    m_uiPhaseTimer = 35000;
-                    m_uiPhase = PHASE_FLYING;
-                    DoScriptText(SAY_TAKEOFF, m_creature);
+                    // first phase transition at 85% HP, every next after 1:50
+                    if (m_creature->GetHealthPercent() <= 85.0f)
+                    {
+                        m_uiPhaseTimer = 35000;
+                        m_uiPhase = PHASE_FLYING;
+                        DoScriptText(SAY_TAKEOFF, m_creature);
 
-                    // fly to the air point
-                    SetCombatMovement(false);
-                    m_creature->SetLevitate(true);
-                    m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-                    m_creature->GetMotionMaster()->MovePoint(POINT_AIR, SindragosaLoc[1].x, SindragosaLoc[1].y, SindragosaLoc[1].z, false);
+                        // fly to the air point
+                        SetCombatMovement(false);
+                        m_creature->SetLevitate(true);
+                        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_AIR, SindragosaLoc[1].x, SindragosaLoc[1].y, SindragosaLoc[1].z, false);
+                    }
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
@@ -408,7 +412,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 if (m_uiPhaseTimer <= uiDiff)
                 {
                     m_uiPhase = PHASE_FLYING;
-                    m_uiPhaseTimer = 42000;
+                    m_uiPhaseTimer = 110000;
 
                     // fly to the ground point
                     m_creature->GetMotionMaster()->MovePoint(POINT_LAND, SindragosaLoc[0].x, SindragosaLoc[0].y, SindragosaLoc[0].z, false);
