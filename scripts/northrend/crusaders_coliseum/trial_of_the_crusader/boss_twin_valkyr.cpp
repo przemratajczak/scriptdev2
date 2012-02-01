@@ -238,7 +238,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 {
                     if(Creature* pFjola = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE))
                     {
-                        if(pFjola->GetHealthPercent() <= 50.0f || pFjola->HasAura(SPELL_SHIELD_DARK))
+                        if(pFjola->GetHealthPercent() <= 50.0f && pFjola->HasAura(SPELL_SHIELD_DARK))
                             m_creature->CastSpell(m_creature, SPELL_TWIN_POWER, true);
                     }
                     m_uiTwinPowerTimer = 1*MINUTE*IN_MILLISECONDS;
@@ -444,7 +444,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 {
                     if(Creature* pFjola = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE))
                     {
-                        if(pFjola->GetHealthPercent() <= 50.0f || pFjola->HasAura(SPELL_SHIELD_LIGHT))
+                        if(pFjola->GetHealthPercent() <= 50.0f && pFjola->HasAura(SPELL_SHIELD_LIGHT))
                             m_creature->CastSpell(m_creature, SPELL_TWIN_POWER, true);
                     }
                     m_uiTwinPowerTimer = 1*MINUTE*IN_MILLISECONDS;
