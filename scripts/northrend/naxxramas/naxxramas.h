@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -48,15 +48,10 @@ enum
 
     TYPE_UNDYING_FAILED         = 15,                       // Achievements Undying and Immortal, needs to be saved to database
 
-    MAX_HEIGAN_TRAP_AREAS       = 4,
     TYPE_MAX_HEIGAN_TRAPS_1     = 18,
     TYPE_MAX_HEIGAN_TRAPS_2     = 19,
     TYPE_MAX_HEIGAN_TRAPS_3     = 20,
     TYPE_MAX_HEIGAN_TRAPS_4     = 21,
-    HEIGAN_TRAP_AREA_1          = 0,
-    HEIGAN_TRAP_AREA_2          = 1,
-    HEIGAN_TRAP_AREA_3          = 2,
-    HEIGAN_TRAP_AREA_4          = 3,
 
     MAX_SPECIAL_ACHIEV_CRITS    = 6,
 
@@ -66,6 +61,8 @@ enum
     TYPE_ACHIEV_SHOCKING        = 3,
     TYPE_ACHIEV_SPORE_LOSER     = 4,
     TYPE_ACHIEV_GET_ENOUGH      = 5,
+
+    MAX_HEIGAN_TRAP_AREAS       = 4,
 
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,
@@ -83,22 +80,6 @@ enum
     NPC_KELTHUZAD               = 15990,
     NPC_THE_LICHKING            = 16980,
     NPC_MR_BIGGLESWORTH         = 16998,
-
-    // Razuvious
-    NPC_RAZUVIOUS               = 16061,
-    NPC_UNDERSTUDY              = 16803,
-
-    // Patchwerk
-    NPC_PATCHWERK               = 16028,
-    NPC_PATCHWORK_GOLEM         = 16017,
-    NPC_BILE_RETCHER            = 16018,
-
-    // The Four Horseman
-    NPC_HORSEMEN_TAP_LIST       = 0, // 32575
-
-    // Faerlina
-    NPC_NAXXRAMAS_FOLLOWER      = 16505,
-    NPC_NAXXRAMAS_WORSHIPPER    = 16506,
 
     // Gothik
     NPC_GOTHIK                  = 16060,
@@ -132,10 +113,6 @@ enum
     GO_PLAG_NOTH_EXIT_DOOR      = 181201,                   //exit, open when boss dead
     GO_PLAG_HEIG_ENTRY_DOOR     = 181202,
     GO_PLAG_HEIG_EXIT_DOOR      = 181203,                   //exit, open when boss dead
-    GO_HEIGAN_TRAP_AREA_1       = 181678,
-    GO_HEIGAN_TRAP_AREA_2       = 181676,
-    GO_HEIGAN_TRAP_AREA_3       = 181677,
-    GO_HEIGAN_TRAP_AREA_4       = 181679,
     GO_PLAG_LOAT_DOOR           = 181241,                   //encounter door
 
     // Military Quarter
@@ -155,7 +132,6 @@ enum
     GO_CONS_NOX_TESLA_STALAGG   = 181478,
 
     // Frostwyrm Lair
-    GO_SAPPHIRON_BIRTH          = 181356,
     GO_KELTHUZAD_WATERFALL_DOOR = 181225,                   // exit, open after sapphiron is dead
     GO_KELTHUZAD_EXIT_DOOR      = 181228,
 
@@ -240,6 +216,9 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         void Update(uint32 uiDiff);
 
+        // Heigan
+        void DoTriggerHeiganTraps(Creature* pHeigan, uint32 uiAreaIndex);
+
         // goth
         void SetGothTriggers();
         Creature* GetClosestAnchorForGoth(Creature* pSource, bool bRightSide);
@@ -248,7 +227,6 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         // Heigan
         uint64 GetHeiganTrapData64(uint8 uiAreaIndex, uint32 uiIndex);
-        void ActivateHeiganTrapsInArea(uint8 uiAreaIndex, Unit* pUser);
 
         // thaddius
         void GetThadTeslaCreatures(GUIDList &lList){ lList = m_lThadTeslaCoilList; };
@@ -264,20 +242,12 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         std::string m_strInstData;
 
         GUIDList m_lThadTeslaCoilList;
-
-        GUIDList m_lFaerlinaAddGUIDs;
-
         GUIDList m_lGothTriggerList;
+
         UNORDERED_MAP<ObjectGuid, GothTrigger> m_mGothTriggerMap;
+        GUIDList m_alHeiganTrapGuids[MAX_HEIGAN_TRAP_AREAS];
 
-        GUIDList m_lRazuUnderstudyGUIDs;
-
-        GUIDList m_lPatchwerkAddGUIDs;
-
-        GUIDList m_lFaelinasAddsGUIDs;
-
-        std::vector<ObjectGuid> m_avuiHeiganTraps[MAX_HEIGAN_TRAP_AREAS];
-        GUIDList m_auiHeiganTrapsPerArea[MAX_HEIGAN_TRAP_AREAS];
+        std::vector<uint64> m_avuiHeiganTraps[MAX_HEIGAN_TRAP_AREAS];
 
         float m_fChamberCenterX;
         float m_fChamberCenterY;

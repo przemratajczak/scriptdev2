@@ -273,14 +273,14 @@ struct MANGOS_DLL_DECL npc_lord_gregor_lescovarAI : public npc_escortAI
     uint32 uiTimer;
     uint32 uiPhase;
 
-    uint64 MarzonGUID;
+    ObjectGuid MarzonGUID;
 
     void Reset()
     {
             uiTimer = 0;
             uiPhase = 0;
 
-            MarzonGUID = 0;
+            MarzonGUID.Clear();
             if (m_creature->getFaction() != m_uiNormalFaction)
             m_creature->setFaction(m_uiNormalFaction);
     }

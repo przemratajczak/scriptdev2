@@ -411,7 +411,7 @@ struct MANGOS_DLL_DECL mob_cannon_chanellerAI : public Scripted_NoMovementAI
         Razzan    = false;
         Ruuan     = false;
         IsRunning = false;
-        m_uiPlayerGuid  = 0;
+        m_uiPlayerGuid.Clear();
         m_uiLaunchTimer = 12000;
         m_uiPhaseTimer  = 0;
         Phase = 0;

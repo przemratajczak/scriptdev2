@@ -712,7 +712,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
 {
     npc_inquisitor_hallardAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        m_uiMayorGodfreyGuid = 0;
+        m_uiMayorGodfreyGuid.Clear();
         Reset();
     }
 
@@ -725,7 +725,7 @@ struct MANGOS_DLL_DECL npc_inquisitor_hallardAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPlayerGuid = 0;
+        m_uiPlayerGuid.Clear();
         m_bEventStarted = false;
         m_uiPhase = 0;
         m_uiEventTimer = 2000;

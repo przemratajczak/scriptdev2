@@ -141,7 +141,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                 pAncestor->RemoveAllAuras();
             if (Creature* pDummyCaster = m_pInstance->instance->GetCreature(m_auiDummyCasterGUID[i]))
                 pDummyCaster->ForcedDespawn();
-            m_auiDummyCasterGUID[i] = 0;
+            m_auiDummyCasterGUID[i].Clear();
         }
         srand((unsigned int)time(NULL));
     	for (uint8 i = 0; i < 4; ++i)

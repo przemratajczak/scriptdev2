@@ -85,7 +85,7 @@ struct MANGOS_DLL_DECL npc_razuunAI : public ScriptedAI
     {     
         m_uiPhase = 0;
         m_uiTextTimer = 4000;
-        m_uiPlayerGuid = 0;
+        m_uiPlayerGuid.Clear();
         IsRunning = false;
         m_creature->SetVisibility(VISIBILITY_OFF);
     }

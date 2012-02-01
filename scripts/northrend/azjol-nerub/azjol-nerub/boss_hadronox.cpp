@@ -190,7 +190,7 @@ struct MANGOS_DLL_DECL npc_hadronox_OOC_addAI : public ScriptedAI
     void Reset()
     {
         if (m_pInstance && m_pInstance->GetData(TYPE_HADRONOX) != IN_PROGRESS)
-            if (Creature* pHadronox = m_pInstance->instance->GetCreature(m_pInstance->GetData64(NPC_HADRONOX)))
+            if (Creature* pHadronox = m_pInstance->GetSingleCreatureFromStorage(NPC_HADRONOX))
                 m_creature->GetMotionMaster()->MoveFollow(pHadronox, 0, 0);
     }
 };

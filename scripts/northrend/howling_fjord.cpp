@@ -677,7 +677,7 @@ struct MANGOS_DLL_DECL npc_king_ymironAI : public ScriptedAI
 
      void Reset()
      {
-         m_uiPlayerGuid = 0;
+         m_uiPlayerGuid.Clear();
          bEventStarted = false;
 		 uiPhase = 0;
 		 uiSpeechTimer = 2000;

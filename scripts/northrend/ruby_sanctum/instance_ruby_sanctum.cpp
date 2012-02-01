@@ -46,32 +46,32 @@ struct MANGOS_DLL_DECL instance_ruby_sanctum : public BSWScriptedInstance
     uint32 m_auiOrbNState;
     uint32 m_auiOrbSState;
 
-    uint64 m_uiHalion_pGUID;
-    uint64 m_uiHalion_tGUID;
-    uint64 m_uiHalionControlGUID;
-    uint64 m_uiRagefireGUID;
-    uint64 m_uiZarithrianGUID;
-    uint64 m_uiBaltharusGUID;
-    uint64 m_uiCloneGUID;
-    uint64 m_uiXerestraszaGUID;
+    ObjectGuid m_uiHalion_pGUID;
+    ObjectGuid m_uiHalion_tGUID;
+    ObjectGuid m_uiHalionControlGUID;
+    ObjectGuid m_uiRagefireGUID;
+    ObjectGuid m_uiZarithrianGUID;
+    ObjectGuid m_uiBaltharusGUID;
+    ObjectGuid m_uiCloneGUID;
+    ObjectGuid m_uiXerestraszaGUID;
 
-    uint64 m_uiOrbNGUID;
-    uint64 m_uiOrbSGUID;
-    uint64 m_uiOrbFocusGUID;
-    uint64 m_uiOrbCarrierGUID;
+    ObjectGuid m_uiOrbNGUID;
+    ObjectGuid m_uiOrbSGUID;
+    ObjectGuid m_uiOrbFocusGUID;
+    ObjectGuid m_uiOrbCarrierGUID;
 
     //object GUID
-    uint64 m_uiHalionPortal1GUID;
-    uint64 m_uiHalionPortal2GUID;
-    uint64 m_uiHalionPortal3GUID;
-    uint64 m_uiHalionFireWallSGUID;
-    uint64 m_uiHalionFireWallMGUID;
-    uint64 m_uiHalionFireWallLGUID;
-    uint64 m_uiBaltharusTargetGUID;
+    ObjectGuid m_uiHalionPortal1GUID;
+    ObjectGuid m_uiHalionPortal2GUID;
+    ObjectGuid m_uiHalionPortal3GUID;
+    ObjectGuid m_uiHalionFireWallSGUID;
+    ObjectGuid m_uiHalionFireWallMGUID;
+    ObjectGuid m_uiHalionFireWallLGUID;
+    ObjectGuid m_uiBaltharusTargetGUID;
 
-    uint64 m_uiFireFieldGUID;
-    uint64 m_uiFlameWallsGUID;
-    uint64 m_uiFlameRingGUID;
+    ObjectGuid m_uiFireFieldGUID;
+    ObjectGuid m_uiFlameWallsGUID;
+    ObjectGuid m_uiFlameRingGUID;
 
     void Initialize()
     {
@@ -80,24 +80,24 @@ struct MANGOS_DLL_DECL instance_ruby_sanctum : public BSWScriptedInstance
 
         m_auiEventTimer = 1000;
 
-        m_uiHalion_pGUID = 0;
-        m_uiHalion_tGUID = 0;
-        m_uiRagefireGUID = 0;
-        m_uiZarithrianGUID = 0;
-        m_uiBaltharusGUID = 0;
-        m_uiCloneGUID = 0;
-        m_uiHalionPortal1GUID = 0;
-        m_uiHalionPortal2GUID = 0;
-        m_uiHalionPortal3GUID = 0;
-        m_uiXerestraszaGUID = 0;
-        m_uiHalionFireWallSGUID = 0;
-        m_uiHalionFireWallMGUID = 0;
-        m_uiHalionFireWallLGUID = 0;
-        m_uiBaltharusTargetGUID = 0;
+        m_uiHalion_pGUID.Clear();
+        m_uiHalion_tGUID.Clear();
+        m_uiRagefireGUID.Clear();
+        m_uiZarithrianGUID.Clear();
+        m_uiBaltharusGUID.Clear();
+        m_uiCloneGUID.Clear();
+        m_uiHalionPortal1GUID.Clear();
+        m_uiHalionPortal2GUID.Clear();
+        m_uiHalionPortal3GUID.Clear();
+        m_uiXerestraszaGUID.Clear();
+        m_uiHalionFireWallSGUID.Clear();
+        m_uiHalionFireWallMGUID.Clear();
+        m_uiHalionFireWallLGUID.Clear();
+        m_uiBaltharusTargetGUID.Clear();
         m_auiOrbDirection = 0;
-        m_uiOrbNGUID = 0;
-        m_uiOrbSGUID = 0;
-        m_uiOrbFocusGUID = 0;
+        m_uiOrbNGUID.Clear();
+        m_uiOrbSGUID.Clear();
+        m_uiOrbFocusGUID.Clear();
         m_auiOrbNState = NOT_STARTED;
         m_auiOrbSState = NOT_STARTED;
 

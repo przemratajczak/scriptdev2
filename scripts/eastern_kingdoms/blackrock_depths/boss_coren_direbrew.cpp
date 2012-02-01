@@ -101,20 +101,20 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         Minion_Timer = 10000;
     }
    
-   void SaySay(uint64 guid, int32 text)
+   void SaySay(ObjectGuid guid, int32 text)
    {
         Creature* pPointer = m_creature->GetMap()->GetCreature(guid);
         if (pPointer && pPointer->isAlive())
             DoScriptText(text,pPointer,NULL);
    }
 
-   void Despawn(uint64 guid)
+   void Despawn(ObjectGuid guid)
    {
        if (Creature* pPointer = m_creature->GetMap()->GetCreature(guid))
             pPointer->ForcedDespawn();
    }
 
-   void Assault(uint64 guid, uint32 faction, Unit* pTarget)
+   void Assault(ObjectGuid guid, uint32 faction, Unit* pTarget)
    {
        Creature* pPointer = m_creature->GetMap()->GetCreature(guid);
        if (pTarget && pPointer)

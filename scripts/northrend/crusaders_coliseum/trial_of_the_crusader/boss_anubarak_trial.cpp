@@ -599,13 +599,16 @@ struct MANGOS_DLL_DECL mob_frost_sphereAI : public BSWScriptedAI
         float z = m_creature->GetPositionZ()-13.0f;
         m_creature->SummonCreature(NPC_ANUBARAK_PERMAFROST, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000);
 
-        if(Creature* pTrigger = m_creature->GetMap()->GetCreature(NPC_ANUBARAK_PERMAFROST))
+        if (m_pInstance)
         {
-            if(pTrigger->isDead())
+            if(Creature* pTrigger = m_pInstance->GetSingleCreatureFromStorage(NPC_ANUBARAK_PERMAFROST))
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->SetVisibility(VISIBILITY_ON);
+                if(pTrigger->isDead())
+                {
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    m_creature->SetVisibility(VISIBILITY_ON);
+                }
             }
         }
     }

@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL npc_deacying_ghoulAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPlayerGuid = 0;
+        m_uiPlayerGuid.Clear();
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)

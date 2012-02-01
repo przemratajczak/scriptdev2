@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -75,36 +75,11 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
 
         case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetObjectGuid()); break;
         case NPC_TESLA_COIL:        m_lThadTeslaCoilList.push_back(pCreature->GetObjectGuid()); break;
-
-        case NPC_UNDERSTUDY: m_lRazuUnderstudyGUIDs.push_back(pCreature->GetObjectGuid()); break;
-
-        case NPC_PATCHWORK_GOLEM:
-        case NPC_BILE_RETCHER:
-            m_lPatchwerkAddGUIDs.push_back(pCreature->GetObjectGuid());
-            break;
-
-        case NPC_NAXXRAMAS_FOLLOWER:
-        case NPC_NAXXRAMAS_WORSHIPPER:
-            m_lFaerlinaAddGUIDs.push_back(pCreature->GetObjectGuid());
-            break;
     }
 }
 
 void instance_naxxramas::OnObjectCreate(GameObject* pGo)
 {
-
-    // Heigan Traps - many entries, and never used again
-    if (pGo->GetEntry() >= 181510 && pGo->GetEntry() <= 181695)
-    {
-        if (((pGo->GetEntry() >= 181517) && (pGo->GetEntry() <= 181524)) || (pGo->GetEntry() == 181678))
-            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_1].push_back(pGo->GetObjectGuid());
-        else if (((pGo->GetEntry() >= 181510) && (pGo->GetEntry() <= 181516)) || ((pGo->GetEntry() >= 181525) && (pGo->GetEntry() <= 181531)) || (pGo->GetEntry() == 181533 || pGo->GetEntry() == 181676))
-            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_2].push_back(pGo->GetObjectGuid());
-        else if (((pGo->GetEntry() >= 181534) && (pGo->GetEntry() <= 181544)) || (pGo->GetEntry() == 181532) || (pGo->GetEntry() == 181677))
-            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_3].push_back(pGo->GetObjectGuid());
-        else if (((pGo->GetEntry() >= 181545) && (pGo->GetEntry() <= 181552)) || (pGo->GetEntry() == 181695))
-            m_auiHeiganTrapsPerArea[HEIGAN_TRAP_AREA_4].push_back(pGo->GetObjectGuid());
-    }
     switch(pGo->GetEntry())
     {
         // Arachnid Quarter
@@ -218,6 +193,21 @@ void instance_naxxramas::OnObjectCreate(GameObject* pGo)
             break;
 
         default:
+            // Heigan Traps - many different entries which are only required for sorting
+            if (pGo->GetGoType() == GAMEOBJECT_TYPE_TRAP)
+            {
+                uint32 uiGoEntry = pGo->GetEntry();
+
+                if ((uiGoEntry >= 181517 && uiGoEntry <= 181524) || uiGoEntry == 181678)
+                    m_alHeiganTrapGuids[0].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181510 && uiGoEntry <= 181516) || (uiGoEntry >= 181525 && uiGoEntry <= 181531) || uiGoEntry == 181533 || uiGoEntry == 181676)
+                    m_alHeiganTrapGuids[1].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181534 && uiGoEntry <= 181544) || uiGoEntry == 181532 || uiGoEntry == 181677)
+                    m_alHeiganTrapGuids[2].push_back(pGo->GetObjectGuid());
+                else if ((uiGoEntry >= 181545 && uiGoEntry <= 181552) || uiGoEntry == 181695)
+                    m_alHeiganTrapGuids[3].push_back(pGo->GetObjectGuid());
+            }
+
             return;
     }
     m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
@@ -269,27 +259,11 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
         case TYPE_FAERLINA:
             DoUseDoorOrButton(GO_ARAC_FAER_WEB);
             if (uiData == IN_PROGRESS)
-            {
-                if (Creature* pFaerlina = GetSingleCreatureFromStorage(NPC_FAERLINA))
-                    if (Unit* pVictim = pFaerlina->getVictim())
-                        for (GUIDList::const_iterator itr = m_lFaerlinaAddGUIDs.begin(); itr != m_lFaerlinaAddGUIDs.end(); ++itr)
-                            if (Creature* pFaerlenaAdd = instance->GetCreature(*itr))
-                                pFaerlenaAdd->AI()->AttackStart(pVictim);
                 SetSpecialAchievementCriteria(TYPE_ACHIEV_KNOCK_YOU_OUT, true);
-            }
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_ARAC_FAER_DOOR);
                 DoUseDoorOrButton(GO_ARAC_MAEX_OUTER_DOOR);
-            }
-            if (uiData == FAIL)
-            {
-                for (GUIDList::const_iterator itr = m_lFaerlinaAddGUIDs.begin(); itr != m_lFaerlinaAddGUIDs.end(); ++itr)
-                {
-                    Creature* pAdd = instance->GetCreature(*itr);
-                    if (pAdd && !pAdd->isAlive())
-                        pAdd->Respawn();
-                }
             }
             m_auiEncounter[uiType] = uiData;
             break;
@@ -315,9 +289,8 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
         case TYPE_HEIGAN:
             m_auiEncounter[uiType] = uiData;
             DoUseDoorOrButton(GO_PLAG_HEIG_ENTRY_DOOR);
-            // uncomment when eruption is implemented
-            //if (uiData == IN_PROGRESS)
-            //    SetSpecialAchievementCriteria(TYPE_ACHIEV_SAFETY_DANCE, true);
+            if (uiData == IN_PROGRESS)
+                SetSpecialAchievementCriteria(TYPE_ACHIEV_SAFETY_DANCE, true);
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_PLAG_HEIG_EXIT_DOOR);
             break;
@@ -334,27 +307,6 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
             }
             break;
         case TYPE_RAZUVIOUS:
-            switch(uiData)
-            {
-                case IN_PROGRESS:
-                {
-                    if (Creature* pRazuvious = GetSingleCreatureFromStorage(NPC_RAZUVIOUS))
-                        if (Unit* pVictim = pRazuvious->getVictim())
-                            for (GUIDList::iterator itr = m_lRazuUnderstudyGUIDs.begin(); itr != m_lRazuUnderstudyGUIDs.end(); ++itr)
-                                if (Creature* pUnderstudy = instance->GetCreature(*itr))
-                                    pUnderstudy->AI()->AttackStart(pVictim);
-                    break;
-                }
-                case FAIL:
-                {
-                    for (GUIDList::iterator itr = m_lRazuUnderstudyGUIDs.begin(); itr != m_lRazuUnderstudyGUIDs.end(); ++itr)
-                        if (Creature* pUnderstudy = instance->GetCreature(*itr))
-                            if (!pUnderstudy->isAlive())
-                                pUnderstudy->Respawn();
-                    break;
-                }
-                default: break;
-            }
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_GOTHIK:
@@ -395,15 +347,7 @@ void instance_naxxramas::SetData(uint32 uiType, uint32 uiData)
         case TYPE_PATCHWERK:
             m_auiEncounter[uiType] = uiData;
             if (uiData == IN_PROGRESS)
-            {
                 DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_START_PATCHWERK_ID);
-                // call all creatures in area
-                if (Creature* pPatchwerk = GetSingleCreatureFromStorage(NPC_PATCHWERK))
-                    if (Unit* pVictim = pPatchwerk->getVictim())
-                        for (GUIDList::iterator itr = m_lPatchwerkAddGUIDs.begin(); itr != m_lPatchwerkAddGUIDs.end(); ++itr)
-                            if (Creature* pPatchwerkAdd = instance->GetCreature(*itr))
-                                pPatchwerkAdd->AI()->AttackStart(pVictim);
-            }
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_CONS_PATH_EXIT_DOOR);
             break;
@@ -570,18 +514,6 @@ bool instance_naxxramas::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Playe
     }
 }
 
-void instance_naxxramas::ActivateHeiganTrapsInArea(uint8 AreaId, Unit* pUser)
-{
-    for (GUIDList::iterator itr = m_auiHeiganTrapsPerArea[AreaId].begin(); itr != m_auiHeiganTrapsPerArea[AreaId].end(); ++itr)
-    {
-        if (GameObject* pGo = pUser->GetMap()->GetGameObject(*itr))
-        {
-            pGo->Use(pUser);
-            pGo->SendGameObjectCustomAnim(pGo->GetObjectGuid(), 0);
-        }
-    }
-}
-
 void instance_naxxramas::Update(uint32 uiDiff)
 {
     if (m_uiTauntTimer)
@@ -658,6 +590,7 @@ void instance_naxxramas::GetGothSummonPointCreatures(std::list<Creature*> &lList
     }
 }
 
+// Right is right side from gothik (eastern)
 bool instance_naxxramas::IsInRightSideGothArea(Unit* pUnit)
 {
     if (GameObject* pCombatGate = GetSingleGameObjectFromStorage(GO_MILI_GOTH_COMBAT_GATE))
@@ -667,11 +600,16 @@ bool instance_naxxramas::IsInRightSideGothArea(Unit* pUnit)
     return true;
 }
 
-uint64 instance_naxxramas::GetHeiganTrapData64(uint8 uiAreaIndex, uint32 uiIndex)
+void instance_naxxramas::DoTriggerHeiganTraps(Creature* pHeigan, uint32 uiAreaIndex)
 {
-    if (0 <= uiAreaIndex && uiAreaIndex < MAX_HEIGAN_TRAP_AREAS && uiIndex < m_avuiHeiganTraps[uiAreaIndex].size())
-        return m_avuiHeiganTraps[uiAreaIndex].at(uiIndex);
-    return 0;
+    if (uiAreaIndex >= MAX_HEIGAN_TRAP_AREAS)
+        return;
+
+    for (GUIDList::const_iterator itr = m_alHeiganTrapGuids[uiAreaIndex].begin(); itr != m_alHeiganTrapGuids[uiAreaIndex].end(); ++itr)
+    {
+        if (GameObject* pTrap = instance->GetGameObject(*itr))
+            pTrap->Use(pHeigan);
+    }
 }
 
 void instance_naxxramas::SetChamberCenterCoords(float fX, float fY, float fZ)
