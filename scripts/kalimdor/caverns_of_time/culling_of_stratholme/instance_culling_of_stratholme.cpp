@@ -34,34 +34,34 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     uint32 m_uiHeroicTimer;
     uint32 m_uiLastTimer;
 
-    uint64 m_uiChromi01GUID;
-    uint64 m_uiChromi02GUID;
-    uint64 m_uiMikeGUID;
-    uint64 m_uiMalCoricsGUID;
-    uint64 m_uiGrianStoneGUID;
-    uint64 m_uiJamesGUID;
-    uint64 m_uiFrasCiabiGUID;
-    uint64 m_uiForrestenGUID;
-    uint64 m_uiRogerGUID;
-    uint64 m_uiMoriganGUID;
-    uint64 m_uiPerelliGUID;
-    uint64 m_uiJenaGUID;
-    uint64 m_uiMarthaGUID;
-    uint64 m_uiMalcolmGUID;
-    uint64 m_uiDogGUID;
-    uint64 m_uiBartlebyGUID;
-    uint64 m_uiArthasGUID;
-    uint64 m_uiUtherGUID;
-    uint64 m_uiJainaGUID;
-    uint64 m_uiSalrammGUID;
-    uint64 m_uiMalganisGUID;
-    uint64 m_uiCorruptorGUID;
+    ObjectGuid m_uiChromi01GUID;
+    ObjectGuid m_uiChromi02GUID;
+    ObjectGuid m_uiMikeGUID;
+    ObjectGuid m_uiMalCoricsGUID;
+    ObjectGuid m_uiGrianStoneGUID;
+    ObjectGuid m_uiJamesGUID;
+    ObjectGuid m_uiFrasCiabiGUID;
+    ObjectGuid m_uiForrestenGUID;
+    ObjectGuid m_uiRogerGUID;
+    ObjectGuid m_uiMoriganGUID;
+    ObjectGuid m_uiPerelliGUID;
+    ObjectGuid m_uiJenaGUID;
+    ObjectGuid m_uiMarthaGUID;
+    ObjectGuid m_uiMalcolmGUID;
+    ObjectGuid m_uiDogGUID;
+    ObjectGuid m_uiBartlebyGUID;
+    ObjectGuid m_uiArthasGUID;
+    ObjectGuid m_uiUtherGUID;
+    ObjectGuid m_uiJainaGUID;
+    ObjectGuid m_uiSalrammGUID;
+    ObjectGuid m_uiMalganisGUID;
+    ObjectGuid m_uiCorruptorGUID;
 
-    uint64 m_uiShkafGateGUID;
-    uint64 m_uiMalGate1GUID;
-    uint64 m_uiMalGate2GUID;
-    uint64 m_uiMalChestGUID;
-    uint64 m_uiExitGUID;
+    ObjectGuid m_uiShkafGateGUID;
+    ObjectGuid m_uiMalGate1GUID;
+    ObjectGuid m_uiMalGate2GUID;
+    ObjectGuid m_uiMalChestGUID;
+    ObjectGuid m_uiExitGUID;
 
     void Initialize()
     {
@@ -82,33 +82,33 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
        DoUpdateWorldState(WORLD_STATE_COS_TIME_ON, 0);
 
        m_uiCratesCount = 0;
-       m_uiMikeGUID = 0;
-       m_uiChromi01GUID = 0;
-       m_uiChromi02GUID = 0;
-       m_uiMalCoricsGUID = 0;
-       m_uiGrianStoneGUID = 0;
-       m_uiJamesGUID = 0;
-       m_uiFrasCiabiGUID = 0;
-       m_uiForrestenGUID = 0;
-       m_uiRogerGUID = 0;
-       m_uiMoriganGUID = 0;
-       m_uiPerelliGUID = 0;
-       m_uiJenaGUID = 0;
-       m_uiMarthaGUID = 0;
-       m_uiMalcolmGUID = 0;
-       m_uiDogGUID = 0;
-       m_uiBartlebyGUID = 0;
-       m_uiArthasGUID = 0;
-       m_uiUtherGUID = 0;
-       m_uiJainaGUID = 0;
-       m_uiShkafGateGUID = 0;
-       m_uiSalrammGUID = 0;
-       m_uiCorruptorGUID = 0;
-       m_uiMalganisGUID = 0;
-       m_uiMalGate1GUID = 0;
-       m_uiMalGate2GUID = 0;
-       m_uiMalChestGUID = 0;
-       m_uiExitGUID = 0;
+       m_uiMikeGUID.Clear();
+       m_uiChromi01GUID.Clear();
+       m_uiChromi02GUID.Clear();
+       m_uiMalCoricsGUID.Clear();
+       m_uiGrianStoneGUID.Clear();
+       m_uiJamesGUID.Clear();
+       m_uiFrasCiabiGUID.Clear();
+       m_uiForrestenGUID.Clear();
+       m_uiRogerGUID.Clear();
+       m_uiMoriganGUID.Clear();
+       m_uiPerelliGUID.Clear();
+       m_uiJenaGUID.Clear();
+       m_uiMarthaGUID.Clear();
+       m_uiMalcolmGUID.Clear();
+       m_uiDogGUID.Clear();
+       m_uiBartlebyGUID.Clear();
+       m_uiArthasGUID.Clear();
+       m_uiUtherGUID.Clear();
+       m_uiJainaGUID.Clear();
+       m_uiShkafGateGUID.Clear();
+       m_uiSalrammGUID.Clear();
+       m_uiCorruptorGUID.Clear();
+       m_uiMalganisGUID.Clear();
+       m_uiMalGate1GUID.Clear();
+       m_uiMalGate2GUID.Clear();
+       m_uiMalChestGUID.Clear();
+       m_uiExitGUID.Clear();
     }
 
     void OnCreatureCreate(Creature* pCreature)
@@ -246,7 +246,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         }
     }
 
-    void SetData64(uint32 uiData, uint64 uiGuid)
+    void SetData64(uint32 uiData, ObjectGuid uiGuid)
     {
         switch(uiData)
         {

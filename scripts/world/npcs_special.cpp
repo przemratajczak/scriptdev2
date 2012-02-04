@@ -1962,7 +1962,7 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
 
     void Reset()
     {
-        m_uiTargetGuid = 0;
+        m_uiTargetGuid.Clear();
         m_uiStrikeTimer = 0;
     }
 
@@ -2310,7 +2310,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
     void Reset()
     {
         pTarget = NULL;
-        m_uiTargetGuid = 0;
+        m_uiTargetGuid.Clear();
         m_uiReadyTimer = 4000;
         m_uiClawTimer = urand(3000, 5000);
         m_uiLeapTimer = urand(1000, 5000);

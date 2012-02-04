@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -24,179 +24,16 @@ EndScriptData */
 #include "precompiled.h"
 #include "ulduar.h"
 
-/*#####
-## Teleporters
-#####*/
-enum TeleporterSpells
-{
-    SPELL_TELE_EXPEDITION_BASE_CAMP         = 64014,
-    SPELL_TELE_FORMATION_GROUNDS            = 64032,
-    SPELL_TELE_COLOSSAL_FORGE               = 64028,
-    SPELL_TELE_SCRAPYARD                    = 64031,
-    SPELL_TELE_ANTECHAMBER_OF_ULDUAR        = 64030,
-    SPELL_TELE_SHATTERED_WALKWAY            = 64029,
-    SPELL_TELE_CONSERVATORY_OF_LIFE         = 64024,
-    SPELL_TELE_SPARK_OF_IMAGINATION         = 65061,
-    SPELL_TELE_PRISON_OF_YOGG               = 65042,
-};
-
-// Teleporter Gossip handled by SD2 because depending on Instance Data
-enum TeleporterGossipItems
-{
-    GOSSIP_ITEM_TELE_BASE_CAMP              = -3603000,
-    GOSSIP_ITEM_TELE_FORMATION_GROUNDS      = -3603001,
-    GOSSIP_ITEM_TELE_COLOSSAL_FORGE         = -3603002,
-    GOSSIP_ITEM_TELE_SCRAPYARD              = -3603003,
-    GOSSIP_ITEM_TELE_ANTECHAMBER            = -3603004,
-    GOSSIP_ITEM_TELE_WALKWAY                = -3603005,
-    GOSSIP_ITEM_TELE_CONSERVATORY           = -3603006,
-    GOSSIP_ITEM_TELE_SPARK_IMAGINATION      = -3603007,
-    GOSSIP_ITEM_TELE_YOGG_SARON             = -3603008,
-};
-
-bool GossipHello_go_ulduar_teleporter(Player* pPlayer, GameObject* pGo)
-{
-    instance_ulduar* pInstance = (instance_ulduar*)pGo->GetInstanceData();
-    if (!pInstance)
-        return true;
-
-    // Base camp
-    pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_BASE_CAMP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    // Formation grounds
-    if (pInstance->GetData(TYPE_LEVIATHAN) != NOT_STARTED || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_FORMATION_GROUNDS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-    // Colossal Forge
-    if (pInstance->GetData(TYPE_LEVIATHAN) == DONE || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_COLOSSAL_FORGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-    // Scrapyard
-    if ((pInstance->GetData(TYPE_IGNIS) == DONE && pInstance->GetData(TYPE_RAZORSCALE) == DONE && pInstance->GetData(TYPE_XT002) != NOT_STARTED) || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_SCRAPYARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-    // Antechamber
-    //if (pInstance->GetData(TYPE_XT002) == DONE || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_ANTECHAMBER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-
-    // Shattered walkway
-    if (pInstance->GetData(TYPE_KOLOGARN) == DONE || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_WALKWAY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-
-    // Conservatory of life
-    if (pInstance->GetData(TYPE_AURIAYA) == DONE || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_CONSERVATORY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-
-    // Spark of imagination
-    if (pInstance->GetData(TYPE_MIMIRON) != NOT_STARTED || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_SPARK_IMAGINATION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-
-    // Prison of Yogg-Saron
-    if (pInstance->GetData(TYPE_VEZAX) == DONE || pPlayer->isGameMaster())
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELE_YOGG_SARON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pGo->GetGOInfo()->GetGossipMenuId(), pPlayer), pGo->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_go_ulduar_teleporter(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
-{
-    instance_ulduar* pInstance = (instance_ulduar*)pPlayer->GetInstanceData();
-    if (!pInstance)
-        return true;
-
-    // Additional checks for the teleporters to prevent exploiting
-    // -- TODO -- HACK HERE, use spells when possible!
-
-    // There needs to be displayed a msg when in Combat, it is likely that this is to be handled by core and spell can-cast check
-    // -- TODO -- Remove the combat check when spells are correctly working
-    if (pPlayer->isInCombat())
-        return true;
-
-    switch (uiAction)
-    {
-        // Basecamp
-        case GOSSIP_ACTION_INFO_DEF:
-        {
-            // pPlayer->CastSpell(pPlayer, SPELL_TELE_EXPEDITION_BASE_CAMP, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, -706.122f, -92.6024f, 429.876f, 0);
-            break;
-        }
-        // Formation Grounds
-        case GOSSIP_ACTION_INFO_DEF + 1:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_FORMATION_GROUNDS, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 131.248f, -35.3802f, 409.804f, 0);
-            break;
-        }
-        // Colossal Forge
-        case GOSSIP_ACTION_INFO_DEF + 2:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_COLOSSAL_FORGE, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 553.233f, -12.3247f, 409.679f, 0);
-            break;
-        }
-        // Scrapyard
-        case GOSSIP_ACTION_INFO_DEF + 3:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_SCRAPYARD, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 926.292f, -11.4635f, 418.595f, 0);
-            break;
-        }
-        // Antechamber
-        case GOSSIP_ACTION_INFO_DEF + 4:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_ANTECHAMBER_OF_ULDUAR, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 1498.09f, -24.246f, 420.967f, 0);
-            break;
-        }
-        // Shattered walkway
-        case GOSSIP_ACTION_INFO_DEF + 5:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_SHATTERED_WALKWAY, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 1859.45f, -24.1f, 448.9f, 0);
-            break;
-        }
-        // Conservatory of life
-        case GOSSIP_ACTION_INFO_DEF + 6:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_CONSERVATORY_OF_LIFE, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 2086.27f, -24.3134f, 421.239f, 0);
-            break;
-        }
-        // Spark of imagination
-        case GOSSIP_ACTION_INFO_DEF + 7:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_SPARK_OF_IMAGINATION, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 2518.16f, 2569.03f, 412.299f, 0);
-            break;
-        }
-        // Prison of Yogg-Saron
-        case GOSSIP_ACTION_INFO_DEF + 8:
-        {
-            // pPlayer->CastSpell(<TARGET>, SPELL_TELE_PRISON_OF_YOGG, true, NULL, NULL, pGo->GetObjectGuid());
-            pPlayer->TeleportTo(603, 1854.82f, -11.56f,334.175f, 4.71f);
-            break;
-        }
-        default:
-            return true;
-    }
-
-    pPlayer->CLOSE_GOSSIP_MENU();
-    return true;
-}
-
 #define REQUEST_HELP    "Help me fight Yogg-Saron!"
 #define DENY_HELP       "I don't need your help."
 
 /*
-*	Here is the gossip for the keepers images
-*	Each image appears in the centra chamber after the corrupted keeper is defeated
-*	They should be spawned in script, but I added them into the DB by default as invisilbe
-*	After the players make theyr choice if the want help or not, this option is saved and there is no turning back, until raid reset
-*	If they are asked for help, at the beginning of the Yogg encounter each requested keeper will be summoned inside the chamber
-*	There should be more text in the gossip menu, I couldn't find it anywhere yet
+*    Here is the gossip for the keepers images
+*    Each image appears in the centra chamber after the corrupted keeper is defeated
+*    They should be spawned in script, but I added them into the DB by default as invisilbe
+*    After the players make theyr choice if the want help or not, this option is saved and there is no turning back, until raid reset
+*    If they are asked for help, at the beginning of the Yogg encounter each requested keeper will be summoned inside the chamber
+*    There should be more text in the gossip menu, I couldn't find it anywhere yet
 */
 
 /*#######
@@ -205,7 +42,7 @@ bool GossipSelect_go_ulduar_teleporter(Player* pPlayer, GameObject* pGo, uint32 
 // HODIR
 bool GossipHello_hodir_image(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
 
     if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_HODIR) != DONE && m_pInstance->GetData(TYPE_KEEPER_HODIR) != FAIL)
     {
@@ -219,7 +56,7 @@ bool GossipHello_hodir_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_hodir_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -238,7 +75,7 @@ bool GossipSelect_hodir_image(Player* pPlayer, Creature* pCreature, uint32 uiSen
 // FREYA
 bool GossipHello_freya_image(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
 
     if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_FREYA) != DONE && m_pInstance->GetData(TYPE_KEEPER_FREYA) != FAIL)
     {
@@ -252,7 +89,7 @@ bool GossipHello_freya_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_freya_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -270,7 +107,7 @@ bool GossipSelect_freya_image(Player* pPlayer, Creature* pCreature, uint32 uiSen
 // MIMIRON
 bool GossipHello_mimiron_image(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
 
     if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != DONE && m_pInstance->GetData(TYPE_KEEPER_MIMIRON) != FAIL)
     {
@@ -284,7 +121,7 @@ bool GossipHello_mimiron_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_mimiron_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -303,7 +140,7 @@ bool GossipSelect_mimiron_image(Player* pPlayer, Creature* pCreature, uint32 uiS
 // THORIM
 bool GossipHello_thorim_image(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
 
     if(m_pInstance && m_pInstance->GetData(TYPE_KEEPER_THORIM) != DONE && m_pInstance->GetData(TYPE_KEEPER_THORIM) != FAIL)
     {
@@ -317,7 +154,7 @@ bool GossipHello_thorim_image(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_thorim_image(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance *m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+    instance_ulduar *m_pInstance = (instance_ulduar *) pCreature->GetInstanceData();
     pPlayer->CLOSE_GOSSIP_MENU();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -333,15 +170,96 @@ bool GossipSelect_thorim_image(Player* pPlayer, Creature* pCreature, uint32 uiSe
     return true;
 }
 
+/*#####
+## Teleporters
+#####*/
+
+enum TeleportParams
+{
+    PORTALS_COUNT               = 9,
+    TELEPORT_GOSSIP_MESSAGE     = 14424,
+
+    // spells
+    SPELL_TELEPORT_BASE_CAMP    = 64014,
+    SPELL_TELEPORT_GROUNDS      = 64032,
+    SPELL_TELEPORT_FORGE        = 64028,
+    SPELL_TELEPORT_SCRAPYARD    = 64031,
+    SPELL_TELEPORT_ANTECHAMBER  = 64030,
+    SPELL_TELEPORT_WALKWAY      = 64029,
+    SPELL_TELEPORT_CONSERVATORY = 64024,
+    SPELL_TELEPORT_SPARK        = 65061,
+    SPELL_TELEPORT_PRISON       = 65042,
+};
+
+struct t_Locations
+{
+    int textNum;
+    uint32 map_num;
+    float x, y, z, o;
+    uint32 spellID;
+    bool state;
+    bool active;
+    uint32 encounter;
+};
+
+static t_Locations PortalLoc[]=
+{
+{-3050001,603, -706.122f, -92.6024f, 430.176f, 4.19f, SPELL_TELEPORT_BASE_CAMP,   true,true, TYPE_LEVIATHAN},  // base camp
+{-3050002,603, 131.248f,  -35.3802f, 410.104f, 0,     SPELL_TELEPORT_GROUNDS,     true,true, TYPE_LEVIATHAN_TP},  // formation ground
+{-3050003,603, 553.233f,  -12.3247f, 409.979f, 0,     SPELL_TELEPORT_FORGE,       false,true,TYPE_LEVIATHAN}, //
+{-3050004,603, 926.292f,  -11.4635f, 418.895f, 3.19f, SPELL_TELEPORT_SCRAPYARD,   false,true,TYPE_XT002_TP},        //
+{-3050005,603, 1498.09f,  -24.246f,  421.267f, 0,     SPELL_TELEPORT_ANTECHAMBER, false,true,TYPE_XT002},        //
+{-3050006,603, 1859.45f,  -24.1f,    449.2f,   0,     SPELL_TELEPORT_WALKWAY,     false,true,TYPE_KOLOGARN},        //
+{-3050007,603, 2086.27f,  -24.3134f, 421.539f, 0,     SPELL_TELEPORT_CONSERVATORY,false,true,TYPE_AURIAYA},         //
+{-3050008,603, 2517.3979f, 2568.89f, 412.99f,  6.17f, SPELL_TELEPORT_SPARK,       false,true,TYPE_MIMIRON_TP},          //
+{-3050009,603, 1854.782f, -11.3819f, 335.27f,  5.86f, SPELL_TELEPORT_PRISON,      false,true,TYPE_VEZAX},           //
+};
+
+
+bool GossipSelect_go_ulduar_teleporter(Player *pPlayer, GameObject* pGo, uint32 sender, uint32 action)
+{
+    int32 damage = 0;
+    if(sender != GOSSIP_SENDER_MAIN) return false;
+
+    if(pPlayer->IsInCombat()) 
+        return false;
+
+    if(action >= 0 && action <= PORTALS_COUNT)
+    pPlayer->TeleportTo(PortalLoc[action].map_num, PortalLoc[action].x, PortalLoc[action].y, PortalLoc[action].z, PortalLoc[action].o);
+    if (PortalLoc[action].spellID != 0 )
+        if (SpellEntry const* spell = (SpellEntry *)GetSpellStore()->LookupEntry(PortalLoc[action].spellID))
+        {
+            SpellAuraHolderPtr holder = CreateSpellAuraHolder(spell, pPlayer, pPlayer);
+            Aura* aura = holder->CreateAura(AURA_CLASS_AURA, EFFECT_INDEX_2, NULL, holder, pPlayer, pPlayer, NULL);
+            pPlayer->AddSpellAuraHolder(holder);
+        }
+
+    pPlayer->CLOSE_GOSSIP_MENU();
+    return true;
+}
+
+bool GossipHello_go_ulduar_teleporter(Player *pPlayer, GameObject* pGo)
+{
+    ScriptedInstance *pInstance = (ScriptedInstance *) pGo->GetInstanceData();
+
+    if (!pInstance || !pPlayer) return false;
+    if (pPlayer->isInCombat()) return true;
+
+    for(uint8 i = 0; i < PORTALS_COUNT; i++) {
+    if ((PortalLoc[i].active == true && 
+        (PortalLoc[i].state == true || 
+        pInstance->GetData(PortalLoc[i].encounter) == DONE ||
+        pInstance->GetData(PortalLoc[i].encounter) == IN_PROGRESS))
+        || pPlayer->isGameMaster())
+             pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_TAXI, PortalLoc[i].textNum, GOSSIP_SENDER_MAIN, i);
+    };
+    pPlayer->SEND_GOSSIP_MENU(TELEPORT_GOSSIP_MESSAGE, pGo->GetObjectGuid());
+    return true;
+}
+
 void AddSC_ulduar()
 {
-    Script* pNewScript;
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_ulduar_teleporter";
-    pNewScript->pGossipHelloGO = &GossipHello_go_ulduar_teleporter;
-    pNewScript->pGossipSelectGO = &GossipSelect_go_ulduar_teleporter;
-    pNewScript->RegisterSelf();
+    Script *pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "hodir_image";
@@ -365,5 +283,11 @@ void AddSC_ulduar()
     pNewScript->Name = "mimiron_image";
     pNewScript->pGossipHello = &GossipHello_mimiron_image;
     pNewScript->pGossipSelect = &GossipSelect_mimiron_image;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_ulduar_teleporter";
+    pNewScript->pGossipHelloGO = &GossipHello_go_ulduar_teleporter;
+    pNewScript->pGossipSelectGO = &GossipSelect_go_ulduar_teleporter;
     pNewScript->RegisterSelf();
 }

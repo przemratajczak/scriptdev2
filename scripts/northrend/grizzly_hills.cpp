@@ -601,7 +601,7 @@ struct MANGOS_DLL_DECL npc_venture_co_stragglerAI : public ScriptedAI
 
         void Reset()
         {
-            m_uiPlayerGuid = 0;
+            m_uiPlayerGuid.Clear();
             uiTimer = 0;
             uiChopTimer = urand(10000,12500);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);

@@ -125,7 +125,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         m_uiWoeStrikeTimer = 5000;
         m_uiShadowAxeTimer = urand(20000, 30000);
 
-        m_uiAnnylideGuid = 0;
+        m_uiAnnylideGuid.Clear();
     }
 
     void Aggro(Unit* pWho)

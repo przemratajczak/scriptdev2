@@ -1480,7 +1480,7 @@ struct MANGOS_DLL_DECL npc_alexstraszaAI : public ScriptedAI
                         m_pInstance->SetData(TYPE_MALYGOS, DONE);
 
                         // respawn platform, so that players can loot the chest
-                        if (GameObject* pPlatform = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_PLATFORM)))
+                        if (GameObject* pPlatform = m_pInstance->GetSingleGameObjectFromStorage(GO_PLATFORM))
                             pPlatform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
                     }
                     break;

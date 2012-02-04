@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -42,10 +42,8 @@ enum
     EMOTE_TELEPORT          = -1533136,
     EMOTE_RETURN            = -1533137,
 
-    SPELL_ERUPTION          = 29371,                        //Spell used by floor pieces to cause damage to players
-
-    //Spells by boss
-    SPELL_DECREPIT_FEVER_N  = 29998,
+    // Spells by boss
+    SPELL_DECREPIT_FEVER    = 29998,
     SPELL_DECREPIT_FEVER_H  = 55011,
     SPELL_DISRUPTION        = 29310,
     SPELL_TELEPORT          = 30211,
@@ -64,9 +62,8 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
 
-    int8 m_iDanceDirection;
     uint8 m_uiPhase;
-    uint32 m_uiErruptionAreaId;
+    uint8 m_uiPhaseEruption;
 
     uint32 m_uiFeverTimer;
     uint32 m_uiDisruptionTimer;
@@ -77,19 +74,16 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     void ResetPhase()
     {
-        m_uiErruptionAreaId = 0;
+        m_uiPhaseEruption = 0;
         m_uiFeverTimer = 4000;
         m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
         m_uiDisruptionTimer = 5000;
         m_uiStartChannelingTimer = 1000;
         m_uiPhaseTimer = m_uiPhase == PHASE_GROUND ? 90000 : 45000;
-        m_uiErruptionAreaId = 0;
-        m_iDanceDirection = 1;
     }
 
     void Reset()
     {
-        m_iDanceDirection = 1;
         m_uiPhase = PHASE_GROUND;
         m_uiTauntTimer = urand(20000,60000);                // TODO, find information
         ResetPhase();
@@ -153,7 +147,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
             // Fever
             if (m_uiFeverTimer < uiDiff)
             {
-//                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_DECREPIT_FEVER_N : SPELL_DECREPIT_FEVER_H);
+                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_DECREPIT_FEVER : SPELL_DECREPIT_FEVER_H);
                 m_uiFeverTimer = 21000;
             }
             else
@@ -168,9 +162,9 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
             else
                 m_uiDisruptionTimer -= uiDiff;
         }
-        else                                                //Platform Phase
+        else                                                // Platform Phase
         {
-            if (m_uiPhaseTimer <= uiDiff)                   // return to fight
+            if (m_uiPhaseTimer < uiDiff)                    // Return to fight
             {
                 m_creature->InterruptNonMeleeSpells(true);
                 DoScriptText(EMOTE_RETURN, m_creature);
@@ -185,7 +179,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
             if (m_uiStartChannelingTimer)
             {
-                if (m_uiStartChannelingTimer <=uiDiff)
+                if (m_uiStartChannelingTimer <= uiDiff)
                 {
                     DoScriptText(SAY_CHANNELING, m_creature);
                     DoCastSpellIfCan(m_creature, SPELL_PLAGUE_CLOUD);
@@ -220,34 +214,17 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
         // Eruption
         if (m_uiEruptionTimer < uiDiff)
         {
-            /*static int const m_auiMaxHeiganTraps[MAX_HEIGAN_TRAP_AREAS] =
-            {
-                m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_1), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_2), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_3), m_pInstance->GetData(TYPE_MAX_HEIGAN_TRAPS_4)
-            };
-
             for (uint8 uiArea = 0; uiArea < MAX_HEIGAN_TRAP_AREAS; ++uiArea)
             {
+                // Actually this is correct :P
                 if (uiArea == (m_uiPhaseEruption % 6) || uiArea == 6 - (m_uiPhaseEruption % 6))
                     continue;
-                for (uint8 i = 0; i < m_auiMaxHeiganTraps[uiArea]; i++)
-                {
-                    if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetHeiganTrapData64(uiArea, i)))
-                        pGo->Use(m_creature);
-                }
-            }*/
 
-            for (uint8 uiArea = 0; uiArea < MAX_HEIGAN_TRAP_AREAS; ++uiArea)
-            {
-                if ((m_uiPhase == PHASE_GROUND && m_uiErruptionAreaId == uiArea) || (m_uiPhase != PHASE_GROUND && m_uiErruptionAreaId != uiArea))
-                    m_pInstance->ActivateHeiganTrapsInArea(uiArea, m_creature);
+                m_pInstance->DoTriggerHeiganTraps(m_creature, uiArea);
             }
-            
-            if (m_uiErruptionAreaId == 3)
-                m_iDanceDirection = -1;
-            else if (!m_uiErruptionAreaId)
-                m_iDanceDirection = 1;
-            m_uiErruptionAreaId += m_iDanceDirection;
+
             m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
+            ++m_uiPhaseEruption;
         }
         else
             m_uiEruptionTimer -= uiDiff;
@@ -261,9 +238,10 @@ CreatureAI* GetAI_boss_heigan(Creature* pCreature)
 
 void AddSC_boss_heigan()
 {
-    Script* NewScript;
-    NewScript = new Script;
-    NewScript->Name = "boss_heigan";
-    NewScript->GetAI = &GetAI_boss_heigan;
-    NewScript->RegisterSelf();
+    Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "boss_heigan";
+    pNewScript->GetAI = &GetAI_boss_heigan;
+    pNewScript->RegisterSelf();
 }
