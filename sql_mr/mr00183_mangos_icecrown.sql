@@ -414,6 +414,10 @@ UPDATE `creature_template` SET `ScriptName`='mob_frost_bomb', `AIName`='' WHERE 
 UPDATE `gameobject_template` SET `faction` = '114',`data0` = '0' WHERE `gameobject_template`.`entry` IN (201369,201379);
 UPDATE `gameobject` SET `state` = '1' WHERE `id` IN (201369,201379);
 
+-- Unchained Magic - add 1sec cooldown
+DELETE FROM spell_proc_event WHERE entry = 69762;
+INSERT INTO spell_proc_event VALUES (69762, 0x7E, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0, 0, 1);
+
 -- -------------------------------
 -- frost bomb target from Lordronn
 -- -------------------------------
