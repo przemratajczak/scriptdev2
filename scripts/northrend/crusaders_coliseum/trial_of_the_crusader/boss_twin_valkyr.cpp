@@ -153,6 +153,25 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
         DoScriptText(-1713544,m_creature,pVictim);
     }
 
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (!m_pInstance) return;
+        if (!m_creature || !m_creature->isAlive())
+            return;
+
+        if(pDoneBy->GetObjectGuid() == m_creature->GetObjectGuid()) return;
+
+        if(pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(pDoneBy->HasAura(SPELL_LIGHT_ESSENCE))
+                uiDamage /= 2;
+            else if(pDoneBy->HasAura(SPELL_DARK_ESSENCE))
+                uiDamage += uiDamage/2;
+        }
+
+        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0);
+    }
+
     //Rigt side 
     void SummonOrbs()
     {
@@ -359,6 +378,25 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(-1713543, m_creature, pVictim);
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (!m_pInstance) return;
+        if (!m_creature || !m_creature->isAlive())
+            return;
+
+        if(pDoneBy->GetObjectGuid() == m_creature->GetObjectGuid()) return;
+
+        if(pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        {
+            if(pDoneBy->HasAura(SPELL_LIGHT_ESSENCE))
+                uiDamage /= 2;
+            else if(pDoneBy->HasAura(SPELL_DARK_ESSENCE))
+                uiDamage += uiDamage/2;
+        }
+
+        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0);
     }
 
     //Left side 
