@@ -169,7 +169,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 uiDamage += uiDamage/2;
         }
 
-        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0);
+        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0;
     }
 
     //Rigt side 
@@ -396,7 +396,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 uiDamage += uiDamage/2;
         }
 
-        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0);
+        m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0;
     }
 
     //Left side 
