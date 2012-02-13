@@ -125,11 +125,12 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            m_creature->SetInCombatWithZone();
+        }
         DoScriptText(-1713541,m_creature);
         DoCastSpellIfCan(m_creature, SPELL_LIGHT_SURGE);
-
-        m_creature->SetInCombatWithZone();
     }
 
     void JustReachedHome()
@@ -352,11 +353,12 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            m_creature->SetInCombatWithZone();
+        }
         DoScriptText(-1713741, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_DARK_SURGE);
-
-        m_creature->SetInCombatWithZone();
     }
 
     void JustReachedHome()
@@ -542,24 +544,41 @@ struct MANGOS_DLL_DECL mob_light_essenceAI : public ScriptedAI
         m_creature->SetWalk(true);
     }
 
+    Unit* Player()
+    {
+        ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+        ThreatList::const_iterator iter;
+        for(iter = tList.begin(); iter!=tList.end(); ++iter)
+        {
+            Unit *target;
+            if(target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
+                if(target->isAlive())
+                    return target;
+        }
+        return NULL;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance) m_creature->ForcedDespawn();
+
         if (m_pInstance->GetData(TYPE_VALKIRIES) != IN_PROGRESS) 
         {
-            Map* pMap = m_creature->GetMap();
-            Map::PlayerList const &lPlayers = pMap->GetPlayers();
-            for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+            if(Unit* player = Player())
             {
-                Unit* pPlayer = itr->getSource();
-                if (!pPlayer) continue;
-                if (pPlayer->isAlive())
-                     pPlayer->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
+                 player->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
             }
 
             m_creature->ForcedDespawn();
         }
-        return;
+        else  if (m_pInstance->GetData(TYPE_VALKIRIES) == IN_PROGRESS) 
+        {
+            if(Unit* player = Player())
+            {
+                 player->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
+                 player->CastSpell(player,SPELL_LIGHT_ESSENCE,false);
+            }   
+        }
     }
 };
 
@@ -596,22 +615,41 @@ struct MANGOS_DLL_DECL mob_dark_essenceAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveRandom();
     }
 
+    Unit* Player()
+    {
+        ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+        ThreatList::const_iterator iter;
+        for(iter = tList.begin(); iter!=tList.end(); ++iter)
+        {
+            Unit *target;
+            if(target = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
+                if(target->isAlive())
+                    return target;
+        }
+        return NULL;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance) m_creature->ForcedDespawn();
-        if (m_pInstance->GetData(TYPE_VALKIRIES) != IN_PROGRESS) {
-                    Map* pMap = m_creature->GetMap();
-                    Map::PlayerList const &lPlayers = pMap->GetPlayers();
-                    for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-                    {
-                        Unit* pPlayer = itr->getSource();
-                        if (!pPlayer) continue;
-                        if (pPlayer->isAlive())
-                             pPlayer->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
-                    }
-            m_creature->ForcedDespawn();
+
+        if (m_pInstance->GetData(TYPE_VALKIRIES) != IN_PROGRESS) 
+        {
+            if(Unit* player = Player())
+            {
+                 player->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
             }
-        return;
+
+            m_creature->ForcedDespawn();
+        }
+        else  if (m_pInstance->GetData(TYPE_VALKIRIES) == IN_PROGRESS) 
+        {
+            if(Unit* player = Player())
+            {
+                 player->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
+                 player->CastSpell(player,SPELL_DARK_ESSENCE,false);
+            }   
+        }
     }
 };
 
