@@ -34,6 +34,8 @@ enum
         SPELL_DEATH_PLAGUE                      = 72865,
 //        SPELL_DEATH_PLAGUE                      = 72879,
 
+        SPELL_MORTAL_WOUND                      = 71127,
+        SPELL_DECIMATE                          = 71123,
 };
 
 struct MANGOS_DLL_DECL mob_spire_frostwyrmAI : public BSWScriptedAI
@@ -159,6 +161,55 @@ CreatureAI* GetAI_mob_frost_giant(Creature* pCreature)
     return new mob_frost_giantAI(pCreature);
 }
 
+struct MANGOS_DLL_DECL mob_stinkyAI : public ScriptedAI
+{
+    mob_stinkyAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiMortalTimer;
+    uint32 m_uiDecimateTimer;
+
+    void Reset()
+    {
+        m_uiMortalTimer = 12000;
+        m_uiDecimateTimer = 38000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+               return;
+
+        //Mortal Wound
+        if (m_uiMortalTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_WOUND) == CAST_OK)
+                m_uiMortalTimer = urand(10000,13000);
+        }
+        else
+            m_uiMortalTimer -= uiDiff;
+
+        //Decimate
+        if (m_uiDecimateTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_DECIMATE) == CAST_OK)
+                m_uiDecimateTimer = urand(36000,40000);
+        }
+        else
+             m_uiDecimateTimer -= uiDiff;
+
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_stinky(Creature* pCreature)
+{
+       return new mob_stinkyAI(pCreature);
+}
+
 void AddSC_icecrown_spire()
 {
     Script *newscript;
@@ -171,5 +222,10 @@ void AddSC_icecrown_spire()
     newscript = new Script;
     newscript->Name = "mob_frost_giant";
     newscript->GetAI = &GetAI_mob_frost_giant;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_stinky";
+    newscript->GetAI = &GetAI_mob_stinky;
     newscript->RegisterSelf();
 }
