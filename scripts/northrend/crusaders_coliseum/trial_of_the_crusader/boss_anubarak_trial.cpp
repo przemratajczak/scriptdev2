@@ -376,19 +376,18 @@ struct MANGOS_DLL_DECL boss_anubarak_trialAI : public BSWScriptedAI
        
                 break;
             }
- 
-            if (m_creature->GetHealthPercent() < 30.0f)
-            {
-                m_uiPhase = PHASE_END;
-            }  
-
-            if(m_uiBerserkTimer < uiDiff)
-            {
-                DoCastSpellIfCan(m_creature, SPELL_BERSERK);
-                m_uiBerserkTimer = 10*MINUTE;
-            }else m_uiBerserkTimer -= uiDiff;
- 
         }
+
+        if (m_creature->GetHealthPercent() < 30.0f)
+        {
+            m_uiPhase = PHASE_END;
+        }  
+
+        if(m_uiBerserkTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_BERSERK);
+            m_uiBerserkTimer = 10*MINUTE;
+        }else m_uiBerserkTimer -= uiDiff;
     }
 };
  

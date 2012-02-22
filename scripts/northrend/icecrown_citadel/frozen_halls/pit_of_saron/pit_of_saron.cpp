@@ -196,6 +196,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         m_uiEventStep = 2;
                         break;
                     case 2:
+                        if (GameObject*
                         if (Creature* pTyranus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
                         {
                             DoScriptText(SAY_TYRANNUS_INTRO_2, pTyranus);
