@@ -25,17 +25,24 @@ EndScriptData */
 #include "icecrown_citadel.h"
 enum
 {
-        SPELL_BERSERK                           = 47008,
-        SPELL_FROST_BREATH                      = 70116,
-        SPELL_BLIZZARD                          = 70362,
-        SPELL_CLEAVE                            = 70361,
+    //Frost Wyrm
+    SPELL_BERSERK                           = 47008,
+    SPELL_FROST_BREATH                      = 70116,
+    SPELL_BLIZZARD                          = 70362,
+    SPELL_CLEAVE                            = 70361,
 
-        SPELL_STOMP                             = 64652,
-        SPELL_DEATH_PLAGUE                      = 72865,
-//        SPELL_DEATH_PLAGUE                      = 72879,
+    //Frost Giant
+    SPELL_STOMP                             = 64652,
+    SPELL_DEATH_PLAGUE                      = 72865,
+//  SPELL_DEATH_PLAGUE                      = 72879,
 
-        SPELL_MORTAL_WOUND                      = 71127,
-        SPELL_DECIMATE                          = 71123,
+    //Stinky & Precious
+    SPELL_MORTAL_WOUND                      = 71127,
+    SPELL_DECIMATE                          = 71123,
+    SPELL_AWAKEN_ZOMBIES                    = 71159,
+    SPELL_INFECTED_WOUND					= 71157,
+
+    NPC_ZOMBIES                             = 38104,	
 };
 
 struct MANGOS_DLL_DECL mob_spire_frostwyrmAI : public BSWScriptedAI
@@ -210,6 +217,70 @@ CreatureAI* GetAI_mob_stinky(Creature* pCreature)
        return new mob_stinkyAI(pCreature);
 }
 
+struct MANGOS_DLL_DECL mob_preciousAI : public ScriptedAI
+{
+    mob_preciousAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiMortalTimer;
+    uint32 m_uiDecimateTimer;
+    uint32 m_uiSummonTimer;
+
+    void Reset()
+    {
+        m_uiMortalTimer = 10000;
+        m_uiDecimateTimer = 42000;
+        m_uiSummonTimer = 57000;
+	}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        //Mortal Wound
+        if (m_uiMortalTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_MORTAL_WOUND) == CAST_OK)
+                m_uiMortalTimer = 10000;
+        }
+        else
+            m_uiMortalTimer -= uiDiff;
+
+        //Decimate
+        if (m_uiDecimateTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature, SPELL_DECIMATE) == CAST_OK)
+                m_uiDecimateTimer = 40000;
+        }
+        else
+            m_uiDecimateTimer -= uiDiff;
+
+        //Summon Awaken Zombie
+        if (m_uiSummonTimer <= uiDiff)
+        {
+            if(Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+            {
+                const ThreatList &threatList = m_creature->getThreatManager().getThreatList();
+                for (ThreatList::const_iterator itr = threatList.begin(); itr != threatList.end(); m_creature->SummonCreature(NPC_ZOMBIES, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0), ++itr);
+                //m_creature->SummonCreature(NPC_ZOMBIES, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+            }
+            m_uiSummonTimer = 40000;
+        }
+        else
+            m_uiSummonTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_mob_precious(Creature* pCreature)
+{
+    return new mob_preciousAI(pCreature);
+}
+
 void AddSC_icecrown_spire()
 {
     Script *newscript;
@@ -227,5 +298,10 @@ void AddSC_icecrown_spire()
     newscript = new Script;
     newscript->Name = "mob_stinky";
     newscript->GetAI = &GetAI_mob_stinky;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_precious";
+    newscript->GetAI = &GetAI_mob_precious;
     newscript->RegisterSelf();
 }
