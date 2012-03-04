@@ -168,7 +168,7 @@ struct MANGOS_DLL_DECL npc_companion_handlerAI : public ScriptedPetAI
         m_uiActionTimer = 3000;
         m_uiBreakAction = m_uiActionTimer + 7000;
         m_creature->GetCharmInfo()->SetReactState(REACT_PASSIVE);
-        m_creature->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+        m_creature->GetCharmInfo()->SetState(CHARM_STATE_COMMAND, COMMAND_FOLLOW);
     }
 
     bool m_bOwnerIsIdle()
