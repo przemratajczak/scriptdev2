@@ -50,6 +50,7 @@ enum
 
     SPELL_SELF_SPAWN_5          = 29105,                    //This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
     SPELL_SELF_SPAWN_10         = 28864,                    //This is used by the crypt guards when they die
+    SPELL_ENRAGE                = 46587,
 
     NPC_CRYPT_GUARD             = 16573
 };
@@ -70,6 +71,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     uint32 m_uiImpaleTimer;
     uint32 m_uiLocustSwarmTimer;
     uint32 m_uiSummonTimer;
+    uint32 m_uiEnrageTimer;
     bool   m_bHasTaunted;
 
     void Reset()
@@ -77,6 +79,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         m_uiImpaleTimer = 15000;                            // 15 seconds
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
         m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
+        m_uiEnrageTimer = 10*MINUTE*IN_MILLISECONDS;
     }
 
     void KilledUnit(Unit* pVictim)
@@ -163,6 +166,15 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         }
         else
             m_uiLocustSwarmTimer -= uiDiff;
+
+        //Enrage
+        if(m_uiEnrageTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_ENRAGE);
+            m_uiEnrageTimer = 10*MINUTE*IN_MILLISECONDS;
+        }
+        else
+            m_uiEnrageTimer -= uiDiff;
 
         // Summon
         /*if (m_uiSummonTimer < uiDiff)
