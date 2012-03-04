@@ -151,6 +151,11 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
 	        m_auiAncestorsOrder[i] = m_auiAncestorsOrder[j];
 	        m_auiAncestorsOrder[j] = uiTmp;
         }
+
+        //Players can't attack boss when Skadi doesn't die. 
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
     }
 
     void Aggro(Unit* pWho)
