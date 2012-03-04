@@ -98,6 +98,8 @@ enum
     NPC_SOUL_WEAVER             = 16429,
     NPC_GUARDIAN                = 16441,
 
+    NPC_CRYPT_GUARD             = 16573,
+
     // Arachnid Quarter
     GO_ARAC_ANUB_DOOR           = 181126,                   //encounter door
     GO_ARAC_ANUB_GATE           = 181195,                   //open after boss is dead
