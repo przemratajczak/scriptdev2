@@ -1805,6 +1805,24 @@ struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
         }
     }
 
+    void StopAttack()
+    {
+        inCombat = false;
+
+        Unit* owner = m_creature->GetCharmerOrOwner();
+
+        if(owner && m_creature->GetCharmInfo() && m_creature->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
+        {
+            m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->IsPet() ? ((Pet*)m_creature)->GetPetFollowAngle() : PET_FOLLOW_ANGLE);
+        }
+        else
+        {
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveIdle();
+        }
+        m_creature->AttackStop();
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!owner || !owner->isAlive()) 
@@ -1837,6 +1855,15 @@ struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
 
         if (!inCombat) 
             return;
+
+        //Stop attack if target have polymorph
+        if(m_creature->getVictim()->IsPolymorphed())
+        {
+            m_creature->InterruptNonMeleeSpells(false);
+            m_creature->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+            StopAttack();
+            return;
+        }
 
         if (m_creature->IsWithinDistInMap(m_creature->getVictim(),30.0f))
         {
