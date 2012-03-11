@@ -70,7 +70,6 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
         case NPC_GOTHIK:
         case NPC_KELTHUZAD:
         case NPC_THE_LICHKING:
-        case NPC_CRYPT_GUARD:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
 

@@ -51,8 +51,6 @@ enum
     SPELL_SELF_SPAWN_5          = 29105,                    //This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
     SPELL_SELF_SPAWN_10         = 28864,                    //This is used by the crypt guards when they die
     SPELL_ENRAGE                = 46587,
-
-    NPC_CRYPT_GUARD             = 16573
 };
 
 struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
@@ -80,16 +78,6 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
         m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
         m_uiEnrageTimer = 10*MINUTE*IN_MILLISECONDS;
-
-        if (m_pInstance)
-        {
-            if (m_pInstance->GetData(TYPE_ANUB_REKHAN) != IN_PROGRESS)
-            {
-                if (Creature* pCreature = m_pInstance->GetSingleCreatureFromStorage(NPC_CRYPT_GUARD))
-                    if (pCreature->isInCombat())
-                        m_creature->SetInCombatWithZone();
-            }
-        }
     }
 
     void KilledUnit(Unit* pVictim)
