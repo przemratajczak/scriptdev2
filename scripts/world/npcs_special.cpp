@@ -1976,115 +1976,113 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
         pCreature->NearTeleportTo(m_creature->GetPositionX()+5.0f, m_creature->GetPositionY()+5.0f, m_creature->GetPositionZ()+15.0f, m_creature->GetOrientation(), false);
         m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-14.0f);
 
-        m_bIsReady = false; 
         m_uiCreatorGuid = m_creature->GetCreatorGuid();
 
         Reset();
     }
 
-    ObjectGuid m_uiTargetGuid;
-    ObjectGuid m_uiCreatorGuid;
+    bool inCombat;
+    bool movement;
+    float angle;
+
     uint32 m_uiStrikeTimer;
-    bool m_bIsReady;
+    Unit *owner;
 
     void Reset()
     {
-        m_uiTargetGuid.Clear();
         m_uiStrikeTimer = 0;
-    }
 
-    void MoveInLineOfSight(Unit *pWho)
-    {
-        if (!m_bIsReady)
-            return;
+        inCombat = false;
+        movement = false;
 
-        ScriptedAI::MoveInLineOfSight(pWho);
-    }
+        owner = m_creature->GetOwner();
 
-    void MovementInform(uint32 uiMoveType, uint32 uiPointId)
-    {
-        if (uiMoveType != POINT_MOTION_TYPE)
-            return;
-
-        if (uiPointId == 0)
+        if (owner && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
         {
-            m_bIsReady = true;
-            m_creature->GetMotionMaster()->Clear();
+            angle = m_creature->GetAngle(owner);
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST + 3.0f, angle);
         }
+
+        if(owner->IsPvP())
+            m_creature->SetPvP(true);
+        if(owner->IsFFAPvP())
+            m_creature->SetFFAPvP(true);
+
+    }
+
+    void EnterEvadeMode()
+    {
+        if (m_creature->IsInEvadeMode() || !m_creature->isAlive())
+             return;
+
+       inCombat = false;
+
+       m_creature->AttackStop();
+       m_creature->CombatStop(true);
+       if (owner && !m_creature->hasUnitState(UNIT_STAT_FOLLOW))
+       {
+           angle = m_creature->GetAngle(owner);
+           m_creature->GetMotionMaster()->Clear(false);
+           m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST + 3.0f,angle);            
+       
+       }
     }
 
     void AttackStart(Unit *pWho)
     {
-        if (pWho)
-            m_uiTargetGuid = pWho->GetObjectGuid();
-
-        if (!m_bIsReady)
+        if (!pWho) 
             return;
 
-        ScriptedAI::AttackStart(pWho);
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->clearUnitState(UNIT_STAT_FOLLOW);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+            m_creature->AddThreat(pWho, 100.0f);
+            DoStartMovement(pWho, 30.0f);
+            SetCombatMovement(true);
+            inCombat = true;
+        }
     }
 
     void UpdateAI(uint32 const uiDiff)
     {
-        if (!m_bIsReady)
-            return;
+        if (!owner || !owner->isAlive()) 
+            m_creature->ForcedDespawn();
 
-        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGuid);
-        if (!pOwner || !pOwner->IsInWorld())
+        if (!m_creature->getVictim())
+            if (owner && owner->getVictim())
+                AttackStart(owner->getVictim());
+
+        if (m_creature->getVictim() && m_creature->getVictim() != owner->getVictim())
+            AttackStart(owner->getVictim());
+
+        if (inCombat && !m_creature->getVictim())
         {
-            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+            EnterEvadeMode();
             return;
         }
 
-        Unit *pTarget = m_creature->getVictim();
+        if (!inCombat) 
+            return;
 
-        // check if current target still exists and is attackable
-        if (!pTarget)
+        if (m_creature->IsWithinDistInMap(m_creature->getVictim(),30.0f))
         {
-            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
-
-            if (!pTarget || !m_creature->CanInitiateAttack() || pTarget && (!pTarget->isTargetableForAttack() ||
-            !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature)))
+            movement = false;
+            // Gargoyle Strike
+            if (m_uiStrikeTimer <= uiDiff)
             {
-                // we have no target, so look for the new one
-                if (Unit *pTmp = m_creature->SelectRandomUnfriendlyTarget(0, GARGOYLE_STRIKE_RANGE) )
-                    m_uiTargetGuid = pTmp->GetObjectGuid();
-
-                pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGuid);
-
-                // now check again. if no target found then there is nothing to attack - start following the owner
-                if (!pTarget || !m_creature->CanInitiateAttack() || pTarget && (!pTarget->isTargetableForAttack() ||
-                !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature)))
-                {
-                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
-                    {
-                        m_creature->InterruptNonMeleeSpells(false);
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->GetMotionMaster()->MoveFollow(pOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                        SetCombatMovement(true);
-                        Reset();
-                    }
-                    return;
-                }
-            }
-
-            if (pTarget)
-            {
-                // ok, we found new target
-                SetCombatMovement(false);
-                m_creature->AI()->AttackStart(pTarget);
-            }
-        }
-
-        // Gargoyle Strike
-        if (m_uiStrikeTimer <= uiDiff)
-        {
-            if (DoCastSpellIfCan(pTarget, SPELL_GARGOYLE_STRIKE) == CAST_OK)
+                DoCastSpellIfCan(owner->getVictim(), SPELL_GARGOYLE_STRIKE);
                 m_uiStrikeTimer = 2000;
-            else
-                SetCombatMovement(true);
+            }else m_uiStrikeTimer -= uiDiff;
         }
-        else m_uiStrikeTimer -= uiDiff;
+        else
+            if (!movement) 
+            {
+                DoStartMovement(m_creature->getVictim(), 20.0f);
+                movement = true;
+            }
     }
 };
 
