@@ -1975,7 +1975,7 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
         // "gargoyle flies into the area"
         pCreature->NearTeleportTo(m_creature->GetPositionX()+5.0f, m_creature->GetPositionY()+5.0f, m_creature->GetPositionZ()+15.0f, m_creature->GetOrientation(), false);
         m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-14.0f);
-
+   
         m_uiCreatorGuid = m_creature->GetCreatorGuid();
 
         Reset();
@@ -1984,7 +1984,7 @@ struct MANGOS_DLL_DECL npc_death_knight_gargoyle : public ScriptedAI
     bool inCombat;
     bool movement;
     float angle;
-
+    ObjectGuid m_uiCreatorGuid;
     uint32 m_uiStrikeTimer;
     Unit *owner;
 
