@@ -171,7 +171,7 @@ struct MANGOS_DLL_DECL boss_anubarak_trialAI : public BSWScriptedAI
         m_uiWaitTimer               = 4000;
         m_uiSpikesTimer             = 6000;
         m_uiSwarmTimer              = 2000;
-        m_uiBerserkTimer            = 10*MINUTE;
+        m_uiBerserkTimer            = 10*MINUTE*IN_MILLISECONDS;
  
         m_uiSummonBurrowerTimer     = 16000;                                   //Nerubian Burrower
         m_uiSummonScarabTimer       = 10000;                                   //Swarm Scrab
