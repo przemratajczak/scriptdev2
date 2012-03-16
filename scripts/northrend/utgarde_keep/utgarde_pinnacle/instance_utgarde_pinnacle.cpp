@@ -84,7 +84,14 @@ void instance_pinnacle::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_SKADI:
             if (uiData == DONE)
+            {
                 DoUseDoorOrButton(GO_DOOR_SKADI);
+                if(Creature* pCreature = GetSingleCreatureFromStorage(NPC_YMIRON))
+                {
+                    pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);	
+                    pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                }
+            }
 
             m_auiEncounter[uiType] = uiData;
             break;
