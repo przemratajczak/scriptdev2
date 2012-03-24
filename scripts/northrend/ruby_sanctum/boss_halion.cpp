@@ -310,7 +310,8 @@ struct MANGOS_DLL_DECL boss_halion_realAI : public BSWScriptedAI
 
             case 2:
                 if (MovementStarted) return;
-                doCast(SPELL_SUMMON_TWILIGHT_PORTAL);
+                //doCast(SPELL_SUMMON_TWILIGHT_PORTAL);
+                 m_creature->SummonGameobject(GO_HALION_PORTAL_1, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, 0);
                 setStage(3);
                 if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_1))
                       pGoPortal->SetPhaseMask(31,true);
