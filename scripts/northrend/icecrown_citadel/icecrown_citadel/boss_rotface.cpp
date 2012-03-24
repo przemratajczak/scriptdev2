@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
 
     void Reset()
     {
-        m_uiBerserkTimer = 5 * MINUTE * IN_MILLISECONDS;
+        m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
         m_uiSlimeSprayTimer = urand(17000, 23000);
         m_uiVileGasTimer = 20000;
         m_uiMutatedInfectionTimer = 50000;
@@ -190,7 +190,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
             if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
             {
                 DoScriptText(SAY_BERSERK, m_creature);
-                m_uiBerserkTimer = 5 * MINUTE * IN_MILLISECONDS;
+                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
             }
         }
         else
