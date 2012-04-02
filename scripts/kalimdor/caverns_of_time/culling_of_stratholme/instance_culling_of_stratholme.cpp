@@ -174,12 +174,12 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     {
 
        Map::PlayerList const &PlayerList = instance->GetPlayers();
-
+       
        if (PlayerList.isEmpty())
-           return;
+           return;       
 
-       if (Creature* pChromi = instance->GetCreature(m_uiChromi01GUID))
-       {
+       if (Creature* pChromi = GetSingleCreatureFromStorage(NPC_CHROMI01))
+       {          
            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
            {
                 pChromi->MonsterWhisper("Good work with crates! Come to me in front of Stratholme for your next assignment!", i->getSource(), false);
@@ -188,7 +188,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
             }
             pChromi->SetVisibility(VISIBILITY_OFF);
         }
-        if (Creature* pChromi2 = instance->GetCreature(m_uiChromi02GUID))
+       if (Creature* pChromi2 = GetSingleCreatureFromStorage(NPC_CHROMI02))
             pChromi2->SetVisibility(VISIBILITY_ON);
     }
 
