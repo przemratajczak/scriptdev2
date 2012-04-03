@@ -47,32 +47,34 @@ enum Summons
 
 enum BossSpells
 {
-    SPELL_TWIN_SPIKE_L     = 66075,
-    SPELL_LIGHT_SURGE      = 65766,
-    SPELL_SHIELD_LIGHT     = 65858,
-    SPELL_TWIN_PACT_L      = 67303,
-    SPELL_LIGHT_VORTEX     = 66046,
-    SPELL_LIGHT_TOUCH      = 67297,
-    SPELL_TWIN_SPIKE_H     = 66069,
-    SPELL_DARK_SURGE       = 65768,
-    SPELL_SHIELD_DARK      = 65874,
-    SPELL_TWIN_PACT_H      = 67306,
-    SPELL_DARK_VORTEX      = 66058,
-    SPELL_DARK_TOUCH       = 67282,
-    SPELL_TWIN_POWER       = 65916,
-    SPELL_LIGHT_ESSENCE    = 65686,
-    SPELL_DARK_ESSENCE     = 65684,
-    SPELL_BERSERK          = 64238,
+    SPELL_TWIN_SPIKE_L       = 66075,
+    SPELL_LIGHT_SURGE        = 65766,
+    SPELL_SHIELD_LIGHT       = 65858,
+    SPELL_TWIN_PACT_EYDIS    = 67303, // normal version of twin's pact -> 20% heal
+    SPELL_LIGHT_VORTEX       = 66046,
+    SPELL_LIGHT_TOUCH        = 67297,
+    SPELL_TWIN_SPIKE_H       = 66069,
+    SPELL_DARK_SURGE         = 65768,
+    SPELL_SHIELD_DARK        = 65874,
+    SPELL_TWIN_PACT_EYDIS_H  = 67304, // heroic version of twin's pact -> 50% heal
+    SPELL_TWIN_PACT_FJOLA    = 67306,
+    SPELL_TWIN_PACT_FJOLA_H  = 67308,
+    SPELL_DARK_VORTEX        = 66058,
+    SPELL_DARK_TOUCH         = 67282,
+    SPELL_TWIN_POWER         = 65916,
+    SPELL_LIGHT_ESSENCE      = 65686,
+    SPELL_DARK_ESSENCE       = 65684,
+    SPELL_BERSERK            = 64238,
 
-    SPELL_UNLEASHED_DARK   = 65808,
-    SPELL_UNLEASHED_LIGHT  = 65795,
+    SPELL_UNLEASHED_DARK     = 65808,
+    SPELL_UNLEASHED_LIGHT    = 65795,
 
-    SPELL_EMPOVERED_DARK   = 67215,
-    SPELL_EMPOVERED_LIGHT  = 67218,
-    SPELL_POWERING_UP      = 67604,
+    SPELL_EMPOVERED_DARK     = 67215,
+    SPELL_EMPOVERED_LIGHT    = 67218,
+    SPELL_POWERING_UP        = 67604,
 
-    PHASE_NORMAL           = 1,
-    PHASE_HEAL             = 2,
+    PHASE_NORMAL             = 1,
+    PHASE_HEAL               = 2,
 };
 
 struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
@@ -87,6 +89,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
     bool m_bIsHeroicMode;
+    bool m_bIsBerserk;
 
     Difficulty m_uiMapDifficulty;
     uint8 m_uiPhase;
@@ -99,20 +102,22 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     uint32 m_uiHealTimer;
     uint32 m_uiSummonOrbsTimer;
     uint32 m_uiTwinPowerTimer;
+    uint32 m_uiBerserkerTimer;
 
     void Reset()
     {
         m_uiTwinSpikeTimer = 10000;
-        m_uiSpecialTimer = 0;
-        m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
-        m_uiTouchOfLightTimer = urand(35000, 50000);
+        m_uiSpecialTimer = 20000;
+        m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
+        m_uiTouchOfLightTimer = urand(10000, 15000);
         m_uiChangePhaseTimer = 0;
         m_uiSwitchPhaseTimer = 17000;
-        m_uiHealTimer = 1000;
+        m_uiHealTimer = 20000;
         m_uiSummonOrbsTimer = 25000;
         m_uiTwinPowerTimer = 2000;
         m_uiPhase = PHASE_NORMAL;
-
+        m_bIsBerserk = false;
+        m_uiBerserkerTimer =m_bIsHeroicMode? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
         m_creature->SetHealth(m_creature->GetMaxHealth());
         SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
 
@@ -131,6 +136,15 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
         }
         DoScriptText(-1713541,m_creature);
         DoCastSpellIfCan(m_creature, SPELL_LIGHT_SURGE);
+    }
+
+    void EnterEvadeMode()
+    {
+           if (m_pInstance)
+            m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
+
+        m_creature->ForcedDespawn();
+
     }
 
     void JustReachedHome()
@@ -157,7 +171,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         if (!m_pInstance) return;
-        if (!m_creature || !m_creature->isAlive())
+        if (!m_creature || !m_creature->isAlive() || pDoneBy->GetEntry() == NPC_DARKBANE)
             return;
 
         if(pDoneBy->GetObjectGuid() == m_creature->GetObjectGuid()) return;
@@ -170,6 +184,11 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 uiDamage += uiDamage/2;
         }
 
+        if(Creature* pEydis = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE))
+        {
+            if(pEydis->isAlive())
+                pEydis->DealDamage(pEydis, uiDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }
         m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0;
     }
 
@@ -192,7 +211,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     }
 
 
-    Unit* PlayerWithDarkEssence()
+   /* Unit* PlayerWithDarkEssence()
     {
         Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
 
@@ -203,7 +222,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                     return pPlayer;
         }
         return NULL;
-    }
+    }*/
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -217,15 +236,14 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 if(m_uiTwinSpikeTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_TWIN_SPIKE_L);
-                    m_uiTwinSpikeTimer = urand(25000, 35000);
+                    m_uiTwinSpikeTimer = 20000;
                 }else m_uiTwinSpikeTimer -= uiDiff;
 
                 if(m_uiVortexTimer < uiDiff)
                 {
-                    if(Unit* pPlayer = PlayerWithDarkEssence())
-                        m_creature->CastSpell(pPlayer, SPELL_DARK_VORTEX, false);
+                    m_creature->CastSpell(m_creature->getVictim(), SPELL_LIGHT_VORTEX, false);
                     DoScriptText(-1713540,m_creature);
-                    m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
+                    m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiVortexTimer -= uiDiff;
 
                 if(m_uiSummonOrbsTimer < uiDiff)
@@ -238,10 +256,10 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 {
                     if(m_uiTouchOfLightTimer < uiDiff)
                     {
-                        if(Unit* pPlayer = PlayerWithDarkEssence())
+                        if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))                    
                             DoCastSpellIfCan(pPlayer, SPELL_LIGHT_TOUCH);
                             
-                        m_uiTouchOfLightTimer = urand(35000, 50000);
+                        m_uiTouchOfLightTimer = urand(10000, 15000);
                     }else m_uiTouchOfLightTimer -= uiDiff;
                 }
 
@@ -282,7 +300,7 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
 
                 if(m_uiHealTimer < uiDiff)
                 {
-                    DoCastSpellIfCan(m_creature, SPELL_TWIN_PACT_H);
+                    DoCastSpellIfCan(m_creature, m_bIsHeroicMode ? SPELL_TWIN_PACT_FJOLA_H: SPELL_TWIN_PACT_FJOLA);
                     m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
 
@@ -296,6 +314,12 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                 break;
             }
         }
+        if(!m_bIsBerserk && m_uiBerserkerTimer < uiDiff)
+        {
+              DoCast(m_creature, SPELL_BERSERK);              
+              m_uiBerserkerTimer = 0;
+              m_bIsBerserk = true;
+        }else m_uiBerserkerTimer -= uiDiff;
     }
 };
          
@@ -314,6 +338,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
     bool m_bIsHeroicMode;
+    bool m_bIsBerserk;
 
     Difficulty m_uiMapDifficulty;
 
@@ -327,20 +352,23 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     uint32 m_uiHealTimer;
     uint32 m_uiSummonOrbsTimer;
     uint32 m_uiTwinPowerTimer;
+    uint32 m_uiBerserkerTimer;
 
     void Reset()
     {
         m_uiTwinSpikeTimer = 10000;
         m_uiSpecialTimer = 0;
-        m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
-        m_uiTouchOfDarkTimer = urand(35000, 50000);
+        m_uiVortexTimer = 40*IN_MILLISECONDS;
+        m_uiTouchOfDarkTimer = urand(10000, 15000);
         m_uiChangePhaseTimer = 0;
         m_uiSwitchPhaseTimer = 17000;
         m_uiHealTimer = 1000;
         m_uiSummonOrbsTimer = 25000;
         m_uiTwinPowerTimer = 2000;
         m_uiPhase = PHASE_NORMAL;
-
+        m_bIsBerserk = false;
+        m_uiBerserkerTimer = m_bIsHeroicMode? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
+        
         m_creature->SetHealth(m_creature->GetMaxHealth());
         SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
 
@@ -361,6 +389,14 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_DARK_SURGE);
     }
 
+    void EnterEvadeMode()
+    {
+           if (m_pInstance)
+            m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
+
+        m_creature->ForcedDespawn();
+
+    }
     void JustReachedHome()
     {
         if (m_pInstance)
@@ -381,11 +417,11 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     {
         DoScriptText(-1713543, m_creature, pVictim);
     }
-
+   
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
         if (!m_pInstance) return;
-        if (!m_creature || !m_creature->isAlive())
+        if (!m_creature || !m_creature->isAlive() || pDoneBy->GetEntry() == NPC_LIGHTBANE)
             return;
 
         if(pDoneBy->GetObjectGuid() == m_creature->GetObjectGuid()) return;
@@ -393,11 +429,15 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
         if(pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
             if(pDoneBy->HasAura(SPELL_LIGHT_ESSENCE))
-                uiDamage /= 2;
+                uiDamage += uiDamage / 2;
             else if(pDoneBy->HasAura(SPELL_DARK_ESSENCE))
-                uiDamage += uiDamage/2;
+                uiDamage /= 2;
         }
-
+        if(Creature* pFjola = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE))
+        {
+            if(pFjola->isAlive())
+                pFjola->DealDamage(pFjola, uiDamage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }
         m_creature->GetHealth() >= uiDamage ? m_creature->GetHealth() - uiDamage : 0;
     }
 
@@ -419,7 +459,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
         m_creature->SummonCreature(NPC_UNLEASHED_DARK, 511.481506f, 120.842834f, 395.131409f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0);
     }
 
-    Unit* PlayerWithLightEssence()
+    /*Unit* PlayerWithLightEssence()
     {
         Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
 
@@ -430,7 +470,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                     return pPlayer;
         }
         return NULL;
-    }
+    }*/
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -444,15 +484,15 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 if(m_uiTwinSpikeTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_TWIN_SPIKE_H);
-                    m_uiTwinSpikeTimer = urand(25000, 35000);
+                    m_uiTwinSpikeTimer = urand(10000, 15000);
                 }else m_uiTwinSpikeTimer -= uiDiff;
 
                 if(m_uiVortexTimer < uiDiff)
                 {
-                    if(Unit* pPlayer = PlayerWithLightEssence())
-                        m_creature->CastSpell(pPlayer, SPELL_LIGHT_VORTEX, false);
+                    //if(Unit* pPlayer = PlayerWithLightEssence())
+                    m_creature->CastSpell(m_creature->getVictim(), SPELL_DARK_VORTEX, false);
                     DoScriptText(-1713538, m_creature);
-                    m_uiVortexTimer = 3*MINUTE*IN_MILLISECONDS;
+                    m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiVortexTimer -= uiDiff;
 
                 if(m_uiSummonOrbsTimer < uiDiff)
@@ -465,10 +505,10 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 {
                     if(m_uiTouchOfDarkTimer < uiDiff)
                     {
-                        if(Unit* pPlayer = PlayerWithLightEssence())
+                        if(Unit* pPlayer = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))                    
                             DoCastSpellIfCan(pPlayer, SPELL_DARK_TOUCH);
                             
-                        m_uiTouchOfDarkTimer = urand(35000, 50000);
+                        m_uiTouchOfDarkTimer = urand(10000, 15000);
                     }else m_uiTouchOfDarkTimer -= uiDiff;
                 }
 
@@ -508,7 +548,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
 
                 if(m_uiHealTimer < uiDiff)
                 {
-                    DoCastSpellIfCan(m_creature, SPELL_TWIN_PACT_H);
+                    DoCastSpellIfCan(m_creature, m_bIsHeroicMode ? SPELL_TWIN_PACT_EYDIS_H: SPELL_TWIN_PACT_EYDIS);
                     m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
 
@@ -522,6 +562,12 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                 break;
             }
         }
+        if(!m_bIsBerserk && m_uiBerserkerTimer < uiDiff)
+        {
+              DoCast(m_creature, SPELL_BERSERK);
+              m_uiBerserkerTimer = 0;
+              m_bIsBerserk = true;
+        }else m_uiBerserkerTimer -= uiDiff;
     }
 };
 
@@ -673,8 +719,8 @@ struct MANGOS_DLL_DECL mob_unleashed_darkAI : public ScriptedAI
     uint32 m_uiRangeCheck_Timer;
     uint32 m_uiDieTimer;
     uint32 m_uiMoveRandomTimer;
-    Creature* pDarkbane;
-    Creature* pLightbane;
+    /*Creature* pDarkbane;
+    Creature* pLightbane;*/
 
     void Reset()
     {
@@ -686,8 +732,8 @@ struct MANGOS_DLL_DECL mob_unleashed_darkAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        pDarkbane = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE);
-        pLightbane = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE);
+        /*pDarkbane = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE);
+        pLightbane = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE);*/
     }
 
     void AttackStart(Unit *pWho)
@@ -763,8 +809,8 @@ struct MANGOS_DLL_DECL mob_unleashed_lightAI : public ScriptedAI
     uint32 m_uiRangeCheck_Timer;
     uint32 m_uiDieTimer;
     uint32 m_uiMoveRandomTimer;
-    Creature* pDarkbane;
-    Creature* pLightbane;
+   /* Creature* pDarkbane;
+    Creature* pLightbane;*/
 
     void Reset()
     {
@@ -776,8 +822,8 @@ struct MANGOS_DLL_DECL mob_unleashed_lightAI : public ScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-        pDarkbane = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE);
-        pLightbane = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE);
+       /* pDarkbane = m_pInstance->GetSingleCreatureFromStorage(NPC_DARKBANE);
+        pLightbane = m_pInstance->GetSingleCreatureFromStorage(NPC_LIGHTBANE);*/
     }
 
     void AttackStart(Unit *pWho)
