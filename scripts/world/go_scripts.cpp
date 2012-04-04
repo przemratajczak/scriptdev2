@@ -795,6 +795,29 @@ bool GOUse_go_black_cage(Player* pPlayer, GameObject* pGo)
     }
     return false;
 };
+/*#####
+## go_cage_door
+#####*/
+
+enum
+{
+    QUEST_FREEDOM_FOR_ALL_CREATURES  = 2969,    
+    NPC_CAPTURED_DARTER              = 7997,
+};
+ 
+bool GOUse_go_cage_door(Player* pPlayer, GameObject* pGo)
+{
+    if(pPlayer->GetQuestStatus(QUEST_FREEDOM_FOR_ALL_CREATURES) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature *pDarter = GetClosestCreatureWithEntry(pPlayer, NPC_CAPTURED_DARTER, 10.0f))
+        {
+            pPlayer->AreaExploredOrEventHappens(QUEST_FREEDOM_FOR_ALL_CREATURES);
+            pDarter->CastSpell(pDarter, SPELL_SELF_DESPAWN, false);
+            return true;
+        }        
+    }
+    return false;
+};
 void AddSC_go_scripts()
 {
     Script* pNewScript;
@@ -942,5 +965,10 @@ void AddSC_go_scripts()
     pNewScript = new Script;
     pNewScript->Name = "go_black_cage";
     pNewScript->pGOUse = &GOUse_go_black_cage;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_cage_door";
+    pNewScript->pGOUse = &GOUse_go_cage_door;
     pNewScript->RegisterSelf();
 }
