@@ -111,8 +111,8 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
         m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
         m_uiTouchOfLightTimer = urand(10000, 15000);
         m_uiChangePhaseTimer = 0;
-        m_uiSwitchPhaseTimer = 17000;
-        m_uiHealTimer = 20000;
+        m_uiSwitchPhaseTimer = 35000;
+        m_uiHealTimer = 20500;
         m_uiSummonOrbsTimer = 25000;
         m_uiTwinPowerTimer = 2000;
         m_uiPhase = PHASE_NORMAL;
@@ -241,6 +241,8 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
 
                 if(m_uiVortexTimer < uiDiff)
                 {
+                    //apply resistance
+                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                     m_creature->CastSpell(m_creature->getVictim(), SPELL_LIGHT_VORTEX, false);
                     DoScriptText(-1713540,m_creature);
                     m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
@@ -300,6 +302,8 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
 
                 if(m_uiHealTimer < uiDiff)
                 {
+                    //Interruptable without shield
+                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
                     DoCastSpellIfCan(m_creature, m_bIsHeroicMode ? SPELL_TWIN_PACT_FJOLA_H: SPELL_TWIN_PACT_FJOLA);
                     m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
@@ -374,7 +378,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
 
         m_creature->SummonCreature(NPC_DARK_ESSENCE, 548.7794f, 132.4107f, 394.3178f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 5000);
         m_creature->SummonCreature(NPC_DARK_ESSENCE, 578.3840f, 166.6422f, 394.6210f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 5000);
-
+        
         m_creature->GetMotionMaster()->MovePoint(578.3840f, 166.6422f, 399.6210f, 4.5762f);
     }
 
@@ -406,7 +410,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     }
 
     void JustDied(Unit* pKiller)
-    {
+    {       
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VALKIRIES, DONE);
 
@@ -489,7 +493,8 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
 
                 if(m_uiVortexTimer < uiDiff)
                 {
-                    //if(Unit* pPlayer = PlayerWithLightEssence())
+                    //apply resistance
+                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                     m_creature->CastSpell(m_creature->getVictim(), SPELL_DARK_VORTEX, false);
                     DoScriptText(-1713538, m_creature);
                     m_uiVortexTimer = 1*MINUTE*IN_MILLISECONDS;
@@ -548,6 +553,8 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
 
                 if(m_uiHealTimer < uiDiff)
                 {
+                     //Interruptable without shield
+                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);                   
                     DoCastSpellIfCan(m_creature, m_bIsHeroicMode ? SPELL_TWIN_PACT_EYDIS_H: SPELL_TWIN_PACT_EYDIS);
                     m_uiHealTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiHealTimer -= uiDiff;
