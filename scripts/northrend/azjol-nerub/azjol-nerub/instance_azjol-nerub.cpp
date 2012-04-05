@@ -194,9 +194,7 @@ void instance_azjol_nerub::SetData(uint32 uiType, uint32 uiData)
         case TYPE_KRIKTHIR:
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
-                DoUseDoorOrButton(GO_DOOR_KRIKTHIR);
-            if (uiData == IN_PROGRESS)
-                m_bKrikthirAchievFailed = false;
+                DoUseDoorOrButton(GO_DOOR_KRIKTHIR);            
             break;
         case TYPE_HADRONOX:
             m_auiEncounter[uiType] = uiData;
