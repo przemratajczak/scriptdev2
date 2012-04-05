@@ -128,11 +128,11 @@ struct MANGOS_DLL_DECL boss_tharonjaAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        DoScriptText(SAY_DEATH, m_creature);
-        DoCastSpellIfCan(pKiller, SPELL_ACHIEV_CHECK, CAST_TRIGGERED);
-
         if (m_pInstance)
             m_pInstance->SetData(TYPE_THARONJA, DONE);
+
+        DoScriptText(SAY_DEATH, m_creature);
+        DoCast(pKiller, SPELL_ACHIEV_CHECK);        
     }
 
     void JustReachedHome()
