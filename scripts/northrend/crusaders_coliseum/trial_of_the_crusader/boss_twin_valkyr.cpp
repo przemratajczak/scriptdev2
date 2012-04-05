@@ -314,7 +314,8 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
                     m_uiChangePhaseTimer = 1*MINUTE*IN_MILLISECONDS;
                     m_uiSwitchPhaseTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSwitchPhaseTimer -= uiDiff;
-
+                
+                DoMeleeAttackIfReady();
                 break;
             }
         }
@@ -566,6 +567,7 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
                     m_uiSwitchPhaseTimer = 1*MINUTE*IN_MILLISECONDS;
                 }else m_uiSwitchPhaseTimer -= uiDiff;
 
+                DoMeleeAttackIfReady();
                 break;
             }
         }
