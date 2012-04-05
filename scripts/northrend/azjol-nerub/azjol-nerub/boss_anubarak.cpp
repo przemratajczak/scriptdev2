@@ -88,6 +88,7 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     uint32 m_uiSummonEliteAdd_Timer;
     uint32 m_uiSummonNonEliteAdd_Timer;
     uint32 m_uiCombatProgress;
+    uint32 m_uiGottaGoTimer;
     float fTimerPenalty;
 
     GUIDList lSummons;
@@ -95,6 +96,7 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     void Reset()
     {
         m_uiCombatProgress = 25000;
+        m_uiGottaGoTimer = 4*MINUTE*IN_MILLISECONDS;
         fTimerPenalty = 1.0f;
         fHealthPercent = 75.0f;
         m_uiSubmergePhase_Timer = 45000;
@@ -138,7 +140,10 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_ANUBARAK, NOT_STARTED);
+            m_pInstance->m_bAnubAchievFailed = false;
+        }
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -159,6 +164,13 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if (m_uiGottaGoTimer < uiDiff)
+        {
+            m_pInstance->m_bAnubAchievFailed = true;
+        }
+        else
+            m_uiGottaGoTimer -= uiDiff;
 
         if (m_uiCombatProgress < uiDiff)
         {

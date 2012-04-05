@@ -25,7 +25,7 @@ EndScriptData */
 #include "azjol-nerub.h"
 
 instance_azjol_nerub::instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap),
-    m_uiWatcherTimer(0),m_bKrikthirAchievFailed(false)
+    m_uiWatcherTimer(0),m_bKrikthirAchievFailed(false),m_bAnubAchievFailed(false)
 {
     Initialize();
 }
@@ -207,7 +207,10 @@ void instance_azjol_nerub::SetData(uint32 uiType, uint32 uiData)
             DoUseDoorOrButton(GO_DOOR_ANUBARAK_2);
             DoUseDoorOrButton(GO_DOOR_ANUBARAK_3);
             if (uiData == IN_PROGRESS)
+            {
+                m_bAnubAchievFailed = false;
                 DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_START_ANUB_ID);
+            }
             break;
     }
 
@@ -252,6 +255,8 @@ bool instance_azjol_nerub::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Pla
     {
         case ACHIEV_WATCH_HIM_DIE:
             return !m_bKrikthirAchievFailed;        
+        case ACHIEV_GOTTA_GO:
+            return !m_bAnubAchievFailed;
         default:
             return false;
     }
