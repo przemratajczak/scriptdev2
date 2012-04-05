@@ -31,6 +31,7 @@ enum
     GO_DOOR_ANUBARAK_3          = 192398,
 
     ACHIEV_START_ANUB_ID        = 20381,
+    ACHIEV_WATCH_HIM_DIE        = 4240,
 };
 
 static const uint32 aWatchers[] = {NPC_GASHRA, NPC_NARJIL, NPC_SILTHIK};
@@ -57,6 +58,9 @@ class MANGOS_DLL_DECL instance_azjol_nerub : public ScriptedInstance
 
         void Update(uint32 uiDiff);
 
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+
+
     private:
         void DoSendWatcherOrKrikthir();
 
@@ -66,5 +70,7 @@ class MANGOS_DLL_DECL instance_azjol_nerub : public ScriptedInstance
         ObjectGuid m_playerGuid;
 
         uint32 m_uiWatcherTimer;
+        bool m_bKrikthirAchievFailed;
+
 };
 #endif

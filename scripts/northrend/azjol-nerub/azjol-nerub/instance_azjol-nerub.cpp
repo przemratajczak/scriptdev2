@@ -25,7 +25,7 @@ EndScriptData */
 #include "azjol-nerub.h"
 
 instance_azjol_nerub::instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap),
-    m_uiWatcherTimer(0)
+    m_uiWatcherTimer(0),m_bKrikthirAchievFailed(false)
 {
     Initialize();
 }
@@ -85,6 +85,8 @@ void instance_azjol_nerub::OnCreatureDeath(Creature* pCreature)
     uint32 uiEntry = pCreature->GetEntry();
     if (uiEntry == NPC_GASHRA || uiEntry == NPC_NARJIL || uiEntry == NPC_SILTHIK)
     {
+        m_bKrikthirAchievFailed = true;
+
         if (m_auiEncounter[TYPE_KRIKTHIR] == NOT_STARTED)
             m_uiWatcherTimer = 5000;
     }
@@ -193,6 +195,8 @@ void instance_azjol_nerub::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_DOOR_KRIKTHIR);
+            if (uiData == IN_PROGRESS)
+                m_bKrikthirAchievFailed = false;
             break;
         case TYPE_HADRONOX:
             m_auiEncounter[uiType] = uiData;
@@ -242,7 +246,16 @@ void instance_azjol_nerub::Load(const char* chrIn)
 
     OUT_LOAD_INST_DATA_COMPLETE;
 }
-
+bool instance_azjol_nerub::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch (uiCriteriaId)
+    {
+        case ACHIEV_WATCH_HIM_DIE:
+            return !m_bKrikthirAchievFailed;        
+        default:
+            return false;
+    }
+}
 InstanceData* GetInstanceData_instance_azjol_nerub(Map* pMap)
 {
     return new instance_azjol_nerub(pMap);
