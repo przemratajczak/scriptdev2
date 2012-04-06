@@ -224,7 +224,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
                 m_auiEncounter[5] = uiData;
                 if(uiData == IN_PROGRESS)
                 {
-                  if(Creature* Corruptor = instance->GetCreature(m_uiCorruptorGUID))
+                  if(Creature* Corruptor = GetSingleCreatureFromStorage(NPC_INFINITE_CORRUPTOR))
                      Corruptor->SetPhaseMask(1, true);
                   DoUpdateWorldState(WORLD_STATE_COS_TIME_ON, 1);
                   DoUpdateWorldState(WORLD_STATE_COS_TIME_COUNT, 25);  
@@ -235,11 +235,13 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
                 if (uiData == DONE)
                 {
                     DoRespawnGameObject(m_uiMalChestGUID, 30*MINUTE);
-                    if (GameObject* pGo = instance->GetGameObject(m_uiMalChestGUID))
+                    if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_MALGANIS_CHEST))
                         pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    if (Creature* pChromi2 = instance->GetCreature(m_uiChromi02GUID))
+                    if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_MALGANIS_CHEST_H))
+                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);                    
+                    if (Creature* pChromi2 = GetSingleCreatureFromStorage(NPC_CHROMI02))
                         pChromi2->SetVisibility(VISIBILITY_OFF);
-                    if (GameObject* pGo = instance->GetGameObject(m_uiExitGUID))
+                    if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_EXIT))
                         pGo->SetGoState(GO_STATE_ACTIVE);
                 }
                 break;
@@ -289,7 +291,7 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
          {
              m_auiEncounter[5] = FAIL;
              DoUpdateWorldState(WORLD_STATE_COS_TIME_ON, 0);
-             if(Creature* Corruptor = instance->GetCreature(m_uiCorruptorGUID))
+             if(Creature* Corruptor = GetSingleCreatureFromStorage(NPC_INFINITE_CORRUPTOR))
                Corruptor->SetPhaseMask(0, true);
 
          }else m_uiHeroicTimer -= uiDiff;
