@@ -63,6 +63,7 @@ enum
     NPC_AZURE_INVADER      = 30661, //Melee, 8k - 12k hp
     NPC_AZURE_MAGE_SLAYER  = 30664, //Melee, 10k - 15k hp
     NPC_AZURE_SPELLBREAKER = 30662, //Caster, 10k - 15k hp
+    NPC_VOID_SENTRY        = 29364,
 
     NPC_SINCLARI           = 30658,
     NPC_GUARD              = 30659,
@@ -84,7 +85,11 @@ enum
 
     EMOTE_GUARDIAN_PORTAL       = -1608005,
     EMOTE_DRAGONFLIGHT_PORTAL   = -1608006,
-    EMOTE_KEEPER_PORTAL         = -1608007
+    EMOTE_KEEPER_PORTAL         = -1608007,
+
+    ACHIEV_DEFENSELESS     = 6803,
+    ACHIEV_DEHYDRATION     = 7320,
+    ACHIEV_VOID_DANCE      = 7587
 };
 
 struct Locations
@@ -181,4 +186,44 @@ static Locations DragonsWP[]=
     {1829.64f,  804.194f, 44.355f}, // 26
 };
 
+class MANGOS_DLL_DECL instance_violet_hold : public ScriptedInstance
+{
+    public:
+        instance_violet_hold(Map* pMap);
+
+        void Initialize();
+
+        void Clear();
+        void InitWorldState(bool Enable /* = true*/);
+        void OnObjectCreate(GameObject* pGo);
+        void OnCreatureCreate(Creature* pCreature);
+        void OnCreatureDeath(Creature* pCreature);
+        bool IsEncounterInProgress() const;
+
+        void SetData(uint32 uiType, uint32 uiData);
+        uint32 GetData(uint32 uiType);
+
+        const char* Save() { return m_strInstData.c_str(); }
+        void Load(const char* chrIn);
+        
+        void OnPlayerEnter(Player* pPlayer);
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+    
+         bool m_bDehydrationAchievFailed;
+         bool m_bVoidDanceAchievFailed;
+
+    private:            
+
+        uint32 m_auiEncounter[MAX_ENCOUNTER+1];
+        std::string m_strInstData;          
+        ObjectGuid m_playerGuid;
+        bool bIsInBoss;
+
+        uint8 m_uiLastBossID;
+        uint8 m_uiLastBossIDConst;
+        uint8 m_uiRiftPortalCount;
+        uint32 m_uiShieldPercent;
+        uint32 m_uiDisruptions;
+        int8 m_uiPortalTime;
+};
 #endif

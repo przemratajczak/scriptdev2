@@ -60,11 +60,11 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public ScriptedAI
 {
     boss_ichoronAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_violet_hold*)pCreature->GetInstanceData());
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
-    ScriptedInstance *m_pInstance;
+    instance_violet_hold *m_pInstance;
     std::list<ObjectGuid> m_lWaterElementsGUIDList;
 
     bool m_bIsRegularMode;
@@ -141,10 +141,11 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public ScriptedAI
 
     void WaterElementHit()
     {
-       if (Creature* pIchoron = m_pInstance->GetSingleCreatureFromStorage(DATA_ICHORON))
+       if (Creature* pIchoron = m_pInstance->GetSingleCreatureFromStorage(NPC_ICHORON))
        {
           if(pIchoron->isAlive())
           {
+            m_pInstance->m_bDehydrationAchievFailed = true;
             pIchoron->ModifyHealth( m_bIsRegularMode ? GLOBULE_HEAL : GLOBULE_HEAL_H);
             if (m_bIsExploded)
             {
@@ -314,10 +315,10 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
 {
     mob_ichor_globuleAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_violet_hold*)pCreature->GetInstanceData());
         Reset();
     }
-    ScriptedInstance *m_pInstance;
+    instance_violet_hold *m_pInstance;
 
     uint32 m_uiRangeCheck_Timer;
 
@@ -336,12 +337,13 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
         if (m_uiRangeCheck_Timer < uiDiff)
         {
             if (m_pInstance)
-            {
-                if (Creature* pIchoron = m_pInstance->GetSingleCreatureFromStorage(DATA_ICHORON))
-                {
+            {               
+                if (Creature* pIchoron = m_pInstance->GetSingleCreatureFromStorage(NPC_ICHORON))
+                {                    
                     float fDistance = m_creature->GetDistance2d(pIchoron);
-                    if (fDistance <= 2)
-                    {
+                    if (fDistance <= 5)
+                    {                       
+                    
                         ((boss_ichoronAI*)pIchoron->AI())->WaterElementHit();
 
                         m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

@@ -41,8 +41,7 @@ enum
     SPELL_SUMMON_VOID_SENTRY                  = 54369,
     SPELL_VOID_SHIFT                          = 54361,
     SPELL_VOID_SHIFT_H                        = 59743,
-
-    NPC_VOID_SENTRY                           = 29364,
+    
     SPELL_VOID_SENTRY_AURA                    = 54341,
     SPELL_VOID_SENTRY_AURA_H                  = 54351,
     SPELL_SHADOW_BOLT_VOLLEY                  = 54358, // 54342? 54358?

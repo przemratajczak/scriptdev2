@@ -53,7 +53,7 @@ struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
 {
     boss_cyanigosaAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = (instance_violet_hold*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
@@ -80,7 +80,7 @@ struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
     }
 
     void JustReachedHome()
-    {
+    {        
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_CYANIGOSA, FAIL);
