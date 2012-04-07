@@ -248,7 +248,7 @@ uint32 uiSummon_counter;
                    Step = 0;
                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                  } else Step = 10;
+                  } else Step = 0;
             StepTimer = 100;
             m_creature->SetVisibility(VISIBILITY_OFF);
     }
