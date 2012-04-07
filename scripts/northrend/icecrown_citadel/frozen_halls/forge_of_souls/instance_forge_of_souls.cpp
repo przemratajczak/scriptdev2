@@ -25,7 +25,7 @@ EndScriptData */
 #include "forge_of_souls.h"
 
 instance_forge_of_souls::instance_forge_of_souls(Map* pMap) : ScriptedInstance(pMap),
-    m_bCriteriaPhantomBlastFailed(false),
+    m_bCriteriaPhantomBlastFailed(false), m_uiSoulFragmentCount(0),
     m_uiTeam(0)
 {
     Initialize();
@@ -46,6 +46,7 @@ void instance_forge_of_souls::OnCreatureCreate(Creature* pCreature)
             break;
 
         case NPC_CORRUPTED_SOUL_FRAGMENT:
+            m_uiSoulFragmentCount++;
             m_luiSoulFragmentAliveGUIDs.push_back(pCreature->GetObjectGuid());
             break;
     }
@@ -110,8 +111,8 @@ bool instance_forge_of_souls::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, 
 {
     switch (uiCriteriaId)
     {
-        case ACHIEV_CRIT_SOUL_POWER:
-            return m_luiSoulFragmentAliveGUIDs.size() >= 4;
+        case ACHIEV_CRIT_SOUL_POWER:            
+            return m_uiSoulFragmentCount >= 4;            
         case ACHIEV_CRIT_PHANTOM_BLAST:
             return !m_bCriteriaPhantomBlastFailed;
         default:
@@ -124,7 +125,7 @@ void instance_forge_of_souls::SetData(uint32 uiType, uint32 uiData)
     switch(uiType)
     {
         case TYPE_BRONJAHM:
-            m_auiEncounter[0] = uiData;
+            m_auiEncounter[0] = uiData;            
 
             // Despawn remaining adds and clear list
             for (GUIDList::const_iterator itr = m_luiSoulFragmentAliveGUIDs.begin(); itr != m_luiSoulFragmentAliveGUIDs.end(); ++itr)
@@ -133,6 +134,8 @@ void instance_forge_of_souls::SetData(uint32 uiType, uint32 uiData)
                     pFragment->ForcedDespawn();
             }
             m_luiSoulFragmentAliveGUIDs.clear();
+            if(uiData == IN_PROGRESS)
+                m_uiSoulFragmentCount = 0;
             break;
         case TYPE_DEVOURER_OF_SOULS:
             m_auiEncounter[1] = uiData;
@@ -196,7 +199,10 @@ uint32 instance_forge_of_souls::GetData(uint32 uiType)
 void instance_forge_of_souls::SetData64(uint32 uiType, uint64 uiData)
 {
     if (uiType == DATA_SOULFRAGMENT_REMOVE)
+    {
         m_luiSoulFragmentAliveGUIDs.remove(ObjectGuid(uiData));
+        m_uiSoulFragmentCount--;
+    }
 }
 
 InstanceData* GetInstanceData_instance_forge_of_souls(Map* pMap)
