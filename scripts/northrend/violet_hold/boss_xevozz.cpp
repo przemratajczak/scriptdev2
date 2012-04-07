@@ -273,10 +273,10 @@ struct MANGOS_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
         {
             if (m_uiPhaseCheck_Timer < uiDiff )
             {
-            bNormalPhase = true;
-            m_uiPhaseCheck_Timer=3000000;
-            Creature* pXevozz = m_pInstance->GetSingleCreatureFromStorage(DATA_XEVOZZ);
-            m_creature->GetMotionMaster()->MoveFollow(pXevozz, 0, 0);
+                bNormalPhase = true;
+                m_uiPhaseCheck_Timer=3000000;
+                Creature* pXevozz = m_pInstance->GetSingleCreatureFromStorage(NPC_XEVOZZ);
+                m_creature->GetMotionMaster()->MoveFollow(pXevozz, 0, 0);
             }
             else m_uiPhaseCheck_Timer -= uiDiff;
         }
@@ -288,10 +288,10 @@ struct MANGOS_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
                 DoCast(m_creature, m_bIsRegularMode ? SPELL_ARCANE_TEMPEST: SPELL_ARCANE_TEMPEST_H);
                 if (m_pInstance)
                 {
-                    if (Creature* pXevozz = m_pInstance->GetSingleCreatureFromStorage(DATA_XEVOZZ))
+                    if (Creature* pXevozz = m_pInstance->GetSingleCreatureFromStorage(NPC_XEVOZZ))
                     {
                         float fDistance = m_creature->GetDistance2d(pXevozz);
-                        if (fDistance <= 3)
+                        if (fDistance <= 5)
                         {
                             m_creature->CastSpell(pXevozz, SPELL_ARCANE_POWER_H, false);
                         // DoCast(pXevozz,SPELL_ARCANE_POWER_H);
@@ -304,7 +304,7 @@ struct MANGOS_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
 
             if (m_uiSummonPlayers_Timer < uiDiff)
             {
-                if (Creature* pXevozz = (m_pInstance->GetSingleCreatureFromStorage(DATA_XEVOZZ)))
+                if (Creature* pXevozz = (m_pInstance->GetSingleCreatureFromStorage(NPC_XEVOZZ)))
                 {
                     float fDistance = m_creature->GetDistance2d(pXevozz);
 

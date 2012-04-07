@@ -362,13 +362,13 @@ struct MANGOS_DLL_DECL mob_erekem_guardAI : public ScriptedAI
         if (m_uiBloodlust_Timer < uiDiff)
         {
             if (m_pInstance)
-            if (Creature* pErekem = m_pInstance->GetSingleCreatureFromStorage(DATA_EREKEM))
-                if (pErekem->isAlive())
-                {
-                    pErekem->InterruptNonMeleeSpells(false);
-                    pErekem->CastSpell(pErekem, SPELL_BLOODLUST, false);
-                    m_uiBloodlust_Timer = urand(25000, 30000);
-                }
+                if (Creature* pErekem = m_pInstance->GetSingleCreatureFromStorage(NPC_EREKEM))
+                    if (pErekem->isAlive())
+                    {
+                        pErekem->InterruptNonMeleeSpells(false);
+                        pErekem->CastSpell(pErekem, SPELL_BLOODLUST, false);
+                        m_uiBloodlust_Timer = urand(25000, 30000);
+                    }
         }
         else m_uiBloodlust_Timer -= uiDiff;
 
@@ -392,7 +392,7 @@ struct MANGOS_DLL_DECL mob_erekem_guardAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (m_pInstance)
-            if (Creature* pErekem = m_pInstance->GetSingleCreatureFromStorage(DATA_EREKEM))
+            if (Creature* pErekem = m_pInstance->GetSingleCreatureFromStorage(NPC_EREKEM))
                 if (pErekem->isAlive())
                 {
                     DoScriptText(SAY_ADD_KILED, pErekem);
