@@ -43,6 +43,7 @@ enum
     SPELL_SPARK_H                      = 57062,
 
     SPELL_ARCANE_FORM                  = 48019,
+    SPELL_ARCANE_ATTRACTION            = 57063,
     // Chaotic Rift
     SPELL_RIFT_AURA                    = 47687,
     SPELL_RIFT_SUMMON_AURA             = 47732,
@@ -51,8 +52,7 @@ enum
     SPELL_CHARGED_RIFT_AURA            = 47733,
     SPELL_CHARGED_RIFT_SUMMON_AURA     = 47742,
 
-    SPELL_SUMMON_CRAZED_MANA_WRAITH    = 47692,
-    NPC_CHAOTIC_RIFT                   = 26918,
+    SPELL_SUMMON_CRAZED_MANA_WRAITH    = 47692,    
     NPC_CRAZED_MANA_WRAITH             = 26746
 };
 
@@ -75,6 +75,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
     bool   m_bChaoticRift;
     uint32 m_uiSparkTimer;
     uint32 m_uiCreateRiftTimer;
+    uint32 m_uiArcaneAttractionTimer;
     ObjectGuid m_chaoticRiftGuid;
 
     void Reset()
@@ -82,11 +83,21 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         m_bChaoticRift = false;
         m_uiSparkTimer = 5000;
         m_uiCreateRiftTimer = 25000;
+        m_uiArcaneAttractionTimer = 8000;
         m_chaoticRiftGuid.Clear();
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANOMALUS, FAIL);
+
+    }
     void Aggro(Unit* pWho)
     {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANOMALUS, IN_PROGRESS);
+
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
@@ -134,7 +145,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         m_creature->GetPosition(fPosX, fPosY, fPosZ);
         m_creature->GetRandomPoint(fPosX, fPosY, fPosZ, urand(15, 25), fPosX, fPosY, fPosZ);
 
-        m_creature->SummonCreature(NPC_CHAOTIC_RIFT, fPosX, fPosY, fPosZ, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+        m_creature->SummonCreature(NPC_CHAOTIC_RIFT, fPosX, fPosY, fPosZ, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
         DoScriptText(EMOTE_OPEN_RIFT, m_creature);
     }
 
@@ -153,6 +164,17 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
             DoCastSpellIfCan(m_creature, SPELL_RIFT_SHIELD);
             m_bChaoticRift = true;
             return;
+        }
+
+        if(!m_bIsRegularMode)
+        {
+            if (m_uiArcaneAttractionTimer < uiDiff)
+            {
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_ARCANE_ATTRACTION);
+                m_uiArcaneAttractionTimer = 8000;
+            }
+            else
+                m_uiArcaneAttractionTimer -= uiDiff;
         }
 
         if (m_uiCreateRiftTimer < uiDiff)
@@ -195,7 +217,7 @@ struct MANGOS_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        m_uiSummonTimer = 16000;
+        m_uiSummonTimer = 6000;
         DoCastSpellIfCan(m_creature, SPELL_RIFT_AURA);
         //DoCastSpellIfCan(m_creature, SPELL_RIFT_SUMMON_AURA);
     }
@@ -220,7 +242,7 @@ struct MANGOS_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
         if (m_uiSummonTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, SPELL_SUMMON_CRAZED_MANA_WRAITH);
-            m_uiSummonTimer = 16000;
+            m_uiSummonTimer = 6000;
         }
         else
             m_uiSummonTimer -= uiDiff;

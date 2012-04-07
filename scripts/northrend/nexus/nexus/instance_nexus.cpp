@@ -45,7 +45,8 @@ bool GOUse_go_containment_sphere(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
-instance_nexus::instance_nexus(Map* pMap) : ScriptedInstance(pMap)
+instance_nexus::instance_nexus(Map* pMap) : ScriptedInstance(pMap),
+ m_bAnomalusAchievFailed(false)
 {
     Initialize();
 }
@@ -84,6 +85,13 @@ void instance_nexus::OnCreatureCreate(Creature* pCreature)
         m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
 }
 
+void  instance_nexus::OnCreatureDeath(Creature* pCreature)
+{
+    if(pCreature->GetEntry() == NPC_CHAOTIC_RIFT)
+        if(m_auiEncounter[TYPE_ANOMALUS] == IN_PROGRESS)
+            m_bAnomalusAchievFailed = true;
+}
+
 uint32 instance_nexus::GetData(uint32 uiType)
 {
     if (uiType < MAX_ENCOUNTER)
@@ -110,6 +118,10 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
             {
                 if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_CONTAINMENT_SPHERE_ANOMALUS))
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
+            }
+            if(uiData == FAIL)
+            {
+                m_bAnomalusAchievFailed  = false;
             }
             break;
         case TYPE_ORMOROK:
@@ -182,6 +194,17 @@ void instance_nexus::Load(const char* chrIn)
     }
 
     OUT_LOAD_INST_DATA_COMPLETE;
+}
+
+bool instance_nexus::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch (uiCriteriaId)
+    {
+        case ACHIEV_CHAOS_THEORY:
+            return !m_bAnomalusAchievFailed;      
+        default:
+            return false;
+    }
 }
 
 InstanceData* GetInstanceData_instance_nexus(Map* pMap)
