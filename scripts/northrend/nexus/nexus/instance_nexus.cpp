@@ -46,7 +46,7 @@ bool GOUse_go_containment_sphere(Player* pPlayer, GameObject* pGo)
 }
 
 instance_nexus::instance_nexus(Map* pMap) : ScriptedInstance(pMap),
- m_bAnomalusAchievFailed(false)
+ m_bAnomalusAchievFailed(false),m_bKeristraszaAchievFailed(false)
 {
     Initialize();
 }
@@ -134,6 +134,8 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_KERISTRASZA:
             m_auiEncounter[uiType] = uiData;
+            if(uiData == FAIL)
+                m_bKeristraszaAchievFailed = false;
             break;
         case TYPE_COMMANDER:
             m_auiEncounter[uiType] = uiData;
@@ -201,7 +203,9 @@ bool instance_nexus::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player co
     switch (uiCriteriaId)
     {
         case ACHIEV_CHAOS_THEORY:
-            return !m_bAnomalusAchievFailed;      
+            return !m_bAnomalusAchievFailed;    
+        case ACHIEV_INTENSE_COLD:
+            return !m_bKeristraszaAchievFailed; 
         default:
             return false;
     }

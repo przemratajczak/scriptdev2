@@ -33,6 +33,7 @@ enum
     SAY_DEATH                   = -1576020,
 
     SPELL_INTENSE_COLD          = 48094,
+    SPELL_INTENSE_COLD_AURA     = 48095,
 
     SPELL_CRYSTALFIRE_BREATH    = 48096,
     SPELL_CRYSTALFIRE_BREATH_H  = 57091,
@@ -54,12 +55,12 @@ struct MANGOS_DLL_DECL boss_keristraszaAI : public ScriptedAI
 {
     boss_keristraszaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_nexus*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_nexus* m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 uiCrystalChainTimer;
@@ -92,11 +93,17 @@ struct MANGOS_DLL_DECL boss_keristraszaAI : public ScriptedAI
         }
     }
 
+    void JustReachedHome()
+    {
+         if(m_pInstance)
+             m_pInstance->SetData(TYPE_KERISTRASZA, FAIL); 
+    }
     void Aggro(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-
+        DoScriptText(SAY_AGGRO, m_creature);        
         m_creature->CastSpell(m_creature, SPELL_INTENSE_COLD, true);
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_KERISTRASZA, IN_PROGRESS);
     }
 
     void JustDied(Unit* pKiller)
@@ -111,6 +118,18 @@ struct MANGOS_DLL_DECL boss_keristraszaAI : public ScriptedAI
     {
         if (urand(0, 1))
             DoScriptText(SAY_KILL, m_creature);
+    }
+
+    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry) 
+    {
+        if(pSpellEntry->Id == SPELL_INTENSE_COLD_AURA)
+        {                        
+            if(Aura* aura = pUnit->GetAura(SPELL_INTENSE_COLD_AURA, EFFECT_INDEX_0))
+            {                
+                if(aura->GetStackAmount() > 2)
+                    m_pInstance->m_bKeristraszaAchievFailed = true;
+            }            
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
