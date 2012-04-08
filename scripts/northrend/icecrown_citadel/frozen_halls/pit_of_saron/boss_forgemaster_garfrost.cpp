@@ -40,6 +40,7 @@ enum saysSD2
 
     SPELL_PERMAFROST                    = 70326,
     SPELL_PERMAFROST_AURA               = 68786,
+    SPELL_PERMAFROST_DEBUFF             = 70336,
     SPELL_THROW_SARONITE                = 68788,
     SPELL_THUNDERING_STOMP              = 68771,
     SPELL_FORGE_FROZEN_BLADE            = 68774,
@@ -65,7 +66,7 @@ enum saysSD2
     //SAY_FREE_SLAVE                     = ??????,
     //SAY_TYRANNUS_OUTRO                 = ??????,
 
-    ACHIEV_DOESNT_GO_TO_ELEVEN         = 4524,
+    
 };
 
 static const float aGarfrostMoveLocs[2][3] =
@@ -78,11 +79,11 @@ struct MANGOS_DLL_DECL boss_forgemaster_garfrostAI : public ScriptedAI
 {
     boss_forgemaster_garfrostAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_pit_of_saron*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_pit_of_saron* m_pInstance;
 
     uint32 m_uiThrowSaroniteTimer;
     uint32 m_uiPhase;
@@ -98,20 +99,41 @@ struct MANGOS_DLL_DECL boss_forgemaster_garfrostAI : public ScriptedAI
         m_uiPhase = PHASE_NO_ENCHANTMENT;
     }
 
+    void JustReachedHome()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_GARFROST, FAIL);
+    }
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature, pWho);
         DoCastSpellIfCan(m_creature, SPELL_PERMAFROST);
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_GARFROST, IN_PROGRESS);
     }
 
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature, pKiller);
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_GARFROST, DONE);
     }
 
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(SAY_SLAY_1, m_creature);
+    }
+
+    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry) 
+    {
+        if(pSpellEntry->Id == SPELL_PERMAFROST_DEBUFF)
+        {                        
+           if(Aura* aura = pUnit->GetAura(SPELL_PERMAFROST_DEBUFF, EFFECT_INDEX_1))
+            {                               
+                if(aura->GetStackAmount() > 10)
+                    m_pInstance->m_bGarfrostAchievFailed = true;                
+            }            
+        }
     }
 
     void MovementInform(uint32 uiMotionType, uint32 uiPointId)

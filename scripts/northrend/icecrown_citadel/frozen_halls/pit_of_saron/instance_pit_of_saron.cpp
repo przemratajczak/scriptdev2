@@ -24,7 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "pit_of_saron.h"
 
-instance_pit_of_saron::instance_pit_of_saron(Map* pMap) : ScriptedInstance(pMap)
+instance_pit_of_saron::instance_pit_of_saron(Map* pMap) : ScriptedInstance(pMap),
+m_bGarfrostAchievFailed(false)
 {
     Initialize();
 }
@@ -73,6 +74,8 @@ void instance_pit_of_saron::SetData(uint32 uiType, uint32 uiData)
         case TYPE_GARFROST:
             if (uiData == DONE && m_auiEncounter[TYPE_KRICK] == DONE)
                 DoUseDoorOrButton(GO_ICEWALL);
+            if(uiData == FAIL)
+                m_bGarfrostAchievFailed = false;
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_KRICK:
@@ -129,6 +132,17 @@ uint32 instance_pit_of_saron::GetData(uint32 uiType)
         return m_auiEncounter[uiType];
 
     return 0;
+}
+
+bool instance_pit_of_saron::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch (uiCriteriaId)
+    {
+        case ACHIEV_DOESNT_GO_TO_ELEVEN:
+            return !m_bGarfrostAchievFailed;            
+        default:
+            return false;
+    }
 }
 
 bool AreaTrigger_at_tyrannus(Player* pPlayer, AreaTriggerEntry const* pAt)

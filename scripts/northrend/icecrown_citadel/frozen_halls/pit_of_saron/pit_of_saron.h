@@ -50,6 +50,7 @@ enum
 
     GO_ICEWALL                      = 201885,               // open after gafrost/krick
     GO_HALLS_OF_REFLECT_PORT        = 201848,               // unlocked by jaina/sylvanas at last outro
+    ACHIEV_DOESNT_GO_TO_ELEVEN      = 12993,
 };
 
 class MANGOS_DLL_DECL instance_pit_of_saron : public ScriptedInstance
@@ -68,6 +69,9 @@ class MANGOS_DLL_DECL instance_pit_of_saron : public ScriptedInstance
 
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+
+        bool m_bGarfrostAchievFailed;
 
     protected:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
