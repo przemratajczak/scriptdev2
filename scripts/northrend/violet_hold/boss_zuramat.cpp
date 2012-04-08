@@ -209,13 +209,14 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        DespawnSentry();
+        
 
         if (m_pInstance){
             m_pInstance->SetData(TYPE_ZURAMAT, DONE);
         if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, DONE);}
             else {m_pInstance->SetData(TYPE_PORTAL12, DONE);}
         }
+        DespawnSentry();
     }
 
     void KilledUnit(Unit* pVictim)

@@ -105,7 +105,7 @@ void instance_violet_hold::OnObjectCreate(GameObject* pGo)
 
 void instance_violet_hold::OnCreatureDeath(Creature* pCreature)
 {
-    if(pCreature->GetEntry() == NPC_VOID_SENTRY)
+    if(pCreature->GetEntry() == NPC_VOID_SENTRY && m_auiEncounter[TYPE_ZURAMAT] == IN_PROGRESS)
         m_bVoidDanceAchievFailed = true;
 }
 
