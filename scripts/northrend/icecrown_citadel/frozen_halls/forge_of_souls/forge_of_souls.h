@@ -99,6 +99,7 @@ class MANGOS_DLL_DECL instance_forge_of_souls : public ScriptedInstance
         void Initialize();
 
         void OnCreatureCreate(Creature* pCreature);
+        void OnCreatureDeath(Creature* pCreature);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
@@ -111,11 +112,12 @@ class MANGOS_DLL_DECL instance_forge_of_souls : public ScriptedInstance
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
 
+        uint32 m_uiSoulFragmentCount;
     protected:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
-        uint32 m_uiSoulFragmentCount;
+        
         bool m_bCriteriaPhantomBlastFailed;
 
         uint32 m_uiTeam;                                    // Team of first entered player, used to set if Jaina or Silvana to spawn

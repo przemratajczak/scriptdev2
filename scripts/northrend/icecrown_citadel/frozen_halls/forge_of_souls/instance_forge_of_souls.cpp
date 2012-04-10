@@ -183,6 +183,12 @@ void instance_forge_of_souls::Load(const char* chrIn)
     OUT_LOAD_INST_DATA_COMPLETE;
 }
 
+
+void instance_forge_of_souls::OnCreatureDeath(Creature* pCreature)
+{
+    if(pCreature->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT)
+        m_uiSoulFragmentCount--;
+}
 uint32 instance_forge_of_souls::GetData(uint32 uiType)
 {
     switch(uiType)

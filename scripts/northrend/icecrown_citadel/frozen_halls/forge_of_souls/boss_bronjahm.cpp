@@ -52,11 +52,11 @@ struct MANGOS_DLL_DECL boss_bronjahmAI : public BSWScriptedAI
 {
     boss_bronjahmAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        pInstance = (instance_forge_of_souls*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance *pInstance;
+    instance_forge_of_souls *pInstance;
     uint8 stage;
     uint32 BattleMusicTimer;
     uint32 Music;
@@ -181,11 +181,11 @@ struct MANGOS_DLL_DECL mob_soul_fragmentAI : public ScriptedAI
 {
     mob_soul_fragmentAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_forge_of_souls*)pCreature->GetInstanceData());
         Reset();
     }
 
-    ScriptedInstance *m_pInstance;
+    instance_forge_of_souls *m_pInstance;
     uint32 m_uiRangeCheck_Timer;
 
     void Reset()
@@ -216,6 +216,7 @@ struct MANGOS_DLL_DECL mob_soul_fragmentAI : public ScriptedAI
                 {
                     pBoss->CastSpell(pBoss, SPELL_CONSUME_SOUL, false);
                     m_creature->ForcedDespawn();
+                    m_pInstance->m_uiSoulFragmentCount--;
                 } else m_creature->GetMotionMaster()->MoveChase(pBoss);
             }
             else
