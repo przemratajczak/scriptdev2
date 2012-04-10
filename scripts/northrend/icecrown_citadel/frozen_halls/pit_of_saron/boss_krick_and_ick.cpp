@@ -39,32 +39,18 @@ enum
     EMOTE_KRICK_MINES                   = -1658032,
     EMOTE_ICK_POISON                    = -1658033,
     EMOTE_ICK_CHASING                   = -1658034,
-
-    /*SAY_SYLVANAS_KRICK_2                = -1658035, //Frostmourne? The lich king is never...
-    SAY_JAINA_KRICK_1                   = -1658036, //I swear is tru dont kill me
-    SAY_SYLVANAS_KRICK_1                = -1658037, //Worthless gnat! Death is all that awaits you!
-    SAY_OUTRO_2                         = -1658038, //Urg... no!!
-    SAY_JAINA_KRICK_2                   = -1658039, //Do not think that I shall permit you entry into my master's sanctum so easily. Pursue me if you dare.
-    SAY_SYLVANAS_KRICK_2                = -1658040, //What a cruel end. Come, heroes. We must see if the gnome's story is true. If we can separate Arthas from Frostmourne, we might have a chance at stopping him.
-    SAY_OUTRO_3                         = -1658041, //A fitting end for a traitor. Come, we must free the slaves and see what is within the Lich King's chamber for ourselves.
-    SAY_TYRANNUS_KRICK_1                = -1658042, //
-    SAY_OUTRO_4                         = -1658043, //
-    SAY_TYRANNUS_KRICK_2                = -1658044, //
-    SAY_JAINA_KRICK_3                   = -1658045, //
-    SAY_SYLVANAS_KRICK_3                = -1658046, */
-
-    /** OUTRO ALLIANCE **/
-    //SAY_KRICK_1                         = brak
-    //SAY_JAINA_1                         = brak
-    //SAY_KRICK_2                         = brak
-    //SAY_JAINA_2                         = brak
-    SAY_KRICK_3                         = -1658036, //I swear it is true! Please, don't kill me!!
-    SAY_TYRANNUS_1                      = -1658037, //Worthless gnat! Death is all that awaits you!
-    SAY_KRICK_4                         = -1658038, //Urg... no!!
-    SAY_TYRANNUS_2                      = -1658039, //Do not think that I shall permit you entry into my master's sanctum so easily. Pursue me if you dare.
-    SAY_JAINA_3                         = -1658040, //What a cruel end. Come, heroes. We must see if the gnome's story is true. If we can separate Arthas from Frostmourne, we might have a chance at stopping him.
-    //SAY_TYRANNUS_3
-    //SAY_TYRANNUS_4
+   
+    //outro
+    SAY_OUTRO_KRICK_1                   = -1658035,
+    SAY_OUTRO_JAINA_1                   = -1658036,
+    SAY_OUTRO_KRICK_2                   = -1658037,
+    SAY_OUTRO_JAINA_2                   = -1658038,
+    SAY_OUTRO_KRICK_3                   = -1658039,
+    SAY_OUTRO_TYRAN_1                   = -1658040,
+    SAY_OUTRO_KRICK_4                   = -1658041,
+    SAY_OUTRO_TYRAN_2                   = -1658042,
+    SAY_OUTRO_JAINA_3                   = -1658043,
+    SAY_OUTRO_TYRAN_3                   = -1658044,
 
     /** HORDE ALLIANCE **/
     //SAY_KRICK_1                       = brak
@@ -121,6 +107,224 @@ static float afSpawnLocations[6][4]=
     { 840.8530f, 179.628f, 554.0090f, 4.76377f }, //Move point Tyrannus
 };
 
+struct MANGOS_DLL_DECL boss_krickAI : public ScriptedAI
+{
+    boss_krickAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (instance_pit_of_saron*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+        Reset();
+    }
+
+    instance_pit_of_saron* m_pInstance;
+    bool m_bIsRegularMode;
+    bool m_bIsOutro;
+    bool m_bIsSummoning;
+
+    uint8 m_uiPhase;
+    uint32 m_uiToxicWasteTimer;
+    uint32 m_uiShadowboltTimer;
+    uint32 m_uiExplosivBarrageTimer;
+    // workaround
+    uint32 m_uiSummonOrbsTimer;
+    uint32 m_uiSummonOverTimer;
+
+
+    uint32 m_uiEventStepTimer;
+    uint8 m_uiEventStep;
+
+    void Reset()
+    {
+        m_uiToxicWasteTimer         = 3000;
+        m_uiShadowboltTimer         = 15000;
+        m_uiExplosivBarrageTimer    = 25000; //35
+        m_uiSummonOrbsTimer         = 600000;
+        m_uiSummonOverTimer         = 600000;
+
+        m_bIsOutro = false;
+        m_uiEventStepTimer = 1000;
+        m_uiEventStep = 0;
+
+        m_uiPhase = PHASE_START;
+       
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        SetCombatMovement(true);
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_KRICK, DONE);
+
+            m_bIsOutro = true;
+        }
+    }   
+
+    void UpdateAI(const uint32 uiDiff)
+    {       
+
+        if(m_bIsOutro)
+        {
+            if(m_uiEventStepTimer < uiDiff)
+            {
+                switch(m_uiEventStep)
+                {
+                    case 0:
+                        DoScriptText(SAY_OUTRO_KRICK_1, m_creature);
+                        m_uiEventStep = 1;
+                        m_uiEventStepTimer = 4000;
+                        break;
+                    case 1:
+                        if(Creature *pJaina = m_creature->SummonCreature(NPC_JAINA_PART_1, 825.6246f, 116.474f, 509.4035f, 0.06377f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                        { 
+                            DoScriptText(SAY_OUTRO_JAINA_1, pJaina);                        
+                        }                       
+                        m_uiEventStep = 2;
+                        m_uiEventStepTimer = 8000;
+                        break;
+                    case 2:
+                        DoScriptText(SAY_OUTRO_KRICK_2, m_creature);                        
+                        m_uiEventStep = 3;
+                        m_uiEventStepTimer = 5000;
+                        break;
+                    case 3:
+                        if (Creature* pJaina = GetClosestCreatureWithEntry(m_creature, NPC_JAINA_PART_1,50))
+                        {
+                            DoScriptText(SAY_OUTRO_JAINA_2, pJaina);                            
+                        }                                                
+                        m_uiEventStep = 4;
+                        m_uiEventStepTimer = 5000;
+                        break;
+                    case 4:
+                        DoScriptText(SAY_OUTRO_KRICK_3, m_creature);                        
+                        m_uiEventStep = 5;
+                        m_uiEventStepTimer = 5000;
+                        break;
+                    case 5:
+                        if(Creature *pTyranus = m_creature->SummonCreature(NPC_TYRANNUS_INTRO, 841.0100f, 196.2450f, 573.9640f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                        {
+                            pTyranus->GetMotionMaster()->MovePoint(0, 840.8530f, 179.628f, 554.0090f);
+                            DoScriptText(SAY_OUTRO_TYRAN_1, pTyranus);                        
+                        }
+                        m_uiEventStep = 6;
+                        m_uiEventStepTimer = 10000;
+                        break;
+                    case 6:
+                        DoScriptText(SAY_OUTRO_KRICK_4, m_creature);                        
+                        m_uiEventStep = 7;
+                        m_uiEventStepTimer = 2000;
+                        break;
+                    case 7:
+                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
+                        {
+                            DoScriptText(SAY_OUTRO_TYRAN_2, pTyrannus);
+                            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+                            //pTyrannus->DealDamage(m_creature,m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        }
+                        m_uiEventStep = 8;
+                        m_uiEventStepTimer = 6000;
+                        break;
+                    case 8:
+                        if (Creature* pJaina = GetClosestCreatureWithEntry(m_creature, NPC_JAINA_PART_1,50))
+                        {
+                            DoScriptText(SAY_OUTRO_JAINA_3, pJaina);
+                        }
+                        m_uiEventStep = 9;
+                        m_uiEventStepTimer = 4000;
+                        break;
+                    case 9:
+                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
+                        {
+                            DoScriptText(SAY_OUTRO_TYRAN_3, pTyrannus);
+                        }
+                        m_uiEventStep = 10;
+                        m_uiEventStepTimer = 4000;
+                        break;
+                    case 10:       
+                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
+                        {
+                            pTyrannus->ForcedDespawn();
+                        }
+                        if (Creature* pJaina = GetClosestCreatureWithEntry(m_creature, NPC_JAINA_PART_1,50))
+                        {
+                            pJaina->ForcedDespawn();
+                        }                        
+                        m_creature->DealDamage(m_creature,m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);              
+                        break;
+                    default:
+                        break;
+                }
+            }else m_uiEventStepTimer -= uiDiff;
+        }
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || m_bIsOutro)
+            return;
+
+        switch(m_uiPhase)
+        {
+            case PHASE_START:
+            {
+                if(m_uiToxicWasteTimer < uiDiff)
+                {
+                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    {
+                        m_creature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_TOXIC_WASTE : SPELL_TOXIC_WASTE_H, false);
+                        m_uiToxicWasteTimer = 10000;
+                    }
+                }else m_uiToxicWasteTimer -= uiDiff;
+                 
+                if(m_uiShadowboltTimer < uiDiff)
+                {
+                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    {
+                        m_creature->CastSpell(pTarget, SPELL_SHADOW_BOLT, false);
+                        m_uiShadowboltTimer = 5000;
+                    }
+                }else m_uiShadowboltTimer -= uiDiff;
+
+                if(m_uiExplosivBarrageTimer < uiDiff)
+                {
+                    DoScriptText(SAY_ORDER_STOP, m_creature);
+                    DoScriptText(EMOTE_KRICK_MINES, m_creature);
+
+                    m_bIsSummoning = true;
+                    m_uiSummonOrbsTimer = 1000;
+                    m_uiSummonOverTimer = 18000;
+                    m_uiPhase = PHASE_BARRAGE;
+                    m_uiExplosivBarrageTimer = 45000; //45sec
+                }else m_uiExplosivBarrageTimer -= uiDiff;
+
+                break;
+            }
+            case PHASE_BARRAGE:
+            {
+                if(m_bIsSummoning)
+                {
+                    if(m_uiSummonOrbsTimer < uiDiff) 
+                    {
+                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                        {
+                            m_creature->CastSpell(pTarget, SPELL_EXPLOSIVE_LIGHT, true);
+                            m_uiSummonOrbsTimer = 600;
+                        }
+                    }else m_uiSummonOrbsTimer -= uiDiff;
+                }
+                
+                if(m_uiSummonOverTimer < uiDiff)
+                {
+                    m_bIsSummoning = false;
+                    m_uiPhase = PHASE_START;
+                    m_uiSummonOverTimer = 60000;
+                }else m_uiSummonOverTimer -= uiDiff;
+
+                break;
+            }
+        }
+    }
+};
+
 struct MANGOS_DLL_DECL boss_ickAI : public ScriptedAI
 {
     boss_ickAI(Creature *pCreature) : ScriptedAI(pCreature)
@@ -171,7 +375,10 @@ struct MANGOS_DLL_DECL boss_ickAI : public ScriptedAI
             m_pInstance->SetData(TYPE_KRICK, IN_PROGRESS);
         
         if(Creature* pKrick = m_pInstance->GetSingleCreatureFromStorage(NPC_KRICK))
+        {
+            pKrick->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
             pKrick->SetInCombatWithZone();
+        }
     }
 
     void JustDied(Unit* pKiller)
@@ -179,14 +386,24 @@ struct MANGOS_DLL_DECL boss_ickAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_KRICK, DONE);
 
-        m_creature->SummonCreature(NPC_KRICK, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0);
-            
+        if(Creature* pKrick = m_pInstance->GetSingleCreatureFromStorage(NPC_KRICK))
+        {
+            ((boss_krickAI*)pKrick->AI())->EnterEvadeMode();
+            ((boss_krickAI*)pKrick->AI())->m_bIsOutro = true;
+             pKrick->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+
+        }          
+        
     }
 
     void JustReachedHome()
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_KRICK, FAIL);
+
+        if(Creature* pKrick = m_pInstance->GetSingleCreatureFromStorage(NPC_KRICK))
+            if(m_creature->IsVehicle())
+                pKrick->EnterVehicle(m_creature,0);
     }
 
     //Hack!!! Delete when spell work. 
@@ -290,256 +507,7 @@ struct MANGOS_DLL_DECL boss_ickAI : public ScriptedAI
     }
 };
 
-struct MANGOS_DLL_DECL boss_krickAI : public ScriptedAI
-{
-    boss_krickAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        m_pInstance = (instance_pit_of_saron*)pCreature->GetInstanceData();
-        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
-        Reset();
-    }
 
-    instance_pit_of_saron* m_pInstance;
-    bool m_bIsRegularMode;
-    bool m_bIsOutro;
-    bool m_bIsSummoning;
-
-    uint8 m_uiPhase;
-    uint32 m_uiToxicWasteTimer;
-    uint32 m_uiShadowboltTimer;
-    uint32 m_uiExplosivBarrageTimer;
-    // workaround
-    uint32 m_uiSummonOrbsTimer;
-    uint32 m_uiSummonOverTimer;
-
-
-    uint32 m_uiEventStepTimer;
-    uint8 m_uiEventStep;
-
-    void Reset()
-    {
-        m_uiToxicWasteTimer         = 3000;
-        m_uiShadowboltTimer         = 15000;
-        m_uiExplosivBarrageTimer    = 25000; //35
-        m_uiSummonOrbsTimer         = 600000;
-        m_uiSummonOverTimer         = 600000;
-
-        m_bIsOutro = false;
-        m_uiEventStepTimer = 1000;
-        m_uiEventStep = 1;
-
-        m_uiPhase = PHASE_START;
-
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-        SetCombatMovement(true);
-    }
-
-    void JustDied(Unit* pKiller)
-    {
-        if (m_pInstance)
-        {
-            m_pInstance->SetData(TYPE_KRICK, DONE);
-
-            m_bIsOutro = true;
-        }
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        if(m_bIsOutro)
-        {
-            if(m_uiEventStepTimer < uiDiff)
-            {
-                switch(m_uiEventStep)
-                {
-                    case 1:
-                        if(Creature *pJaina = m_creature->SummonCreature(NPC_JAINA_PART_1, 750.6790f, 116.121f, 512.3890f, 0.06377f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                        { 
-                            pJaina->GetMotionMaster()->MovePoint(0, 825.6246f, 116.474f, 509.4035f);
-                            pJaina->GetCharmInfo()->SetReactState(REACT_PASSIVE);
-                            //m_creature->GetMotionMaster()->MovePoint(0, 439.0362f, 204.2187f, 528.7357f);
-                        }
-                        else if(Creature *pSylvanas = m_creature->SummonCreature(NPC_SYLVANAS_PART_1, 750.6790f, 116.121f, 512.3890f, 0.06377f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                        {
-                            pSylvanas->GetMotionMaster()->MovePoint(0, 825.6246f, 116.474f, 509.4035f);
-                            pSylvanas->GetCharmInfo()->SetReactState(REACT_PASSIVE);
-                            //m_creature->GetMotionMaster()->MovePoint(0, 439.0362f, 204.2187f, 528.7357f);
-                        }
-                        m_creature->MonsterYell("1", 0);
-                        m_uiEventStep = 2;
-                        m_uiEventStepTimer = 8000;
-                        break;
-                    case 2:
-                        //DoScriptText(SAY_KRICK_1, m_creature);
-                        m_creature->MonsterYell("2", 0);
-                        m_uiEventStep = 3;
-                        m_uiEventStepTimer = 5000;
-                        break;
-                    case 3:
-                        if (m_creature->GetEntry() == NPC_JAINA_PART_1)
-                        {
-                            //DoScriptText(SAY_JAINA_1, pJaina);
-                        }
-                        else if (m_creature->GetEntry() == NPC_SYLVANAS_PART_1)
-                        {
-                            //DoScriptText(SAY_SYLVANAS_1, pSylvanas);
-                        }
-                        m_creature->MonsterYell("3", 0);
-                        m_uiEventStep = 4;
-                        m_uiEventStepTimer = 5000;
-                        break;
-                    case 4:
-                        //DoScriptText(SAY_KRICK_2, m_creature);
-                        m_creature->MonsterYell("4", 0);
-                        m_uiEventStep = 5;
-                        m_uiEventStepTimer = 5000;
-                        break;
-                    case 5:
-                        if (m_creature->GetEntry() == NPC_JAINA_PART_1)
-                        {
-                            //DoScriptText(SAY_JAINA_2, pJaina);
-                        }
-                        else if (m_creature->GetEntry() == NPC_SYLVANAS_PART_1)
-                        {
-                            DoScriptText(SAY_SYLVANAS_2, m_creature);
-                        }
-                        m_creature->MonsterYell("5", 0);
-                        m_uiEventStep = 6;
-                        m_uiEventStepTimer = 5000;
-                        break;
-                    case 6:
-                        DoScriptText(SAY_KRICK_3, m_creature);
-                        if(Creature *pTyranus = m_creature->SummonCreature(NPC_TYRANNUS_INTRO, 841.0100f, 196.2450f, 573.9640f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
-                        {
-                            pTyranus->GetMotionMaster()->MovePoint(0, 840.8530f, 179.628f, 554.0090f);
-                        }
-                        m_uiEventStep = 7;
-                        m_uiEventStepTimer = 10000;
-                        break;
-                    case 7:
-                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
-                        {
-                            DoScriptText(SAY_TYRANNUS_1, pTyrannus);
-                        }
-                        m_uiEventStep = 8;
-                        m_uiEventStepTimer = 6000;
-                        break;
-                    case 8:
-                        DoScriptText(SAY_KRICK_4, m_creature);
-                        m_uiEventStep = 9;
-                        m_uiEventStepTimer = 2000;
-                        break;
-                    case 9:
-                        //kil krick
-                        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-                        m_creature->SetHealth(0);
-                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
-                        {
-                            DoScriptText(SAY_TYRANNUS_2, pTyrannus);
-                        }
-                        m_uiEventStep = 10;
-                        m_uiEventStepTimer = 10000;
-                        break;
-                    case 10:
-                        //when krick died
-                        if (m_creature->GetEntry() == NPC_JAINA_PART_1)
-                        {
-                            DoScriptText(SAY_JAINA_3, m_creature);
-                        }
-                        else if (m_creature->GetEntry() == NPC_SYLVANAS_PART_1)
-                        {
-                            DoScriptText(SAY_SYLVANAS_3, m_creature);
-                        }
-                        m_uiEventStep = 11;
-                        m_uiEventStepTimer = 6000;
-                        break;
-                    case 11:
-                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
-                        {
-                            DoScriptText(SAY_TYRANNUS_3, pTyrannus);
-                        }
-                        m_uiEventStep = 12;
-                        m_uiEventStepTimer = 6000;
-                        break;
-                    case 12:
-                        if (Creature* pTyrannus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
-                        {
-                            DoScriptText(SAY_TYRANNUS_4, pTyrannus);
-                        }
-                        m_bIsOutro = false;
-                        break;
-                    default:
-                        break;
-                }
-            }else m_uiEventStepTimer -= uiDiff;
-        }
-
-        switch(m_uiPhase)
-        {
-            case PHASE_START:
-            {
-                if(m_uiToxicWasteTimer < uiDiff)
-                {
-                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    {
-                        m_creature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_TOXIC_WASTE : SPELL_TOXIC_WASTE_H, false);
-                        m_uiToxicWasteTimer = 10000;
-                    }
-                }else m_uiToxicWasteTimer -= uiDiff;
-                 
-                if(m_uiShadowboltTimer < uiDiff)
-                {
-                    if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    {
-                        m_creature->CastSpell(pTarget, SPELL_SHADOW_BOLT, false);
-                        m_uiShadowboltTimer = 5000;
-                    }
-                }else m_uiShadowboltTimer -= uiDiff;
-
-                if(m_uiExplosivBarrageTimer < uiDiff)
-                {
-                    DoScriptText(SAY_ORDER_STOP, m_creature);
-                    DoScriptText(EMOTE_KRICK_MINES, m_creature);
-
-                    m_bIsSummoning = true;
-                    m_uiSummonOrbsTimer = 1000;
-                    m_uiSummonOverTimer = 18000;
-                    m_uiPhase = PHASE_BARRAGE;
-                    m_uiExplosivBarrageTimer = 45000; //45sec
-                }else m_uiExplosivBarrageTimer -= uiDiff;
-
-                break;
-            }
-            case PHASE_BARRAGE:
-            {
-                if(m_bIsSummoning)
-                {
-                    if(m_uiSummonOrbsTimer < uiDiff) 
-                    {
-                        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        {
-                            m_creature->CastSpell(pTarget, SPELL_EXPLOSIVE_LIGHT, true);
-                            m_uiSummonOrbsTimer = 600;
-                        }
-                    }else m_uiSummonOrbsTimer -= uiDiff;
-                }
-                
-                if(m_uiSummonOverTimer < uiDiff)
-                {
-                    m_bIsSummoning = false;
-                    m_uiPhase = PHASE_START;
-                    m_uiSummonOverTimer = 60000;
-                }else m_uiSummonOverTimer -= uiDiff;
-
-                break;
-            }
-        }
-    }
-};
 
 struct MANGOS_DLL_DECL mob_exploding_orbAI : public ScriptedAI
 {

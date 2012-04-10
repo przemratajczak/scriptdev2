@@ -22,3 +22,18 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langua
 (-1658080, "Free any Horde slaves that you come across. We will most certainly need their assistance in battling Tyrannus. I will gather reinforcements and join you on the other side of the quarry.!", 17048, 0, 0, 0, 'Sylvanas SAY_SYLVANAS_2');
 INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES 
 (-1658081, "Soldiers of the Horde, attack!!", 17045, 0, 0, 0, 'Sylvanas SAY_SYLVANAS_2');
+
+
+-- krick and ick outro
+DELETE from script_texts WHERE entry BETWEEN -1658044 AND -1658035;
+INSERT into script_texts (entry,content_default,type,comment) VALUES
+(-1658035,'Wait! Stop! Don\'t kill me, please! I\'ll tell you everything!' , 1 , 'SAY_OUTRO_KRICK_1'),
+(-1658036,' I\'m not so naive as to believe your appeal for clemency, but I will listen.' , 1 ,  'SAY_OUTRO_JAINA_1'),
+(-1658037,'What you seek is in the master\'s lair, but you must destroy Tyrannus to gain entry. Within the Halls of Reflection you will find Frostmourne. It... it holds the truth.',1, 'SAY_OUTRO_KRICK_2'),
+(-1658038,'Frostmourne lies unguarded? Impossible!',1, 'SAY_OUTRO_JAINA_2'),
+(-1658039,' I swear it is true! Please, don\'t kill me!!',1, 'SAY_OUTRO_KRICK_3'),
+(-1658040,'Worthless gnat! Death is all that awaits you!',1, 'SAY_OUTRO_TYRAN_1'),
+(-1658041,'Urg... no!!',1, 'SAY_OUTRO_KRICK_4'),
+(-1658042,'Do not think that I shall permit you entry into my master\'s sanctum so easily. Pursue me if you dare.',1,'SAY_OUTRO_TYRAN_2'),
+(-1658043, 'What a cruel end. Come, heroes. We must see if the gnome\'s story is true. If we can separate Arthas from Frostmourne, we might have a chance at stopping him.' ,1, 'SAY_OUTRO_JAINA_3'),
+(-1658044, 'Your pursuit shall be in vain, adventurers, for the Lich King has placed an army of undead at my command! Behold!.',1, 'SAY_OUTRO_TYRAN_3');
