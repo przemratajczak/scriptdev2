@@ -2736,6 +2736,93 @@ CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
     return new npc_fel_guard_houndAI(pCreature);
 };
 
+/*#####
+# npc_spring_rabbit
+#####*/
+
+enum rabbitSpells
+{
+    SPELL_SPRING_FLING = 61875,
+    SPELL_SPRING_RABBIT_JUMP = 61724,
+    SPELL_SPRING_RABBIT_WANDER = 61726,
+    SPELL_SUMMON_BABY_BUNNY = 61727,
+    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
+    NPC_SPRING_RABBIT = 32791
+};
+
+struct MANGOS_DLL_DECL npc_spring_rabbitAI : public FollowerAI
+{
+    npc_spring_rabbitAI(Creature* pCreature) : FollowerAI(pCreature) {Reset();}
+
+    bool inLove;
+    uint32 jumpTimer;
+    uint32 bunnyTimer;
+    uint32 searchTimer;
+    ObjectGuid rabbitGUID;
+
+    void Reset()
+    {
+        inLove = false;
+        rabbitGUID.Clear();
+        jumpTimer = urand(5000, 10000);
+        bunnyTimer = urand(10000, 20000);
+        searchTimer = urand(5000, 10000);
+        if (Unit* owner = m_creature->GetOwner())
+            m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    }
+
+    void EnterCombat(Unit * /*who*/) { }
+
+    void DoAction(const int32 /*param*/)
+    {
+        inLove = true;
+        if (Unit* owner = m_creature->GetOwner())
+            owner->CastSpell(owner, SPELL_SPRING_FLING, true);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (inLove)
+        {
+            if (jumpTimer <= diff)
+            {
+                if (Unit* rabbit = m_creature->GetMap()->GetCreature(rabbitGUID))
+                    DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
+                jumpTimer = urand(5000, 10000);
+            } else jumpTimer -= diff;
+
+            if (bunnyTimer <= diff)
+            {
+                DoCast(m_creature,SPELL_SUMMON_BABY_BUNNY);
+                bunnyTimer = urand(20000, 40000);
+            } else bunnyTimer -= diff;
+        }
+        else
+        {
+            if (searchTimer <= diff)
+            {                
+                if (Creature* rabbit = m_creature->GetClosestCreatureWithEntry(m_creature,NPC_SPRING_RABBIT, 10.0f))
+                {
+                    if (rabbit == m_creature )
+                        return;
+                    
+                    m_creature->CastSpell(m_creature,SPELL_SPRING_RABBIT_IN_LOVE,false);
+                    DoAction(1);
+                    rabbit->CastSpell(rabbit,SPELL_SPRING_RABBIT_IN_LOVE,false);
+                    ((npc_spring_rabbitAI*)rabbit->AI())->DoAction(1);
+                    rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
+                    rabbitGUID = rabbit->GetObjectGuid();
+                }
+                searchTimer = urand(5000, 10000);
+            } else searchTimer -= diff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_spring_rabbit(Creature* pCreature)
+{
+    return new npc_spring_rabbitAI(pCreature);
+};
 void AddSC_npcs_special()
 {
     Script* pNewScript;
@@ -2880,5 +2967,10 @@ void AddSC_npcs_special()
     pNewScript = new Script;
     pNewScript->Name = "mob_risen_ghoul";
     pNewScript->GetAI = &GetAI_mob_risen_ghoul;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_spring_rabbit";
+    pNewScript->GetAI = &GetAI_npc_spring_rabbit;
     pNewScript->RegisterSelf();
 }
