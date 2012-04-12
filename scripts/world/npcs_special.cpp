@@ -2823,6 +2823,35 @@ CreatureAI* GetAI_npc_spring_rabbit(Creature* pCreature)
 {
     return new npc_spring_rabbitAI(pCreature);
 };
+/*#####
+# npc_hard_boiled_trigger
+#####*/
+enum
+{
+   SPELL_LAY_EGG              = 61718,
+   SPELL_NOBLEGARDEN_BUNNY    = 61734,
+   SPELL_RABBIT_COSTUME       = 61716
+
+};
+struct MANGOS_DLL_DECL npc_hard_boiled_triggerAI : public ScriptedAI
+{
+    npc_hard_boiled_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    void Reset() { }
+
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        if(m_creature->GetDistance2d(pWho) < 200)
+            if(pWho->GetTypeId() == TYPEID_PLAYER && ( pWho->HasAura(SPELL_NOBLEGARDEN_BUNNY, EFFECT_INDEX_0) ||pWho->HasAura(SPELL_RABBIT_COSTUME, EFFECT_INDEX_0)))
+            {
+                pWho->CastSpell(pWho, SPELL_LAY_EGG, true);
+            }
+    }   
+};
+CreatureAI* GetAI_npc_hard_boiled_trigger(Creature* pCreature)
+{
+    return new npc_hard_boiled_triggerAI(pCreature);
+};
 void AddSC_npcs_special()
 {
     Script* pNewScript;
@@ -2972,5 +3001,10 @@ void AddSC_npcs_special()
     pNewScript = new Script;
     pNewScript->Name = "npc_spring_rabbit";
     pNewScript->GetAI = &GetAI_npc_spring_rabbit;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_hard_boiled_trigger";
+    pNewScript->GetAI = &GetAI_npc_hard_boiled_trigger;
     pNewScript->RegisterSelf();
 }
