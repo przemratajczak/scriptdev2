@@ -33,6 +33,15 @@ void instance_sethekk_halls::Initialize()
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 }
 
+void instance_sethekk_halls::OnCreatureCreate(Creature *pCreature)
+{
+    if(pCreature->GetEntry() == NPC_ANZU)
+    {
+        if(GameObject* pGo = GetSingleGameObjectFromStorage(GO_RAVENS_CLAW))        
+            pGo->Delete();        
+    }
+
+}
 void instance_sethekk_halls::OnObjectCreate(GameObject* pGo)
 {
     if (pGo->GetEntry() == GO_IKISS_DOOR)
@@ -42,15 +51,18 @@ void instance_sethekk_halls::OnObjectCreate(GameObject* pGo)
 
         m_mGoEntryGuidStore[GO_IKISS_DOOR] = pGo->GetObjectGuid();
     }
+    if(pGo->GetEntry() == GO_RAVENS_CLAW)    
+        m_mGoEntryGuidStore[GO_RAVENS_CLAW] = pGo->GetObjectGuid();       
+    
+        
 }
-
 void instance_sethekk_halls::SetData(uint32 uiType, uint32 uiData)
 {
     switch(uiType)
     {
         case TYPE_SYTH:
         case TYPE_ANZU:
-            m_auiEncounter[uiType] = uiData;
+            m_auiEncounter[uiType] = uiData;            
             break;
         case TYPE_IKISS:
             if (uiData == DONE)

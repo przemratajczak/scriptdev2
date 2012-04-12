@@ -13,7 +13,10 @@ enum
     TYPE_ANZU                   = 1,
     TYPE_IKISS                  = 2,
 
+    NPC_ANZU                    = 23035,
+
     GO_IKISS_DOOR               = 177203,
+    GO_RAVENS_CLAW              = 185554,
 
     ACHIEV_CRITA_TURKEY_TIME    = 11142,
     ITEM_PILGRIMS_HAT           = 46723,
@@ -30,6 +33,7 @@ class MANGOS_DLL_DECL instance_sethekk_halls : public ScriptedInstance
 
         void Initialize();
         void OnObjectCreate(GameObject* pGo);
+        void OnCreatureCreate(Creature* pCreature);
 
         void SetData(uint32 uiType, uint32 uiData);
         uint32 GetData(uint32 uiType);
