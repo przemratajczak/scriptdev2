@@ -128,6 +128,20 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         m_uiAnnylideGuid.Clear();
     }
 
+    void KillCreditIngvar()
+   {
+         Map *map = m_creature->GetMap();
+         Map::PlayerList const& players = map->GetPlayers();
+         if (!players.isEmpty() && map->IsDungeon())
+         {
+           for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+           {
+             if(Player* pPlayer = itr->getSource()) 
+                 pPlayer->KilledMonsterCredit(23980, m_creature->GetObjectGuid());
+           }
+         }
+   }
+
     void Aggro(Unit* pWho)
     {
         if (m_uiPhase == PHASE_BEFORE_RESSURECION)
@@ -164,6 +178,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH_SECOND, m_creature);
+        KillCreditIngvar();
     }
 
     void KilledUnit(Unit* pVictim)
