@@ -207,6 +207,25 @@ struct MANGOS_DLL_DECL boss_tyrannusAI : public ScriptedAI
             m_pInstance->SetData(TYPE_TYRANNUS, FAIL);        
     }
 
+    Unit* SelectPlayerAsTarget()
+    {
+         std::list<Unit*> lPotentialTargets;
+         ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+         for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
+         {
+             Unit* pUnit = m_creature->GetMap()->GetUnit((*i)->getUnitGuid());
+             if (pUnit && pUnit->GetTypeId() == TYPEID_PLAYER && pUnit->isAlive())
+                 lPotentialTargets.push_back(pUnit);
+         }
+
+         if (lPotentialTargets.empty())
+             return NULL;
+
+         std::list<Unit*>::iterator i = lPotentialTargets.begin();
+         advance(i, (rand()%lPotentialTargets.size()));
+         return (*i);
+    }     
+
     void EnterEvadeMode()
     {
         m_creature->ForcedDespawn();
@@ -297,7 +316,7 @@ struct MANGOS_DLL_DECL boss_tyrannusAI : public ScriptedAI
 
         if (m_uiOverlordsBrandTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectPlayerAsTarget())
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_OVERLORDS_BRAND) == CAST_OK)
                     m_uiOverlordsBrandTimer = 25000;
@@ -321,7 +340,7 @@ struct MANGOS_DLL_DECL boss_tyrannusAI : public ScriptedAI
 
         if (m_uiMarkOfRimefangTimer < uiDiff)
         {
-            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectPlayerAsTarget())
             {
                 if (DoCastSpellIfCan(pTarget, SPELL_MARK_OF_RIMEFANG) == CAST_OK)
                 {

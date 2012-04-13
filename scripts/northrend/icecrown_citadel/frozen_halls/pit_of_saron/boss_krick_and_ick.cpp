@@ -156,8 +156,7 @@ struct MANGOS_DLL_DECL boss_krickAI : public ScriptedAI
     {
         if (m_pInstance)
         {
-            m_pInstance->SetData(TYPE_KRICK, DONE);
-
+            //m_pInstance->SetData(TYPE_KRICK, DONE);
             m_bIsOutro = true;
         }
     }   
