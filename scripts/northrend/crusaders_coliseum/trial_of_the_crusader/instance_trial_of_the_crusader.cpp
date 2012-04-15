@@ -199,14 +199,14 @@ struct MANGOS_DLL_DECL instance_trial_of_the_crusader : public BSWScriptedInstan
 
         if (IsEncounterInProgress()) 
         {
-            DoCloseDoor(GetData64(GO_WEST_PORTCULLIS));
-            DoCloseDoor(GetData64(GO_NORTH_PORTCULLIS));
+           // DoCloseDoor(GetData64(GO_WEST_PORTCULLIS));
+           // DoCloseDoor(GetData64(GO_NORTH_PORTCULLIS));
 //            DoCloseDoor(GetData64(GO_SOUTH_PORTCULLIS));
         }
         else
         {
-            DoOpenDoor(GetData64(GO_WEST_PORTCULLIS));
-            DoOpenDoor(GetData64(GO_NORTH_PORTCULLIS));
+           // DoOpenDoor(GetData64(GO_WEST_PORTCULLIS));
+           // DoOpenDoor(GetData64(GO_NORTH_PORTCULLIS));
 //            DoOpenDoor(GetData64(GO_SOUTH_PORTCULLIS));
         };
 
