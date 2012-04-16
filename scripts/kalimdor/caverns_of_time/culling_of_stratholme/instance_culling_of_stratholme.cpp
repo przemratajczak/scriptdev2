@@ -33,6 +33,9 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
     uint32 m_auiEncounter[7];
     uint32 m_uiHeroicTimer;
     uint32 m_uiLastTimer;
+    uint32 m_uiZombiefestTimer;    
+    
+    bool m_bZombiefestInProgress;
 
     ObjectGuid m_uiChromi01GUID;
     ObjectGuid m_uiChromi02GUID;
@@ -81,6 +84,8 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
        DoUpdateWorldState(WORLD_STATE_COS_TIME_COUNT, 0);
        DoUpdateWorldState(WORLD_STATE_COS_TIME_ON, 0);
 
+       m_bZombiefestInProgress = false;
+       m_uiZombiefestTimer = 1 * MINUTE * IN_MILLISECONDS;
        m_uiCratesCount = 0;
        m_uiMikeGUID.Clear();
        m_uiChromi01GUID.Clear();
@@ -245,6 +250,11 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
                         pGo->SetGoState(GO_STATE_ACTIVE);
                 }
                 break;
+            case TYPE_ZOMBIEFEST:
+                {
+                    if(!m_bZombiefestInProgress)                   
+                        m_bZombiefestInProgress = true;
+                }
         }
     }
 
@@ -283,6 +293,17 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
         return 0;
     }
 
+    bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+    {
+        switch (uiCriteriaId)
+        {
+            case ACHIEV_ZOMBIEFEST:                
+                return m_bZombiefestInProgress;                
+            default:
+                return false;
+        }
+    }
+
     void Update(uint32 uiDiff)
     {
        if(m_auiEncounter[5] == IN_PROGRESS)
@@ -301,8 +322,18 @@ struct MANGOS_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
             m_uiLastTimer = m_uiHeroicTimer;
             uint32 tMinutes = m_uiHeroicTimer / 60000;
             DoUpdateWorldState(WORLD_STATE_COS_TIME_COUNT, tMinutes);
-         }
+         }       
        }
+         if(m_bZombiefestInProgress)
+         {
+             if(m_uiZombiefestTimer < uiDiff)
+             {                 
+                 m_bZombiefestInProgress = false;
+                 m_uiZombiefestTimer = 1 * MINUTE * IN_MILLISECONDS;
+                 
+             }
+             else m_uiZombiefestTimer -= uiDiff;
+         }
  
        return;
     }

@@ -36,9 +36,11 @@ enum Data
     TYPE_WING            = 7,
     TYPE_BONUS           = 8,
     TYPE_MALGANIS        = 9,
+    TYPE_ZOMBIEFEST      = 11,
 
     DATA_TEMPSUMMON      = 10,
 
+    ACHIEV_ZOMBIEFEST    = 7180,
     QUEST_DISPELLING_ILLUSIONS  = 13149,
     QUEST_A_ROYAL_ESCORT        = 13151,
     ITEM_ARCANE_DISRUPTOR       = 37888,

@@ -128,7 +128,7 @@ struct MANGOS_DLL_DECL boss_bronjahmAI : public BSWScriptedAI
                                     DoScriptText(-1632006,m_creature,pTarget);
                                     float fPosX, fPosY, fPosZ;
                                     pTarget->GetPosition(fPosX, fPosY, fPosZ);
-                                    doSummon(NPC_SOUL_FRAGMENT,fPosX, fPosY, fPosZ);
+                                    doSummon(NPC_SOUL_FRAGMENT,fPosX, fPosY, fPosZ,TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
                                     }
                                 }
                         }

@@ -1028,6 +1028,37 @@ struct MANGOS_DLL_DECL npc_time_riftCSAI : public ScriptedAI
    }
 };
 
+
+/*###
+## npc_risen_zombie
+###*/
+
+struct MANGOS_DLL_DECL npc_risen_zombieAI : public ScriptedAI
+{
+    npc_risen_zombieAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();        
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;    
+
+    void Reset() { };
+
+    void JustDied(Unit *pKiller)
+    {
+        if(pKiller->GetTypeId() == TYPEID_PLAYER)
+        {                        
+            m_pInstance->SetData(TYPE_ZOMBIEFEST, 1);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_risen_zombie(Creature* pCreature)
+{
+    return new npc_risen_zombieAI(pCreature);
+}
+
 CreatureAI* GetAI_npc_cs_gnoul(Creature* pCreature)
 {
     return new npc_cs_gnoulAI(pCreature);
@@ -1090,5 +1121,10 @@ void AddSC_trash_culling_of_stratholme()
     newscript = new Script;
     newscript->Name = "npc_time_riftCS";
     newscript->GetAI = &GetAI_npc_time_riftCS;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_risen_zombie";
+    newscript->GetAI = &GetAI_npc_risen_zombie;
     newscript->RegisterSelf();
 }
