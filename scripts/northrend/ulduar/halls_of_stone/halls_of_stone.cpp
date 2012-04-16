@@ -288,6 +288,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
     bool m_bIsRegularMode;
     bool m_bIsBattle;
     bool m_bIsLowHP;
+    bool m_bSpankinNewAchievFailed;
 
     uint32 m_uiStep;
     uint32 m_uiPhase_timer;
@@ -301,6 +302,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
         {
             m_bIsLowHP = false;
             m_bIsBattle = false;
+            m_bSpankinNewAchievFailed = false;
 
             m_uiStep = 0;
             m_uiPhase_timer = 0;
@@ -312,6 +314,12 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
             if(m_pInstance)
                 m_pInstance->SetData(TYPE_BRANN, NOT_STARTED);
         }
+    }
+
+    void DamageTaken(Unit *pDealer, uint32 &uiDamage)
+    {
+        if(m_pInstance)
+            m_bSpankinNewAchievFailed = true;
     }
 
     void AttackStart(Unit* pWho)
@@ -701,9 +709,22 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
                         m_pInstance->SetData(TYPE_BRANN, DONE);
                     }
 
+                     Map::PlayerList const& lPlayers = m_creature->GetMap()->GetPlayers();
+                     if (!lPlayers.isEmpty())
+                     {
+                        for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                        {
+                            if (Player* pPlayer = itr->getSource())
+                            {
+                                pPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
+                                if(!m_bSpankinNewAchievFailed)
+                                    pPlayer->CompletedAchievement(ACHIEV_SPANKIN_NEW);
+                            }
+                        }
+                     }
                     //if (Player* pPlayer = GetPlayerForEscort())
                         //pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, m_creature);
-                    DoCastSpellIfCan(m_creature, SPELL_ACHIEVEMENT_CHECK, CAST_TRIGGERED);
+                    //DoCastSpellIfCan(m_creature, SPELL_ACHIEVEMENT_CHECK, CAST_TRIGGERED);
 
                     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);

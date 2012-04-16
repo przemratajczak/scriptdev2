@@ -23,7 +23,7 @@ enum
     DATA_GO_KADDRAK         = 10,
     DATA_GO_ABEDNEUM        = 11,
     DATA_GO_MARNAK          = 12,
-
+    
     TYPE_KRYSTALLUS         = 20,
     TYPE_GRIEF              = 21,
     TYPE_BRANN              = 22,
@@ -51,7 +51,9 @@ enum
     GO_TRIBUNAL_CHEST_H     = 193996,
     GO_TRIBUNAL_SKY_FLOOR   = 191527,
 
-    GO_SJONNIR_CONSOLE      = 193906
+    GO_SJONNIR_CONSOLE      = 193906,
+
+    ACHIEV_SPANKIN_NEW      = 2154
 };
 
 #endif
