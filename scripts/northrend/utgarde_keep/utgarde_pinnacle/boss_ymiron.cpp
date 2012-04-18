@@ -100,13 +100,13 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
 {
     boss_ymironAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_pinnacle*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         memset(&m_auiDummyCasterGUID, 0, sizeof(m_auiDummyCasterGUID));
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_pinnacle* m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiBaneTimer;
@@ -163,9 +163,16 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         }
     }
 
+    void EnterEvadeMode()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_YMIRON, FAIL);
+    }
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_YMIRON,IN_PROGRESS);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -195,6 +202,15 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                     pAncestor->CastSpell(pAncestor, SPELL_SPIRIT_DIES, false);
                 }
             }
+        }
+    }
+
+    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry) 
+    {
+        if(pSpellEntry->Id == 59302)
+        {               
+            if(m_pInstance)
+                m_pInstance->m_bKingsBaneAchievFailed = true;
         }
     }
 

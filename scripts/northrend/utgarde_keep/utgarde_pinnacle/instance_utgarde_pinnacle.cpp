@@ -24,7 +24,8 @@ EndScriptData */
 #include "precompiled.h"
 #include "utgarde_pinnacle.h"
 
-instance_pinnacle::instance_pinnacle(Map* pMap) : ScriptedInstance(pMap)
+instance_pinnacle::instance_pinnacle(Map* pMap) : ScriptedInstance(pMap),
+m_bKingsBaneAchievFailed(false)
 {
     Initialize();
 }
@@ -38,10 +39,11 @@ void instance_pinnacle::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
-        case NPC_GRAUF:
+        case NPC_GRAUF:        
         case NPC_SKADI:
             pCreature->SetActiveObjectState(true);
         case NPC_STASIS_CONTROLLER:
+        case NPC_YMIRON:
         case NPC_JORMUNGAR:
         case NPC_RHINO:
         case NPC_WORGEN:
@@ -91,12 +93,13 @@ void instance_pinnacle::SetData(uint32 uiType, uint32 uiData)
                     pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);	
                     pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
-            }
-
+            }            
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_YMIRON:
             m_auiEncounter[uiType] = uiData;
+            if(uiData == IN_PROGRESS)
+                m_bKingsBaneAchievFailed = false;
             break;
         default:
             error_log("SD2: Instance Pinnacle: SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
@@ -126,6 +129,16 @@ uint32 instance_pinnacle::GetData(uint32 uiType)
     return 0;
 }
 
+bool instance_pinnacle::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch (uiCriteriaId)
+    {            
+        case ACHIEV_KINGS_BANE:
+            return !m_bKingsBaneAchievFailed; 
+        default:
+            return false;
+    }
+}
 void instance_pinnacle::Load(const char* chrIn)
 {
     if (!chrIn)

@@ -119,12 +119,12 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
 {
     boss_skadiAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_pinnacle*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_pinnacle* m_pInstance;
     bool m_bIsRegularMode;
 
     bool m_bIsBreathAttack;
@@ -180,11 +180,15 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
             {
                 pGrauf->GetMotionMaster()->MoveTargetedHome();
                 pGrauf->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-            }
-            m_pInstance->SetData(TYPE_SKADI, NOT_STARTED);
+            }           
         }
     }
 
+    void EnterEvadeMode()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_SKADI, FAIL);
+    }
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -363,7 +367,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
+            return;        
 
         if (m_bIsFirstPhase)
         {

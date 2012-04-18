@@ -42,7 +42,9 @@ enum
     GO_HARPOON                      = 192539,
     GO_HARPOON_LAUNCHER_1           = 192175,
     GO_HARPOON_LAUNCHER_2           = 192176,
-    GO_HARPOON_LAUNCHER_3           = 192177
+    GO_HARPOON_LAUNCHER_3           = 192177,
+
+    ACHIEV_KINGS_BANE               = 7598
 };
 
 class MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
@@ -60,6 +62,8 @@ class MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
 
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+        bool m_bKingsBaneAchievFailed;
 
     private:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
