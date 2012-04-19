@@ -717,7 +717,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
                             if (Player* pPlayer = itr->getSource())
                             {
                                 pPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
-                                if(!m_bSpankinNewAchievFailed)
+                                if(!m_bSpankinNewAchievFailed && !m_bIsRegularMode)
                                     pPlayer->CompletedAchievement(ACHIEV_SPANKIN_NEW);
                             }
                         }
