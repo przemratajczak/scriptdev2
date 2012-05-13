@@ -174,13 +174,13 @@ struct MANGOS_DLL_DECL instance_trial_of_the_crusader : public BSWScriptedInstan
                             }
                             // Attention! It is (may be) not off-like, but  spawning all Tribute Chests is real
                             // reward for clearing TOC instance
-                            if (m_uiTributeChest1)
+                            if (m_auiEncounter[TYPE_COUNTER] >= 25)
                               if (GameObject* pChest1 = GetSingleGameObjectFromStorage(m_uiTributeChest1))
                                 if (pChest1 && !pChest1->isSpawned()) pChest1->SetRespawnTime(7*DAY);
-                            if (m_uiTributeChest2)
+                            if (m_auiEncounter[TYPE_COUNTER] >= 45)
                               if (GameObject* pChest2 = GetSingleGameObjectFromStorage(m_uiTributeChest2))
                                 if (pChest2 && !pChest2->isSpawned()) pChest2->SetRespawnTime(7*DAY);
-                            if (m_uiTributeChest3)
+                            if (m_auiEncounter[TYPE_COUNTER] == 50)
                               if (GameObject* pChest3 = GetSingleGameObjectFromStorage(m_uiTributeChest3))
                                 if (pChest3 && !pChest3->isSpawned()) pChest3->SetRespawnTime(7*DAY);
                             if (m_uiTributeChest4)
