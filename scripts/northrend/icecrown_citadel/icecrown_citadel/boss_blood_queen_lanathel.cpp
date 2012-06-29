@@ -36,6 +36,7 @@ enum BossSpells
 
     // phase ground
     SPELL_BLOOD_MIRROR                  = 70445,
+	SPELL_BLOOD_MIRROR_LINKED           = 70451, // cast on the target receiving damage?
  // SPELL_DELIRIOUS_SLASH               = 72261,
     SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
     SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
@@ -47,6 +48,7 @@ enum BossSpells
     SPELL_VAMPIRIC_BITE_TRIGGERED       = 71726, // triggered spell with effects
  // SPELL_VAMPIRIC_BITE_PLAYER          = 70946, // used by players
     SPELL_TWILIGHT_BLOODBOLT            = 71445,
+ // SPELL_TWILIGHT_BLOODBOLT_TRIGGERED  = 71818, // spell dealing dmg
  // SPELL_TWILIGHT_BLOODBOLT_VISUAL     = 72313, // dummy effect
  // SPELL_TWILIGHT_BLOODBOLT_TRIGGERED1 = 71446, // one of the triggered spells
  // SPELL_TWILIGHT_BLOODBOLT_TRIGGERED2 = 71818, // another of the triggered spells. same effects but other spell id...
@@ -296,8 +298,9 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                 {
                     if (Unit *pVictim = SelectClosestFriendlyTarget(m_creature->getVictim()))
                     {
-                        pVictim->CastSpell(m_creature->getVictim(), SPELL_BLOOD_MIRROR, true, 0, 0, pVictim->GetObjectGuid());
-                        m_uiBloodMirrorTimer = 5000;
+                        pVictim->CastSpell(m_creature->getVictim(), SPELL_BLOOD_MIRROR, true);
+						pVictim->CastSpell(pVictim, SPELL_BLOOD_MIRROR_LINKED, true);
+						m_uiBloodMirrorTimer = 5000;
                     }
                 }
                 else
