@@ -2235,7 +2235,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         o = m_creature->GetAngle(x, y) + M_PI_F;
 
                         if (m_pMap)
-                            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
+							z = m_pMap->GetHeight(m_creature->GetPhaseMask(),x, y, z);
 
                         if (uiSummon_counter < ENCOUNTER_GHOUL_NUMBER)
                         {
@@ -2264,7 +2264,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         o = m_creature->GetAngle(x, y) + M_PI_F;
 
                         if (m_pMap)
-                            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
+							z = m_pMap->GetHeight(m_creature->GetPhaseMask(),x, y, z);
 
                         if (uiSummon_counter < ENCOUNTER_WARRIOR_NUMBER)
                         {
@@ -3393,7 +3393,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         x += float(urand(0, radius) );
         y += float(urand(0, radius) );
         if (m_pMap)
-           z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
+           z = m_pMap->GetHeight(m_creature->GetPhaseMask(),x, y, z);
     }
 
     ObjectGuid DoSpawnNPC(uint32 uiEntry, bool bDarkSide)
@@ -3406,7 +3406,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         z = LightofDawnLoc[0].z + 1.0f;
 
         if (m_pMap)
-            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
+            z = m_pMap->GetHeight(m_creature->GetPhaseMask(),x, y, z);
 
         if (Creature *pTemp = m_creature->SummonCreature(uiEntry, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000) )
         {

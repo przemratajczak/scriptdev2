@@ -789,7 +789,7 @@ struct MANGOS_DLL_DECL mob_unleashed_darkAI : public ScriptedAI
             //Center of floor 
             float fX = 562.998657 -+ float(urand(5.0f, 20.0f));
             float fY = 139.631195 -+ float(urand(5.0f, 20.0f));
-            float fZ = m_creature->GetTerrain()->GetHeight(fX, fY, MAX_HEIGHT); 
+			float fZ = m_creature->GetMap()->GetHeight(m_creature->GetPhaseMask(),fX, fY, m_creature->GetPositionZ()); 
 
             m_creature->GetMotionMaster()->MovePoint(fX, fY, fZ, 0.0f);
             m_uiMoveRandomTimer = 3000;
@@ -878,7 +878,7 @@ struct MANGOS_DLL_DECL mob_unleashed_lightAI : public ScriptedAI
             //Center of floor 
             float fX = 562.998657 -+ float(urand(5.0f, 20.0f));
             float fY = 139.631195 -+ float(urand(5.0f, 20.0f));
-            float fZ = m_creature->GetTerrain()->GetHeight(fX, fY, MAX_HEIGHT); 
+            float fZ = m_creature->GetMap()->GetHeight(m_creature->GetPhaseMask(),fX, fY, m_creature->GetPositionZ()); 
 
             m_creature->GetMotionMaster()->MovePoint(fX, fY, fZ, 0.0f);
             m_uiMoveRandomTimer = 3000;

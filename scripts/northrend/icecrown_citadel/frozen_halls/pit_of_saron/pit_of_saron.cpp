@@ -272,7 +272,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                                     pTmp->RemoveAurasDueToSpell(SPELL_STRANGULATING);
                                     pTmp->SetLevitate(false); 
                                     pTmp->SetWalk(false);
-                                    float z = m_creature->GetTerrain()->GetHeight(pTmp->GetPositionX(), pTmp->GetPositionY(), MAX_HEIGHT);
+									float z = m_creature->GetMap()->GetHeight(pTmp->GetPhaseMask(),pTmp->GetPositionX(), pTmp->GetPositionY(),pTmp->GetPositionZ());
                                     pTmp->GetMotionMaster()->MovePoint(0, pTmp->GetPositionX(), pTmp->GetPositionY(), z);
                                     pTmp->SetStandState(UNIT_STAND_STATE_SLEEP);
                                     pTmp->SetStandState(UNIT_STAND_STATE_DEAD);
