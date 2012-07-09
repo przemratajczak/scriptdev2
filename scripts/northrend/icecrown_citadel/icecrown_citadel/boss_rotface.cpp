@@ -111,19 +111,18 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
         Reset();
     }
 
-    uint32 m_uiBerserkTimer;
     uint32 m_uiSlimeSprayTimer;
     uint32 m_uiMutatedInfectionTimer;
+    uint32 m_uiMutatedInfectionBeforeTimer;
     uint32 m_uiInfectionsRate;
     uint32 m_uiVileGasTimer;
     uint32 m_uiSlimeFlowTimer;
 
     void Reset()
     {
-        m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
         m_uiSlimeSprayTimer = urand(17000, 23000);
         m_uiVileGasTimer = 20000;
-        m_uiMutatedInfectionTimer = 50000;
+        m_uiMutatedInfectionTimer = m_uiMutatedInfectionBeforeTimer = 60000;
         m_uiInfectionsRate = 1;
         m_uiSlimeFlowTimer = 20000;
     }
@@ -184,18 +183,6 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // Berserk
-        if (m_uiBerserkTimer <= uiDiff)
-        {
-            if (DoCastSpellIfCan(m_creature, SPELL_BERSERK) == CAST_OK)
-            {
-                DoScriptText(SAY_BERSERK, m_creature);
-                m_uiBerserkTimer = 10 * MINUTE * IN_MILLISECONDS;
-            }
-        }
-        else
-            m_uiBerserkTimer -= uiDiff;
-
         // Slime Spray
         if (m_uiSlimeSprayTimer <= uiDiff)
         {
@@ -204,7 +191,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
                 if (DoCastSpellIfCan(m_creature, SPELL_SLIME_SPRAY) == CAST_OK)
                 {
                     DoScriptText(SAY_SLIME_SPRAY, m_creature);
-                    m_uiSlimeSprayTimer = 20000;
+                    m_uiSlimeSprayTimer = urand(17000, 23000);
                 }
             }
         }
@@ -220,7 +207,8 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
                 if (DoCastSpellIfCan(m_creature, uiMutatedInfections[m_uiInfectionsRate], CAST_TRIGGERED) == CAST_OK)
                 {
                     m_creature->RemoveAurasDueToSpell(uiMutatedInfections[m_uiInfectionsRate - 1]);
-                    m_uiMutatedInfectionTimer = 50000;
+                    m_uiMutatedInfectionBeforeTimer = m_uiMutatedInfectionBeforeTimer - 10000; // every next 15 seconds faster
+                    m_uiMutatedInfectionTimer = m_uiMutatedInfectionBeforeTimer;
                     ++m_uiInfectionsRate;
                 }
             }
@@ -336,7 +324,7 @@ struct MANGOS_DLL_DECL mob_little_oozeAI : public ScriptedAI
         if (m_uiStickyOozeTimer <= uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_STICKY_OOZE) == CAST_OK)
-                m_uiStickyOozeTimer = 20000;
+                m_uiStickyOozeTimer = urand(10000, 15000);
         }
         else
             m_uiStickyOozeTimer -= uiDiff;
@@ -427,7 +415,7 @@ struct MANGOS_DLL_DECL mob_big_oozeAI : public ScriptedAI
         if (m_uiStickyOozeTimer <= uiDiff)
         {
             if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_STICKY_OOZE) == CAST_OK)
-                m_uiStickyOozeTimer = 20000;
+                m_uiStickyOozeTimer = urand(10000, 15000);
         }
         else
             m_uiStickyOozeTimer -= uiDiff;

@@ -36,7 +36,7 @@ enum BossSpells
 
     // phase ground
     SPELL_BLOOD_MIRROR                  = 70445,
-	SPELL_BLOOD_MIRROR_LINKED           = 70451, // cast on the target receiving damage?
+    SPELL_BLOOD_MIRROR_LINKED           = 70451, // cast on the target receiving damage?
  // SPELL_DELIRIOUS_SLASH               = 72261,
     SPELL_DELIRIOUS_SLASH_1             = 71623, // effect
     SPELL_DELIRIOUS_SLASH_2             = 72264, // with charge effect. cast on random target if offtank is not present?
@@ -134,7 +134,13 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
     void JustReachedHome()
     {
         if(m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LANATHEL, FAIL);
+            RemoveAurasFromAllPlayers();
+            m_creature->SetWalk(false);
+            m_creature->SetLevitate(false);
+            m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -151,13 +157,15 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
 
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_SHROUD_OF_SORROW, CAST_TRIGGERED);
-        DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOOD_MIRROR, CAST_TRIGGERED);
     }
 
     void JustDied(Unit *pKiller)
     {
         if(m_pInstance)
+	    {
             m_pInstance->SetData(TYPE_LANATHEL, DONE);
+	        RemoveAurasFromAllPlayers();
+	    }
 
         DoScriptText(SAY_DEATH, m_creature);
     }
@@ -260,6 +268,38 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
         return NULL;
     }
 
+    void RemoveAurasFromAllPlayers()
+    {
+         Map::PlayerList const &PlayerList = m_creature->GetMap()->GetPlayers();
+
+         if (PlayerList.isEmpty())
+            return;
+
+         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+         {
+            if (Player* pPlayer = i->getSource())
+            {
+                if (pPlayer->isAlive())
+                {
+                    // Additional checking for achiev
+                    pPlayer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, NPC_LANATHEL, 0);
+
+                    // Uncontrollable Frenzy
+                    pPlayer->RemoveAurasDueToSpell(70923);
+                    pPlayer->RemoveAurasDueToSpell(70924);
+
+                    // Frenzied Bloodthirst
+                    pPlayer->RemoveAurasDueToSpell(70877);
+                    pPlayer->RemoveAurasDueToSpell(71474);
+
+                    // Essence of The Blood Queen
+                    pPlayer->RemoveAurasDueToSpell(70867);
+                    pPlayer->RemoveAurasDueToSpell(70871);
+                }
+            }
+         }
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
 
@@ -299,8 +339,8 @@ struct MANGOS_DLL_DECL boss_blood_queen_lanathelAI : public base_icc_bossAI
                     if (Unit *pVictim = SelectClosestFriendlyTarget(m_creature->getVictim()))
                     {
                         pVictim->CastSpell(m_creature->getVictim(), SPELL_BLOOD_MIRROR, true);
-						pVictim->CastSpell(pVictim, SPELL_BLOOD_MIRROR_LINKED, true);
-						m_uiBloodMirrorTimer = 5000;
+                        pVictim->CastSpell(pVictim, SPELL_BLOOD_MIRROR_LINKED, true);
+                        m_uiBloodMirrorTimer = 5000;
                     }
                 }
                 else

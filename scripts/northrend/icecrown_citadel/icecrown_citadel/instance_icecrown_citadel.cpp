@@ -46,6 +46,9 @@ void instance_icecrown_spire::Initialize()
     for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
         m_auiEncounter[i] = NOT_STARTED;
 
+    for (uint8 i = 0; i < ACHIEVE_MAX_COUNT; ++i)
+        m_bAchievCriteria[i] = false;
+
     m_auiEncounter[0] = 0;
 
     m_auiEvent = 0;
@@ -121,7 +124,7 @@ void instance_icecrown_spire::OnCreatureCreate(Creature* pCreature)
         case NPC_SPINESTALKER:
         case NPC_STINKY:
         case NPC_PRECIOUS:
-        case NPC_COMBAT_TRIGGER:
+        case NPC_GREEN_DRAGON_COMBAT_TRIGGER:
         case NPC_FROSTMOURNE_TRIGGER:
         case NPC_FROSTMOURNE_HOLDER:
         case NPC_BLOOD_ORB_CONTROL:
@@ -162,12 +165,12 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
             break;
         case GO_SCIENTIST_DOOR_GREEN:
             if (m_auiEncounter[TYPE_ROTFACE] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
         case GO_SCIENTIST_DOOR_ORANGE:
             if (m_auiEncounter[TYPE_FESTERGUT] == DONE)
-                pGo->SetGoState(GO_STATE_ACTIVE);
+                pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
         case GO_SCIENTIST_DOOR_COLLISION:
@@ -177,6 +180,16 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
             break;
         case GO_SCIENTIST_DOOR:
             if (m_auiEncounter[TYPE_FESTERGUT] == DONE && m_auiEncounter[TYPE_ROTFACE] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+        case GO_ORANGE_TUBES:
+            if (m_auiEncounter[TYPE_FESTERGUT] == DONE)
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+        case GO_GREEN_TUBES:
+            if (m_auiEncounter[TYPE_ROTFACE] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
@@ -208,6 +221,10 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
         case GO_SINDRAGOSA_DOOR_2:
             if (m_auiEncounter[TYPE_VALITHRIA] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+        case GO_DRINK_ME_TABLE:
+            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
         case GO_SAURFANG_CACHE_10:
@@ -248,6 +265,7 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
         case GO_GREEN_DRAGON_DOOR_1:
         case GO_BLOODWING_DOOR:
         case GO_ORATORY_DOOR:
+	case GO_SINDRAGOSA_ICE_WALL:
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
     }
@@ -310,10 +328,12 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
 
             if (uiData == DONE)
             {
+                DoUseDoorOrButton(GO_ORANGE_TUBES);
                 if (m_auiEncounter[TYPE_ROTFACE] == DONE)
-                {
+                {                    
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_ORANGE, 0, true);
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_GREEN, 0, true);
                     DoUseDoorOrButton(GO_SCIENTIST_DOOR_COLLISION);
-                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_ORANGE);
                 }
             }
             break;
@@ -324,17 +344,17 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
 
             if (uiData == DONE)
             {
+                DoUseDoorOrButton(GO_GREEN_TUBES);
                 if (m_auiEncounter[TYPE_FESTERGUT] == DONE)
                 {
-                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_GREEN);
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_GREEN, 0, true);
+                    DoUseDoorOrButton(GO_SCIENTIST_DOOR_ORANGE, 0, true);
                     DoUseDoorOrButton(GO_SCIENTIST_DOOR_COLLISION);
                 }
             }
             break;
          case TYPE_PUTRICIDE:
             m_auiEncounter[TYPE_PUTRICIDE] = uiData;
-
-            DoUseDoorOrButton(GO_SCIENTIST_DOOR);
 
             if (uiData == DONE)
             {
@@ -344,6 +364,36 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
                     m_auiEncounter[TYPE_KINGS_OF_ICC] = DONE;
                 }
             }
+
+            {
+                // Proff sometimes does't trigger door, so let's check it explicitly
+                GameObject* pDoor = GetSingleGameObjectFromStorage(GO_SCIENTIST_DOOR);
+                if (pDoor)
+                {
+                    switch (uiData)
+                    {
+                        case IN_PROGRESS:
+                        case SPECIAL:
+                        {
+                            // Close door if it's open
+                            if (pDoor->getLootState() != GO_ACTIVATED)
+                                DoUseDoorOrButton(GO_SCIENTIST_DOOR);
+                            break;
+                        }
+                        case NOT_STARTED:
+                        case FAIL:
+                        case DONE:
+                        {
+                            // Open door if it's closed
+                            if (pDoor->getLootState() != GO_READY)
+                                DoUseDoorOrButton(GO_SCIENTIST_DOOR);
+                            break;
+                        }
+                        default: break;
+                    }
+                }
+            }
+
             break;
          case TYPE_BLOOD_COUNCIL:
             m_auiEncounter[TYPE_BLOOD_COUNCIL] = uiData;
@@ -405,6 +455,7 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[TYPE_SINDRAGOSA] = uiData;
 
             DoUseDoorOrButton(GO_SINDRAGOSA_ENTRANCE);
+	    DoUseDoorOrButton(GO_SINDRAGOSA_ICE_WALL);
 
             if (uiData == DONE)
             {
@@ -466,6 +517,75 @@ uint32 instance_icecrown_spire::GetData(uint32 uiType)
          default:
              return 0;
     }
+}
+bool instance_icecrown_spire::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch(uiCriteriaId)
+    {
+        case CRITERIA_BONED_10N:
+        case CRITERIA_BONED_25N:
+        case CRITERIA_BONED_10H:
+        case CRITERIA_BONED_25H:
+             return m_bAchievCriteria[ACHIEVE_BONED];
+        case CRITERIA_FULL_HOUSE_10N:
+        case CRITERIA_FULL_HOUSE_25N:
+        case CRITERIA_FULL_HOUSE_10H:
+        case CRITERIA_FULL_HOUSE_25H:
+             return m_bAchievCriteria[ACHIEVE_FULL_HOUSE];
+        case CRITERIA_IM_ON_A_BOAT_10N:
+        case CRITERIA_IM_ON_A_BOAT_25N:
+        case CRITERIA_IM_ON_A_BOAT_10H:
+        case CRITERIA_IM_ON_A_BOAT_25H:
+             return m_bAchievCriteria[ACHIEVE_IM_ON_A_BOAT];
+        case CRITERIA_IVE_GONE_AND_MADE_A_MESS_10N:
+        case CRITERIA_IVE_GONE_AND_MADE_A_MESS_25N:
+        case CRITERIA_IVE_GONE_AND_MADE_A_MESS_10H:
+        case CRITERIA_IVE_GONE_AND_MADE_A_MESS_25H:
+             return m_bAchievCriteria[ACHIEVE_IVE_GONE_AND_MADE_A_MESS];
+        case CRITERIA_FLU_SHOT_SHORTAGE_10N:
+        case CRITERIA_FLU_SHOT_SHORTAGE_25N:
+        case CRITERIA_FLU_SHOT_SHORTAGE_10H:
+        case CRITERIA_FLU_SHOT_SHORTAGE_25H:
+             return m_bAchievCriteria[ACHIEVE_FLU_SHOT_SHORTAGE];
+        case CRITERIA_DANCES_WITH_OOZES_10N:
+        case CRITERIA_DANCES_WITH_OOZES_25N:
+        case CRITERIA_DANCES_WITH_OOZES_10H:
+        case CRITERIA_DANCES_WITH_OOZES_25H:
+             return m_bAchievCriteria[ACHIEVE_DANCES_WITH_OOZES];
+        case CRITERIA_NAUSEA_10N:
+        case CRITERIA_NAUSEA_25N:
+        case CRITERIA_NAUSEA_10H:
+        case CRITERIA_NAUSEA_25H:
+             return m_bAchievCriteria[ACHIEVE_NAUSEA];
+        case CRITERIA_ORB_WHISPERER_10N:
+        case CRITERIA_ORB_WHISPERER_25N:
+        case CRITERIA_ORB_WHISPERER_10H:
+        case CRITERIA_ORB_WHISPERER_25H:
+             return m_bAchievCriteria[ACHIEVE_ORB_WHISPERER];
+        case CRITERIA_PORTAL_JOCKEY_10N:
+        case CRITERIA_PORTAL_JOCKEY_25N:
+        case CRITERIA_PORTAL_JOCKEY_10H:
+        case CRITERIA_PORTAL_JOCKEY_25H:
+             return m_bAchievCriteria[ACHIEVE_PORTAL_JOCKEY];
+        case CRITERIA_ALL_YOU_CAN_EAT_10N:
+        case CRITERIA_ALL_YOU_CAN_EAT_25N:
+        case CRITERIA_ALL_YOU_CAN_EAT_10V:
+        case CRITERIA_ALL_YOU_CAN_EAT_25V:
+             return m_bAchievCriteria[ACHIEVE_ALL_YOU_CAN_EAT];
+        case CRITERIA_BEEN_WAITING_A_LONG_TIME_10N:
+        case CRITERIA_BEEN_WAITING_A_LONG_TIME_25N:
+        case CRITERIA_BEEN_WAITING_A_LONG_TIME_10H:
+        case CRITERIA_BEEN_WAITING_A_LONG_TIME_25H:
+             return m_bAchievCriteria[ACHIEVE_BEEN_WAITING_A_LONG_TIME];
+        default:
+            return false;
+    }
+}
+
+void instance_icecrown_spire::SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet)
+{
+    if (uiType < ACHIEVE_MAX_COUNT)
+        m_bAchievCriteria[uiType] = bIsMet;
 }
 
 void instance_icecrown_spire::Load(const char* chrIn)
