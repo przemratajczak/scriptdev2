@@ -294,7 +294,26 @@ enum
     NPC_WARMONGER                       = 26811,
     NPC_SOOTHSAYER                      = 26812,
     SPELL_BLOW_SNOW                     = 47778,
-    SPELL_FROZEN                        = 47795
+    SPELL_FROZEN                        = 47795,
+
+    // quest 11314, item 33606
+    SPELL_LURIELLES_PENDANT             = 43340,
+    NPC_CHILL_NYMPH                     = 23678,
+    NPC_LURIELLE                        = 24117,
+    FACTION_FRIENDLY                    = 35,
+    SAY_FREE_1                          = -1000781,
+    SAY_FREE_2                          = -1000782,
+    SAY_FREE_3                          = -1000783,
+
+    // quest 12213, 12220, item 37173
+    SPELL_SAMPLING_ENERGY               = 48218,
+
+    // npcs that are only interactable while dead
+    SPELL_SHROUD_OF_DEATH               = 10848,
+    SPELL_SPIRIT_PARTICLES              = 17327,
+    NPC_FRANCLORN_FORGEWRIGHT           = 8888,
+    NPC_GAERIYAN                        = 9299,
+    NPC_GANJO                           = 26924,
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
@@ -408,6 +427,22 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
                 pTarget->AI()->AttackStart(pCreature);
                 return true;
             }
+
+            return false;
+        }
+        
+        case SPELL_SHROUD_OF_DEATH:
+        case SPELL_SPIRIT_PARTICLES:
+        {
+            Creature* pCreature = (Creature*)pAura->GetTarget();
+
+            if (!pCreature || (pCreature->GetEntry() != NPC_FRANCLORN_FORGEWRIGHT && pCreature->GetEntry() != NPC_GAERIYAN && pCreature->GetEntry() != NPC_GANJO))
+                return false;
+
+            if (bApply)
+                pCreature->m_AuraFlags |= UNIT_AURAFLAG_ALIVE_INVISIBLE;
+            else
+                pCreature->m_AuraFlags |= ~UNIT_AURAFLAG_ALIVE_INVISIBLE;
 
             return false;
         }
@@ -854,6 +889,40 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                     return true;
                 }
             }
+        }
+        case SPELL_LURIELLES_PENDANT:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCreatureTarget->GetEntry() != NPC_CHILL_NYMPH || pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return true;
+
+                switch(urand(0, 2))
+                {
+                    case 0: DoScriptText(SAY_FREE_1, pCreatureTarget); break;
+                    case 1: DoScriptText(SAY_FREE_2, pCreatureTarget); break;
+                    case 2: DoScriptText(SAY_FREE_3, pCreatureTarget); break;
+                }
+
+                ((Player*)pCaster)->KilledMonsterCredit(NPC_LURIELLE);
+                pCreatureTarget->SetFactionTemporary(FACTION_FRIENDLY, TEMPFACTION_RESTORE_RESPAWN);
+                pCreatureTarget->DeleteThreatList();
+                pCreatureTarget->AttackStop(true);
+                pCreatureTarget->GetMotionMaster()->MoveFleeing(pCaster, 7);
+                pCreatureTarget->ForcedDespawn(7*IN_MILLISECONDS);
+            }
+            return true;
+        }
+        case SPELL_SAMPLING_ENERGY:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return true;
+
+                ((Player*)pCaster)->KilledMonsterCredit(pCreatureTarget->GetEntry());
+            }
+            return true;
         }
     }
 
