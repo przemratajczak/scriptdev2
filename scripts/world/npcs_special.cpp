@@ -27,7 +27,7 @@ EndScriptData
 #include "ObjectMgr.h"
 #include "GameEventMgr.h"
 #include "follower_ai.h"
-
+#include "pet_ai.h"
 /* ContentData
 npc_air_force_bots       80%    support for misc (invisible) guard bots in areas where player allowed to fly. Summon guards after a preset time if tagged by spell
 npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
@@ -2736,93 +2736,289 @@ CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
     return new npc_fel_guard_houndAI(pCreature);
 };
 
-/*#####
-# npc_spring_rabbit
-#####*/
 
-enum rabbitSpells
+/*########
+## npc_spring_rabbit
+## ATTENTION: This is actually a "fun" script, entirely done without proper source!
+######*/
+
+enum
 {
-    SPELL_SPRING_FLING = 61875,
-    SPELL_SPRING_RABBIT_JUMP = 61724,
-    SPELL_SPRING_RABBIT_WANDER = 61726,
-    SPELL_SUMMON_BABY_BUNNY = 61727,
+    NPC_SPRING_RABBIT           = 32791,
+
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_WANDER  = 61726,
+    SEPLL_SUMMON_BABY_BUNNY     = 61727,
     SPELL_SPRING_RABBIT_IN_LOVE = 61728,
-    NPC_SPRING_RABBIT = 32791
+    SPELL_SPRING_FLING          = 61875,
 };
 
-struct MANGOS_DLL_DECL npc_spring_rabbitAI : public FollowerAI
-{
-    npc_spring_rabbitAI(Creature* pCreature) : FollowerAI(pCreature) {Reset();}
+static const float DIST_START_EVENT = 15.0f;                // Guesswork
 
-    bool inLove;
-    uint32 jumpTimer;
-    uint32 bunnyTimer;
-    uint32 searchTimer;
-    ObjectGuid rabbitGUID;
+struct MANGOS_DLL_DECL npc_spring_rabbitAI : public ScriptedPetAI
+{
+    npc_spring_rabbitAI(Creature* pCreature) : ScriptedPetAI(pCreature) { Reset(); }
+
+    ObjectGuid m_partnerGuid;
+    uint32 m_uiStep;
+    uint32 m_uiStepTimer;
+    float m_fMoveAngle;
 
     void Reset()
     {
-        inLove = false;
-        rabbitGUID.Clear();
-        jumpTimer = urand(5000, 10000);
-        bunnyTimer = urand(10000, 20000);
-        searchTimer = urand(5000, 10000);
-        if (Unit* owner = m_creature->GetOwner())
-            m_creature->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        m_uiStep = 0;
+        m_uiStepTimer = 0;
+        m_partnerGuid.Clear();
+        m_fMoveAngle = 0.0f;
     }
 
-    void EnterCombat(Unit * /*who*/) { }
+    bool CanStartWhatRabbitsDo() { return !m_partnerGuid && !m_uiStepTimer; }
 
-    void DoAction(const int32 /*param*/)
+    void StartWhatRabbitsDo(Creature* pPartner)
     {
-        inLove = true;
-        if (Unit* owner = m_creature->GetOwner())
-            owner->CastSpell(owner, SPELL_SPRING_FLING, true);
+        m_partnerGuid = pPartner->GetObjectGuid();
+        m_uiStep = 1;
+        m_uiStepTimer = 30000;
+        // Calculate meeting position
+        float m_fMoveAngle = m_creature->GetAngle(pPartner);
+        float fDist = m_creature->GetDistance(pPartner);
+        float fX, fY, fZ;
+        m_creature->GetNearPoint(m_creature, fX, fY, fZ, m_creature->GetObjectBoundingRadius(), fDist * 0.5f - m_creature->GetObjectBoundingRadius(), m_fMoveAngle);
+
+        m_creature->GetMotionMaster()->Clear();
+        m_creature->GetMotionMaster()->MovePoint(1, fX, fY, fZ);
     }
 
-    void UpdateAI(const uint32 diff)
+    // Helper to get the Other Bunnies AI
+    npc_spring_rabbitAI* GetPartnerAI(Creature* pBunny = NULL)
     {
-        if (inLove)
+        if (!pBunny)
+            pBunny = m_creature->GetMap()->GetAnyTypeCreature(m_partnerGuid);
+
+        if (!pBunny)
+            return NULL;
+
+        return dynamic_cast<npc_spring_rabbitAI*>(pBunny->AI());
+    }
+
+    // Event Starts when two rabbits see each other
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        if (m_creature->getVictim())
+            return;
+
+        if (pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_SPRING_RABBIT && CanStartWhatRabbitsDo() && m_creature->IsFriendlyTo(pWho) && m_creature->IsWithinDistInMap(pWho, DIST_START_EVENT, true))
         {
-            if (jumpTimer <= diff)
+            if (npc_spring_rabbitAI* pOtherBunnyAI = GetPartnerAI((Creature*)pWho))
             {
-                if (Unit* rabbit = m_creature->GetMap()->GetCreature(rabbitGUID))
-                    DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
-                jumpTimer = urand(5000, 10000);
-            } else jumpTimer -= diff;
+                if (pOtherBunnyAI->CanStartWhatRabbitsDo())
+                {
+                    StartWhatRabbitsDo((Creature*)pWho);
+                    pOtherBunnyAI->StartWhatRabbitsDo(m_creature);
+                }
+            }
+            return;
+        }
 
-            if (bunnyTimer <= diff)
-            {
-                DoCast(m_creature,SPELL_SUMMON_BABY_BUNNY);
-                bunnyTimer = urand(20000, 40000);
-            } else bunnyTimer -= diff;
+        ScriptedPetAI::MoveInLineOfSight(pWho);
+    }
+
+    bool ReachedMeetingPlace()
+    {
+        if (m_uiStep == 3)                                  // Already there
+        {
+            m_uiStepTimer = 3000;
+            m_uiStep = 2;
+            return true;
         }
         else
+            return false;
+    }
+
+    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE || uiData != 1)
+            return;
+
+        if (!m_partnerGuid)
+            return;
+
+        m_uiStep = 3;
+        if (npc_spring_rabbitAI* pOtherBunnyAI = GetPartnerAI())
         {
-            if (searchTimer <= diff)
-            {                
-                if (Creature* rabbit = m_creature->GetClosestCreatureWithEntry(m_creature,NPC_SPRING_RABBIT, 10.0f))
-                {
-                    if (rabbit == m_creature )
-                        return;
-                    
-                    m_creature->CastSpell(m_creature,SPELL_SPRING_RABBIT_IN_LOVE,false);
-                    DoAction(1);
-                    rabbit->CastSpell(rabbit,SPELL_SPRING_RABBIT_IN_LOVE,false);
-                    ((npc_spring_rabbitAI*)rabbit->AI())->DoAction(1);
-                    rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
-                    rabbitGUID = rabbit->GetObjectGuid();
-                }
-                searchTimer = urand(5000, 10000);
-            } else searchTimer -= diff;
+            if (pOtherBunnyAI->ReachedMeetingPlace())
+            {
+                m_creature->SetFacingTo(pOtherBunnyAI->m_creature->GetOrientation());
+                m_uiStepTimer = 3000;
+            }
+            else
+                m_creature->SetFacingTo(m_fMoveAngle + M_PI_F * 0.5f);
         }
+
+        //m_creature->GetMotionMaster()->MoveRandom(); // does not move around current position, hence not usefull right now
+        m_creature->GetMotionMaster()->MoveIdle();
+    }
+
+    // Overwrite ScriptedPetAI::UpdateAI, to prevent re-following while the event is active!
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_partnerGuid || !m_uiStepTimer)
+        {
+            ScriptedPetAI::UpdateAI(uiDiff);
+            return;
+        }
+
+        if (m_uiStep == 6)
+            ScriptedPetAI::UpdateAI(uiDiff);                // Event nearly finished, do normal following
+
+        if (m_uiStepTimer <= uiDiff)
+        {
+            switch (m_uiStep)
+            {
+                case 1:                                     // Timer expired, before reached meeting point. Reset.
+                    Reset();
+                    break;
+
+                case 2:                                     // Called for the rabbit first reached meeting point
+                    if (Creature* pBunny = m_creature->GetMap()->GetAnyTypeCreature(m_partnerGuid))
+                        pBunny->CastSpell(pBunny, SPELL_SPRING_RABBIT_IN_LOVE, false);
+
+                    DoCastSpellIfCan(m_creature, SPELL_SPRING_RABBIT_IN_LOVE);
+                    // no break here
+                case 3:
+                    m_uiStepTimer = 5000;
+                    m_uiStep += 2;
+                    break;
+
+                case 4:                                     // Called for the rabbit first reached meeting point
+                    DoCastSpellIfCan(m_creature, SEPLL_SUMMON_BABY_BUNNY);
+                    // no break here
+                case 5:
+                    // Let owner cast achievement related spell
+                    if (Unit* pOwner = m_creature->GetCharmerOrOwner())
+                        pOwner->CastSpell(pOwner, SPELL_SPRING_FLING, true);
+
+                    m_uiStep = 6;
+                    m_uiStepTimer = 30000;
+                    break;
+                case 6:
+                    m_creature->RemoveAurasDueToSpell(SPELL_SPRING_RABBIT_IN_LOVE);
+                    Reset();
+                    break;
+            }
+        }
+        else
+            m_uiStepTimer -= uiDiff;
     }
 };
 
 CreatureAI* GetAI_npc_spring_rabbit(Creature* pCreature)
 {
     return new npc_spring_rabbitAI(pCreature);
+}
+
+/*######
+## npc_redemption_target
+######*/
+
+enum
+{
+    SAY_HEAL                    = -1000187,
+
+    SPELL_SYMBOL_OF_LIFE        = 8593,
+    SPELL_SHIMMERING_VESSEL     = 31225,
+    SPELL_REVIVE_SELF           = 32343,
+
+    NPC_FURBOLG_SHAMAN          = 17542,        // draenei side
+    NPC_BLOOD_KNIGHT            = 17768,        // blood elf side
 };
+
+struct MANGOS_DLL_DECL npc_redemption_targetAI : public ScriptedAI
+{
+    npc_redemption_targetAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 m_uiEvadeTimer;
+    uint32 m_uiHealTimer;
+
+    ObjectGuid m_playerGuid;
+
+    void Reset()
+    {
+        m_uiEvadeTimer = 0;
+        m_uiHealTimer  = 0;
+
+        m_creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+    }
+
+    void DoReviveSelf(ObjectGuid m_guid)
+    {
+        // Wait until he resets again
+        if (m_uiEvadeTimer)
+            return;
+
+        DoCastSpellIfCan(m_creature, SPELL_REVIVE_SELF);
+        m_creature->SetDeathState(JUST_ALIVED);
+        m_playerGuid = m_guid;
+        m_uiHealTimer = 2000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiHealTimer)
+        {
+            if (m_uiHealTimer <= uiDiff)
+            {
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                {
+                    DoScriptText(SAY_HEAL, m_creature, pPlayer);
+
+                    // Quests 9600 and 9685 requires kill credit
+                    if (m_creature->GetEntry() == NPC_FURBOLG_SHAMAN || m_creature->GetEntry() == NPC_BLOOD_KNIGHT)
+                        pPlayer->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetObjectGuid());
+                }
+
+                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                m_uiHealTimer = 0;
+                m_uiEvadeTimer = 2*MINUTE*IN_MILLISECONDS;
+            }
+            else
+                m_uiHealTimer -= uiDiff;
+        }
+
+        if (m_uiEvadeTimer)
+        {
+            if (m_uiEvadeTimer <= uiDiff)
+            {
+                EnterEvadeMode();
+                m_uiEvadeTimer = 0;
+            }
+            else
+                m_uiEvadeTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_redemption_target(Creature* pCreature)
+{
+    return new npc_redemption_targetAI(pCreature);
+}
+
+bool EffectDummyCreature_npc_redemption_target(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
+{
+    //always check spellid and effectindex
+    if ((uiSpellId == SPELL_SYMBOL_OF_LIFE || uiSpellId == SPELL_SHIMMERING_VESSEL) && uiEffIndex == EFFECT_INDEX_0)
+    {
+        if (npc_redemption_targetAI* pTargetAI = dynamic_cast<npc_redemption_targetAI*>(pCreatureTarget->AI()))
+            pTargetAI->DoReviveSelf(pCaster->GetObjectGuid());
+
+        //always return true when we are handling this spell and effect
+        return true;
+    }
+
+    return false;
+}
 /*#####
 # npc_hard_boiled_trigger
 #####*/
@@ -2852,6 +3048,79 @@ CreatureAI* GetAI_npc_hard_boiled_trigger(Creature* pCreature)
 {
     return new npc_hard_boiled_triggerAI(pCreature);
 };
+
+
+/*########
+npc_wild_turkey
+#########*/
+enum
+{
+    EMOTE_TURKEY_HUNTER              = -1730001,
+    EMOTE_TURKEY_DOMINATION          = -1730002,
+    EMOTE_TURKEY_SLAUGHTER           = -1730003,
+    EMOTE_TURKEY_TRIUMPH             = -1730004,
+
+    SPELL_TURKEY_TRACKER             = 62014,
+    SPELL_PH_KILL_COUNTER_VISUAL_MAX = 62021
+};
+struct MANGOS_DLL_DECL npc_wild_turkeyAI : public ScriptedAI
+{
+    npc_wild_turkeyAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_creature->RemoveAllAuras();
+    }
+
+    void Reset(){}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pKiller && pKiller->GetTypeId() == TYPEID_PLAYER)
+        {
+            pKiller->CastSpell(pKiller, SPELL_TURKEY_TRACKER, true);
+            Aura * pAura = pKiller->GetAura(SPELL_TURKEY_TRACKER, EFFECT_INDEX_0);
+            if (pAura)
+            {
+                uint32 stacks = pAura->GetStackAmount();
+                switch (stacks)
+                {
+                    case 10:
+                    {
+                        DoScriptText(EMOTE_TURKEY_HUNTER, m_creature, pKiller);
+                        break;
+                    }
+                    case 20:
+                    {
+                        DoScriptText(EMOTE_TURKEY_DOMINATION, m_creature, pKiller);
+                        break;
+                    }
+                    case 30:
+                    {
+                        DoScriptText(EMOTE_TURKEY_SLAUGHTER, m_creature, pKiller);
+                        break;
+                    }
+                    case 40:
+                    {
+                        DoScriptText(EMOTE_TURKEY_TRIUMPH, m_creature, pKiller);
+                        pKiller->CastSpell(pKiller, SPELL_PH_KILL_COUNTER_VISUAL_MAX, true);
+                        break;
+                    }
+                    default: break;
+                }
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_wild_turkey(Creature* pCreature)
+{
+    return new npc_wild_turkeyAI (pCreature);
+};
+
 void AddSC_npcs_special()
 {
     Script* pNewScript;
@@ -3004,7 +3273,18 @@ void AddSC_npcs_special()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
+    pNewScript->Name = "npc_redemption_target";
+    pNewScript->GetAI = &GetAI_npc_redemption_target;
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_redemption_target;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
     pNewScript->Name = "npc_hard_boiled_trigger";
     pNewScript->GetAI = &GetAI_npc_hard_boiled_trigger;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_wild_turkey";
+    pNewScript->GetAI = &GetAI_npc_wild_turkey;
     pNewScript->RegisterSelf();
 }
