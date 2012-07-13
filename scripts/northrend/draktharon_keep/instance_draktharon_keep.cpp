@@ -100,7 +100,7 @@ void instance_draktharon_keep::DoSortNovosDummies()
         if (!pCrystal)
             continue;
 
-        for (GUIDList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
+        for (GuidList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
         {
             Creature* pDummy = instance->GetCreature(*itr);
             if (!pDummy)
@@ -124,7 +124,7 @@ void instance_draktharon_keep::DoSortNovosDummies()
     // Find the crystal channel target (above Novos)
     float fNovosX, fNovosY, fNovosZ;
     pNovos->GetRespawnCoord(fNovosX, fNovosY, fNovosZ);
-    for (GUIDList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
+    for (GuidList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
     {
         Creature* pDummy = instance->GetCreature(*itr);
         if (!pDummy)
@@ -145,7 +145,7 @@ void instance_draktharon_keep::DoSortNovosDummies()
     }
 
     // Summon positions (at end of stairs)
-    for (GUIDList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
+    for (GuidList::iterator itr = m_lNovosDummyGuids.begin(); itr != m_lNovosDummyGuids.end();)
     {
         Creature* pDummy = instance->GetCreature(*itr);
         if (!pDummy)

@@ -81,7 +81,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
 
-    GUIDList m_lGolemGUIDList;
+    GuidList m_lGolemGuidList;
 
     bool m_bIsRegularMode;
     bool m_bHasTemper;
@@ -107,7 +107,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         m_uiHealthAmountModifier = 1;
 
         DespawnGolem();
-        m_lGolemGUIDList.clear();
+        m_lGolemGuidList.clear();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VOLKHAN, NOT_STARTED);
@@ -155,10 +155,10 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
     void DespawnGolem()
     {
-        if (m_lGolemGUIDList.empty())
+        if (m_lGolemGuidList.empty())
             return;
 
-        for(GUIDList::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+        for(GuidList::const_iterator itr = m_lGolemGuidList.begin(); itr != m_lGolemGuidList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -167,15 +167,15 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
             }
         }
 
-        m_lGolemGUIDList.clear();
+        m_lGolemGuidList.clear();
     }
 
     void ShatterGolem()
     {
-        if (m_lGolemGUIDList.empty())
+        if (m_lGolemGuidList.empty())
             return;
 
-        for(GUIDList::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+        for(GuidList::const_iterator itr = m_lGolemGuidList.begin(); itr != m_lGolemGuidList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -196,7 +196,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
     {
         if (pSummoned->GetEntry() == NPC_MOLTEN_GOLEM)
         {
-            m_lGolemGUIDList.push_back(pSummoned->GetObjectGuid());
+            m_lGolemGuidList.push_back(pSummoned->GetObjectGuid());
 
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 pSummoned->AI()->AttackStart(pTarget);

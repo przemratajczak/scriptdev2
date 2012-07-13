@@ -935,9 +935,9 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 m_creature->GetMotionMaster()->MovePoint(0, afGravityPos[0], afGravityPos[1], afGravityPos[2]);
 
                                 // 1) Kael'thas will portal the whole raid right into his body
-                                std::vector<ObjectGuid> vGuids;
+                                GuidVector vGuids;
                                 m_creature->FillGuidsListFromThreatList(vGuids);
-                                for (std::vector<ObjectGuid>::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
+                                for (GuidVector::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
                                 {
                                     Unit* pUnit = m_creature->GetMap()->GetUnit(*i);
 
@@ -960,10 +960,9 @@ struct MANGOS_DLL_DECL boss_kaelthasAI : public ScriptedAI
                                 DoScriptText(urand(0, 1) ? SAY_GRAVITYLAPSE1 : SAY_GRAVITYLAPSE2, m_creature);
 
                                 // 2) At that point he will put a Gravity Lapse debuff on everyone
-                                std::vector<ObjectGuid> vGuids;
+                                GuidVector vGuids;
                                 m_creature->FillGuidsListFromThreatList(vGuids);
-                                for (std::vector<ObjectGuid>::const_iterator i = vGuids.begin();i != vGuids.end(); ++i)
-                                {
+                                for (GuidVector::const_iterator i = vGuids.begin();i != vGuids.end(); ++i){
                                     if (Unit* pUnit = m_creature->GetMap()->GetUnit(*i))
                                     {
                                         m_creature->CastSpell(pUnit, SPELL_KNOCKBACK, true);

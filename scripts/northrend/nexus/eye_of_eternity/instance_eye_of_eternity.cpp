@@ -163,7 +163,7 @@ bool Instance_eye_of_eternity::CheckAchievementCriteriaMeet(uint32 uiCriteriaId,
         case ACHIEV_CRIT_DENYING_THE_SCION_10:
             if (instance->IsRegularDifficulty())
             {
-                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
+                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGuidList.begin(); i != m_lDenyingScionGuidList.end(); i++)
                     if (pSource->GetObjectGuid().GetRawValue() == (*i).GetRawValue())
                         return true;
             }
@@ -171,7 +171,7 @@ bool Instance_eye_of_eternity::CheckAchievementCriteriaMeet(uint32 uiCriteriaId,
         case ACHIEV_CRIT_DENYING_THE_SCION_25:
             if (!instance->IsRegularDifficulty())
             {
-                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGUIDList.begin(); i != m_lDenyingScionGUIDList.end(); i++)
+                for (std::list<ObjectGuid>::iterator i = m_lDenyingScionGuidList.begin(); i != m_lDenyingScionGuidList.end(); i++)
                     if (pSource->GetObjectGuid().GetRawValue() == (*i).GetRawValue())
                         return true;
             }

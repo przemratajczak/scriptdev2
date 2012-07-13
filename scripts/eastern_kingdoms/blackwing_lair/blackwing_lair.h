@@ -64,7 +64,7 @@ class MANGOS_DLL_DECL instance_blackwing_lair : public ScriptedInstance
         std::string m_strInstData;
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        GUIDList m_lTechnicianGuids;
+        GuidList m_lTechnicianGuids;
 };
 
 #endif

@@ -216,7 +216,7 @@ void instance_sunken_temple::SetData(uint32 uiType, uint32 uiData)
                 }
 
                 // Respawn circles
-                for (GUIDVector::const_iterator itr = m_vuiCircleGUIDs.begin(); itr != m_vuiCircleGUIDs.end(); ++itr)
+                for (GuidVector::const_iterator itr = m_vuiCircleGUIDs.begin(); itr != m_vuiCircleGUIDs.end(); ++itr)
                     DoRespawnGameObject(*itr, 30*MINUTE);
             }
             else if (uiData == FAIL)
@@ -273,7 +273,7 @@ void instance_sunken_temple::DoSpawnAtalarionIfCan()
     DoRespawnGameObject(GO_IDOL_OF_HAKKAR, 30 * MINUTE);
 
     // Spawn the big green lights
-    for (GUIDList::const_iterator itr = m_luiBigLightGUIDs.begin(); itr != m_luiBigLightGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiBigLightGUIDs.begin(); itr != m_luiBigLightGUIDs.end(); ++itr)
         DoRespawnGameObject(*itr, 30*MINUTE);
 }
 
@@ -306,7 +306,7 @@ bool instance_sunken_temple::ProcessStatueEvent(uint32 uiEventId)
 
 void instance_sunken_temple::DoUpdateFlamesFlags(bool bRestore)
 {
-    for (GUIDList::const_iterator itr = m_luiFlameGUIDs.begin(); itr != m_luiFlameGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiFlameGUIDs.begin(); itr != m_luiFlameGUIDs.end(); ++itr)
     {
         if (GameObject* pFlame = instance->GetGameObject(*itr))
         {
@@ -378,7 +378,7 @@ void instance_sunken_temple::Update(uint32 uiDiff)
             if (m_bIsFirstHakkarWave)                       // First wave summoned
             {
                 // Summon at all circles
-                for (GUIDVector::const_iterator itr = m_vuiCircleGUIDs.begin(); itr != m_vuiCircleGUIDs.end(); ++itr)
+                for (GuidVector::const_iterator itr = m_vuiCircleGUIDs.begin(); itr != m_vuiCircleGUIDs.end(); ++itr)
                 {
                     if (GameObject* pCircle = instance->GetGameObject(*itr))
                         pShade->SummonCreature(NPC_HAKKARI_MINION, pCircle->GetPositionX(), pCircle->GetPositionY(), pCircle->GetPositionZ(), 0, TEMPSUMMON_DEAD_DESPAWN, 0);

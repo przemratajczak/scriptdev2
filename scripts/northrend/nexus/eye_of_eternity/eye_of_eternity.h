@@ -39,7 +39,7 @@ class MANGOS_DLL_DECL Instance_eye_of_eternity : public ScriptedInstance
  public:
     Instance_eye_of_eternity(Map* pMap);
 
-    std::list<ObjectGuid> m_lDenyingScionGUIDList;
+    std::list<ObjectGuid> m_lDenyingScionGuidList;
 
     void SetData(uint32 uiType, uint32 uiData);
     uint32 GetData(uint32 uiType);

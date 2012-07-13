@@ -120,7 +120,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
     bool m_bIsAlliance;
     bool m_bIsIntro;
 
-    GUIDList m_lGuards;
+    GuidList m_lGuards;
     ObjectGuid m_uiTyranusGuid;
     ObjectGuid m_uiSkeletonGuid;
 
@@ -209,7 +209,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         break;
                     case 4:
                         //Guards go to Tyranus
-                        for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                        for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                         {
                             if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                             {
@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         break;
                     case 6:
                         //Guards up to air
-                        for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                        for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                         {
                             if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                             {
@@ -264,7 +264,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         //Tyranus use lights in guards.
                         if (Creature* pTyranus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
                         { 
-                            for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                            for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                             {
                                 if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                                 {  
@@ -297,7 +297,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         //Change guards to skeleton
                         if (Creature* pTyranus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
                         {
-                            for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                            for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                             {
                                 if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                                 {
@@ -317,7 +317,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         break;
                     case 12:
                         //Skeleton attack Jaina or Sylvanas
-                        for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                        for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                         {
                             if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                             {
@@ -335,7 +335,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                    case 13:
                         if (Creature* pTyranus = m_pInstance->GetSingleCreatureFromStorage(NPC_TYRANNUS_INTRO))
                         {
-                            for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                            for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                             {
                                 if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                                 { 
@@ -358,7 +358,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSintroAI : public ScriptedAI
                         m_uiEventStep = 14;
                         break;
                     case 14:
-                        for (GUIDList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
+                        for (GuidList::iterator i = m_lGuards.begin(); i != m_lGuards.end(); ++i)
                         {
                             if (Creature *pTmp = m_creature->GetMap()->GetCreature(*i))
                             { 
@@ -457,7 +457,7 @@ struct MANGOS_DLL_DECL npc_jaina_or_sylvanas_POSoutroAI : public ScriptedAI
     ObjectGuid m_uiBarierGuid;
     ObjectGuid m_guidNpc;
 
-    GUIDList m_lGuards;
+    GuidList m_lGuards;
     uint8 m_uiEventStep;
     uint32 m_uiEventStepTimer;
 

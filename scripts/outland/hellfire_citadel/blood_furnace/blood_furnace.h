@@ -84,7 +84,7 @@ class MANGOS_DLL_DECL instance_blood_furnace : public ScriptedInstance
         uint32 m_uiBroggokEventTimer;                       // Timer for opening the event cages; only on heroic mode = 30 secs
         uint32 m_uiBroggokEventPhase;
 
-        GUIDList m_luiNascentOrcGUIDs;
+        GuidList m_luiNascentOrcGUIDs;
 };
 
 #endif

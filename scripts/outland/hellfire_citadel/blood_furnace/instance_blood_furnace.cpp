@@ -310,7 +310,7 @@ void instance_blood_furnace::Load(const char* chrIn)
 // Sort all nascent orcs in the instance in order to get only those near broggok doors
 void instance_blood_furnace::DoSortBroggokOrcs()
 {
-    for (GUIDList::const_iterator itr = m_luiNascentOrcGUIDs.begin(); itr != m_luiNascentOrcGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiNascentOrcGUIDs.begin(); itr != m_luiNascentOrcGUIDs.end(); ++itr)
     {
         if (Creature* pOrc = instance->GetCreature(*itr))
         {

@@ -61,7 +61,7 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
 
     bool m_bIsRegularMode;
     bool MovementStarted;
-    GUIDList m_lSentryGUIDList;
+    GuidList m_lSentryGuidList;
 
     uint32 m_uiShroudDarkness_Timer;
     uint32 m_uiVoidShift_Timer;
@@ -124,17 +124,17 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        m_lSentryGUIDList.push_back(pSummoned->GetObjectGuid());
+        m_lSentryGuidList.push_back(pSummoned->GetObjectGuid());
         //pSummoned->AddThreat(m_creature);
         //pSummoned->AI()->AttackStart(m_creature);
     }
 
     void DespawnSentry()
     {
-        if (m_lSentryGUIDList.empty())
+        if (m_lSentryGuidList.empty())
             return;
 
-        for(GUIDList::iterator itr = m_lSentryGUIDList.begin(); itr != m_lSentryGUIDList.end(); ++itr)
+        for(GuidList::iterator itr = m_lSentryGuidList.begin(); itr != m_lSentryGuidList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -144,7 +144,7 @@ struct MANGOS_DLL_DECL boss_zuramatAI : public ScriptedAI
             }
         }
 
-        m_lSentryGUIDList.clear();
+        m_lSentryGuidList.clear();
     }
 
     void StartMovement(uint32 id)

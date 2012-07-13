@@ -40,12 +40,12 @@ void instance_obsidian_sanctum::Initialize()
     m_uiAcolyteShadronGUID.Clear();
     m_uiAcolyteVesperonGUID.Clear();
 
-    m_lTrashMobsGUIDlist.clear();
-    m_lTrashMobsGUIDlist.clear();
-    m_lEggsGUIDList.clear();
-    m_lWhelpsGUIDList.clear();
-    m_lBlazesGUIDList.clear();
-    m_lHitByVolcanoGUIDList.clear();
+    m_lTrashMobsGuidList.clear();
+    m_lTrashMobsGuidList.clear();
+    m_lEggsGuidList.clear();
+    m_lWhelpsGuidList.clear();
+    m_lBlazesGuidList.clear();
+    m_lHitByVolcanoGuidList.clear();
 }
 
 void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)
@@ -66,7 +66,7 @@ void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)
         case NPC_ONYX_BLAZE_MISTRESS:
         case NPC_ONYX_FLIGHT_CAPTAIN:
         case NPC_ONYX_SANCTUM_GUARDIAN:
-            m_lTrashMobsGUIDlist.push_back(pCreature->GetObjectGuid());
+            m_lTrashMobsGuidList.push_back(pCreature->GetObjectGuid());
             break;
     }
 }
@@ -131,7 +131,7 @@ bool instance_obsidian_sanctum::CheckAchievementCriteriaMeet(uint32 uiCriteriaId
         case ACHIEV_CRIT_VOLCANO_10:
             if (instance->IsRegularDifficulty())
             {
-                for (GUIDList::iterator i = m_lHitByVolcanoGUIDList.begin(); i != m_lHitByVolcanoGUIDList.end(); i++)
+                for (GuidList::iterator i = m_lHitByVolcanoGuidList.begin(); i != m_lHitByVolcanoGuidList.end(); i++)
                     if (pSource->GetObjectGuid() == *i)
                         return false;
 
@@ -141,7 +141,7 @@ bool instance_obsidian_sanctum::CheckAchievementCriteriaMeet(uint32 uiCriteriaId
         case ACHIEV_CRIT_VOLCANO_25:
             if (!instance->IsRegularDifficulty())
             {
-                for (GUIDList::iterator i = m_lHitByVolcanoGUIDList.begin(); i != m_lHitByVolcanoGUIDList.end(); i++)
+                for (GuidList::iterator i = m_lHitByVolcanoGuidList.begin(); i != m_lHitByVolcanoGuidList.end(); i++)
                     if (pSource->GetObjectGuid() == *i)
                         return false;
 

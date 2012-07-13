@@ -108,8 +108,8 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 
         NovosCrystalInfo m_aNovosCrystalInfo[MAX_CRYSTALS];
 
-        GUIDVector m_vSummonDummyGuids;
-        GUIDList m_lNovosDummyGuids;
+        GuidVector m_vSummonDummyGuids;
+        GuidList m_lNovosDummyGuids;
 };
 
 #endif

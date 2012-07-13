@@ -8,6 +8,7 @@
 #include "Common.h"
 #include "DBCStructure.h"
 #include "Database/DatabaseEnv.h"
+#include "LockedVector.h"
 
 class Player;
 class Creature;
@@ -32,9 +33,9 @@ class ObjectGuid;
 #define DEFAULT_TEXT        "<ScriptDev2 Text Entry Missing!>"
 
 // Some typedefs for storing Guids
-typedef std::list<ObjectGuid> GUIDList;
+typedef ACE_Based::LockedVector<ObjectGuid> GuidList;
+typedef ACE_Based::LockedVector<ObjectGuid> GuidVector;
 typedef std::set<ObjectGuid> GUIDSet;
-typedef std::vector<ObjectGuid> GUIDVector;
 typedef std::map<uint32, ObjectGuid> EntryGuidMap;
 
 /* Escort Factions

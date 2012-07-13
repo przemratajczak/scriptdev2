@@ -82,7 +82,7 @@ class MANGOS_DLL_DECL instance_mount_hyjal : public ScriptedInstance
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strSaveData;
 
-        GUIDList lAncientGemGUIDList;
+        GuidList lAncientGemGuidList;
 
         uint32 m_uiTrashCount;
 };

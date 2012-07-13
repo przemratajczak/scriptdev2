@@ -91,7 +91,7 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     uint32 m_uiGottaGoTimer;
     float fTimerPenalty;
 
-    GUIDList lSummons;
+    GuidList lSummons;
 
     void Reset()
     {

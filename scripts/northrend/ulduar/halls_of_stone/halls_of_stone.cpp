@@ -153,9 +153,9 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
     ScriptedInstance* m_pInstance;
     bool m_bIsRegularMode;
 
-    GUIDList m_lKaddrakGUIDList;
-    //std::list<Creature*> m_lMarnakGUIDList;
-    //std::list<Creature*> m_lAbedneumGUIDList;
+    GuidList m_lKaddrakGuidList;
+    //std::list<Creature*> m_lMarnakGuidList;
+    //std::list<Creature*> m_lAbedneumGuidList;
 
     bool m_bIsActivateKaddrak;
     bool m_bIsActivateMarnak;
@@ -175,17 +175,17 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
         m_uiMarnak_Encounter_timer = 10000;
         m_uiAbedneum_Encounter_timer = 10000;
 
-        m_lKaddrakGUIDList.clear();
-        //m_lMarnakGUIDList.clear();
-        //m_lAbedneumGUIDList.clear();
+        m_lKaddrakGuidList.clear();
+        //m_lMarnakGuidList.clear();
+        //m_lAbedneumGuidList.clear();
     }
 
     void UpdateFacesList()
     {   
         std::list<Creature*> m_lKaddrakList;
-        m_lKaddrakGUIDList.clear();
+        m_lKaddrakGuidList.clear();
         GetCreatureListWithEntryInGrid(m_lKaddrakList, m_creature, NPC_KADDRAK, 50.0f);
-        if (!m_lKaddrakGUIDList.empty())
+        if (!m_lKaddrakGuidList.empty())
         {
             uint32 uiPositionCounter = 0;
             for(std::list<Creature*>::iterator itr = m_lKaddrakList.begin(); itr != m_lKaddrakList.end(); ++itr)
@@ -194,7 +194,7 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
 
                 if (Creature* c = (Creature *)(*itr))
                 {
-                    m_lKaddrakGUIDList.push_back((*itr)->GetObjectGuid());
+                    m_lKaddrakGuidList.push_back((*itr)->GetObjectGuid());
                     if (c->isAlive())
                     {
                         if (uiPositionCounter == 0)
@@ -212,8 +212,8 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
                 }
             }
         }
-        //GetCreatureListWithEntryInGrid(m_lMarnakGUIDList, m_creature, NPC_MARNAK, 50.0f);
-        //GetCreatureListWithEntryInGrid(m_lAbedneumGUIDList, m_creature, NPC_ABEDNEUM, 50.0f);
+        //GetCreatureListWithEntryInGrid(m_lMarnakGuidList, m_creature, NPC_MARNAK, 50.0f);
+        //GetCreatureListWithEntryInGrid(m_lAbedneumGuidList, m_creature, NPC_ABEDNEUM, 50.0f);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -223,8 +223,8 @@ struct MANGOS_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
             if (m_uiKaddrak_Encounter_timer < uiDiff)
             {
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                    if (!m_lKaddrakGUIDList.empty())
-                        for(GUIDList::iterator itr = m_lKaddrakGUIDList.begin(); itr != m_lKaddrakGUIDList.end(); ++itr)
+                    if (!m_lKaddrakGuidList.empty())
+                        for(GuidList::iterator itr = m_lKaddrakGuidList.begin(); itr != m_lKaddrakGuidList.end(); ++itr)
                             if (Creature* pCreature = m_creature->GetMap()->GetCreature(*itr))
                                 if (pCreature->isAlive())
                                     pCreature->CastSpell(pTarget, m_bIsRegularMode ? SPELL_GLARE_OF_THE_TRIBUNAL_H : SPELL_GLARE_OF_THE_TRIBUNAL, true);
@@ -294,7 +294,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
     uint32 m_uiPhase_timer;
 
     ObjectGuid m_uiControllerGUID;
-    GUIDList m_lDwarfGUIDList;
+    GuidList m_lDwarfGuidList;
 
     void Reset()
     {
@@ -389,10 +389,10 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
 
     void DespawnDwarf()
     {
-        if (m_lDwarfGUIDList.empty())
+        if (m_lDwarfGuidList.empty())
             return;
 
-        for(GUIDList::iterator itr = m_lDwarfGUIDList.begin(); itr != m_lDwarfGUIDList.end(); ++itr)
+        for(GuidList::iterator itr = m_lDwarfGuidList.begin(); itr != m_lDwarfGuidList.end(); ++itr)
         {
             if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -401,7 +401,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
             }
         }
 
-        m_lDwarfGUIDList.clear();
+        m_lDwarfGuidList.clear();
     }
 
     void SpawnDwarf(uint32 uiType)
@@ -428,7 +428,7 @@ struct MANGOS_DLL_DECL npc_brann_hosAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        m_lDwarfGUIDList.push_back(pSummoned->GetObjectGuid());
+        m_lDwarfGuidList.push_back(pSummoned->GetObjectGuid());
         pSummoned->SetRespawnDelay(7*DAY);
         pSummoned->AddThreat(m_creature, 0.0f);
         pSummoned->AI()->AttackStart(m_creature);

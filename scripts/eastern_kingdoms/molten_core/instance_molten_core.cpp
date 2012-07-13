@@ -242,12 +242,12 @@ void instance_molten_core::DoSpawnMajordomoIfCan(bool bByPlayerEnter)
     }
 }
 
-void instance_molten_core::DoHandleAdds(GUIDList &luiAddsGUIDs, bool bRespawn /*=true*/)
+void instance_molten_core::DoHandleAdds(GuidList &luiAddsGUIDs, bool bRespawn /*=true*/)
 {
     if (luiAddsGUIDs.empty())
         return;
 
-    for (GUIDList::const_iterator itr = luiAddsGUIDs.begin(); itr != luiAddsGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = luiAddsGUIDs.begin(); itr != luiAddsGUIDs.end(); ++itr)
     {
         if (Creature* pAdd = instance->GetCreature(*itr))
         {

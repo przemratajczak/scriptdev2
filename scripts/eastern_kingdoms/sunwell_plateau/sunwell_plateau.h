@@ -93,6 +93,6 @@ class MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
 
         // Misc
         uint32 m_uiSpectralRealmTimer;
-        GUIDList SpectralRealmList;
+        GuidList SpectralRealmList;
 };
 #endif

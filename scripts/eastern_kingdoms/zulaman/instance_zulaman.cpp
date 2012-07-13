@@ -75,7 +75,7 @@ void instance_zulaman::OnCreatureCreate(Creature* pCreature)
 
         case NPC_EGG:
             if (m_auiEncounter[3] != DONE)
-                m_lEggsGUIDList.push_back(pCreature->GetObjectGuid());
+                m_lEggsGuidList.push_back(pCreature->GetObjectGuid());
             break;
     }
 }
@@ -192,9 +192,9 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
                 m_uiEggsRemainingCount_Left = 20;
                 m_uiEggsRemainingCount_Right = 20;
 
-                if (!m_lEggsGUIDList.empty())
+                if (!m_lEggsGuidList.empty())
                 {
-                    for(GUIDList::const_iterator itr = m_lEggsGUIDList.begin(); itr != m_lEggsGUIDList.end(); ++itr)
+                    for(GuidList::const_iterator itr = m_lEggsGuidList.begin(); itr != m_lEggsGuidList.end(); ++itr)
                     {
                         if (Creature* pEgg = instance->GetCreature(*itr))
                         {
@@ -206,7 +206,7 @@ void instance_zulaman::SetData(uint32 uiType, uint32 uiData)
             }
             if (uiData == DONE)
             {
-                m_lEggsGUIDList.clear();
+                m_lEggsGuidList.clear();
 
                 if (m_auiEncounter[0] == IN_PROGRESS)
                     DoChestEvent(INDEX_JANALAI);

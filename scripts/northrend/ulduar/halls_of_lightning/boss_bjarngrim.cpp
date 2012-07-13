@@ -112,7 +112,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     uint32 m_uiMortalStrike_Timer;
     uint32 m_uiSlam_Timer;
 
-    GUIDList lLieutenants;
+    GuidList lLieutenants;
 
     void Reset()
     {
@@ -135,7 +135,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
         m_uiMortalStrike_Timer = 8000;
         m_uiSlam_Timer = 10000;
 
-        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GuidList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
             if (Creature* pStormforgedLieutenant = m_creature->GetMap()->GetCreature(*itr))
             {
@@ -161,7 +161,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        for(GUIDList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
+        for(GuidList::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
             Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr);
             if (pLieutenant && pLieutenant->isAlive())

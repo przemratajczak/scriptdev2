@@ -156,9 +156,9 @@ struct MANGOS_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
                 float ranY = LOCY;
                 float ranZ = LOCZ;
 
-                std::vector<ObjectGuid> vGuids;
+                GuidVector vGuids;
                 m_creature->FillGuidsListFromThreatList(vGuids);
-                for (std::vector<ObjectGuid>::const_iterator itr = vGuids.begin();itr != vGuids.end(); ++itr)
+                for (GuidVector::const_iterator itr = vGuids.begin();itr != vGuids.end(); ++itr)
                 {
                     Unit* target = m_creature->GetMap()->GetUnit(*itr);
 

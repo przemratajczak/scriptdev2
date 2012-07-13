@@ -112,8 +112,8 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
     bool m_bIsRegularMode;
     bool m_bSacrifice;
 
-    GUIDList lInitiates;
-    GUIDList lVolunteers;
+    GuidList lInitiates;
+    GuidList lVolunteers;
 
     uint32 m_uiThundershockTimer;
     uint32 m_uiCycloneStrikeTimer;
@@ -230,11 +230,11 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         DespawnAdds(lVolunteers);
     }
 
-    void DespawnAdds(GUIDList& List)
+    void DespawnAdds(GuidList& List)
     {
         if (!List.empty())
         {
-            for (GUIDList::iterator itr = List.begin(); itr != List.end(); ++itr)
+            for (GuidList::iterator itr = List.begin(); itr != List.end(); ++itr)
             {
                 if (Creature* pSummon = m_creature->GetMap()->GetCreature(*itr))
                     pSummon->ForcedDespawn();
@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         }
     }
 
-    void SpawnAdds(GUIDList& List, uint32 uiEntry)
+    void SpawnAdds(GuidList& List, uint32 uiEntry)
     {
         if (Creature* pSummon = m_creature->SummonCreature(uiEntry, SpawnNode[7][0], SpawnNode[7][1], SpawnNode[7][2], 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
         {
@@ -321,7 +321,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                             break;
                         case 6:
                             if (!lInitiates.empty())
-                                for (GUIDList::iterator itr = lInitiates.begin(); itr != lInitiates.end(); ++itr)
+                                for (GuidList::iterator itr = lInitiates.begin(); itr != lInitiates.end(); ++itr)
                                 {
                                     if (Unit* pUnit = m_creature->GetMap()->GetUnit(*itr))
                                         pUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -378,7 +378,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                         break;
                     case 3:
                         {
-                            GUIDList::iterator itr = lVolunteers.begin();
+                            GuidList::iterator itr = lVolunteers.begin();
                             advance(itr, (rand()% (lVolunteers.size())));
                             if (Creature* pVolunteer = m_creature->GetMap()->GetCreature(*itr))
                             {

@@ -143,7 +143,7 @@ class MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         uint32 m_uiEventTimer;
         uint32 m_uiGongCount;
 
-        GUIDList m_lEggsGUIDList;
+        GuidList m_lEggsGuidList;
         uint32 m_uiEggsRemainingCount_Left;
         uint32 m_uiEggsRemainingCount_Right;
 };

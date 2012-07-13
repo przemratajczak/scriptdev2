@@ -106,7 +106,7 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
         if (m_threatlist.empty())
             return NULL;
 
-        GUIDList distPositive;
+        GuidList distPositive;
         for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
         {
             if (Unit* pTemp = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
@@ -119,7 +119,7 @@ struct MANGOS_DLL_DECL boss_archavonAI : public ScriptedAI
 
         if (!distPositive.empty())
         {
-            GUIDList::iterator m_uiPlayerGUID = distPositive.begin();
+            GuidList::iterator m_uiPlayerGUID = distPositive.begin();
             advance(m_uiPlayerGUID, (rand()%distPositive.size()));
 
             if (Player* pTemp = m_creature->GetMap()->GetPlayer(*m_uiPlayerGUID))

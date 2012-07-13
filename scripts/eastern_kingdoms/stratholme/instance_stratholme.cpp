@@ -462,7 +462,7 @@ void instance_stratholme::DoSortZiggurats()
         return;
 
     std::list<Creature*> lAcolytes;                         // Valid pointers, only used locally
-    for (GUIDList::const_iterator itr = m_luiAcolyteGUIDs.begin(); itr != m_luiAcolyteGUIDs.end(); ++itr)
+    for (GuidList::const_iterator itr = m_luiAcolyteGUIDs.begin(); itr != m_luiAcolyteGUIDs.end(); ++itr)
     {
         if (Creature* pAcolyte = instance->GetCreature(*itr))
             lAcolytes.push_back(pAcolyte);
@@ -507,12 +507,12 @@ void instance_stratholme::DoSortZiggurats()
         m_luiAcolyteGUIDs.push_back((*itr)->GetObjectGuid());
 
     // Sort Crystal
-    for (GUIDList::iterator itr = m_luiCrystalGUIDs.begin(); itr != m_luiCrystalGUIDs.end(); )
+    for (GuidList::iterator itr = m_luiCrystalGUIDs.begin(); itr != m_luiCrystalGUIDs.end(); )
     {
         Creature* pCrystal = instance->GetCreature(*itr);
         if (!pCrystal)
         {
-            itr = m_luiCrystalGUIDs.erase(itr);
+            m_luiCrystalGUIDs.erase(itr++);
             continue;
         }
 
@@ -524,7 +524,7 @@ void instance_stratholme::DoSortZiggurats()
                 if (pCrystal->IsWithinDistInMap(pZigguratDoor, 50.0f, false))
                 {
                     m_zigguratStorage[i].m_crystalGuid = pCrystal->GetObjectGuid();
-                    itr = m_luiCrystalGUIDs.erase(itr);
+                    m_luiCrystalGUIDs.erase(itr);
                     bAlreadyIterated = true;
                     break;
                 }
@@ -608,7 +608,7 @@ void instance_stratholme::OnCreatureDeath(Creature* pCreature)
             if (m_luiUndeadGUIDs.empty())
             {
                 // Let the black Guards move out of the citadel
-                for (GUIDList::const_iterator itr = m_luiGuardGUIDs.begin(); itr != m_luiGuardGUIDs.end(); ++itr)
+                for (GuidList::const_iterator itr = m_luiGuardGUIDs.begin(); itr != m_luiGuardGUIDs.end(); ++itr)
                 {
                     Creature* pGuard = instance->GetCreature(*itr);
                     if (pGuard && pGuard->isAlive() && !pGuard->isInCombat())

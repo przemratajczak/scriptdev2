@@ -99,7 +99,7 @@ void instance_uldaman::SetData(uint32 uiType, uint32 uiData)
         case TYPE_ARCHAEDAS:
             if (uiData == FAIL)
             {
-                for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
                     if (Creature* pWarden = instance->GetCreature(*itr))
                     {
@@ -111,7 +111,7 @@ void instance_uldaman::SetData(uint32 uiType, uint32 uiData)
             }
             else if (uiData == DONE)
             {
-                for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+                for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
                     Creature* pWarden = instance->GetCreature(*itr);
                     if (pWarden && pWarden->isAlive())
@@ -224,7 +224,7 @@ Creature* instance_uldaman::GetClosestDwarfNotInCombat(Creature* pSearcher, uint
 {
     std::list<Creature*> lTemp;
 
-    for (GUIDList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
+    for (GuidList::const_iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
     {
         Creature* pTemp = instance->GetCreature(*itr);
 

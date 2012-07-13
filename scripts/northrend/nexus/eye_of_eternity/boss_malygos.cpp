@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
     uint32 m_uiSpeechTimer;
     uint32 m_uiPortalNeedResTimer;
     uint8 m_uiVortexPhase;
-    std::list<ObjectGuid> m_lSparkPortalGUIDList;
+    std::list<ObjectGuid> m_lSparkPortalGuidList;
 
     uint32 m_uiTimer;
     uint32 m_uiEnrageTimer;
@@ -308,12 +308,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         DespawnCreatures(NPC_HOVER_DISK);
         DespawnCreatures(NPC_STATIC_FIELD);
 
-        if (!m_lSparkPortalGUIDList.empty())
-            for (std::list<ObjectGuid>::iterator itr = m_lSparkPortalGUIDList.begin(); itr != m_lSparkPortalGUIDList.end(); ++itr)
+        if (!m_lSparkPortalGuidList.empty())
+            for (std::list<ObjectGuid>::iterator itr = m_lSparkPortalGuidList.begin(); itr != m_lSparkPortalGuidList.end(); ++itr)
                 if (Creature* pSparkPortal = m_creature->GetMap()->GetCreature(*itr))
                     pSparkPortal->Respawn();
 
-        m_lSparkPortalGUIDList.clear();
+        m_lSparkPortalGuidList.clear();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MALYGOS, NOT_STARTED);
@@ -345,7 +345,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         if (!lSparkPortalList.empty())
             for (std::list<Creature*>::iterator itr = lSparkPortalList.begin(); itr != lSparkPortalList.end(); ++itr)
                 if (*itr)
-                    m_lSparkPortalGUIDList.push_back((*itr)->GetObjectGuid());
+                    m_lSparkPortalGuidList.push_back((*itr)->GetObjectGuid());
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MALYGOS, IN_PROGRESS);
@@ -811,8 +811,8 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             if (m_uiPowerSparkTimer <= uiDiff)
             {
                 DoScriptText(SAY_POWER_SPARK, m_creature);
-                std::list<ObjectGuid>::iterator pTargetSparkPortalGUID = m_lSparkPortalGUIDList.begin();
-                advance(pTargetSparkPortalGUID, urand(0, m_lSparkPortalGUIDList.size()-1));
+                std::list<ObjectGuid>::iterator pTargetSparkPortalGUID = m_lSparkPortalGuidList.begin();
+                advance(pTargetSparkPortalGUID, urand(0, m_lSparkPortalGuidList.size()-1));
                 if (Creature* pTargetSparkPortal = m_creature->GetMap()->GetCreature(*pTargetSparkPortalGUID))
                 {
                     if (Creature *pSpark = pTargetSparkPortal->SummonCreature(NPC_POWER_SPARK, pTargetSparkPortal->GetPositionX(), pTargetSparkPortal->GetPositionY(), pTargetSparkPortal->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000, true))
