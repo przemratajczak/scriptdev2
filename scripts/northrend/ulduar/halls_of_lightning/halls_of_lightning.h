@@ -24,7 +24,9 @@ enum
     GO_LOKEN_DOOR           = 191324,                       //_doors02
     GO_LOKEN_THRONE         = 192654,
 
-    ACHIEV_START_LOKEN_ID   = 20384,
+    ACHIEV_START_LOKEN_ID         = 20384,
+    ACHIEV_CRIT_SHATTER_RESISTANT = 7321,
+    ACHIEV_CRIT_TIMELY_DEATH      = 7144
 };
 
 class MANGOS_DLL_DECL instance_halls_of_lightning : public ScriptedInstance
@@ -43,6 +45,9 @@ class MANGOS_DLL_DECL instance_halls_of_lightning : public ScriptedInstance
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
 
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+        bool m_bShatterResistantFailed;
+        bool m_bTimelyDeathFailed;
     private:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;

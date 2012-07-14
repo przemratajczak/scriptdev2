@@ -31,7 +31,8 @@ EndScriptData */
 3 - Loken
 */
 
-instance_halls_of_lightning::instance_halls_of_lightning(Map* pMap) : ScriptedInstance(pMap)
+instance_halls_of_lightning::instance_halls_of_lightning(Map* pMap) : ScriptedInstance(pMap),
+m_bShatterResistantFailed(false),m_bTimelyDeathFailed(false)
 {
     Initialize();
 }
@@ -87,6 +88,8 @@ void instance_halls_of_lightning::SetData(uint32 uiType, uint32 uiData)
         case TYPE_VOLKHAN:
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_VOLKHAN_DOOR);
+            if(uiData == IN_PROGRESS)
+                m_bShatterResistantFailed = false;
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_IONAR:
@@ -96,7 +99,10 @@ void instance_halls_of_lightning::SetData(uint32 uiType, uint32 uiData)
             break;
         case TYPE_LOKEN:
             if (uiData == IN_PROGRESS)
+            {
+                m_bTimelyDeathFailed = false;
                 DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_START_LOKEN_ID);
+            }
             if (uiData == DONE)
             {
                 DoUseDoorOrButton(GO_LOKEN_DOOR);
@@ -152,7 +158,17 @@ void instance_halls_of_lightning::Load(const char* chrIn)
 
     OUT_LOAD_INST_DATA_COMPLETE;
 }
-
+bool instance_halls_of_lightning::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch(uiCriteriaId)
+    {
+        case ACHIEV_CRIT_SHATTER_RESISTANT:
+            return !m_bShatterResistantFailed;
+        case ACHIEV_CRIT_TIMELY_DEATH:
+            return !m_bTimelyDeathFailed;
+        default:return false;
+    }
+}
 InstanceData* GetInstanceData_instance_halls_of_lightning(Map* pMap)
 {
     return new instance_halls_of_lightning(pMap);

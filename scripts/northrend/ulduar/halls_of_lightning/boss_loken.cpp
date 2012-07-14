@@ -59,12 +59,12 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
 {
     boss_lokenAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_halls_of_lightning*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_halls_of_lightning* m_pInstance;
 
     bool m_bIsRegularMode;
     bool m_bIsAura;
@@ -75,6 +75,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
     uint32 m_uiResumePulsingShockwave_Timer;
 
     uint32 m_uiHealthAmountModifier;
+    uint32 m_uiTimelyDeathTimer;
 
     void Reset()
     {
@@ -84,7 +85,7 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
         m_uiLightningNova_Timer = 20000;
         m_uiPulsingShockwave_Timer = 2000;
         m_uiResumePulsingShockwave_Timer = 15000;
-
+        m_uiTimelyDeathTimer = 2*MINUTE*IN_MILLISECONDS;
         m_uiHealthAmountModifier = 1;
 
         if (m_pInstance)
@@ -123,6 +124,12 @@ struct MANGOS_DLL_DECL boss_lokenAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
+        if(m_uiTimelyDeathTimer < uiDiff)
+        {
+            if(m_pInstance)
+                m_pInstance->m_bTimelyDeathFailed = true;
+        }
+        else m_uiTimelyDeathTimer -= uiDiff;
         if (m_bIsAura)
         {
             // workaround for PULSING_SHOCKWAVE
