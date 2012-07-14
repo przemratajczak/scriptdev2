@@ -60,11 +60,11 @@ struct MANGOS_DLL_DECL mob_ahnkahar_eggAI : public ScriptedAI
 {
     mob_ahnkahar_eggAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_ahnkahet*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_ahnkahet* m_pInstance;
 
     void Reset() {}
     void MoveInLineOfSight(Unit* pWho) {}
@@ -95,6 +95,8 @@ struct MANGOS_DLL_DECL mob_ahnkahar_eggAI : public ScriptedAI
         {
             if (m_pInstance)
             {
+                m_pInstance->m_bRespectEldersFailed = true;
+
                 if (Creature *pNadox = m_pInstance->GetSingleCreatureFromStorage(NPC_ELDER_NADOX))
                     pNadox->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
             }

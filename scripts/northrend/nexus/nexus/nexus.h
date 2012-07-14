@@ -30,7 +30,8 @@ enum
 
     SPELL_FROZEN_PRISON             = 47854,                // may not be correct spell
     ACHIEV_CHAOS_THEORY             = 7316,
-    ACHIEV_INTENSE_COLD             = 7315
+    ACHIEV_INTENSE_COLD             = 7315,
+    ACHIEV_CRIT_SPLIT_PERSONALITY   = 7577
 };
 
 class MANGOS_DLL_DECL instance_nexus : public ScriptedInstance
@@ -53,6 +54,7 @@ class MANGOS_DLL_DECL instance_nexus : public ScriptedInstance
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
 
         bool m_bKeristraszaAchievFailed;
+        bool m_bTelestraAchievFailed;
     private:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;

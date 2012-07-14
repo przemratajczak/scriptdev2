@@ -103,12 +103,12 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 {
     boss_jedogaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_ahnkahet*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_ahnkahet* m_pInstance;
     bool m_bIsRegularMode;
     bool m_bSacrifice;
 
@@ -210,6 +210,8 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         {
             lVolunteers.remove(pSummoned->GetObjectGuid());
             m_bSacrifice = true;
+            if(m_pInstance)
+                m_pInstance->m_bVolunteerWorkFailed = true;
         }
     }
 

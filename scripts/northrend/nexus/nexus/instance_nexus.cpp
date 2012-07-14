@@ -46,7 +46,7 @@ bool GOUse_go_containment_sphere(Player* pPlayer, GameObject* pGo)
 }
 
 instance_nexus::instance_nexus(Map* pMap) : ScriptedInstance(pMap),
- m_bAnomalusAchievFailed(false),m_bKeristraszaAchievFailed(false)
+ m_bAnomalusAchievFailed(false),m_bKeristraszaAchievFailed(false), m_bTelestraAchievFailed(false)
 {
     Initialize();
 }
@@ -111,6 +111,8 @@ void instance_nexus::SetData(uint32 uiType, uint32 uiData)
                 if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_CONTAINMENT_SPHERE_TELESTRA))
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             }
+            if(uiData == IN_PROGRESS)
+                m_bTelestraAchievFailed = false;
             break;
         case TYPE_ANOMALUS:
             m_auiEncounter[uiType] = uiData;
@@ -206,6 +208,8 @@ bool instance_nexus::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player co
             return !m_bAnomalusAchievFailed;    
         case ACHIEV_INTENSE_COLD:
             return !m_bKeristraszaAchievFailed; 
+        case ACHIEV_CRIT_SPLIT_PERSONALITY:
+            return !m_bTelestraAchievFailed;
         default:
             return false;
     }

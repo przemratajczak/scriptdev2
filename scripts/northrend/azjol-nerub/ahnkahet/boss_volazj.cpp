@@ -120,12 +120,12 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
 {
     boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_ahnkahet*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_ahnkahet* m_pInstance;
     bool m_bIsRegularMode;
     uint8 m_uiPhase;
     ObjectGuid m_uiLastShiverTargetGUID;
@@ -136,7 +136,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
     uint32 m_uiShadowBoltTimer;
     uint32 m_uiShiverTimer;
     uint32 m_uiCheckTimer;
-
+    uint32 m_uiQuickDemiseTimer;
     //Insanity
     uint32 m_uiInsanityCastTimer;
 
@@ -153,6 +153,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
 
         m_creature->SetRespawnDelay(DAY);
 
+        m_uiQuickDemiseTimer = 2*MINUTE*IN_MILLISECONDS;
         //Insanity
         m_uiInsanityCastTimer = 5000;
 
@@ -202,6 +203,13 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         {
             if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
                 return;
+
+            if(m_uiQuickDemiseTimer <= uiDiff)
+            {
+                if(m_pInstance)
+                    m_pInstance->m_bQuickDemiseFailed = true;
+            }
+            else m_uiQuickDemiseTimer -= uiDiff;
 
             //Spells
             //Mind Flay
