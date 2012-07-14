@@ -39,8 +39,7 @@ enum
 
     EMOTE_IMPALED              = -1604030,
 
-    ACHIEVEMENT_WHAT_THE_ECK   = 1864,
-    ACHIEVEMENT_SHARE_THE_LOVE = 2152,
+    ACHIEVEMENT_WHAT_THE_ECK   = 1864,    
 
     NPC_RHINO_SPIRIT           = 29791,
     SPELL_STAMPEDE_RHINO       = 55220,
@@ -88,6 +87,7 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
     uint32 m_uiStompTimer;
     uint32 m_uiEnrageTimer;
     uint8 m_uiAbilityCount;
+    
 
     void Reset()
     {
@@ -98,6 +98,7 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
         m_uiPunctureTimer       = 25000;
         m_uiPhaseChangeTimer    = 7000;
         m_uiAbilityCount        = 0;
+        
     }
 
     void Aggro(Unit* pWho)
@@ -113,6 +114,7 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
     {
         if(m_pInstance)
             m_pInstance->SetData(TYPE_GALDARAH, NOT_STARTED);
+        
     }
     void KilledUnit(Unit* pVictim)
     {
@@ -139,11 +141,14 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
         if (pSummoned->GetEntry() == NPC_RHINO_SPIRIT)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
+            {
                 pSummoned->CastSpell(pTarget, m_bIsRegularMode ? SPELL_STAMPEDE_RHINO : SPELL_STAMPEDE_RHINO_H, false, NULL, NULL, m_creature->GetObjectGuid());
+                if(m_pInstance)
+                    m_pInstance->SetTargetImpaled(pTarget);
+            }
             pSummoned->ForcedDespawn(1000);
         }
     }
-
     void DoPhaseSwitch()
     {
         if (!m_bIsTrollPhase)

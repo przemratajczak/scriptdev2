@@ -13,7 +13,7 @@
 */
 enum
 {
-    MAX_ENCOUNTER          = 5,
+    MAX_ENCOUNTER          = 5,    
 
     TYPE_SLADRAN           = 0,
     TYPE_MOORABI           = 1,
@@ -55,7 +55,10 @@ enum
 
     TIMER_VISUAL_ALTAR     = 3000,
     TIMER_VISUAL_BEAM      = 2500,
-    TIMER_VISUAL_KEY       = 2000
+    TIMER_VISUAL_KEY       = 2000,    
+
+    ACHIEV_CRIT_SHARE_THE_LOVE = 7584,
+    ACHIEV_CRIT_LESS_RABI      = 7513
 };
 
 typedef std::map<uint8, uint32> TypeTimerMap;
@@ -83,9 +86,16 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         void Update(uint32 uiDiff);
 
         bool IsValidLivingMojo(ObjectGuid callerGuid);
+        void SetTargetImpaled(Unit* pTarget);
+
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+        void SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet);
+        bool m_bLessRabiAchievFailed;
+
     protected:
         void DoAltarVisualEffect(uint8 uiType);
         uint32 m_auiEncounter[MAX_ENCOUNTER];
+        
         std::string m_strInstData;
 
 
@@ -98,6 +108,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         GuidVector m_vStalkerTargetGuids;
         GuidList m_lEckDwellerGuids;
         GuidList m_lLivingMojoGuids;
+        GUIDSet m_lImpaledPlayers;
 };
 
 #endif

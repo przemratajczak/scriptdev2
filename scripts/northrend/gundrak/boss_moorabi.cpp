@@ -181,7 +181,9 @@ struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
             {
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 DoScriptText(EMOTE_TRANSFORM, m_creature);
-                DoCastSpellIfCan(m_creature, SPELL_TRANSFORMATION);
+                if(DoCastSpellIfCan(m_creature, SPELL_TRANSFORMATION) == SPELL_CAST_OK)
+                    if(m_pInstance)
+                        m_pInstance->m_bLessRabiAchievFailed = true;
                 m_uiPreviousTimer *= 0.8;
                 m_uiTransformationTimer = m_uiPreviousTimer;
             }

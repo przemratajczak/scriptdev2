@@ -42,14 +42,14 @@ bool GOUse_go_gundrak_altar(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
-instance_gundrak::instance_gundrak(Map* pMap) : ScriptedInstance(pMap)
+instance_gundrak::instance_gundrak(Map* pMap) : ScriptedInstance(pMap),m_bLessRabiAchievFailed(false)
 {
     Initialize();
 }
 
 void instance_gundrak::Initialize()
 {
-    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));   
 
     m_vStalkerCasterGuids.reserve(3);
     m_vStalkerTargetGuids.reserve(3);
@@ -200,6 +200,8 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
                 if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_ALTAR_OF_MOORABI))
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             }
+            if(uiData == IN_PROGRESS)
+                m_bLessRabiAchievFailed = false;
             if (uiData == SPECIAL)
                 m_mAltarInProgress.insert(TypeTimerPair(TYPE_MOORABI, TIMER_VISUAL_ALTAR));
             break;
@@ -473,6 +475,26 @@ void instance_gundrak::Update(uint32 uiDiff)
     }
 }
 
+void instance_gundrak::SetTargetImpaled(Unit* pTarget)
+{
+    if(pTarget->GetTypeId() == TYPEID_PLAYER)
+    {       
+        if( m_lImpaledPlayers.find(pTarget->GetObjectGuid()) == m_lImpaledPlayers.end())
+            m_lImpaledPlayers.insert(pTarget->GetObjectGuid());
+    }
+}
+bool instance_gundrak::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch(uiCriteriaId)
+    {
+        case ACHIEV_CRIT_SHARE_THE_LOVE:
+            return m_lImpaledPlayers.size() == 5;
+        case ACHIEV_CRIT_LESS_RABI:
+            return !m_bLessRabiAchievFailed;
+        default:
+            return false;
+    }
+}
 InstanceData* GetInstanceData_instance_gundrak(Map* pMap)
 {
     return new instance_gundrak(pMap);

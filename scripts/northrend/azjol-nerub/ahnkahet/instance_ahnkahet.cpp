@@ -31,8 +31,6 @@ m_bQuickDemiseFailed(false)
     Initialize();
 }
 
-    
-
 void instance_ahnkahet::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
