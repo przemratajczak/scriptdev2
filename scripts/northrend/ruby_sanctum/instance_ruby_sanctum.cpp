@@ -192,6 +192,9 @@ struct MANGOS_DLL_DECL instance_ruby_sanctum : public BSWScriptedInstance
             case GO_HALION_PORTAL_1:
             case GO_HALION_PORTAL_2:
             case GO_HALION_PORTAL_3:
+                pGo->SetPhaseMask(0, true);
+                m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+                break;
             case GO_FLAME_WALLS:
             case GO_FLAME_RING:
             case GO_FIRE_FIELD:
