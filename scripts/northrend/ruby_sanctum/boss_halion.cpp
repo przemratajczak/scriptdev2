@@ -140,11 +140,11 @@ struct MANGOS_DLL_DECL boss_halion_realAI : public BSWScriptedAI
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_1))
-               pGoPortal->Delete();
+               pGoPortal->SetPhaseMask(0, true);
         if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_2))
-               pGoPortal->Delete();
+               pGoPortal->SetPhaseMask(0, true);
         if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_3))
-               pGoPortal->Delete();
+               pGoPortal->SetPhaseMask(0, true);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -311,7 +311,7 @@ struct MANGOS_DLL_DECL boss_halion_realAI : public BSWScriptedAI
             case 2:
                 if (MovementStarted) return;
                 //doCast(SPELL_SUMMON_TWILIGHT_PORTAL);
-                 m_creature->SummonGameobject(GO_HALION_PORTAL_1, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, 0);
+                 //m_creature->SummonGameobject(GO_HALION_PORTAL_1, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, 0);
                 setStage(3);
                 if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_1))
                       pGoPortal->SetPhaseMask(31,true);
@@ -549,7 +549,7 @@ struct MANGOS_DLL_DECL boss_halion_twilightAI : public BSWScriptedAI
             case 2:           //To two realms
                 pInstance->SetData(TYPE_HALION_EVENT, IN_PROGRESS);
                 DoScriptText(SAY_HALION_PHASE_3,m_creature);
-                m_creature->SummonGameobject(GO_HALION_PORTAL_3, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, 0);
+                //m_creature->SummonGameobject(GO_HALION_PORTAL_3, SpawnLoc[0].x, SpawnLoc[0].y, SpawnLoc[0].z, 0, 0);
                 if (GameObject* pGoPortal = pInstance->GetSingleGameObjectFromStorage(GO_HALION_PORTAL_3))
                       pGoPortal->SetPhaseMask(32,true);
                 doCast(SPELL_TWILIGHT_DIVISION);
