@@ -143,8 +143,7 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
             {
                 pSummoned->CastSpell(pTarget, m_bIsRegularMode ? SPELL_STAMPEDE_RHINO : SPELL_STAMPEDE_RHINO_H, false, NULL, NULL, m_creature->GetObjectGuid());
-                if(m_pInstance)
-                    m_pInstance->SetTargetImpaled(pTarget);
+                
             }
             pSummoned->ForcedDespawn(1000);
         }
@@ -249,7 +248,8 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
                 {
                     DoScriptText(EMOTE_IMPALED, m_creature, pTarget);
                     m_uiSpecialAbilityTimer = 12000;
-
+                    if(m_pInstance)
+                        m_pInstance->SetTargetImpaled(pTarget);
                     
                 }
                 ++m_uiAbilityCount;
