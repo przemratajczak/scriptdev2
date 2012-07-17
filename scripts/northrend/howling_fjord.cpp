@@ -1141,6 +1141,56 @@ bool GOUse_go_dragonflayer_cage(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*######
+## npc_walt
+######*/
+
+enum 
+{
+    QUEST_INFUSED_RELICS   = 11494,
+    QUEST_COLLECTING_DATA  = 11489,
+    QUEST_ROCKET_JUMPING   = 11485,
+    QUEST_SOUND_OF_THUNDER = 11495,
+    QUEST_THE_BLUFF        = 11491,
+    
+    SPELL_CONTROL_IRON_CONSTRUCT_IR = 49992
+};
+bool QuestAccept_npc_walt(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    switch(pQuest->GetQuestId())
+    {
+        case QUEST_INFUSED_RELICS:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_IR, false);
+            break;
+    }
+
+    return true;
+}
+
+#define GOSSIP_ITEM_CONSTRUCT "I want iron construct back!"
+
+bool GOGossipHello_go_work_bench(Player* pPlayer, GameObject* pGo)
+{
+    
+    if(pPlayer->GetQuestStatus(QUEST_INFUSED_RELICS) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CONSTRUCT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);    
+    }
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pGo), pGo->GetObjectGuid());
+    return true;
+}
+
+bool GOGossipSelect_go_work_bench(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_IR, false);
+            break;
+    }
+    return true;
+}
+
 void AddSC_howling_fjord()
 {
     Script* pNewScript;
@@ -1213,8 +1263,19 @@ void AddSC_howling_fjord()
     pNewScript->pGossipSelect = &GossipSelect_npc_jack_adams;
     pNewScript->RegisterSelf();
 
-     pNewScript = new Script;
+    pNewScript = new Script;
     pNewScript->Name = "go_dragonflayer_cage";
     pNewScript->pGOUse = &GOUse_go_dragonflayer_cage;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_walt";
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_walt;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_work_bench";
+    pNewScript->pGossipHelloGO  = &GOGossipHello_go_work_bench;
+    pNewScript->pGossipSelectGO = &GOGossipSelect_go_work_bench;
     pNewScript->RegisterSelf();
 }
