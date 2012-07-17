@@ -51,18 +51,19 @@ struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
 {
     boss_maiden_of_griefAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_halls_of_stone*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_halls_of_stone* m_pInstance;
     bool m_bIsRegularMode;
 
     uint32 m_uiPartingSorrow_Timer;
     uint32 m_uiPillarWoe_Timer;
     uint32 m_uiShockSorrow_Timer;
     uint32 m_uiStorm_Timer;
+    uint32 m_uiGoodGriefAchiev_Timer;
 
     void Reset()
     {
@@ -70,6 +71,7 @@ struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         m_uiPillarWoe_Timer = 3000 + rand()%4000;
         m_uiStorm_Timer = 10000 + rand()%5000;
         m_uiShockSorrow_Timer = 20000 + rand()%5000;
+        m_uiGoodGriefAchiev_Timer = 1 * MINUTE * IN_MILLISECONDS;
 
         if(m_pInstance)
             m_pInstance->SetData(TYPE_GRIEF, NOT_STARTED);
@@ -106,6 +108,13 @@ struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if(m_uiGoodGriefAchiev_Timer < uiDiff)
+        {
+            if(m_pInstance)
+                m_pInstance->m_bGoodGriefAchievFailed = true;
+        }
+        else m_uiGoodGriefAchiev_Timer -= uiDiff;
 
         if (m_uiPartingSorrow_Timer < uiDiff)
         {

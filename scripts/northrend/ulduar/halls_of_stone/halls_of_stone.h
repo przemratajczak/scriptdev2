@@ -53,7 +53,33 @@ enum
 
     GO_SJONNIR_CONSOLE      = 193906,
 
-    ACHIEV_SPANKIN_NEW      = 2154
+    ACHIEV_SPANKIN_NEW      = 2154,
+    ACHIEV_GOOD_GRIEF       = 7143
 };
 
+
+class MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
+{
+    public:
+        instance_halls_of_stone(Map* pMap);
+
+        void Initialize();
+
+        void OnCreatureCreate(Creature* pCreature);
+        void OnObjectCreate(GameObject* pGo);
+
+        void SetData(uint32 uiType, uint32 uiData);
+        uint32 GetData(uint32 uiType);
+
+        const char* Save() { return strSaveData.c_str(); }
+        void Load(const char* chrIn);
+
+        bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
+        bool m_bGoodGriefAchievFailed;
+    private:
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        bool Regular;
+        std::string strSaveData;
+        
+};
 #endif

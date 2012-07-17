@@ -31,153 +31,156 @@ EndScriptData */
 3 - Sjonnir The Ironshaper
 */
 
-struct MANGOS_DLL_DECL instance_halls_of_stone : public ScriptedInstance
+instance_halls_of_stone::instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap),
+m_bGoodGriefAchievFailed(false)
 {
-    instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {
     Regular = pMap->IsRegularDifficulty();
     Initialize();
-    };
+}
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    bool Regular;
-    std::string strSaveData;
+void instance_halls_of_stone::Initialize()
+{
+    for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        m_auiEncounter[i]=NOT_STARTED;
+}
 
-    void Initialize()
+void instance_halls_of_stone::OnCreatureCreate(Creature* pCreature)
+{
+    switch(pCreature->GetEntry())
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            m_auiEncounter[i]=NOT_STARTED;
+        case NPC_KRYSTALLUS:
+        case NPC_GRIEF:
+        case NPC_BRANN:
+        case NPC_SJONNIR:
+        case NPC_KADDRAK:
+        case NPC_ABEDNEUM:
+        case NPC_MARNAK:
+            m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
+            break;
     }
+}
 
-    void OnCreatureCreate(Creature* pCreature)
+void instance_halls_of_stone::OnObjectCreate(GameObject* pGo)
+{
+    switch(pGo->GetEntry())
     {
-        switch(pCreature->GetEntry())
-        {
-            case NPC_KRYSTALLUS:
-            case NPC_GRIEF:
-            case NPC_BRANN:
-            case NPC_SJONNIR:
-            case NPC_KADDRAK:
-            case NPC_ABEDNEUM:
-            case NPC_MARNAK:
-                m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
-                break;
-        }
+        case GO_GRIEF_DOOR:
+            if (m_auiEncounter[0] != DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            else
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
+        case GO_BRANN_DOOR:
+            if (m_auiEncounter[1] != DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            else
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
+        case GO_SJONNIR_DOOR:
+            if (m_auiEncounter[2] != DONE)
+                pGo->SetGoState(GO_STATE_READY);
+            else
+                pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
     }
+    m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+}
 
-    void OnObjectCreate(GameObject* pGo)
+void instance_halls_of_stone::SetData(uint32 uiType, uint32 uiData)
+{
+    switch(uiType)
     {
-        switch(pGo->GetEntry())
-        {
-            case GO_GRIEF_DOOR:
-                if (m_auiEncounter[0] != DONE)
-                    pGo->SetGoState(GO_STATE_READY);
-                else
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;
-            case GO_BRANN_DOOR:
-                if (m_auiEncounter[1] != DONE)
-                    pGo->SetGoState(GO_STATE_READY);
-                else
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;
-            case GO_SJONNIR_DOOR:
-                if (m_auiEncounter[2] != DONE)
-                    pGo->SetGoState(GO_STATE_READY);
-                else
-                    pGo->SetGoState(GO_STATE_ACTIVE);
-                break;
-        }
-        m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+        case TYPE_KRYSTALLUS:
+            if (uiData == DONE)
+                DoUseDoorOrButton(GO_GRIEF_DOOR);
+            m_auiEncounter[0] = uiData;
+            break;
+        case TYPE_GRIEF:
+            if (uiData == DONE)
+                DoUseDoorOrButton(GO_BRANN_DOOR);
+            if(uiData == IN_PROGRESS)
+                m_bGoodGriefAchievFailed = false;
+            m_auiEncounter[1] = uiData;
+            break;
+        case TYPE_BRANN:
+            if (uiData == DONE)
+            {
+                DoUseDoorOrButton(GO_SJONNIR_DOOR);
+                DoRespawnGameObject(instance->IsRegularDifficulty() ? GO_TRIBUNAL_CHEST : GO_TRIBUNAL_CHEST_H);
+            }
+            m_auiEncounter[2] = uiData;
+            break;
+        case TYPE_SJONNIR:
+            m_auiEncounter[3] = uiData;
+            break;
     }
-
-    void SetData(uint32 uiType, uint32 uiData)
+    if (uiData == DONE)
     {
-        switch(uiType)
-        {
-            case TYPE_KRYSTALLUS:
-                if (uiData == DONE)
-                    DoUseDoorOrButton(GO_GRIEF_DOOR);
-                m_auiEncounter[0] = uiData;
-                break;
-            case TYPE_GRIEF:
-                if (uiData == DONE)
-                    DoUseDoorOrButton(GO_BRANN_DOOR);
-                m_auiEncounter[1] = uiData;
-                break;
-            case TYPE_BRANN:
-                if (uiData == DONE)
-                {
-                    DoUseDoorOrButton(GO_SJONNIR_DOOR);
-                    DoRespawnGameObject(instance->IsRegularDifficulty() ? GO_TRIBUNAL_CHEST : GO_TRIBUNAL_CHEST_H);
-                }
-                m_auiEncounter[2] = uiData;
-                break;
-            case TYPE_SJONNIR:
-                m_auiEncounter[3] = uiData;
-                break;
-        }
-        if (uiData == DONE)
-        {
-            OUT_SAVE_INST_DATA;
+        OUT_SAVE_INST_DATA;
 
-            std::ostringstream saveStream;
-
-            for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                saveStream << m_auiEncounter[i] << " ";
-
-            strSaveData = saveStream.str();
-
-            SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
-
-    }
-
-    uint32 GetData(uint32 uiType)
-    {
-        switch(uiType)
-        {
-            case TYPE_KRYSTALLUS:
-                return m_auiEncounter[0];
-            case TYPE_GRIEF:
-                return m_auiEncounter[1];
-            case TYPE_BRANN:
-                return m_auiEncounter[2];
-            case TYPE_SJONNIR:
-                return m_auiEncounter[3];
-        }
-        return 0;
-    }
-
-    const char* Save()
-    {
-        return strSaveData.c_str();
-    }
-
-    void Load(const char* chrIn)
-    {
-        if (!chrIn)
-        {
-            OUT_LOAD_INST_DATA_FAIL;
-            return;
-        }
-
-        OUT_LOAD_INST_DATA(chrIn);
-
-        std::istringstream loadStream(chrIn);
+        std::ostringstream saveStream;
 
         for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-        {
-            loadStream >> m_auiEncounter[i];
+            saveStream << m_auiEncounter[i] << " ";
 
-            if (m_auiEncounter[i] == IN_PROGRESS)
-                m_auiEncounter[i] = NOT_STARTED;
-        }
+        strSaveData = saveStream.str();
 
-        OUT_LOAD_INST_DATA_COMPLETE;
+        SaveToDB();
+        OUT_SAVE_INST_DATA_COMPLETE;
     }
 
-};
+}
+
+uint32 instance_halls_of_stone::GetData(uint32 uiType)
+{
+    switch(uiType)
+    {
+        case TYPE_KRYSTALLUS:
+            return m_auiEncounter[0];
+        case TYPE_GRIEF:
+            return m_auiEncounter[1];
+        case TYPE_BRANN:
+            return m_auiEncounter[2];
+        case TYPE_SJONNIR:
+            return m_auiEncounter[3];
+    }
+    return 0;
+}
+
+void instance_halls_of_stone::Load(const char* chrIn)
+{
+    if (!chrIn)
+    {
+        OUT_LOAD_INST_DATA_FAIL;
+        return;
+    }
+
+    OUT_LOAD_INST_DATA(chrIn);
+
+    std::istringstream loadStream(chrIn);
+
+    for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+    {
+        loadStream >> m_auiEncounter[i];
+
+        if (m_auiEncounter[i] == IN_PROGRESS)
+            m_auiEncounter[i] = NOT_STARTED;
+    }
+
+    OUT_LOAD_INST_DATA_COMPLETE;
+}
+
+
+
+bool instance_halls_of_stone::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
+{
+    switch(uiCriteriaId)
+    {
+        case ACHIEV_GOOD_GRIEF:
+            return !m_bGoodGriefAchievFailed;        
+        default:return false;
+    }
+}
 
 InstanceData* GetInstanceData_instance_halls_of_stone(Map* pMap)
 {
