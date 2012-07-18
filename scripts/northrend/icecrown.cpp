@@ -207,6 +207,238 @@ CreatureAI* GetAI_npc_fallen_hero_spirit(Creature* pCreature)
 }
 
 
+/*#####
+## npc_valiants
+#####*/
+
+enum
+{
+    SAY_DEFEATED          = -1999824,
+
+    SPELL_THRUST          = 64588,
+    SPELL_DEFEND          = 66482,
+    SPELL_CHARGE          = 63010,
+    SPELL_SHIELDBREAKER   = 65147,
+
+    SPELL_MOUNTED_MELEE_VICTORY = 62724,
+    SPELL_LANCE_EQUIPPED        = 62853
+};
+
+struct MANGOS_DLL_DECL npc_valiantsAI : public ScriptedAI
+{
+   npc_valiantsAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 m_uiCharge_Timer;
+    uint32 m_uiShieldBreaker_Timer;
+    uint32 m_uiDefend_Timer;
+    uint32 m_uiThrust_Timer;
+
+    void Reset()
+    {
+       m_uiDefend_Timer          = 1000;
+       m_uiCharge_Timer          = 4000;  
+       m_uiShieldBreaker_Timer   = 5000;
+       m_uiThrust_Timer          = 2000;
+       m_creature->setFaction(35);
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (uiDamage > m_creature->GetHealth())
+        {
+            uiDamage = 1;
+
+            if (Unit* pPlayer = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
+                pPlayer->CastSpell(pPlayer, SPELL_MOUNTED_MELEE_VICTORY, true);
+
+            DoScriptText(SAY_DEFEATED, m_creature);
+            EnterEvadeMode();
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+      
+        if(m_uiCharge_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHARGE);
+            m_uiCharge_Timer = 4000;
+        }
+        else m_uiCharge_Timer -= uiDiff;
+
+        if(m_uiThrust_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_THRUST);
+            m_uiThrust_Timer = 2000;
+        }
+        else m_uiThrust_Timer -= uiDiff;
+
+        if(m_uiDefend_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_DEFEND);
+            m_uiDefend_Timer = 4000;
+        }
+        else m_uiDefend_Timer -= uiDiff;
+
+        if(m_uiShieldBreaker_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELDBREAKER);
+            m_uiShieldBreaker_Timer = 5000;
+        }
+        else m_uiShieldBreaker_Timer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_valiants(Creature* pCreature)
+{
+    return new npc_valiantsAI(pCreature);
+}
+
+/*#####
+## npc_champions
+#####*/
+#define GOSSIP_ITEM_READY_TO_FIGHT "I am ready to fight!"
+
+enum
+{
+    // spells are defined above
+    SPELL_CHAMP_MOUNTED_MELEE_VICTORY = 63596,
+};
+
+struct MANGOS_DLL_DECL npc_championsAI : public ScriptedAI
+{
+   npc_championsAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    uint32 m_uiCharge_Timer;
+    uint32 m_uiShieldBreaker_Timer;
+    uint32 m_uiDefend_Timer;
+    uint32 m_uiThrust_Timer;
+
+    void Reset()
+    {
+       m_uiDefend_Timer          = 1000;
+       m_uiCharge_Timer          = 4000;  
+       m_uiShieldBreaker_Timer   = 5000;
+       m_uiThrust_Timer          = 2000;
+       m_creature->setFaction(35);
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (uiDamage > m_creature->GetHealth())
+        {
+            uiDamage = 1;
+
+            if (Unit* pPlayer = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
+                pPlayer->CastSpell(pPlayer, SPELL_CHAMP_MOUNTED_MELEE_VICTORY, true);
+
+            DoScriptText(SAY_DEFEATED, m_creature);
+            EnterEvadeMode();
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+       if(m_uiCharge_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHARGE);
+            m_uiCharge_Timer = 4000;
+        }
+        else m_uiCharge_Timer -= uiDiff;
+
+        if(m_uiThrust_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_THRUST);
+            m_uiThrust_Timer = 2000;
+        }
+        else m_uiThrust_Timer -= uiDiff;
+
+        if(m_uiDefend_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_DEFEND);
+            m_uiDefend_Timer = 4000;
+        }
+        else m_uiDefend_Timer -= uiDiff;
+
+        if(m_uiShieldBreaker_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELDBREAKER);
+            m_uiShieldBreaker_Timer = 5000;
+        }
+        else m_uiShieldBreaker_Timer -= uiDiff;
+
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_champions(Creature* pCreature)
+{
+    return new npc_championsAI(pCreature);
+}
+bool IsValiant(uint32 npc_entry)
+{
+    switch(npc_entry)
+    {
+        case 33285: 
+        case 33306: 
+        case 33382:
+        case 33383: 
+        case 33384: 
+        case 33558: 
+        case 33559: 
+        case 33561: 
+        case 33562: 
+        case 33564:
+            return true;
+        default:return false;
+    }
+};
+
+bool GossipHello_npc_valiant_champion(Player* pPlayer, Creature* pCreature)
+{
+    
+    if(pPlayer->HasAura(SPELL_LANCE_EQUIPPED))
+        if(IsValiant(pCreature->GetEntry()))
+        {   //Grand melee quests
+            if( pPlayer->GetQuestStatus(13772) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13777) == QUEST_STATUS_INCOMPLETE ||
+                pPlayer->GetQuestStatus(13782) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13787) == QUEST_STATUS_INCOMPLETE ||
+                pPlayer->GetQuestStatus(13767) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13761) == QUEST_STATUS_INCOMPLETE ||
+                pPlayer->GetQuestStatus(13745) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13750) == QUEST_STATUS_INCOMPLETE ||
+                pPlayer->GetQuestStatus(13756) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13665) == QUEST_STATUS_INCOMPLETE)
+             {
+                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_READY_TO_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);    
+             }
+        }
+        else 
+        {  //Among the champions quests
+            if( pPlayer->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE ||
+                pPlayer->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE)
+            {
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_READY_TO_FIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);         
+            }
+        }
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
+    return true;
+}
+
+bool GossipSelect_npc_valiant_champion(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF:
+            pCreature->setFaction(14);
+            break;
+    }
+    return true;
+}
 void AddSC_icecrown()
 {
     Script* pNewScript;
@@ -225,5 +457,19 @@ void AddSC_icecrown()
     pNewScript = new Script;
     pNewScript->Name = "npc_fallen_hero_spirit";
     pNewScript->GetAI = &GetAI_npc_fallen_hero_spirit;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_valiants";
+    pNewScript->GetAI = &GetAI_npc_valiants;
+    pNewScript->pGossipHello = &GossipHello_npc_valiant_champion;
+    pNewScript->pGossipSelect = &GossipSelect_npc_valiant_champion;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_champions";
+    pNewScript->GetAI = &GetAI_npc_champions;
+    pNewScript->pGossipHello = &GossipHello_npc_valiant_champion;
+    pNewScript->pGossipSelect = &GossipSelect_npc_valiant_champion;
     pNewScript->RegisterSelf();
 }
