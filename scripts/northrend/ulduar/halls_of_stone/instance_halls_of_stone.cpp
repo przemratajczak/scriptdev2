@@ -99,7 +99,10 @@ void instance_halls_of_stone::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
                 DoUseDoorOrButton(GO_BRANN_DOOR);
             if(uiData == IN_PROGRESS)
+            {
                 m_bGoodGriefAchievFailed = false;
+                DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_GOOD_GRIEF_TIMER);
+            }
             m_auiEncounter[1] = uiData;
             break;
         case TYPE_BRANN:

@@ -150,7 +150,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         m_uiShiverTimer = 18000;
         m_uiCheckTimer = 1000;
         m_uiShiverJumpTimer = 0;
-
+        m_creature->SetHealth(m_creature->GetMaxHealth());
         m_creature->SetRespawnDelay(DAY);
 
         m_uiQuickDemiseTimer = 2*MINUTE*IN_MILLISECONDS;
@@ -173,7 +173,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        if(m_uiPhase != PHASE_FIGHT)
+        if(m_uiPhase != PHASE_FIGHT && m_uiPhase != PHASE_NOSTART)
             return;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
@@ -330,8 +330,8 @@ struct MANGOS_DLL_DECL mob_twisted_visageAI : public ScriptedAI
                 if(Creature *pVoid = GetClosestCreatureWithEntry(m_creature, NPC_ANCIENT_VOID, 30.0f))
                 {
                     float newsize = pVoid->GetFloatValue(OBJECT_FIELD_SCALE_X) + 0.25f;
-                    uint32 health = pVoid->GetHealth() + 20000;
-                    pVoid->SetHealth(health);
+                    uint32 health = pVoid->GetMaxHealth() + 20000;
+                    pVoid->SetMaxHealth(health);
                     pVoid->SetFloatValue(OBJECT_FIELD_SCALE_X, newsize);
                 }
                 m_creature->ForcedDespawn();
@@ -381,13 +381,13 @@ struct MANGOS_DLL_DECL mob_ancient_voidAI : public ScriptedAI
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
         DoCast(m_creature, SPELL_PRISON);
         DoCast(m_creature, SPELL_BLUE_BEAM, true);
-
+        m_creature->setFaction(35);
         m_uiPhysicScreamTimer = 0;
         m_uiShadowBoltTimer = 8000;
         if(m_bIsRegularMode)
-            m_creature->SetHealth(200000);
+            m_creature->SetMaxHealth(200000);
         else
-            m_creature->SetHealth(300000);
+            m_creature->SetMaxHealth(300000);
     }
     void DoTransform(uint8 phase)
     {
@@ -413,6 +413,7 @@ struct MANGOS_DLL_DECL mob_ancient_voidAI : public ScriptedAI
                 break;
             case 5:
                 DoScriptText(SAY_VOID_AGGRO, m_creature);
+                m_creature->setFaction(14);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 SetCombatMovement(true);
                 if(m_creature->getVictim())
@@ -456,14 +457,14 @@ struct MANGOS_DLL_DECL mob_ancient_voidAI : public ScriptedAI
 
         if(m_uiPhase != 3)
             return;
-        if(!m_creature->isInCombat())
+        /*if(!m_creature->isInCombat())
         {
             if(m_uiOutOfCombatTimer <= uiDiff)
                 m_creature->ForcedDespawn();
             else m_uiOutOfCombatTimer -= uiDiff;
 
             return;
-        }
+        }*/
 
         if(m_uiPhysicScreamTimer <= uiDiff)
         {

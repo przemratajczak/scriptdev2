@@ -8,7 +8,7 @@ UPDATE `gameobject_template` SET `ScriptName` = 'go_nerubian_device' WHERE `entr
 UPDATE `creature_template` SET `ScriptName` = 'boss_volazj', `AIName`='' WHERE `entry`=29311;
 UPDATE `creature_template` SET `ScriptName` = 'mob_twisted_visage' WHERE `entry` = 30621;
 UPDATE `creature_template` SET `ScriptName` = 'mob_ancient_void' WHERE `entry` = 30622;
-UPDATE `creature_template` SET `ScriptName` = 'npc_twilight_volunteer', `AIName`='' WHERE `entry`=30385;
+UPDATE `creature_template` SET `ScriptName` = 'mob_jedoga_add', `AIName`='' WHERE `entry`=30385;
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (30385, 31474);
 INSERT INTO `creature_template_addon` (`entry`, `mount`, `bytes1`, `b2_0_sheath`, `b2_1_pvp_state`, `emote`, `moveflags`, `auras`) VALUES

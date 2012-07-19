@@ -210,8 +210,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         {
             lVolunteers.remove(pSummoned->GetObjectGuid());
             m_bSacrifice = true;
-            if(m_pInstance)
-                m_pInstance->m_bVolunteerWorkFailed = true;
+            
         }
     }
 
@@ -388,7 +387,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                                 float x, y, z;
                                 pController->GetPosition(x, y, z);
                                 pVolunteer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                pVolunteer->GetMotionMaster()->MovePoint(7, x, y, z);
+                                pVolunteer->GetMotionMaster()->MovePoint(7, SpawnNode[8][0], SpawnNode[8][1], SpawnNode[8][2],false);
                                 DoScriptText(SAY_VOLUNTEER_CHOOSEN, pVolunteer);
                             }
                             ++subevent;
@@ -462,14 +461,19 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
 {
     mob_jedoga_addAI(Creature *pCreature) : ScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_ahnkahet*)pCreature->GetInstanceData();
         Reset();
     }
  
-    ScriptedInstance* m_pInstance;
+    instance_ahnkahet* m_pInstance;
 
     void Reset() {}
-
+    void JustDied(Unit* pKiller)
+    {
+        if(pKiller && pKiller->GetTypeId() == TYPEID_PLAYER)
+            if(m_pInstance)
+                m_pInstance->m_bVolunteerWorkFailed = true;
+    }
     void JustReachedHome()
     {
             uint8 uiPoint = urand(0, 5);
@@ -503,7 +507,7 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
                     if (Creature* pJedoga = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_SHADOWSEEKER))
                     {
                         pJedoga->SetFacingToObject(m_creature);
-                        pJedoga->CastSpell(m_creature, SPELL_SACRIFICE_BEAM, true);
+                        pJedoga->CastSpell(m_creature,SPELL_SACRIFICE_BEAM, true);//, SPELL_GIFT_OF_THE_HERALD,false);//
                     }
                 }
         }

@@ -110,7 +110,10 @@ void instance_ahnkahet::SetData(uint32 uiType, uint32 uiData)
         case TYPE_VOLAZJ:
             m_auiEncounter[3] = uiData;
             if(uiData == IN_PROGRESS)
+            {
                 m_bQuickDemiseFailed = false;
+                DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_QUICK_DEMISE_TIMER);
+            }
             break;
         case TYPE_AMANITAR:
             m_auiEncounter[4] = uiData;
@@ -176,15 +179,15 @@ uint32 instance_ahnkahet::GetData(uint32 uiType)
 }
 
 bool instance_ahnkahet::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
-{
+{    
     switch (uiCriteriaId)
     {
         case ACHIEV_CRIT_RESPECT_ELDERS:
             return !m_bRespectEldersFailed;
         case ACHIEV_CRIT_VOLUNTEER_WORK:
             return !m_bVolunteerWorkFailed;
-        case ACHIEV_CRIT_QUICK_DEMISE:
-            return !m_bQuickDemiseFailed;
+        case ACHIEV_CRIT_QUICK_DEMISE:           
+            return !m_bQuickDemiseFailed;            
         default:
             return false;
     }

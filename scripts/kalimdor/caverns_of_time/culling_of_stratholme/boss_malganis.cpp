@@ -222,6 +222,7 @@ struct MANGOS_DLL_DECL boss_malganisAI : public ScriptedAI
       m_pInstance->SetData(TYPE_PHASE, 10);
       m_pInstance->SetData(TYPE_MALGANIS, DONE);
       DoCastSpellIfCan(m_creature, SPELL_ACHIEV_CHECK, CAST_TRIGGERED);
+      m_pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEV_CHECK);
       EnterEvadeMode();
    }
 

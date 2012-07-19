@@ -65,11 +65,10 @@ void instance_oculus::OnObjectCreate(GameObject* pGo)
             break;
         case GO_DRAGON_CAGE_DOOR_3:
             break;
-        default:
-            return;
-    }
-
-    m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+        default:  
+            m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
+            break;
+    }   
 }
 
 void instance_oculus::OnCreatureCreate(Creature* pCreature)
