@@ -25,7 +25,7 @@ EndScriptData */
 #include "utgarde_pinnacle.h"
 
 instance_pinnacle::instance_pinnacle(Map* pMap) : ScriptedInstance(pMap),
-m_bKingsBaneAchievFailed(false)
+m_bKingsBaneAchievFailed(false),m_bLodiDodiAchievFailed(false)
 {
     Initialize();
 }
@@ -94,6 +94,11 @@ void instance_pinnacle::SetData(uint32 uiType, uint32 uiData)
                     pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
             }            
+            if(uiData == IN_PROGRESS)
+            {
+                m_bLodiDodiAchievFailed = false;
+                DoStartTimedAchievement(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEV_TIMER_LODI_DODI);
+            }
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_YMIRON:
@@ -135,6 +140,8 @@ bool instance_pinnacle::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player
     {            
         case ACHIEV_KINGS_BANE:
             return !m_bKingsBaneAchievFailed; 
+        case ACHIEV_LODI_DODI:
+            return !m_bLodiDodiAchievFailed;
         default:
             return false;
     }

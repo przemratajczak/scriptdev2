@@ -144,6 +144,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
     uint32 m_uiCrushTimer;
     uint32 m_uiPoisonedSpearTimer;
     uint32 m_uiWhirlwindTimer;
+    uint32 m_uiLodiDodiTimer;
 
     uint8 m_uiFireStack;
     uint8 m_uiBreathSide;
@@ -167,6 +168,7 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
         m_uiCrushTimer = 8000;
         m_uiPoisonedSpearTimer = 10000;
         m_uiWhirlwindTimer = 17000;
+        m_uiLodiDodiTimer = 3*MINUTE*IN_MILLISECONDS;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         SetCombatMovement(false);
@@ -368,6 +370,13 @@ struct MANGOS_DLL_DECL boss_skadiAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;        
+
+        if(m_uiLodiDodiTimer <= uiDiff)
+        {
+            if(m_pInstance)
+                m_pInstance->m_bLodiDodiAchievFailed = true;
+        }
+        else m_uiLodiDodiTimer -= uiDiff;
 
         if (m_bIsFirstPhase)
         {
