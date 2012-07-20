@@ -429,23 +429,22 @@ struct MANGOS_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
                     case 1:
                         if (GameObject* pTrap = m_creature->GetMap()->GetGameObject(m_trapGuid))
                         {
-                            if (pTrap->isSpawned())
+                            if (pTrap->IsInWorld())
                                 m_creature->GetMotionMaster()->MovePoint(0, pTrap->GetPositionX(), pTrap->GetPositionY(), pTrap->GetPositionZ());
                         }
                         break;
                     case 2:
                         if (GameObject* pTrap = m_creature->GetMap()->GetGameObject(m_trapGuid))
                         {
-                            if (pTrap->isSpawned())
-                            {
+                            if (pTrap->isSpawned())                            
                                 pTrap->Use(m_creature);
 
-                                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
-                                {
-                                    if (pPlayer->isAlive())
-                                        pPlayer->KilledMonsterCredit(m_creature->GetEntry());
-                                }
+                            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                            {
+                                if (pPlayer->isAlive())
+                                    pPlayer->KilledMonsterCredit(m_creature->GetEntry());
                             }
+                            
                         }
                         break;
                 }
@@ -601,7 +600,7 @@ bool GOUse_go_caribou_trap(Player* pPlayer, GameObject* pGo)
     float fX, fY, fZ;
     pGo->GetClosePoint(fX, fY, fZ, pGo->GetObjectBoundingRadius(), 2*INTERACTION_DISTANCE, frand(0, M_PI_F*2));
 
-    if (Creature* pCreature = pGo->SummonCreature(NPC_NESINGWARY_TRAPPER, fX, fY, fZ, pGo->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10000))
+    if (Creature* pCreature = pGo->SummonCreature(NPC_NESINGWARY_TRAPPER, fX, fY, fZ, pGo->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 20000))
     {
         if (npc_nesingwary_trapperAI* pTrapperAI = dynamic_cast<npc_nesingwary_trapperAI*>(pCreature->AI()))
             pTrapperAI->StartAction(pPlayer, pGo);

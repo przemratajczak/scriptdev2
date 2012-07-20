@@ -507,7 +507,7 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
                     if (Creature* pJedoga = m_pInstance->GetSingleCreatureFromStorage(NPC_JEDOGA_SHADOWSEEKER))
                     {
                         pJedoga->SetFacingToObject(m_creature);
-                        pJedoga->CastSpell(m_creature,SPELL_SACRIFICE_BEAM, true);//, SPELL_GIFT_OF_THE_HERALD,false);//
+                        pJedoga->CastSpell(m_creature,SPELL_SACRIFICE_BEAM, true);
                     }
                 }
         }
