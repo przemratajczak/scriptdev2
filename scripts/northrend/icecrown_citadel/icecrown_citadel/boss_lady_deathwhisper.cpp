@@ -597,7 +597,7 @@ struct MANGOS_DLL_DECL mob_cult_fanaticAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || uiDiff >2000)
             return;
 
         // Cleave
@@ -621,7 +621,7 @@ struct MANGOS_DLL_DECL mob_cult_fanaticAI : public ScriptedAI
         // random transformation
         if (m_uiTransformationTimer <= uiDiff)
         {
-            if (roll_chance_i(50))
+           if (roll_chance_i(50))
             {
                 if (DoCastSpellIfCan(m_creature, SPELL_DARK_TRANSFORMATION) == CAST_OK)
                 {
@@ -679,7 +679,7 @@ struct MANGOS_DLL_DECL mob_cult_adherentAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || uiDiff >2000)
             return;
 
         // Frost Fever
