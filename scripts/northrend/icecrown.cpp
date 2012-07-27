@@ -271,14 +271,14 @@ struct MANGOS_DLL_DECL npc_valiantsAI : public ScriptedAI
         if(m_uiThrust_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_THRUST);
-            m_uiThrust_Timer = 2000;
+            m_uiThrust_Timer = 4000;
         }
         else m_uiThrust_Timer -= uiDiff;
 
         if(m_uiDefend_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_DEFEND);
-            m_uiDefend_Timer = 4000;
+            m_uiDefend_Timer = 10000;
         }
         else m_uiDefend_Timer -= uiDiff;
 
@@ -355,14 +355,14 @@ struct MANGOS_DLL_DECL npc_championsAI : public ScriptedAI
         if(m_uiThrust_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_THRUST);
-            m_uiThrust_Timer = 2000;
+            m_uiThrust_Timer = 4000;
         }
         else m_uiThrust_Timer -= uiDiff;
 
         if(m_uiDefend_Timer < uiDiff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_DEFEND);
-            m_uiDefend_Timer = 4000;
+            m_uiDefend_Timer = 10000;
         }
         else m_uiDefend_Timer -= uiDiff;
 
