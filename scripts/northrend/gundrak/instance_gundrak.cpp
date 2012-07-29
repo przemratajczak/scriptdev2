@@ -488,7 +488,7 @@ bool instance_gundrak::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player 
     switch(uiCriteriaId)
     {
         case ACHIEV_CRIT_SHARE_THE_LOVE:
-            return m_lImpaledPlayers.size() == 5;
+            return m_lImpaledPlayers.size() >= 5;
         case ACHIEV_CRIT_LESS_RABI:
             return !m_bLessRabiAchievFailed;
         default:

@@ -204,6 +204,8 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
 
    void AttackStart(Unit* who)
    {
+       return;
+
       if (!m_pInstance || !who || NonFight)
           return;
 
@@ -249,13 +251,13 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
             summoned->SetInCombatWithZone();
             summoned->SetActiveObjectState(true);
 
-            m_pInstance->SetData(DATA_SUMMONS, 1);
-
+            m_pInstance->SetData(DATA_SUMMONS, 1);                                
             if (Creature* pLider = m_pInstance->GetSingleCreatureFromStorage(m_pInstance->GetData(DATA_ESCAPE_LIDER)))
             {
-                summoned->GetMotionMaster()->MoveChase(pLider);
-                summoned->AddThreat(pLider, 100.0f);
-            }
+                //summoned->GetMotionMaster()->MoveChase(pLider);
+                summoned->Attack(pLider,true);
+                summoned->AddThreat(pLider, 10000.0f);                
+            }            
         }
     }
 
@@ -293,7 +295,7 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
         case 220:
             //DoCast(m_creature, SPELL_RAISE_DEAD);
             for (int i = 0; i < 6; ++i)
-                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             DoScriptText(SAY_LICH_KING_GNOUL, m_creature);
             m_pInstance->SetNextEvent(230,m_creature->GetEntry(),7000);
             break;
@@ -305,38 +307,38 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
             break;
         case 240:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             SetEscortPaused(false);
             m_pInstance->SetNextEvent(250,m_creature->GetEntry(),2000);
             break;
         case 250:
             m_pInstance->SetNextEvent(290,GetLeader(),1000);
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             break;
 
         case 300:
             SetEscortPaused(true);
             //DoCast(m_creature, SPELL_SUMMON_ABOM);
-            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetData(DATA_SUMMONS, 3);
             DoScriptText(SAY_LICH_KING_GNOUL, m_creature);
             m_pInstance->SetNextEvent(310,m_creature->GetEntry(),500);
             break;
         case 310:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(320,m_creature->GetEntry(),500);
             break;
         case 320:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(330,m_creature->GetEntry(),5000);
             break;
         case 330:
             //DoCast(m_creature, SPELL_RAISE_DEAD);
             for (int i = 0; i < 6; ++i)
-                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             SetEscortPaused(false);
             m_pInstance->SetNextEvent(390,GetLeader(),1000);
             break;
@@ -344,7 +346,7 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
         case 400:
             SetEscortPaused(true);
             //DoCast(m_creature, SPELL_SUMMON_ABOM);
-            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetData(DATA_SUMMONS, 3);
             DoScriptText(SAY_LICH_KING_GNOUL, m_creature);
             m_pInstance->SetNextEvent(410,m_creature->GetEntry(),500);
@@ -352,28 +354,28 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
         case 410:
             DoScriptText(SAY_LICH_KING_ABON, m_creature);
             //DoCast(m_creature, SPELL_SUMMON_ABOM);
-            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(420,m_creature->GetEntry(),500);
             break;
         case 420:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(430,m_creature->GetEntry(),500);
             break;
         case 430:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(440,m_creature->GetEntry(),500);
             break;
         case 440:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(450,m_creature->GetEntry(),500);
             break;
         case 450:
             //DoCast(m_creature, SPELL_RAISE_DEAD);
             for (int i = 0; i < 6; ++i)
-                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(490,GetLeader(),5000);
             SetEscortPaused(false);
             break;
@@ -382,46 +384,46 @@ struct MANGOS_DLL_DECL boss_lich_king_hrAI : public npc_escortAI
             m_pInstance->SetData(DATA_SUMMONS, 3);
             DoScriptText(SAY_LICH_KING_GNOUL, m_creature);
             //DoCast(m_creature, SPELL_SUMMON_ABOM);
-            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(510,m_creature->GetEntry(),10000);
             break;
         case 510:
             m_creature->SetSpeedRate(MOVE_WALK, 1.3f, true);
             //DoCast(m_creature, SPELL_SUMMON_ABOM);
-            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_ABOMINATION, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(520,m_creature->GetEntry(),500);
             break;
         case 520:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(530,m_creature->GetEntry(),500);
             break;
         case 530:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(540,m_creature->GetEntry(),500);
             break;
         case 540:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(550,m_creature->GetEntry(),500);
             break;
         case 550:
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(570,m_creature->GetEntry(),2000);
             break;
         case 570:
             DoScriptText(SAY_LICH_KING_ABON, m_creature);
             //DoCast(m_creature, SPELL_WITCH_DOCTOR);
-            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            m_creature->SummonCreature(NPC_DOCTOR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(580,m_creature->GetEntry(),5000);
             break;
         case 580:
             DoScriptText(SAY_LICH_KING_ABON, m_creature);
             //DoCast(m_creature, SPELL_RAISE_DEAD);
             for (int i = 0; i < 6; ++i)
-                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                m_creature->SummonCreature(NPC_RAGING_GHOUL, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 2.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10*MINUTE*IN_MILLISECONDS);
             m_pInstance->SetNextEvent(590,GetLeader(),1000);
             break;
 
@@ -665,7 +667,7 @@ struct MANGOS_DLL_DECL npc_undead_horAI : public BSWScriptedAI
     {
         if (!m_pInstance)
             return;
-
+        
         m_creature->ForcedDespawn();
     }
 
