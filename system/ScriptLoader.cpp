@@ -452,6 +452,7 @@ extern void AddSC_icecrown();
 extern void AddSC_sholazar_basin();
 extern void AddSC_storm_peaks();
 extern void AddSC_zuldrak();
+extern void AddSC_wintergrasp();
 
 // outland
 extern void AddSC_boss_exarch_maladaar();                   // auchindoun, auchenai_crypts
@@ -981,6 +982,7 @@ void AddScripts()
     AddSC_sholazar_basin();
     AddSC_storm_peaks();
     AddSC_zuldrak();
+    AddSC_wintergrasp();
 
     // outland
     AddSC_boss_exarch_maladaar();                           // auchindoun, auchenai_crypts
