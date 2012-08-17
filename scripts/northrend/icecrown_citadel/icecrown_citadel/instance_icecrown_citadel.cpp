@@ -101,7 +101,7 @@ bool instance_icecrown_spire::IsEncounterInProgress()
 }
 
 
-void instance_icecrown_citadel::DoHandleCitadelAreaTrigger(uint32 uiTriggerId, Player* pPlayer)
+void instance_icecrown_spire::DoHandleCitadelAreaTrigger(uint32 uiTriggerId, Player* pPlayer)
 {   
     if (uiTriggerId == AREATRIGGER_SINDRAGOSA_PLATFORM)
     {
