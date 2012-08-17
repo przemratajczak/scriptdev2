@@ -160,6 +160,8 @@ enum
     DESPAWN_TIME                = 300000,
     SPELL_SHADOWS_EDGE          = 71168,
 
+    AREATRIGGER_SINDRAGOSA_PLATFORM = 5604,
+
 };
 
 enum AchievementCriteriaIds
@@ -265,6 +267,8 @@ public:
     bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
     void SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet);
 
+    void DoHandleCitadelAreaTrigger(uint32 uiTriggerId, Player* pPlayer);
+
     bool IsEncounterInProgress();
 
     void SetData(uint32 uiType, uint32 uiData);
@@ -284,6 +288,9 @@ private:
 
     bool m_bAchievCriteria[ACHIEVE_MAX_COUNT];
 
+    bool m_bHasRimefangLanded;
+    bool m_bHasSpinestalkerLanded;
+
     uint32 m_uiCouncilInvocation;
 
     uint32 m_auiEvent;
@@ -296,6 +303,7 @@ private:
     uint32 m_uiGunshipArmoryH_ID;
     uint32 m_uiValithriaCache;
     uint32 m_uiSaurfangCache;
+    
 };
 
 struct MANGOS_DLL_DECL base_icc_bossAI : public ScriptedAI

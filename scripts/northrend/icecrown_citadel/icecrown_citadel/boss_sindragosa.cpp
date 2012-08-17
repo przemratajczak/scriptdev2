@@ -96,34 +96,59 @@ enum
     SAY_DEATH                   = -1631157,
 };
 
-static Locations SindragosaLoc[]=
+static const float SindragosaPosition[10][3] =
 {
-    {4408.052734f, 2484.825439f, 203.374207f},  // 0 Sindragosa ground center
-    {4474.239746f, 2484.243896f, 231.000000f},  // 1 Sindragosa fly o=3.11
-    {4474.239746f, 2484.243896f, 203.380402f},  // 2 Sindragosa fly - ground point o=3.11
-    {4505.000000f, 2484.243896f, 231.000000f},  // 3 Sindragosa spawn point
-    {4448.000000f, 2469.243896f, 203.374207f},  // 4 Rimefang land point
-    {4448.000000f, 2497.243896f, 203.374207f},  // 5 Spinestalker land point
+    {4407.44f, 2484.37f, 203.37f}, // 0 center, ground
+    {4407.44f, 2484.37f, 235.37f}, // 1 center, air
+    {4470.00f, 2484.37f, 235.37f}, // 2 Sindragosa air phase point
+    {4414.32f, 2456.94f, 203.37f}, // 3 Rimefang landing point
+    {4414.32f, 2456.94f, 228.37f}, // 4 Rimefang above landing point
+    {4414.32f, 2512.73f, 203.37f}, // 5 Spinestalker landing point
+    {4414.32f, 2512.73f, 228.37f}, // 6 Spinestalker above landing point
+    {4505.00f, 2484.37f, 235.37f}, // 7 Sindragosa spawn point
+    {4505.00f, 2444.37f, 235.37f}, // 8 Sindragosa east flying point
+    {4505.00f, 2524.37f, 235.37f}, // 9 Sindragosa west flying point
 };
 
-enum Phase
+enum SindragosaPhase
 {
-    PHASE_OOC       = 0,
-    PHASE_GROUND    = 1,
-    PHASE_FLYING    = 2,
-    PHASE_AIR       = 3,
-    PHASE_THREE     = 4
+    SINDRAGOSA_PHASE_OOC = 0,
+    SINDRAGOSA_PHASE_AGGRO = 1,
+    SINDRAGOSA_PHASE_GROUND = 2,
+    SINDRAGOSA_PHASE_FLYING_TO_AIR = 3,
+    SINDRAGOSA_PHASE_AIR = 4,
+    SINDRAGOSA_PHASE_FLYING_TO_GROUND = 5,
+    SINDRAGOSA_PHASE_THREE = 6
 };
 
-enum Point
+enum SindragosaPoint
 {
-    POINT_OOC       = 0,
-    POINT_AGGRO     = 1,
-    POINT_LAND      = 2,
-    POINT_AIR       = 3,
+    SINDRAGOSA_POINT_GROUND_CENTER = 0,
+    SINDRAGOSA_POINT_AIR_CENTER = 1,
+    SINDRAGOSA_POINT_AIR_PHASE_2 = 2,
+    SINDRAGOSA_POINT_AIR_EAST = 3,
+    SINDRAGOSA_POINT_AIR_WEST = 4
+};
 
-    POINT_SPINESTALKER_LAND = 4,
-    POINT_RIMEFANG_LAND     = 5
+enum RimefangPhase
+{
+    RIMEFANG_PHASE_GROUND = 0,
+    RIMEFANG_PHASE_FLYING = 1,
+    RIMEFANG_PHASE_AIR = 2
+};
+
+enum RimefangPoint
+{
+    RIMEFANG_POINT_GROUND = 0,
+    RIMEFANG_POINT_AIR = 1,
+    RIMEFANG_POINT_INITIAL_LAND_AIR = 2,
+    RIMEFANG_POINT_INITIAL_LAND = 3
+};
+
+enum SpinestalkerPoint
+{
+    SPINESTALKER_POINT_INITIAL_LAND_AIR = 0,
+    SPINESTALKER_POINT_INITIAL_LAND = 1
 };
 
 #define SINDRAGOSA_FLYING_MIN_X 4480.0f
@@ -161,7 +186,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
 
     void Reset()
     {
-        m_uiPhase                   = PHASE_OOC;
+        m_uiPhase                   = SINDRAGOSA_PHASE_OOC;
         m_uiPhaseTimer              = 45000;
         m_uiBerserkTimer            = 10 * MINUTE * IN_MILLISECONDS;
         m_uiCleaveTimer             = urand(5000, 15000);
@@ -181,17 +206,8 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
             m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
 
         m_creature->SetLevitate(bLevitate);
-    }
-
-    void DoFlyAround()
-    {
-        float x, y, z;
-        x = frand(SINDRAGOSA_FLYING_MIN_X, SINDRAGOSA_FLYING_MAX_X);
-        y = frand(SINDRAGOSA_FLYING_MIN_Y, SINDRAGOSA_FLYING_MAX_Y);
-        z = SINDRAGOSA_FLYING_Z;
-        m_creature->GetMotionMaster()->Clear();
-        m_creature->GetMotionMaster()->MovePoint(POINT_OOC, x, y, z, false);
-    }
+        m_creature->SetWalk(bLevitate);
+    }    
 
     void EnterEvadeMode()
     {
@@ -209,7 +225,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
 
         SetCombatMovement(true);
 
-        DoFlyAround();
+        m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_EAST, SindragosaPosition[8][0], SindragosaPosition[8][1], SindragosaPosition[8][2], false);
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -231,13 +247,16 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SINDRAGOSA, IN_PROGRESS);
 
-        DoScriptText(SAY_AGGRO, m_creature);
-
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-        m_creature->GetMotionMaster()->Clear();
-        m_creature->GetMotionMaster()->MovePoint(POINT_AGGRO, SindragosaLoc[0].x, SindragosaLoc[0].y, SindragosaLoc[0].z, false);
-    }
+         if (m_uiPhase == SINDRAGOSA_PHASE_OOC)
+         {
+            DoScriptText(SAY_AGGRO, m_creature);
+            m_uiPhase = SINDRAGOSA_PHASE_AGGRO;
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_CENTER, SindragosaPosition[1][0], SindragosaPosition[1][1], SindragosaPosition[1][2], false);
+         }
+     }
 
     void KilledUnit(Unit *pVictim)
     {
@@ -272,32 +291,48 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
         }
     }
 
-    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    void MovementInform(uint32 uiMovementType, uint32 uiPointId)
     {
         if (uiMovementType != POINT_MOTION_TYPE)
             return;
 
-        if (uiData == POINT_OOC)
+        if (uiPointId == SINDRAGOSA_POINT_AIR_EAST)
         {
-            DoFlyAround();
+            m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_WEST, SindragosaPosition[9][0], SindragosaPosition[9][1], SindragosaPosition[9][2], false);
         }
-        else if (uiData == POINT_AGGRO)
+        else if (uiPointId == SINDRAGOSA_POINT_AIR_WEST)
         {
-            if (m_creature->getVictim())
+            m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_EAST, SindragosaPosition[8][0], SindragosaPosition[8][1], SindragosaPosition[8][2], false);
+        }
+        else if (uiPointId == SINDRAGOSA_POINT_GROUND_CENTER)
+        {
+            // fly up
+            if (m_uiPhase == SINDRAGOSA_PHASE_GROUND)
             {
-                DoCastSpellIfCan(m_creature, SPELL_FROST_AURA, CAST_TRIGGERED);
-                DoCastSpellIfCan(m_creature, SPELL_PERMEATING_CHILL, CAST_TRIGGERED);
-                SetLevitate(false);
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                m_uiPhase = PHASE_GROUND;
+                m_uiPhase = SINDRAGOSA_PHASE_FLYING_TO_AIR;
+                SetLevitate(true);
+                m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_CENTER, SindragosaPosition[1][0], SindragosaPosition[1][1], SindragosaPosition[1][2], false);
             }
-            else
-                EnterEvadeMode();
+            else // land and attack
+            {
+                if (m_uiPhase == SINDRAGOSA_PHASE_AGGRO)
+                {
+                    DoCastSpellIfCan(m_creature, SPELL_FROST_AURA, CAST_TRIGGERED);
+                    DoCastSpellIfCan(m_creature, SPELL_PERMEATING_CHILL, CAST_TRIGGERED);
+                }
+                
+                SetLevitate(false);
+                SetCombatMovement(true);
+                m_creature->GetMotionMaster()->Clear();
+                m_uiPhase = SINDRAGOSA_PHASE_GROUND;
+
+                if (Unit *pVictim = m_creature->getVictim())
+                    m_creature->GetMotionMaster()->MoveChase(pVictim);                
+            }
         }
-        else if (uiData == POINT_AIR)
+        else if (uiPointId == SINDRAGOSA_POINT_AIR_PHASE_2)
         {
-            m_uiPhase = PHASE_AIR;
+            m_uiPhase = SINDRAGOSA_PHASE_AIR;
 
             int max = m_bIs25Man ? 5 : 2;
             if (m_bIs25Man && m_bIsHeroic)
@@ -310,14 +345,18 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
             m_uiFrostBombTimer  = 12000;
             m_uiPhaseTimer      = 35000;
         }
-        else if (uiData == POINT_LAND)
+        else if (uiPointId == SINDRAGOSA_POINT_AIR_CENTER)
         {
-            m_uiPhase = PHASE_GROUND;
-            SetCombatMovement(true);
-            SetLevitate(false);
-
-            if (m_creature->getVictim())
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            if (m_uiPhase == SINDRAGOSA_PHASE_AGGRO || m_uiPhase == SINDRAGOSA_PHASE_FLYING_TO_GROUND)
+            {
+                // land
+                m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_GROUND_CENTER, SindragosaPosition[0][0], SindragosaPosition[0][1], SindragosaPosition[0][2], false);
+            }
+            else if (m_uiPhase == SINDRAGOSA_PHASE_FLYING_TO_AIR)
+            {
+                // fly up (air phase)
+                m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_PHASE_2, SindragosaPosition[2][0], SindragosaPosition[2][1], SindragosaPosition[2][2], false);
+            }
         }
     }
 
@@ -326,7 +365,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
         float x, y, z;
         x = frand(FROST_BOMB_MIN_X, FROST_BOMB_MAX_X);
         y = frand(FROST_BOMB_MIN_Y, FROST_BOMB_MAX_Y);
-        z = SindragosaLoc[0].z;
+        z = SindragosaPosition[0][2];
 
         m_creature->CastSpell(x, y, z, SPELL_FROST_BOMB, false);
     }
@@ -394,14 +433,14 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
 
         switch(m_uiPhase)
         {
-            case PHASE_GROUND:
+            case SINDRAGOSA_PHASE_GROUND:
             {
                 // Health Check
                 if (m_creature->GetHealthPercent() <= 30.0f)
                 {
                     if (DoCastSpellIfCan(m_creature, SPELL_MYSTIC_BUFFET, CAST_TRIGGERED) == CAST_OK)
                     {
-                        m_uiPhase = PHASE_THREE;
+                        m_uiPhase = SINDRAGOSA_PHASE_THREE;
                         DoScriptText(SAY_PHASE_3, m_creature);
                         m_uiFrostBeaconTimer = 10000;
                         m_uiIceTombTimer = 15000;
@@ -463,21 +502,21 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 // Phase 2 (air)
                 if (m_uiPhaseTimer <= uiDiff)
                 {
-                    m_uiPhaseTimer = 35000;
-                    m_uiPhase = PHASE_FLYING;
+                    m_uiPhaseTimer = 35000;                   
                     DoScriptText(SAY_TAKEOFF, m_creature);
 
                     // fly to the air point
                     SetCombatMovement(false);
                     SetLevitate(true);
-                    m_creature->GetMotionMaster()->MovePoint(POINT_AIR, SindragosaLoc[1].x, SindragosaLoc[1].y, SindragosaLoc[1].z, false);
+                    m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_GROUND_CENTER, SindragosaPosition[0][0], SindragosaPosition[0][1], SindragosaPosition[0][2], false);
                 }
                 else
                     m_uiPhaseTimer -= uiDiff;
 
                 break;
             }
-            case PHASE_FLYING:
+            case SINDRAGOSA_PHASE_FLYING_TO_GROUND:
+            case SINDRAGOSA_PHASE_FLYING_TO_AIR:
                 // wait for arrival or evade after 60seconds
                 if (m_uiFlyingTimer <= uiDiff)
                 {
@@ -489,7 +528,7 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                     m_uiFlyingTimer -= uiDiff;
 
                 return;
-            case PHASE_AIR:
+            case SINDRAGOSA_PHASE_AIR:
             {
                 // Ice Tombs
                 if (m_uiIceTombTimer <= uiDiff)
@@ -512,18 +551,18 @@ struct MANGOS_DLL_DECL boss_sindragosaAI : public base_icc_bossAI
                 // Phase One (ground)
                 if (m_uiPhaseTimer <= uiDiff)
                 {
-                    m_uiPhase = PHASE_FLYING;
+                   m_uiPhase = SINDRAGOSA_PHASE_FLYING_TO_GROUND;
                     m_uiPhaseTimer = 42000;
 
                     // fly to the ground point
-                    m_creature->GetMotionMaster()->MovePoint(POINT_LAND, SindragosaLoc[0].x, SindragosaLoc[0].y, SindragosaLoc[0].z, false);
-                }
+                    m_creature->GetMotionMaster()->MovePoint(SINDRAGOSA_POINT_AIR_CENTER, SindragosaPosition[1][0], SindragosaPosition[1][1], SindragosaPosition[1][2], false);
+               }
                 else
                     m_uiPhaseTimer -= uiDiff;
 
                 return;
             }
-            case PHASE_THREE:
+            case SINDRAGOSA_PHASE_THREE:
             {
                 // Frost Beacon
                 if (m_uiFrostBeaconTimer <= uiDiff)
@@ -709,277 +748,302 @@ CreatureAI* GetAI_mob_frost_bomb(Creature* pCreature)
 {
     return new mob_frost_bombAI(pCreature);
 }
-
 struct MANGOS_DLL_DECL mob_rimefangAI : public ScriptedAI
 {
     mob_rimefangAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+
+        // Icy Blast - 3 casts on 10man, 6 on 25man
+        m_uiIcyBlastMaxCount = 3;
+        if (m_pInstance && (m_pInstance->instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || m_pInstance->instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC))
+            m_uiIcyBlastMaxCount = 6;
+
+        m_bHasLanded = false;
+        m_bIsReady = false;
+
         Reset();
     }
 
-    ScriptedInstance *m_pInstance;
+    ScriptedInstance* m_pInstance;
 
-    bool m_bIsFlying;
-
+    uint32 m_uiPhase;
+    uint32 m_uiPhaseTimer;
     uint32 m_uiFrostBreathTimer;
+    uint32 m_uiIcyBlastCounter;
+    uint32 m_uiIcyBlastMaxCount;
     uint32 m_uiIcyBlastTimer;
+    bool m_bHasLanded; // landed after player entered areatrigger
+    bool m_bIsReady;
 
     void Reset()
     {
-        m_creature->SetRespawnDelay(7*DAY*IN_MILLISECONDS);
+        m_uiPhase = RIMEFANG_PHASE_GROUND;
+        m_uiPhaseTimer = 25000;
+        m_uiFrostBreathTimer = urand(5000, 8000);
+        m_uiIcyBlastTimer = 0;
+        m_uiIcyBlastCounter = 0;
 
-        m_uiFrostBreathTimer    = urand(5000, 8000);
-        m_uiIcyBlastTimer       = urand(4000, 8000);
-        m_bIsFlying             = true;
+        SetCombatMovement(true);
     }
 
-    void SetLevitate(bool bLevitate)
+    void SetFlying(bool bIsFlying)
     {
-        if (bLevitate)
+        if (bIsFlying)
             m_creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
         else
             m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
 
-        m_creature->SetLevitate(bLevitate);
-    }
-
-    void EnterEvadeMode()
-    {
-        SetLevitate(true);
-        if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_SPINESTALKER))
-        {
-            if (!pBrother->isAlive())
-                pBrother->Respawn();
-        }
-        ScriptedAI::EnterEvadeMode();
-    }
-
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if (!m_creature->isInCombat())
-        {
-            if (pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster())
-            {
-                if (pWho->IsWithinDistInMap(m_creature, 60.0f))
-                {
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-                    m_creature->GetMotionMaster()->MovementExpired();
-                    AttackStart(pWho);
-                    SetCombatMovement(true);
-                }
-            }
-        }
-
-        ScriptedAI::MoveInLineOfSight(pWho);
+        m_creature->SetLevitate(bIsFlying);
+        m_creature->SetWalk(bIsFlying);
     }
 
     void Aggro(Unit *pWho)
     {
-        if (m_pInstance)
-        {
-            if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_SPINESTALKER))
-                pBrother->SetInCombatWithZone();
-        }
-
         DoCastSpellIfCan(m_creature, SPELL_RIMEFANG_FROST_AURA, CAST_TRIGGERED);
-        m_creature->GetMotionMaster()->Clear();
-        m_creature->GetMotionMaster()->MovePoint(POINT_RIMEFANG_LAND, SindragosaLoc[4].x, SindragosaLoc[4].y, SindragosaLoc[4].z, false);
     }
 
-    void MovementInform(uint32 uiMovementType, uint32 uiData)
+    void AttackStart(Unit *pWho)
     {
-        if (uiMovementType != POINT_MOTION_TYPE)
-            return;
-
-        if (uiData == POINT_RIMEFANG_LAND)
+        if (!m_bIsReady)
         {
-            if (m_creature->getVictim())
+            if (!m_bHasLanded)
             {
-                SetLevitate(false);
-                m_bIsFlying = false;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                m_bHasLanded = true;
+                m_creature->GetMotionMaster()->MovePoint(RIMEFANG_POINT_INITIAL_LAND_AIR, SindragosaPosition[4][0], SindragosaPosition[4][1], SindragosaPosition[4][2], false);
             }
-            else
-                EnterEvadeMode();
+
+            return;
         }
+        
+        ScriptedAI::AttackStart(pWho);
     }
 
     void JustDied(Unit *pKiller)
     {
-        if(!m_pInstance)
+        if (!m_pInstance)
             return;
 
-        if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_SPINESTALKER))
+        Creature *pSpinestalker = m_pInstance->GetSingleCreatureFromStorage(NPC_SPINESTALKER);
+        if (!pSpinestalker || !pSpinestalker->isAlive())
         {
-            if (!pBrother->isAlive() && m_pInstance->GetData(TYPE_SINDRAGOSA) != DONE)
-            {
-                if (Creature* pSindr = m_creature->SummonCreature(NPC_SINDRAGOSA, SindragosaLoc[3].x, SindragosaLoc[3].y, SindragosaLoc[3].z, 3.17f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 7*DAY*IN_MILLISECONDS, true))
-                {
-                    pSindr->SetCreatorGuid(ObjectGuid());
-                    pSindr->SetInCombatWithZone();
-                }
-            }
+            if (Creature *pSindragosa = m_creature->SummonCreature(NPC_SINDRAGOSA, SindragosaPosition[7][0], SindragosaPosition[7][1], SindragosaPosition[7][2], 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                pSindragosa->SetInCombatWithZone();
+        }
+    }
+
+    // evade to point on platform
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+
+        if (m_creature->isAlive())
+            m_creature->GetMotionMaster()->MovePoint(RIMEFANG_POINT_INITIAL_LAND, SindragosaPosition[3][0], SindragosaPosition[3][1], SindragosaPosition[3][2], false);
+
+        m_creature->SetLootRecipient(NULL);
+
+        Reset();
+    }
+
+    void MovementInform(uint32 uiMovementType, uint32 uiPointId)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiPointId == RIMEFANG_POINT_INITIAL_LAND_AIR)
+        {
+            m_creature->GetMotionMaster()->MovePoint(RIMEFANG_POINT_INITIAL_LAND, SindragosaPosition[3][0], SindragosaPosition[3][1], SindragosaPosition[3][2], false);
+        }
+        else if (uiPointId == RIMEFANG_POINT_INITIAL_LAND)
+        {
+            m_creature->GetMotionMaster()->MoveIdle();
+            m_creature->SetFacingTo(M_PI_F);
+            m_bIsReady = true;
+            SetFlying(false);
+        }
+        else if (uiPointId == RIMEFANG_POINT_GROUND)
+        {
+            m_uiPhase = RIMEFANG_PHASE_GROUND;
+            SetFlying(false);
+            SetCombatMovement(true);
+
+            if (Unit *pVictim = m_creature->getVictim())
+                m_creature->GetMotionMaster()->MoveChase(pVictim);
+        }
+        else if (uiPointId == RIMEFANG_POINT_AIR)
+        {
+            m_uiPhase = RIMEFANG_PHASE_AIR;
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_bIsFlying || !m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // Frost Breath
-        if (m_uiFrostBreathTimer <= uiDiff)
+        if (m_uiPhase == RIMEFANG_PHASE_GROUND)
         {
-            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_RIMEFANG_FROST_BREATH) == CAST_OK)
-                m_uiFrostBreathTimer = urand(5000, 8000);
-        }
-        else
-            m_uiFrostBreathTimer -= uiDiff;
-
-        // Icy Blast
-        if (m_uiIcyBlastTimer <= uiDiff)
-        {
-            if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1, SPELL_RIMEFANG_ICY_BLAST, SELECT_FLAG_PLAYER))
+            // Frost Breath
+            if (m_uiFrostBreathTimer <= uiDiff)
             {
-                if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_RIMEFANG_ICY_BLAST) == CAST_OK)
-                    m_uiIcyBlastTimer = urand(4000, 8000);
+                if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_RIMEFANG_FROST_BREATH) == CAST_OK)
+                    m_uiFrostBreathTimer = urand(5000, 8000);
             }
-        }
-        else
-            m_uiIcyBlastTimer -= uiDiff;
+            else
+                m_uiFrostBreathTimer -= uiDiff;
 
-        DoMeleeAttackIfReady();
+            // Icy Blast - air phase
+            if (m_uiPhaseTimer <= uiDiff)
+            {
+                m_uiPhaseTimer = 40000;
+                m_uiPhase = RIMEFANG_PHASE_FLYING;
+                SetFlying(true);
+                SetCombatMovement(false);
+                m_creature->GetMotionMaster()->MovePoint(RIMEFANG_POINT_AIR, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 20.0f, false);
+                return;
+            }
+            else
+                m_uiPhaseTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+        else if (m_uiPhase == RIMEFANG_PHASE_AIR)
+        {
+            // Icy Blast
+            if (m_uiIcyBlastTimer <= uiDiff)
+            {
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0, SPELL_RIMEFANG_ICY_BLAST, SELECT_FLAG_PLAYER))
+                {
+                    if (DoCastSpellIfCan(pTarget, SPELL_RIMEFANG_ICY_BLAST) == CAST_OK)
+                    {
+                        m_uiIcyBlastTimer = 3000;
+                        ++m_uiIcyBlastCounter;
+
+                        // phase end
+                        if (m_uiIcyBlastCounter >= m_uiIcyBlastMaxCount)
+                        {
+                            m_uiIcyBlastCounter = 0;
+                            m_uiIcyBlastTimer = 0;
+                            m_uiPhase = RIMEFANG_PHASE_FLYING;
+                            m_creature->GetMotionMaster()->MovePoint(RIMEFANG_POINT_GROUND, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() - 20.0f, false);
+                        }
+                    }
+                }
+            }
+            else
+                m_uiIcyBlastTimer -= uiDiff;
+        }
     }
 };
-
 
 CreatureAI* GetAI_mob_rimefang(Creature* pCreature)
 {
     return new mob_rimefangAI(pCreature);
 }
 
+
 struct MANGOS_DLL_DECL mob_spinestalkerAI : public ScriptedAI
 {
     mob_spinestalkerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bHasLanded = false;
+        m_bIsReady = false;
         Reset();
     }
 
-    ScriptedInstance *m_pInstance;
-
-    bool m_bIsFlying;
+    ScriptedInstance* m_pInstance;
 
     uint32 m_uiBellowingRoarTimer;
     uint32 m_uiTailSweepTimer;
     uint32 m_uiCleaveTimer;
+    bool m_bHasLanded;
+    bool m_bIsReady;
 
     void Reset()
     {
-        m_creature->SetRespawnDelay(7*DAY*IN_MILLISECONDS);
-
-        m_uiBellowingRoarTimer  = urand(8000, 24000);
-        m_uiTailSweepTimer      = urand(4000, 8000);
-        m_uiCleaveTimer         = urand(5000, 8000);
-        m_bIsFlying             = true;
+        m_uiBellowingRoarTimer = urand(8000, 24000);
+        m_uiTailSweepTimer = urand(4000, 8000);
+        m_uiCleaveTimer = urand(5000, 8000);
     }
 
-    void SetLevitate(bool bLevitate)
+    void SetFlying(bool bIsFlying)
     {
-        if (bLevitate)
+        if (bIsFlying)
             m_creature->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
         else
             m_creature->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_UNK_2);
 
-        m_creature->SetLevitate(bLevitate);
-    }
-
-    void EnterEvadeMode()
-    {
-        SetLevitate(true);
-        if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG))
-        {
-            if (!pBrother->isAlive())
-                pBrother->Respawn();
-        }
-        ScriptedAI::EnterEvadeMode();
-    }
-
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if (!m_creature->isInCombat())
-        {
-            if (pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster())
-            {
-                if (pWho->IsWithinDistInMap(m_creature, 60.0f))
-                {
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
-                    m_creature->GetMotionMaster()->MovementExpired();
-                    AttackStart(pWho);
-                    SetCombatMovement(true);
-                }
-            }
-        }
-
-        ScriptedAI::MoveInLineOfSight(pWho);
-    }
-
-    void Aggro(Unit *pWho)
-    {
-        if (m_pInstance)
-        {
-            if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG))
-                pBrother->SetInCombatWithZone();
-        }
-
-        m_creature->GetMotionMaster()->Clear();
-        m_creature->GetMotionMaster()->MovePoint(POINT_SPINESTALKER_LAND, SindragosaLoc[5].x, SindragosaLoc[5].y, SindragosaLoc[5].z, false);
-    }
-
-    void MovementInform(uint32 uiMovementType, uint32 uiData)
-    {
-        if (uiMovementType != POINT_MOTION_TYPE)
-            return;
-
-        if (uiData == POINT_SPINESTALKER_LAND)
-        {
-            if (m_creature->getVictim())
-            {
-                SetLevitate(false);
-                m_bIsFlying = false;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-            }
-            else
-                EnterEvadeMode();
-        }
+        m_creature->SetLevitate(bIsFlying);
+        m_creature->SetWalk(bIsFlying);
     }
 
     void JustDied(Unit *pKiller)
     {
-        if(!m_pInstance)
+        if (!m_pInstance)
             return;
 
-        if (Creature *pBrother = m_pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG))
+        Creature *pRimefang = m_pInstance->GetSingleCreatureFromStorage(NPC_RIMEFANG);
+        if (!pRimefang || !pRimefang->isAlive())
         {
-            if (!pBrother->isAlive() && m_pInstance->GetData(TYPE_SINDRAGOSA) != DONE)
+            if (Creature *pSindragosa = m_creature->SummonCreature(NPC_SINDRAGOSA, SindragosaPosition[7][0], SindragosaPosition[7][1], SindragosaPosition[7][2], 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                pSindragosa->SetInCombatWithZone();
+        }
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+        if (!m_bIsReady)
+        {
+            if (!m_bHasLanded)
             {
-                if (Creature* pSindr = m_creature->SummonCreature(NPC_SINDRAGOSA, SindragosaLoc[3].x, SindragosaLoc[3].y, SindragosaLoc[3].z, 3.17f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 7*DAY*IN_MILLISECONDS, true))
-                {
-                    pSindr->SetCreatorGuid(ObjectGuid());
-                    pSindr->SetInCombatWithZone();
-                }
+                m_bHasLanded = true;
+                m_creature->GetMotionMaster()->MovePoint(SPINESTALKER_POINT_INITIAL_LAND_AIR, SindragosaPosition[6][0], SindragosaPosition[6][1], SindragosaPosition[6][2], false);
             }
+
+            return;
+        }
+
+        ScriptedAI::AttackStart(pWho);
+    }
+
+    void EnterEvadeMode()
+    {
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+
+        if (m_creature->isAlive())
+            m_creature->GetMotionMaster()->MovePoint(SPINESTALKER_POINT_INITIAL_LAND, SindragosaPosition[5][0], SindragosaPosition[5][1], SindragosaPosition[5][2]);
+
+        m_creature->SetLootRecipient(NULL);
+
+        Reset();
+    }
+
+    void MovementInform(uint32 uiMovementType, uint32 uiPointId)
+    {
+        if (uiMovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiPointId == SPINESTALKER_POINT_INITIAL_LAND_AIR)
+        {
+            m_creature->GetMotionMaster()->MovePoint(SPINESTALKER_POINT_INITIAL_LAND, SindragosaPosition[5][0], SindragosaPosition[5][1], SindragosaPosition[5][2], false);
+        }
+        else if (uiPointId == SPINESTALKER_POINT_INITIAL_LAND)
+        {
+            m_creature->GetMotionMaster()->MoveIdle();
+            m_creature->SetFacingTo(M_PI_F);
+            m_bIsReady = true;
+            SetFlying(false);
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_bIsFlying || !m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
         // Cleave

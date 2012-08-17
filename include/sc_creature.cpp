@@ -514,6 +514,7 @@ enum
     NPC_SARTHARION              = 28860,
     NPC_TALON_KING_IKISS        = 18473,
     NPC_KARGATH_BLADEFIST       = 16808,
+    NPC_SINDRAGOSA              = 36853
 };
 
 bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
@@ -563,6 +564,9 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
             if (fX < 255.0f && fX > 205.0f)
                 return false;
             break;
+        case NPC_SINDRAGOSA:
+            if (fX > 4314.0f)
+                return false;
         default:
             error_log("SD2: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", m_creature->GetEntry());
             return false;

@@ -100,6 +100,39 @@ bool instance_icecrown_spire::IsEncounterInProgress()
     return false;
 }
 
+
+void instance_icecrown_citadel::DoHandleCitadelAreaTrigger(uint32 uiTriggerId, Player* pPlayer)
+{   
+    if (uiTriggerId == AREATRIGGER_SINDRAGOSA_PLATFORM)
+    {
+        if (Creature* pSindragosa = GetSingleCreatureFromStorage(NPC_SINDRAGOSA))
+        {
+            if (pSindragosa->isAlive() && !pSindragosa->isInCombat())
+                pSindragosa->SetInCombatWithZone();
+        }
+        else
+        {
+            if (!m_bHasRimefangLanded)
+            {
+                if (Creature* pRimefang = GetSingleCreatureFromStorage(NPC_RIMEFANG))
+                {
+                    pRimefang->AI()->AttackStart(pPlayer);
+                    m_bHasRimefangLanded = true;
+                }
+            }
+
+            if (!m_bHasSpinestalkerLanded)
+            {
+                if (Creature* pSpinestalker = GetSingleCreatureFromStorage(NPC_SPINESTALKER))
+                {
+                    pSpinestalker->AI()->AttackStart(pPlayer);
+                    m_bHasSpinestalkerLanded = true;
+                }
+            }
+        }
+    }
+}
+
 void instance_icecrown_spire::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
