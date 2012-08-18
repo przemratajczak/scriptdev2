@@ -15,7 +15,7 @@
  */
 
 #include "precompiled.h"
-#include "WorldPvP/WorldPvPWG.h"
+#include "OutdoorPvP/OutdoorPvPWG.h"
 
 /*######
 ## go_wg_def_portal
