@@ -928,22 +928,26 @@ struct MANGOS_DLL_DECL npc_wintergarde_bombAI : public ScriptedAI
     npc_wintergarde_bombAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
 
     uint32 uiCheckTimer;
+    Unit* pCreator;
+
     void Reset() 
     {
         uiCheckTimer = 2000;
+        pCreator = m_creature->GetCreator();
     }
-
+    
+    
     void UpdateAI(const uint32 uiDiff)
      {
             if (uiCheckTimer <= uiDiff)
             {
-                if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+                if(pCreator && pCreator->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if(pPlayer->GetQuestStatus(QUEST_LEAVE_NOTHING_TO_CHANCE) == QUEST_STATUS_INCOMPLETE)
+                    if(((Player*)pCreator)->GetQuestStatus(QUEST_LEAVE_NOTHING_TO_CHANCE) == QUEST_STATUS_INCOMPLETE)
                     {
                         if (m_creature->GetPositionZ() < 118.0f)
-                            pPlayer->KilledMonsterCredit(NPC_LOWER_MINE_SHAFT);
-                        else pPlayer->KilledMonsterCredit(NPC_UPPER_MINE_SHAFT);
+                            ((Player*)pCreator)->KilledMonsterCredit(NPC_LOWER_MINE_SHAFT);
+                        else ((Player*)pCreator)->KilledMonsterCredit(NPC_UPPER_MINE_SHAFT);
                     }
                     m_creature->ForcedDespawn();
                 }                

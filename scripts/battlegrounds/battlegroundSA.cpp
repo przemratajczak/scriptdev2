@@ -16,7 +16,7 @@
  */
 
 #include "precompiled.h"
-#include "BattleGroundSA.h"
+#include "Battleground/BattleGroundSA.h"
 #include "Vehicle.h"
 
 struct MANGOS_DLL_DECL npc_sa_demolisherAI : public ScriptedAI
@@ -50,7 +50,7 @@ struct MANGOS_DLL_DECL npc_sa_demolisherAI : public ScriptedAI
             if (((BattleGroundSA*)bg)->GetDefender() == pPlayer->GetTeam() || bg->GetStatus() == STATUS_WAIT_JOIN)
                 return;
 
-            if (VehicleKit *vehicle = pCreature->GetVehicleKit())
+            if (VehicleKitPtr vehicle = pCreature->GetVehicleKit())
             {
                 if (!pCreature->GetCharmerGuid().IsEmpty())
                     pPlayer->EnterVehicle(vehicle);
@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL npc_sa_cannonAI : public ScriptedAI
             if (bg->GetDefender() != pPlayer->GetTeam() || bg->GetStatus() == STATUS_WAIT_JOIN)
                 return;
 
-            if (VehicleKit *vehicle = pCreature->GetVehicleKit())
+            if (VehicleKitPtr vehicle = pCreature->GetVehicleKit())
             {
                 if (!pCreature->GetCharmerGuid().IsEmpty())
                     pPlayer->EnterVehicle(vehicle);

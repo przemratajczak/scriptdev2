@@ -429,7 +429,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 pDisk->SetLevitate(true);
                 pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
                 pDisk->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
+                if (VehicleKitPtr pDiskVehicle = pDisk->GetVehicleKit())
                     pSummoned->EnterVehicle(pDiskVehicle, 0);
                 pSummoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }*/
@@ -486,7 +486,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             if (!lPlayers.isEmpty())
                 for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                     if (Player* pPlayer = itr->getSource())
-                        if (VehicleKit *pVehKit = pPlayer->GetVehicle())
+                        if (VehicleKitPtr pVehKit = pPlayer->GetVehicle())
                         {
                             pPlayer->ExitVehicle();
                             ((Creature*)pVehKit->GetBase())->ForcedDespawn(500);
@@ -1232,7 +1232,7 @@ struct MANGOS_DLL_DECL npc_nexus_lordAI : public ScriptedAI
     {
         if (uiDamage > m_creature->GetHealth())
         {
-            if (VehicleKit* pDiskVehicle = m_creature->GetVehicle())
+            if (VehicleKitPtr pDiskVehicle = m_creature->GetVehicle())
             {
                 if (Unit* pDiskUnit = pDiskVehicle->GetBase())
                 {
@@ -1251,7 +1251,7 @@ struct MANGOS_DLL_DECL npc_nexus_lordAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (VehicleKit* pDiskVehicle = m_creature->GetVehicle())
+        if (VehicleKitPtr pDiskVehicle = m_creature->GetVehicle())
         {
             if (Unit* pDiskUnit = pDiskVehicle->GetBase())
             {
@@ -1341,7 +1341,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
     {
         if (uiDamage >= m_creature->GetHealth())
         {
-            if (VehicleKit* pDiskVehicle = m_creature->GetVehicle())
+            if (VehicleKitPtr pDiskVehicle = m_creature->GetVehicle())
             {
                 if (Unit* pDiskUnit = pDiskVehicle->GetBase())
                 {
@@ -1359,7 +1359,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
     {
         if (!m_bHasMoved)
         {
-            VehicleKit *pDiskKit = m_creature->GetVehicle();
+            VehicleKitPtr pDiskKit = m_creature->GetVehicle();
             if (Unit *pDisk = pDiskKit ? pDiskKit->GetBase() : NULL)
             {
                 pDisk->GetMotionMaster()->MovePoint(0, CENTER_X + frand(-50.0f, 50.0f), CENTER_Y + frand(-50.0f, 50.0f), AIR_Z + frand(-20.0f, 0.0f));
@@ -1380,7 +1380,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
                     m_creature->CastCustomSpell(pTarget, SPELL_ARCANE_BARRAGE, &uiDmg, 0, 0, true);
                     m_uiArcaneBarrageTimer = urand(4000, 12000);
 
-                    if (VehicleKit *pDiskKit = m_creature->GetVehicle())
+                    if (VehicleKitPtr pDiskKit = m_creature->GetVehicle())
                     {
                         if (Unit *pDisk = pDiskKit->GetBase())
                             pDisk->GetMotionMaster()->MovePoint(0, CENTER_X + frand(-50.0f, 50.0f), CENTER_Y + frand(-50.0f, 50.0f), AIR_Z + frand(-20.0f, 0.0f));
