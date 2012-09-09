@@ -597,9 +597,9 @@ enum
 
 };
 
-struct MANGOS_DLL_DECL npc_bannerAI : public ScriptedAI
+struct MANGOS_DLL_DECL npc_bannerAI : public Scripted_NoMovementAI
 {
-    npc_bannerAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_bannerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { Reset(); }
     
      
 	 uint64 uiWaveTimer;
