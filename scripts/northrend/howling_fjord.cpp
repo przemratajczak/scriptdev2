@@ -420,7 +420,11 @@ enum
 
 struct MANGOS_DLL_DECL npc_silvermoon_harryAI : public ScriptedAI
 {
-    npc_silvermoon_harryAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+    npc_silvermoon_harryAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    { 
+        Reset(); 
+        m_bHarryBeaten = false;
+    }
 
     bool m_bHarryBeaten;
     uint32 m_uiBlastWaveTimer;
@@ -429,7 +433,7 @@ struct MANGOS_DLL_DECL npc_silvermoon_harryAI : public ScriptedAI
 
     void Reset()
     {
-        m_bHarryBeaten = false;
+        //m_bHarryBeaten = false;
 
         // timers guessed
         m_uiScorchTimer = 5*IN_MILLISECONDS;
@@ -480,7 +484,10 @@ struct MANGOS_DLL_DECL npc_silvermoon_harryAI : public ScriptedAI
         if (m_bHarryBeaten)
         {
             if (m_uiResetBeatenTimer < uiDiff)
+            {
+                m_bHarryBeaten = false;
                 EnterEvadeMode();
+            }
             else
                 m_uiResetBeatenTimer-= uiDiff;
         }
@@ -567,6 +574,10 @@ bool GossipSelect_npc_silvermoon_harry(Player* pPlayer, Creature* pCreature, uin
                     pPlayer->SendNewItem(pItem, 1, true, false);
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pCreature->AI()->EnterEvadeMode();
+                }
+                if (npc_silvermoon_harryAI* pHarryAI = dynamic_cast<npc_silvermoon_harryAI*>(pCreature->AI()))
+                {
+                    pHarryAI->m_bHarryBeaten = false;
                 }
             }
             break;
