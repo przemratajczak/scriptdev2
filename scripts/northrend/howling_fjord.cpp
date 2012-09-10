@@ -1164,7 +1164,10 @@ enum
     QUEST_SOUND_OF_THUNDER = 11495,
     QUEST_THE_BLUFF        = 11491,
     
-    SPELL_CONTROL_IRON_CONSTRUCT_IR = 49992
+    SPELL_CONTROL_IRON_CONSTRUCT_IR = 49992, //npc 24825
+    SPELL_CONTROL_IRON_CONSTRUCT_CD = 49988, //npc 24821
+    SPELL_CONTROL_IRON_CONSTRUCT_RJ = 49984, //npc 24806
+    SPELL_CONTROL_IRON_CONSTRUCT_TB = 49990 //npc 24823
 };
 bool QuestAccept_npc_walt(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
@@ -1172,6 +1175,15 @@ bool QuestAccept_npc_walt(Player* pPlayer, Creature* pCreature, const Quest* pQu
     {
         case QUEST_INFUSED_RELICS:
             pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_IR, false);
+            break;
+        case QUEST_COLLECTING_DATA:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_CD, false);
+            break;
+        case QUEST_ROCKET_JUMPING:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_RJ, false);
+            break;
+        case QUEST_THE_BLUFF:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_TB, false);
             break;
     }
 
@@ -1187,6 +1199,19 @@ bool GOGossipHello_go_work_bench(Player* pPlayer, GameObject* pGo)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CONSTRUCT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);    
     }
+    else if(pPlayer->GetQuestStatus(QUEST_COLLECTING_DATA) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CONSTRUCT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);    
+    }
+    else if(pPlayer->GetQuestStatus(QUEST_ROCKET_JUMPING) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CONSTRUCT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);    
+    }
+    if(pPlayer->GetQuestStatus(QUEST_THE_BLUFF) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CONSTRUCT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);    
+    }
+    
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pGo), pGo->GetObjectGuid());
     return true;
 }
@@ -1198,6 +1223,61 @@ bool GOGossipSelect_go_work_bench(Player* pPlayer, GameObject* pGo, uint32 uiSen
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_IR, false);
             break;
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_CD, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_RJ, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->CastSpell(pPlayer, SPELL_CONTROL_IRON_CONSTRUCT_TB, false);
+            break;
+    }
+    return true;
+}
+
+/*###############
+#npc_lebronski#
+###############*/
+struct MANGOS_DLL_DECL npc_lebronskiAI : public ScriptedAI
+{
+    npc_lebronskiAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    void Reset(){ }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+         DoMeleeAttackIfReady();
+    }
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    {
+        if (pSpell->Id == 44562)
+        {
+            if(pCaster->IsVehicle())
+                if(Unit* pUnit = pCaster->GetCharmerOrOwner())
+                    if(pUnit->GetTypeId() == TYPEID_PLAYER)
+                        ((Player*)pUnit)->AreaExploredOrEventHappens(QUEST_THE_BLUFF);
+        }
+    }
+
+};
+
+CreatureAI* GetAI_npc_lebronski(Creature* pCreature)
+{
+    return new npc_lebronskiAI(pCreature);
+};
+
+/*###############
+# go_walts_rune #
+################*/
+bool GOUse_go_walts_rune(Player* pPlayer, GameObject* pGo)
+{
+    if(pPlayer->GetQuestStatus(QUEST_ROCKET_JUMPING) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->AreaExploredOrEventHappens(QUEST_ROCKET_JUMPING);
     }
     return true;
 }
@@ -1289,4 +1369,15 @@ void AddSC_howling_fjord()
     pNewScript->pGossipHelloGO  = &GOGossipHello_go_work_bench;
     pNewScript->pGossipSelectGO = &GOGossipSelect_go_work_bench;
     pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_lebronski";
+    pNewScript->GetAI = &GetAI_npc_lebronski;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_walts_rune";
+    pNewScript->pGOUse = &GOUse_go_walts_rune;
+    pNewScript->RegisterSelf();
+
 }
