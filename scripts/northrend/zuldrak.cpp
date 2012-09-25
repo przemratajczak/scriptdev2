@@ -512,6 +512,95 @@ CreatureAI* GetAI_npc_flying_fiend_vehicle(Creature* pCreature)
     return new npc_flying_fiend_vehicleAI(pCreature);
 }
 
+
+/*######
+## npc_blight_geist
+######*/
+
+enum 
+{
+    SPELL_HARVEST_BLIGHT_CRYSTAL = 52245,    
+
+    POINT_CRYSTAL                = 0,
+    POINT_TELEPORTER             = 1,
+
+    OBJECT_BLIGHT_CRYSTAL        = 190940,
+    NPC_BLIGHT_CRYSTAL_BUNNY     = 28740
+};
+
+struct MANGOS_DLL_DECL npc_blight_geistAI : public ScriptedAI
+{
+    npc_blight_geistAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    void Reset()
+    { 
+
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiPointId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+        
+        if(uiPointId == POINT_CRYSTAL)
+        {            
+            m_creature->GetMotionMaster()->MovePoint(POINT_TELEPORTER, 6174.745f, -2012.618f, 245.339f);
+        }
+
+        if(uiPointId == POINT_TELEPORTER)
+        {
+            if(m_creature->GetCharmerOrOwner() && m_creature->GetCharmerOrOwner()->GetTypeId() == TYPEID_PLAYER)
+                if(Player* pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCharmerOrOwnerGuid()))                
+                    if(pPlayer->IsInWorld() && pPlayer->isAlive())
+                    {
+                        pPlayer->KilledMonsterCredit(NPC_BLIGHT_CRYSTAL_BUNNY);
+
+                        if(GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, OBJECT_BLIGHT_CRYSTAL, 5.0f))
+                            pGo->DestroyForPlayer(pPlayer, true);
+                    }
+                
+
+            m_creature->ForcedDespawn(500);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+         DoMeleeAttackIfReady();
+    }
+
+};
+
+CreatureAI* GetAI_npc_blight_geist(Creature* pCreature)
+{
+    return new npc_blight_geistAI(pCreature);
+};
+
+bool EffectDummyCreature_npc_blight_geist(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
+{
+    if(uiSpellId != SPELL_HARVEST_BLIGHT_CRYSTAL)
+        return false;
+
+    if(GameObject* pGo = GetClosestGameObjectWithEntry(pCaster, OBJECT_BLIGHT_CRYSTAL, 20.0f))
+    {
+        pCreatureTarget->GetMotionMaster()->Clear(true, true);
+        pCreatureTarget->GetMotionMaster()->MovePoint(POINT_CRYSTAL, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+        
+        //something is wrong with point movement for this creature, when everything will be ok, delete below
+        if(pCreatureTarget->GetCharmerOrOwner() && pCreatureTarget->GetCharmerOrOwner()->GetTypeId() == TYPEID_PLAYER)
+            if(Player* pPlayer = pCreatureTarget->GetMap()->GetPlayer(pCreatureTarget->GetCharmerOrOwnerGuid()))                
+                if(pPlayer->IsInWorld() && pPlayer->isAlive())
+                {
+                    pPlayer->KilledMonsterCredit(NPC_BLIGHT_CRYSTAL_BUNNY);   
+                    pGo->DestroyForPlayer(pPlayer, true);
+                }
+    }
+    return true;
+}
+
 void AddSC_zuldrak()
 {
     Script* pNewScript;
@@ -540,5 +629,11 @@ void AddSC_zuldrak()
     pNewScript = new Script;
     pNewScript->Name = "npc_deacying_ghoul";
     pNewScript->GetAI = &GetAI_npc_deacying_ghoul;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_blight_geist";
+    pNewScript->GetAI = &GetAI_npc_blight_geist;
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_blight_geist;
     pNewScript->RegisterSelf();
 }
