@@ -539,6 +539,8 @@ struct MANGOS_DLL_DECL npc_blight_geistAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
     {
+        VehicleKitPtr kit = m_creature->GetVehicle();
+
         if (uiType != POINT_MOTION_TYPE)
             return;
         
@@ -601,6 +603,47 @@ bool EffectDummyCreature_npc_blight_geist(Unit* pCaster, uint32 uiSpellId, Spell
     return true;
 }
 
+/*######
+## npc_explosive_charges_bunny
+######*/
+enum 
+{
+    GO_SCOURGEWAGON            = 27436,
+    KILL_CREDIT                = 28777,
+    QUEST_SABOTAGE             = 12676
+ 
+};
+
+struct MANGOS_DLL_DECL npc_explosive_charges_bunnyAI : public ScriptedAI
+{
+    npc_explosive_charges_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    ObjectGuid OwnerGuid;
+
+    void Reset() 
+    {        
+        OwnerGuid = m_creature->GetCreatorGuid();
+    }    
+    
+    void UpdateAI(const uint32 uiDiff)
+     {            
+        if(Player* pPlayer = m_creature->GetMap()->GetPlayer(OwnerGuid))
+        {
+            if(pPlayer->GetQuestStatus(QUEST_SABOTAGE) == QUEST_STATUS_INCOMPLETE)
+            {
+                pPlayer->KilledMonsterCredit(KILL_CREDIT, m_creature->GetObjectGuid());
+                if(GameObject* pGo = GetClosestGameObjectWithEntry(pPlayer, GO_SCOURGEWAGON, 10.0f))
+                    pGo->DestroyForPlayer(pPlayer, true);
+            }
+            m_creature->ForcedDespawn();
+        }   
+     }    
+};
+CreatureAI* GetAI_npc_explosive_charges_bunny(Creature* pCreature)
+{
+    return new npc_explosive_charges_bunnyAI(pCreature);
+}
+
 void AddSC_zuldrak()
 {
     Script* pNewScript;
@@ -635,5 +678,10 @@ void AddSC_zuldrak()
     pNewScript->Name = "npc_blight_geist";
     pNewScript->GetAI = &GetAI_npc_blight_geist;
     pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_blight_geist;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_explosive_charges_bunny";
+    pNewScript->GetAI = &GetAI_npc_explosive_charges_bunny;
     pNewScript->RegisterSelf();
 }
