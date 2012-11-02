@@ -354,13 +354,13 @@ struct MANGOS_DLL_DECL boss_professor_putricideAI : public base_icc_bossAI
     {
         if (green || both)
         {
-            if (Unit *pGreen = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[3].x, SpawnLoc[3].y, SpawnLoc[3].z, SpawnLoc[3].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
+            if (Unit *pGreen = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[3].x, SpawnLoc[3].y, 389.39f, SpawnLoc[3].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
                 DoCastSpellIfCan(m_creature, SPELL_GREEN_OOZE_SUMMON, CAST_TRIGGERED);
         }
 
         if (!green || both)
         {
-            if (Unit *pOrange = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, SpawnLoc[4].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
+            if (Unit *pOrange = m_creature->SummonCreature(NPC_GREEN_ORANGE_OOZE_STALKER, SpawnLoc[4].x, SpawnLoc[4].y, 389.39f, SpawnLoc[4].o, TEMPSUMMON_TIMED_DESPAWN, 10000))
                 DoCastSpellIfCan(m_creature, SPELL_ORANGE_OOZE_SUMMON, CAST_TRIGGERED);
         }
 
