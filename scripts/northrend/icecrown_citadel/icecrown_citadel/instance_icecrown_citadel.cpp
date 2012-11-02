@@ -355,9 +355,10 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
             }
             break;
          case TYPE_FESTERGUT:
+         {
             m_auiEncounter[TYPE_FESTERGUT] = uiData;
 
-            DoUseDoorOrButton(GO_ORANGE_PLAGUE);
+            //DoUseDoorOrButton(GO_ORANGE_PLAGUE);
 
             if (uiData == DONE)
             {
@@ -369,7 +370,33 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
                     DoUseDoorOrButton(GO_SCIENTIST_DOOR_COLLISION);
                 }
             }
+            GameObject* pDoor = GetSingleGameObjectFromStorage(GO_ORANGE_PLAGUE);
+            if (pDoor)
+            {
+                switch (uiData)
+                {
+                    case IN_PROGRESS:
+                    case SPECIAL:
+                    {
+                        // Close door if it's open
+                        if (pDoor->getLootState() != GO_ACTIVATED)
+                            DoUseDoorOrButton(GO_ORANGE_PLAGUE);
+                        break;
+                    }
+                    case NOT_STARTED:
+                    case FAIL:
+                    case DONE:
+                    {
+                        // Open door if it's closed
+                        if (pDoor->getLootState() != GO_READY)
+                            DoUseDoorOrButton(GO_ORANGE_PLAGUE);
+                        break;
+                    }
+                    default: break;
+                }
+            }
             break;
+         }
          case TYPE_ROTFACE:
             m_auiEncounter[TYPE_ROTFACE] = uiData;
 
