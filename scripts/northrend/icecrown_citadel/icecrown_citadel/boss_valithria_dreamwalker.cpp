@@ -676,7 +676,10 @@ CreatureAI* GetAI_mob_gluttonous_abomination(Creature *pCreature)
 // Blistering Zombie
 struct MANGOS_DLL_DECL mob_blistering_zombieAI : public ScriptedAI
 {
-    mob_blistering_zombieAI(Creature *pCreature) : ScriptedAI(pCreature){}
+    mob_blistering_zombieAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
 
     bool m_bHasDied;
 
