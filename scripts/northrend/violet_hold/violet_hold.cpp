@@ -295,7 +295,7 @@ struct MANGOS_DLL_DECL mob_vh_dragonsAI : public ScriptedAI
         //Corrupt Seal
 
         if(Creature *pDoorSeal2 = GetClosestCreatureWithEntry(m_creature, NPC_DOOR_SEAL, 150.0f)){
-            if(m_creature->IsWithinDist(pDoorSeal2, 27.0f, false) && !IsInCombat)
+            if(m_creature->IsWithinDist(pDoorSeal2, 13.0f, false) && !IsInCombat)
             {
                 IsWalking = false;
                 WayPointList.clear();
