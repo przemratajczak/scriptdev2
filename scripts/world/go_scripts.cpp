@@ -818,6 +818,33 @@ bool GOUse_go_cage_door(Player* pPlayer, GameObject* pGo)
     }
     return false;
 };
+
+/*#####
+## go_rusty_cage
+#####*/
+
+enum
+{
+    QUEST_THEY_TOOK_OUR_MEN = 12843,
+    NPC_GOBLIN_PRISONER = 29466,
+    SAY_GOBLIN_THANKS_1 = -1999778,
+    SAY_GOBLIN_THANKS_2 = -1999777
+};
+
+bool GOUse_go_rusty_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_THEY_TOOK_OUR_MEN) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature *pGoblin = GetClosestCreatureWithEntry(pPlayer, NPC_GOBLIN_PRISONER, INTERACTION_DISTANCE))
+        {
+            pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISONER, pGoblin->GetObjectGuid());
+            DoScriptText(urand(0, 1) ? SAY_GOBLIN_THANKS_1 : SAY_GOBLIN_THANKS_2, pGoblin);
+            pGoblin->CastSpell(pGoblin, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
 void AddSC_go_scripts()
 {
     Script* pNewScript;
@@ -970,5 +997,10 @@ void AddSC_go_scripts()
     pNewScript = new Script;
     pNewScript->Name = "go_cage_door";
     pNewScript->pGOUse = &GOUse_go_cage_door;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_rusty_cage";
+    pNewScript->pGOUse = &GOUse_go_rusty_cage;
     pNewScript->RegisterSelf();
 }
