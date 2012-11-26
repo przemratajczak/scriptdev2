@@ -91,7 +91,7 @@ void instance_gundrak::OnPlayerEnter(Player* pPlayer)
                     break;
                 }
 
-    if (Creature* pColossus = GetSingleCreatureFromStorage(NPC_COLOSSUS))
+    /*if (Creature* pColossus = GetSingleCreatureFromStorage(NPC_COLOSSUS))
         for (GuidList::const_iterator itr = m_lLivingMojoGuids.begin(); itr != m_lLivingMojoGuids.end(); ++itr)
             if (Creature* pMojo = instance->GetCreature(*itr))
                 if (pMojo->isAlive())
@@ -99,7 +99,7 @@ void instance_gundrak::OnPlayerEnter(Player* pPlayer)
                     pColossus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pColossus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;
-                }
+                }*/
 }    
 
 void instance_gundrak::OnObjectCreate(GameObject* pGo)
