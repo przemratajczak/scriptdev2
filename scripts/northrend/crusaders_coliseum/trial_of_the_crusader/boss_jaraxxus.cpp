@@ -142,6 +142,11 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public BSWScriptedAI
             m_pInstance->SetData(TYPE_JARAXXUS, DONE);
             m_pInstance->SetData(TYPE_EVENT,2000);
             m_pInstance->SetData(TYPE_STAGE,0);
+
+        if(Creature* pCreature = GetClosestCreatureWithEntry(m_creature, 35458, 300.0f) )
+            if(pCreature->isAlive())            
+                pCreature->DealDamage(pCreature, pCreature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            
     }
 
     void Aggro(Unit* pWho)
