@@ -1252,7 +1252,7 @@ Kill(Leryssa);
         if (Unit* Arlos = m_creature->GetMap()->GetCreature(m_uiArlosGuid))
             Kill(Arlos);
         if (Unit* Valanar = m_creature->GetMap()->GetCreature(m_uiValanarGuid))
-            Valanar->RemoveFromWorld();
+            Valanar->RemoveFromWorld(true);
     }
 
     void EnterEvadeMode()

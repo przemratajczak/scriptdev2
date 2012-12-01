@@ -593,7 +593,7 @@ bool GOUse_skadi_harpoon(Player* pPlayer, GameObject* pGo)
        if (Item* pItem = pPlayer->StoreNewItemInInventorySlot(ITEM_HARPOON, 1)) 
        {
            pPlayer->SendNewItem(pItem, 1, true, false);
-           pGo->RemoveFromWorld();
+           pGo->RemoveFromWorld(true);
        }
 
     return true;
