@@ -2948,7 +2948,6 @@ bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, 
     {
         if (((Player*)pCaster)->GetQuestStatus(QUEST_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
-            pCreatureTarget->GetMotionMaster()->MoveFollow(pCaster, 5.0f, urand(1,6));
             urand(0,2) ? pCreatureTarget->MonsterSay(textOnQuest[urand(0,2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textOnQuest[4], LANG_UNIVERSAL);
             float x, y, z;
             pCreatureTarget->GetPosition(x, y, z);
