@@ -36,7 +36,7 @@ go_scourge_cage
 npc_beryl_sorcerer
 npc_seaforium_depth_charge
 npc_jenny
-go_winterfin_tadpol_cage
+npc_winterfin_tadpol
 EndContentData */
 
 #include "precompiled.h"
@@ -2914,87 +2914,58 @@ CreatureAI* GetAI_npc_jenny(Creature* pCreature)
 }
 
 /*#####
-## go_winterfin_tadpol_cage
+## npc_winterfin_tadpole
 #####*/
+
 enum
 {
-    QUEST_OH_NOES_THE_TADPOLES = 11560,
-    NPC_WINTERFIN_TADPOLE =  25201,
-
-    SAY_ON_QUEST1 = -1999950,
-    SAY_ON_QUEST2 = -1999951,
-    SAY_ON_QUEST3 = -1999952,
-    SAY_ON_QUEST4 = -1999953,
-    SAY_ON_QUEST5 = -1999954,
-
-    SAY_NOT_ON_QUEST1 = -1999955,
-    SAY_NOT_ON_QUEST2 = -1999956,
-    SAY_NOT_ON_QUEST3 = -1999957,
-    SAY_NOT_ON_QUEST4 = -1999958,
-    SAY_NOT_ON_QUEST5 = -1999959, //$R
+    QUEST_TADPOLES              = 11560,
+    SPELL_DUMMY_TADPOLE_CAGE    = 45279,
+    NPC_TADPOLE                 = 25201
 };
 
-bool GOHello_go_tadpole_cage(Player* pPlayer, GameObject* pGo)
+const int32 textNotOnQuest[5] =
 {
-    Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_WINTERFIN_TADPOLE, INTERACTION_DISTANCE);
-    if(pCreature)
+    -1999959, 
+    -1999956,
+    -1999955,
+    -1999958,
+    -1999957
+};
+
+const int32 textOnQuest[5] =
+{
+   -1999954,
+   -1999953,
+   -1999952,
+   -1999951,
+   -1999950
+};
+
+bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
+{
+    if (uiSpellId == SPELL_DUMMY_TADPOLE_CAGE && pCreatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE && pCaster->GetTypeId() == TYPEID_PLAYER)
     {
-        // if player has this quest than creature says random SAY_ON_QUEST
-        if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
+        if (((Player*)pCaster)->GetQuestStatus(QUEST_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
-            pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, pCreature->GetObjectGuid());
-            switch(urand(0,3))
-            {
-                case 0 :
-                    if(pPlayer->getGender() == 0)
-                    {
-                        DoScriptText(SAY_ON_QUEST1, pCreature);
-                    }
-                    else
-                    {
-                        DoScriptText(SAY_ON_QUEST2, pCreature);
-                    }
-                    break;
-                case 1 : DoScriptText(SAY_ON_QUEST3, pCreature); break;
-                case 2 : DoScriptText(SAY_ON_QUEST4, pCreature); break; 
-                case 3 : DoScriptText(SAY_ON_QUEST5, pCreature); break;
-            }
-
-            //creature runs with the player for a while
-            pCreature->ForcedDespawn(50000);
-            uint8 degrees = urand(-90,90);
-
-            if(degrees < 0)
-            {
-                degrees = 360 + degrees;
-            }
-
-            pCreature->GetMotionMaster()->MoveFollow(pPlayer,2,degrees);   
+            pCreatureTarget->GetMotionMaster()->MoveFollow(pCaster, 5.0f, urand(1,6));
+            urand(0,2) ? pCreatureTarget->MonsterSay(textOnQuest[urand(0,2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textOnQuest[4], LANG_UNIVERSAL);
+            float x, y, z;
+            pCreatureTarget->GetPosition(x, y, z);
+            ((Player*)pCaster)->KilledMonsterCredit(NPC_TADPOLE, pCreatureTarget->GetObjectGuid());
+            pCreatureTarget->ForcedDespawn();
+            if (Creature* pNewTadpole = pCaster->SummonCreature(NPC_TADPOLE, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 120000))
+                pNewTadpole->GetMotionMaster()->MoveFollow(pCaster, 2.5f, 0.1*(rand()%30));
         }
-        //if player don't have this quest than creature will say random SAY_NOT_ON_QUEST
         else
         {
-            switch(urand(0,3))
-            {
-
-                case 0 : DoScriptText(SAY_NOT_ON_QUEST1, pCreature); break;
-                case 1 : DoScriptText(SAY_NOT_ON_QUEST2, pCreature); break;
-                case 2 :
-                    if(pPlayer->getGender() == 0)
-                    {
-                          DoScriptText(SAY_NOT_ON_QUEST3, pCreature);
-                    }
-                    else
-                    {
-                      DoScriptText(SAY_NOT_ON_QUEST4, pCreature);
-                    }
-                    break;
-                case 3 : DoScriptText(SAY_NOT_ON_QUEST5, pCreature); break; //$R!
-            }
+            urand(0,2) ? pCreatureTarget->MonsterSay(textNotOnQuest[urand(0, 2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textNotOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textNotOnQuest[4], LANG_UNIVERSAL);
+            pCreatureTarget->ForcedDespawn(10000);
         }
     }
+
     return false;
-};
+}
 
 void AddSC_borean_tundra()
 {
@@ -3134,7 +3105,7 @@ void AddSC_borean_tundra()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "go_tadpole_cage";
-    pNewScript->pGOUse = &GOHello_go_tadpole_cage;
+    pNewScript->Name = "npc_winterfin_tadpole";
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_winterfin_tadpole;
     pNewScript->RegisterSelf();
 }
