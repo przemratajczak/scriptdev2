@@ -544,39 +544,44 @@ CreatureAI* GetAI_npc_harnessed_icemaw(Creature* pCreature)
 
 void AddSC_storm_peaks()
 {
-    Script* newscript;
+    Script* pNewScripr;
 
-    newscript = new Script;
-    newscript->Name = "npc_frostborn_scout";
-    newscript->pGossipHello = &GossipHello_npc_frostborn_scout;
-    newscript->pGossipSelect = &GossipSelect_npc_frostborn_scout;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_mobile_databank";
+    pNewScripr->GetAI = &GetAI_npc_mobile_databank;
+    pNewScripr->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_loklira_the_crone";
-    newscript->pGossipHello = &GossipHello_npc_loklira_the_crone;
-    newscript->pGossipSelect = &GossipSelect_npc_loklira_the_crone;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_frostborn_scout";
+    pNewScripr->pGossipHello = &GossipHello_npc_frostborn_scout;
+    pNewScripr->pGossipSelect = &GossipSelect_npc_frostborn_scout;
+    pNewScripr->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_thorim";
-    newscript->pGossipHello = &GossipHello_npc_thorim;
-    newscript->pGossipSelect = &GossipSelect_npc_thorim;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_loklira_the_crone";
+    pNewScripr->pGossipHello = &GossipHello_npc_loklira_the_crone;
+    pNewScripr->pGossipSelect = &GossipSelect_npc_loklira_the_crone;
+    pNewScripr->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_roxi_ramrocket";
-    newscript->pGossipHello = &GossipHello_npc_roxi_ramrocket;
-    newscript->pGossipSelect = &GossipSelect_npc_roxi_ramrocket;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_thorim";
+    pNewScripr->pGossipHello = &GossipHello_npc_thorim;
+    pNewScripr->pGossipSelect = &GossipSelect_npc_thorim;
+    pNewScripr->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "go_heart_of_the_storm";
-    newscript->pGOUse = &GOUse_go_heart_of_the_storm;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_roxi_ramrocket";
+    pNewScripr->pGossipHello = &GossipHello_npc_roxi_ramrocket;
+    pNewScripr->pGossipSelect = &GossipSelect_npc_roxi_ramrocket;
+    pNewScripr->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_harnessed_icemaw";
-    newscript->GetAI = &GetAI_npc_harnessed_icemaw;
-    newscript->RegisterSelf();
+    pNewScripr = new Script;
+    pNewScripr->Name = "go_heart_of_the_storm";
+    pNewScripr->pGOUse = &GOUse_go_heart_of_the_storm;
+    pNewScripr->RegisterSelf();
+
+    pNewScripr = new Script;
+    pNewScripr->Name = "npc_harnessed_icemaw";
+    pNewScripr->GetAI = &GetAI_npc_harnessed_icemaw;
+    pNewScripr->RegisterSelf();
 }
