@@ -17,11 +17,12 @@
 /* ScriptData
 SDName: Storm_Peaks
 SD%Complete: 100
-SDComment: Vendor Support (31247). Quest support: 12970, 12684, 12983
+SDComment: Vendor Support (31247). Quest support: 12986, 12970, 12684, 12983
 SDCategory: Storm Peaks
 EndScriptData */
 
 /* ContentData
+npc_mobile_databank
 npc_loklira_the_crone
 npc_roxi_ramrocket
 npc_frostborn_scout
@@ -29,6 +30,113 @@ npc_harnessed_icemaw
 EndContentData */
 
 #include "precompiled.h"
+
+/*######
+## npc_mobile_databank
+######*/
+
+enum
+{
+    TEMPLE_OF_INVENTION = 0,
+    TEMPLE_OF_WINTER    = 1,
+    TEMPLE_OF_LIFE      = 2,
+    TEMPLE_OF_ORDER     = 3,
+    MAX_TEMPLE          = 4,
+
+    SPELL_DATASCAN      = 56523
+};
+    
+int32 iScriptText[MAX_TEMPLE][5] =
+{
+    {-1799100, -1799101, -1799102, -1799103, -1799104},
+    {-1799105, -1799106, -1799107, -1799108, -1799109},
+    {-1799110, -1799111, -1799112, -1799113, -1799114},
+    {-1799115, -1799116, -1799117, -1799118, 0}
+};
+
+uint32 uiTempleBunnies[MAX_TEMPLE] = {30315, 30316, 30317, 30318};
+uint32 uiTempleSpell[MAX_TEMPLE] = {56532, 56533, 56534, 56535}; 
+
+struct MANGOS_DLL_DECL npc_mobile_databankAI : public ScriptedAI
+{
+    npc_mobile_databankAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    bool isInTemple;
+    uint32 uiTemple;
+    uint32 uiReaserchTimer;
+    uint8  uiReaserchPoint;
+    ObjectGuid cTempleBunny;
+
+    void Reset()
+    {
+        isInTemple = false;
+        uiReaserchTimer = 0;
+        uiReaserchPoint = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == FOLLOW_MOTION_TYPE ||
+            m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+            return;
+
+        if (uiReaserchTimer < uiDiff)
+        {
+            if (!isInTemple)
+            {
+                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
+                    if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+                        m_creature->GetMotionMaster()->MoveFollow(pOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                return;
+            }
+
+            if (Creature* pTempleBunny = m_creature->GetMap()->GetCreature(cTempleBunny))
+            {
+                float fX, fY, fZ;
+                pTempleBunny->GetNearPoint(pTempleBunny, fX, fY, fZ, pTempleBunny->GetObjectBoundingRadius(), frand(10, 15), frand(0, 2*M_PI_F));
+                m_creature->GetMotionMaster()->MovePoint(uiReaserchPoint, fX, fY, fZ+2);
+            }
+            uiReaserchTimer = 7000;
+        }
+        else uiReaserchTimer -= uiDiff;
+    }
+
+    void MovementInform(uint32 m_uiType, uint32 m_uiId)
+    {
+        if (m_uiType != POINT_MOTION_TYPE)
+            return;
+
+        DoScriptText(iScriptText[uiTemple][uiReaserchPoint], m_creature);
+        DoCastSpellIfCan(m_creature, SPELL_DATASCAN);
+        ++uiReaserchPoint;
+        if (uiReaserchPoint > 4 || (uiTemple == TEMPLE_OF_ORDER && uiReaserchPoint > 3)) // only 4 points in TEMPLE_OF_ORDER
+        {
+            DoCastSpellIfCan(m_creature, uiTempleSpell[uiTemple], CAST_TRIGGERED);
+            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+                m_creature->GetMotionMaster()->MoveFollow(pOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        }
+    }
+
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        if (isInTemple|| m_creature->GetDistance(pWho) > 40.0f)
+            return;
+
+        for (uint8 i = 0; i < MAX_TEMPLE; ++i)
+            if (pWho->GetEntry() == uiTempleBunnies[i])
+            {
+                isInTemple = true;
+                uiTemple = i;
+                m_creature->GetMotionMaster()->MoveIdle();
+                cTempleBunny = pWho->GetObjectGuid();
+            }
+    }
+};
+
+CreatureAI* GetAI_npc_mobile_databank(Creature* pCreature)
+{
+    return new npc_mobile_databankAI(pCreature);
+}
 
 /*######
 ## npc_frostborn_scout

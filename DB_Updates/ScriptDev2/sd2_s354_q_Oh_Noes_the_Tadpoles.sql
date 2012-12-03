@@ -22,7 +22,7 @@ VALUES ('-1999958', 'You not ma-ma!','0','0','0','0','not_on_quest_tadpol_say1')
 INSERT INTO script_texts (entry, content_default, sound, type, language, emote, comment)
 VALUES ('-1999959', 'Eww... $R!','0','0','0','0','not_on_quest_tadpol_say1');
 
-update creature_template set ScriptName = 'npc_winterfin_tadpole' where entry = 25201;
-update creature set spawntimesecs = 100 where id = 25201;
-update gameobject_template set ScriptName = '' where entry = 187373;
-update gameobject set spawntimesecs = 0 where id = 187373;
+UPDATE creature_template SET ScriptName = 'npc_winterfin_tadpole' WHERE entry = 25201;
+UPDATE creature SET spawntimesecs = 100 WHERE id = 25201;
+UPDATE gameobject_template SET ScriptName = '' WHERE entry = 187373;
+UPDATE gameobject SET spawntimesecs = 0 WHERE id = 187373;
