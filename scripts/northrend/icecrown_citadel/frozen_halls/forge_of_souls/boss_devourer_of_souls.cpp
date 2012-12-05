@@ -250,11 +250,8 @@ struct MANGOS_DLL_DECL boss_devourer_of_soulsAI : public ScriptedAI
         // Phantom Blast
         if (m_uiPhantomBlastTimer < uiDiff)
         {
-           if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-           {
-                if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_PHANTOM_BLAST : SPELL_PHANTOM_BLAST_H) == CAST_OK)
-                    m_uiPhantomBlastTimer = urand(5000, 10000); // TODO
-           }
+            if (DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_PHANTOM_BLAST : SPELL_PHANTOM_BLAST_H) == CAST_OK)
+                m_uiPhantomBlastTimer = urand(5000, 10000); // TODO
         }
         else
             m_uiPhantomBlastTimer -= uiDiff;
