@@ -564,12 +564,6 @@ static const DialogueEntry aEventDialogue[] =
     {0, 0, 0},
 };
 
-struct EventLocations
-{
-    float m_fX, m_fY, m_fZ, m_fO;
-    uint32 m_uiEntry;
-};
-
 static EventLocations aEternalBoardNPCs[MAX_DRAGONS] =
 {
     {-8029.301f, 1534.612f, 2.609f, 3.121f, NPC_FANDRAL_STAGHELM},
@@ -578,7 +572,7 @@ static EventLocations aEternalBoardNPCs[MAX_DRAGONS] =
     {-8034.106f, 1534.224f, 2.609f, 0.290f, NPC_MERITHRA_OF_THE_DREAM},
 };
 
-static EventLocations aEternalBoardMovement[] =
+static StaticLocation aEternalBoardMovement[] =
 {
     {-8159.951f, 1525.241f, 74.994f},           // 0 Flight position for dragons
     {-8106.238f, 1525.948f, 2.639f},            // 1 Anachronos gate location
@@ -682,7 +676,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                 {
                     pMerithra->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                     pMerithra->SetLevitate(true);
-                    pMerithra->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
+                    pMerithra->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].x, aEternalBoardMovement[0].y, aEternalBoardMovement[0].z);
                     pMerithra->ForcedDespawn(9000);
                 }
                 break;
@@ -700,7 +694,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                 {
                     pArygos->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                     pArygos->SetLevitate(true);
-                    pArygos->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
+                    pArygos->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].x, aEternalBoardMovement[0].y, aEternalBoardMovement[0].z);
                     pArygos->ForcedDespawn(9000);
                 }
                 break;
@@ -729,7 +723,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                 {
                     pCaelestrasz->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                     pCaelestrasz->SetLevitate(true);
-                    pCaelestrasz->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].m_fX, aEternalBoardMovement[0].m_fY, aEternalBoardMovement[0].m_fZ);
+                    pCaelestrasz->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[0].x, aEternalBoardMovement[0].y, aEternalBoardMovement[0].z);
                     pCaelestrasz->ForcedDespawn(9000);
                 }
                 if (Creature* pFandral = m_creature->GetMap()->GetCreature(m_fandralGuid))
@@ -742,14 +736,14 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
             case POINT_ID_GATE:
                 // Send Anachronos to the gate
                 m_creature->SetWalk(false);
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_GATE, aEternalBoardMovement[1].m_fX, aEternalBoardMovement[1].m_fY, aEternalBoardMovement[1].m_fZ);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_GATE, aEternalBoardMovement[1].x, aEternalBoardMovement[1].y, aEternalBoardMovement[1].z);
                 break;
             case NPC_FANDRAL_STAGHELM:
                 // Send Fandral to the gate
                 if (Creature* pFandral = m_creature->GetMap()->GetCreature(m_fandralGuid))
                 {
                     pFandral->SetWalk(false);
-                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_GATE, aEternalBoardMovement[2].m_fX, aEternalBoardMovement[2].m_fY, aEternalBoardMovement[2].m_fZ);
+                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_GATE, aEternalBoardMovement[2].x, aEternalBoardMovement[2].y, aEternalBoardMovement[2].z);
                 }
                 break;
             case SPELL_PRISMATIC_BARRIER:
@@ -792,18 +786,18 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                 if (Creature* pFandral = m_creature->GetMap()->GetCreature(m_fandralGuid))
                 {
                     pFandral->SetWalk(true);
-                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_1, aEternalBoardMovement[3].m_fX, aEternalBoardMovement[3].m_fY, aEternalBoardMovement[3].m_fZ);
+                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_1, aEternalBoardMovement[3].x, aEternalBoardMovement[3].y, aEternalBoardMovement[3].z);
                 }
                 break;
             case POINT_ID_EPILOGUE:
                 // Make Fandral leave
                 if (Creature* pFandral = m_creature->GetMap()->GetCreature(m_fandralGuid))
-                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[7].m_fX, aEternalBoardMovement[7].m_fY, aEternalBoardMovement[7].m_fZ);
+                    pFandral->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[7].x, aEternalBoardMovement[7].y, aEternalBoardMovement[7].z);
                 break;
             case POINT_ID_SCEPTER_1:
                 // Anachronos collects the pieces
                 m_creature->SetWalk(true);
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_1, aEternalBoardMovement[5].m_fX, aEternalBoardMovement[5].m_fY, aEternalBoardMovement[5].m_fZ);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_1, aEternalBoardMovement[5].x, aEternalBoardMovement[5].y, aEternalBoardMovement[5].z);
                 break;
         }
     }
@@ -832,7 +826,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
         float fX, fY, fZ;
         for (uint8 i = 0; i < MAX_CONQUERORS; ++i)
         {
-            m_creature->GetRandomPoint(aEternalBoardMovement[10].m_fX, aEternalBoardMovement[10].m_fY, aEternalBoardMovement[10].m_fZ, 20.0f, fX, fY, fZ);
+            m_creature->GetRandomPoint(aEternalBoardMovement[10].x, aEternalBoardMovement[10].y, aEternalBoardMovement[10].z, 20.0f, fX, fY, fZ);
             m_creature->SummonCreature(NPC_ANUBISATH_CONQUEROR, fX, fY, fZ, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
     }
@@ -843,20 +837,20 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
         // Summon kaldorei warriors
         for(uint8 i = 0; i < MAX_KALDOREI; ++i)
         {
-            m_creature->GetRandomPoint(aEternalBoardMovement[10].m_fX, aEternalBoardMovement[10].m_fY, aEternalBoardMovement[10].m_fZ, 10.0f, fX, fY, fZ);
+            m_creature->GetRandomPoint(aEternalBoardMovement[10].x, aEternalBoardMovement[10].y, aEternalBoardMovement[10].z, 10.0f, fX, fY, fZ);
             m_creature->SummonCreature(NPC_KALDOREI_INFANTRY, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
 
         // Summon Qiraji warriors
         for(uint8 i = 0; i < MAX_QIRAJI; ++i)
         {
-            m_creature->GetRandomPoint(aEternalBoardMovement[10].m_fX, aEternalBoardMovement[10].m_fY, aEternalBoardMovement[10].m_fZ, 15.0f, fX, fY, fZ);
+            m_creature->GetRandomPoint(aEternalBoardMovement[10].x, aEternalBoardMovement[10].y, aEternalBoardMovement[10].z, 15.0f, fX, fY, fZ);
             m_creature->SummonCreature(NPC_QIRAJI_WASP, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-            m_creature->GetRandomPoint(aEternalBoardMovement[10].m_fX, aEternalBoardMovement[10].m_fY, aEternalBoardMovement[10].m_fZ, 15.0f, fX, fY, fZ);
+            m_creature->GetRandomPoint(aEternalBoardMovement[10].x, aEternalBoardMovement[10].y, aEternalBoardMovement[10].z, 15.0f, fX, fY, fZ);
             m_creature->SummonCreature(NPC_QIRAJI_DRONE, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-            m_creature->GetRandomPoint(aEternalBoardMovement[10].m_fX, aEternalBoardMovement[10].m_fY, aEternalBoardMovement[10].m_fZ, 15.0f, fX, fY, fZ);
+            m_creature->GetRandomPoint(aEternalBoardMovement[10].x, aEternalBoardMovement[10].y, aEternalBoardMovement[10].z, 15.0f, fX, fY, fZ);
             m_creature->SummonCreature(NPC_QIRAJI_TANK, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
         }
     }
@@ -949,7 +943,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                     DoUnsummonArmy();
                     break;
                 case POINT_ID_SCEPTER_1:
-                    pSummoned->GetMotionMaster()->MovePoint(POINT_ID_EPILOGUE, aEternalBoardMovement[4].m_fX, aEternalBoardMovement[4].m_fY, aEternalBoardMovement[4].m_fZ);
+                    pSummoned->GetMotionMaster()->MovePoint(POINT_ID_EPILOGUE, aEternalBoardMovement[4].x, aEternalBoardMovement[4].y, aEternalBoardMovement[4].z);
                     break;
                 case POINT_ID_EXIT:
                     pSummoned->ForcedDespawn();
@@ -987,7 +981,7 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                         break;
                     case 1:
                         // Do the epilogue movement
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_2, aEternalBoardMovement[6].m_fX, aEternalBoardMovement[6].m_fY, aEternalBoardMovement[6].m_fZ);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_SCEPTER_2, aEternalBoardMovement[6].x, aEternalBoardMovement[6].y, aEternalBoardMovement[6].z);
                         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                         m_uiEventTimer = 0;
                         break;
@@ -1001,14 +995,14 @@ struct MANGOS_DLL_DECL npc_anachronos_the_ancientAI : public ScriptedAI, private
                     case 3:
                         // Move to exit
                         m_creature->SetWalk(false);
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[8].m_fX, aEternalBoardMovement[8].m_fY, aEternalBoardMovement[8].m_fZ);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_EXIT, aEternalBoardMovement[8].x, aEternalBoardMovement[8].y, aEternalBoardMovement[8].z);
                         m_uiEventTimer = 0;
                         break;
                     case 4:
                         // Take off and fly
                         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                         m_creature->SetLevitate(true);
-                        m_creature->GetMotionMaster()->MovePoint(0, aEternalBoardMovement[9].m_fX, aEternalBoardMovement[9].m_fY, aEternalBoardMovement[9].m_fZ);
+                        m_creature->GetMotionMaster()->MovePoint(0, aEternalBoardMovement[9].x, aEternalBoardMovement[9].y, aEternalBoardMovement[9].z);
                         m_creature->ForcedDespawn(10000);
                         m_uiEventTimer = 0;
                         break;

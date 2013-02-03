@@ -88,13 +88,13 @@ enum
 #define SUMMON_Z        104.74f
 #define SUMMON_O        4.76f
 
-struct Location
+struct LocationWP
 {
     float x, y, z;
     uint32 id;
 };
 
-struct Location SkadiSummonMove[]=
+struct LocationWP SkadiSummonMove[]=
 {
     {481.257f, -507.116f, 104.723f}, 
     {478.695f, -511.605f, 104.723f}, 

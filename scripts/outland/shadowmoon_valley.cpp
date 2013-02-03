@@ -1102,15 +1102,8 @@ static TorlothCinematic TorlothAnim[]=
     {0, TORLOTH, 0}
 };
 
-struct Location
-{
-    float fLocX;
-    float fLocY;
-    float fLocZ;
-    float fOrient;
-};
 
-static Location SpawnLocation[]=
+static const StaticLocation SpawnLocations[]=
 {
     {-4615.8556f, 1342.2532f, 139.9f, 1.612f},              // Illidari Soldier
     {-4598.9365f, 1377.3182f, 139.9f, 3.917f},              // Illidari Soldier
@@ -1363,10 +1356,10 @@ struct MANGOS_DLL_DECL npc_lord_illidan_stormrageAI : public Scripted_NoMovement
         for(uint8 i = 0; i < uiCount; ++i)
         {
             float fLocX, fLocY, fLocZ, fOrient;
-            fLocX = SpawnLocation[uiLocIndex + i].fLocX;
-            fLocY = SpawnLocation[uiLocIndex + i].fLocY;
-            fLocZ = SpawnLocation[uiLocIndex + i].fLocZ;
-            fOrient = SpawnLocation[uiLocIndex + i].fOrient;
+            fLocX = SpawnLocations[uiLocIndex + i].x;
+            fLocY = SpawnLocations[uiLocIndex + i].y;
+            fLocZ = SpawnLocations[uiLocIndex + i].z;
+            fOrient = SpawnLocations[uiLocIndex + i].o;
 
             if (Creature* pSpawn = m_creature->SummonCreature(WavesInfo[m_uiWaveCount].uiCreatureId, fLocX, fLocY, fLocZ, fOrient, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
             {
@@ -1781,12 +1774,7 @@ static const DialogueEntry aOutroDialogue[] =
     {0, 0, 0},
 };
 
-struct EventLocations
-{
-    float m_fX, m_fY, m_fZ, m_fO;
-};
-
-const static EventLocations aDamnationLocations[] =
+const static StaticLocation aDamnationLocations[] =
 {
     {-3605.09f, 1885.47f, 47.24f, 1.81f},      // 0 fire spirit summon loc
     {-3600.68f, 1886.58f, 47.24f, 1.81f},      // 1 earth spirit summon loc
@@ -1837,7 +1825,7 @@ struct MANGOS_DLL_DECL npc_spawned_oronok_tornheartAI : public ScriptedAI, priva
             case NPC_CYRUKH_THE_FIRELORD:
                 // Set them in motion
                 m_creature->SetWalk(false);
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_ATTACK_READY, aDamnationLocations[4].m_fX, aDamnationLocations[4].m_fY, aDamnationLocations[4].m_fZ);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_ATTACK_READY, aDamnationLocations[4].x, aDamnationLocations[4].y, aDamnationLocations[4].z);
                 if (Creature* pBorak = GetClosestCreatureWithEntry(m_creature, NPC_BORAK_SON_OF_ORONOK, 10.0f))
                 {
                     m_borakGuid = pBorak->GetObjectGuid();
@@ -1858,10 +1846,10 @@ struct MANGOS_DLL_DECL npc_spawned_oronok_tornheartAI : public ScriptedAI, priva
                 break;
             case NPC_REDEEMED_SPIRIT_OF_EARTH:
                 m_creature->SetFacingTo(4.9f);
-                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_FIRE, aDamnationLocations[0].m_fX, aDamnationLocations[0].m_fY, aDamnationLocations[0].m_fZ, aDamnationLocations[0].m_fO, TEMPSUMMON_TIMED_DESPAWN, 32000);
-                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_EARTH, aDamnationLocations[1].m_fX, aDamnationLocations[1].m_fY, aDamnationLocations[1].m_fZ, aDamnationLocations[1].m_fO, TEMPSUMMON_TIMED_DESPAWN, 32000);
-                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_WATER, aDamnationLocations[2].m_fX, aDamnationLocations[2].m_fY, aDamnationLocations[2].m_fZ, aDamnationLocations[2].m_fO, TEMPSUMMON_TIMED_DESPAWN, 32000);
-                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_AIR, aDamnationLocations[3].m_fX, aDamnationLocations[3].m_fY, aDamnationLocations[3].m_fZ, aDamnationLocations[3].m_fO, TEMPSUMMON_TIMED_DESPAWN, 32000);
+                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_FIRE, aDamnationLocations[0].x, aDamnationLocations[0].y, aDamnationLocations[0].z, aDamnationLocations[0].o, TEMPSUMMON_TIMED_DESPAWN, 32000);
+                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_EARTH, aDamnationLocations[1].x, aDamnationLocations[1].y, aDamnationLocations[1].z, aDamnationLocations[1].o, TEMPSUMMON_TIMED_DESPAWN, 32000);
+                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_WATER, aDamnationLocations[2].x, aDamnationLocations[2].y, aDamnationLocations[2].z, aDamnationLocations[2].o, TEMPSUMMON_TIMED_DESPAWN, 32000);
+                m_creature->SummonCreature(NPC_REDEEMED_SPIRIT_OF_AIR, aDamnationLocations[3].x, aDamnationLocations[3].y, aDamnationLocations[3].z, aDamnationLocations[3].o, TEMPSUMMON_TIMED_DESPAWN, 32000);
                 break;
             case SAY_ORONOK_EPILOGUE_7:
                 if (Creature* pTorlok = m_creature->GetMap()->GetCreature(m_torlokGuid))
@@ -1941,7 +1929,7 @@ struct MANGOS_DLL_DECL npc_spawned_oronok_tornheartAI : public ScriptedAI, priva
         if (Creature* pCyrukh = m_creature->GetMap()->GetCreature(m_cyrukhGuid))
         {
             if (!pCyrukh->isAlive())
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_EPILOGUE, aDamnationLocations[6].m_fX, aDamnationLocations[6].m_fY, aDamnationLocations[6].m_fZ);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_EPILOGUE, aDamnationLocations[6].x, aDamnationLocations[6].y, aDamnationLocations[6].z);
         }
         else
         {
@@ -2046,7 +2034,7 @@ bool GossipSelect_npc_spawned_oronok_tornheart(Player* pPlayer, Creature* pCreat
     {
         // Note: this movement expects MMaps.
         DoScriptText(SAY_ORONOK_ELEMENTS, pCreature);
-        pCreature->GetMotionMaster()->MovePoint(POINT_ID_ELEMENTS, aDamnationLocations[5].m_fX, aDamnationLocations[5].m_fY, aDamnationLocations[5].m_fZ);
+        pCreature->GetMotionMaster()->MovePoint(POINT_ID_ELEMENTS, aDamnationLocations[5].x, aDamnationLocations[5].y, aDamnationLocations[5].z);
         pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         pPlayer->CLOSE_GOSSIP_MENU();

@@ -97,12 +97,12 @@ enum
     NPC_DARK_IRON_DWARF   = 2149
 };
 
-struct Location
+struct LocationWP
 {
     float m_fX, m_fY, m_fZ, m_fO;
 };
 
-static const Location m_afAmbushSpawn[] =
+static const LocationWP m_afAmbushSpawn[] =
 {
     {-5691.93f,-3745.91f,319.159f, 2.21f},
     {-5706.98f,-3745.39f,318.728f, 1.04f}

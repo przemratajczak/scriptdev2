@@ -56,12 +56,7 @@ enum
     POINT_DOWNSTAIRS    = 1
 };
 
-struct SpawnLocations
-{
-    float fX, fY, fZ, fAng;
-};
-
-static SpawnLocations aSpirits[]=
+static StaticLocation aSpirits[]=
 {
     {-12150.9f, -1956.24f, 133.407f, 2.57835f},
     {-12157.1f, -1972.78f, 133.947f, 2.64903f},
@@ -84,7 +79,7 @@ static SpawnLocations aSpirits[]=
     {-12266.1f, -1940.72f, 132.606f, 0.70910f}
 };
 
-static SpawnLocations aMandokirDownstairsPos = {-12196.30f, -1948.37f, 130.31f, 3.77f};
+static StaticLocation aMandokirDownstairsPos = {-12196.30f, -1948.37f, 130.31f, 3.77f};
 
 struct MANGOS_DLL_DECL boss_mandokirAI : public ScriptedAI
 {
@@ -190,10 +185,10 @@ struct MANGOS_DLL_DECL boss_mandokirAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
-        uint32 uiCount = sizeof(aSpirits)/sizeof(SpawnLocations);
+        uint32 uiCount = sizeof(aSpirits)/sizeof(StaticLocation);
 
         for(uint8 i = 0; i < uiCount; ++i)
-            m_creature->SummonCreature(NPC_CHAINED_SPIRIT, aSpirits[i].fX, aSpirits[i].fY, aSpirits[i].fZ, aSpirits[i].fAng, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            m_creature->SummonCreature(NPC_CHAINED_SPIRIT, aSpirits[i].x, aSpirits[i].y, aSpirits[i].z, aSpirits[i].o, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
         //At combat start Mandokir is mounted so we must unmount it first
         m_creature->Unmount();
@@ -257,7 +252,7 @@ struct MANGOS_DLL_DECL boss_mandokirAI : public ScriptedAI
         {
             m_bMandokirDownstairs = true;
             m_creature->SetWalk(false);
-            m_creature->GetMotionMaster()->MovePoint(POINT_DOWNSTAIRS, aMandokirDownstairsPos.fX, aMandokirDownstairsPos.fY, aMandokirDownstairsPos.fZ);
+            m_creature->GetMotionMaster()->MovePoint(POINT_DOWNSTAIRS, aMandokirDownstairsPos.x, aMandokirDownstairsPos.y, aMandokirDownstairsPos.z);
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())

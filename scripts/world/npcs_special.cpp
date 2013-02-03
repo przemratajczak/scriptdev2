@@ -422,12 +422,7 @@ enum
     HORDE_COORDS                = 6
 };
 
-struct Location
-{
-    float x, y, z, o;
-};
-
-static Location AllianceCoords[]=
+static StaticLocation AllianceCoords[]=
 {
     {-3757.38f, -4533.05f, 14.16f, 3.62f},                  // Top-far-right bunk as seen from entrance
     {-3754.36f, -4539.13f, 14.16f, 5.13f},                  // Top-far-left bunk
@@ -443,7 +438,7 @@ static Location AllianceCoords[]=
 #define A_RUNTOY -4531.52f
 #define A_RUNTOZ 11.91f
 
-static Location HordeCoords[]=
+static StaticLocation HordeCoords[]=
 {
     {-1013.75f, -3492.59f, 62.62f, 4.34f},                  // Left, Behind
     {-1017.72f, -3490.92f, 62.62f, 4.34f},                  // Right, Behind
@@ -490,7 +485,7 @@ struct MANGOS_DLL_DECL npc_doctorAI : public ScriptedAI
     bool Event;
 
     GuidList Patients;
-    std::vector<Location*> Coordinates;
+    std::vector<StaticLocation*> Coordinates;
 
     void Reset()
     {
@@ -510,8 +505,8 @@ struct MANGOS_DLL_DECL npc_doctorAI : public ScriptedAI
     }
 
     void BeginEvent(Player* pPlayer);
-    void PatientDied(Location* Point);
-    void PatientSaved(Creature* soldier, Player* pPlayer, Location* Point);
+    void PatientDied(StaticLocation* Point);
+    void PatientSaved(Creature* soldier, Player* pPlayer, StaticLocation* Point);
     void UpdateAI(const uint32 diff);
 };
 
@@ -524,7 +519,7 @@ struct MANGOS_DLL_DECL npc_injured_patientAI : public ScriptedAI
     npc_injured_patientAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     ObjectGuid m_doctorGuid;
-    Location* Coord;
+    StaticLocation* Coord;
 
     void Reset()
     {
@@ -667,7 +662,7 @@ void npc_doctorAI::BeginEvent(Player* pPlayer)
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 }
 
-void npc_doctorAI::PatientDied(Location* Point)
+void npc_doctorAI::PatientDied(StaticLocation* Point)
 {
     Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid);
 
@@ -693,7 +688,7 @@ void npc_doctorAI::PatientDied(Location* Point)
         Reset();
 }
 
-void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Point)
+void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, StaticLocation* Point)
 {
     if (pPlayer && m_playerGuid == pPlayer->GetObjectGuid())
     {
@@ -736,12 +731,12 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
         if (SummonPatient_Timer < diff)
         {
             Creature* Patient = NULL;
-            Location* Point = NULL;
+            StaticLocation* Point = NULL;
 
             if (Coordinates.empty())
                 return;
 
-            std::vector<Location*>::iterator itr = Coordinates.begin()+rand()%Coordinates.size();
+            std::vector<StaticLocation*>::iterator itr = Coordinates.begin()+rand()%Coordinates.size();
             uint32 patientEntry = 0;
 
             switch(m_creature->GetEntry())
