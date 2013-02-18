@@ -70,10 +70,6 @@ enum Phase
     PHASE_DRAGON    = 2,
 };
 
-struct SpawnLocation
-{
-    float m_fX, m_fY, m_fZ;
-};
 
 static const SpawnLocation aNefarianLocs[5] =
 {

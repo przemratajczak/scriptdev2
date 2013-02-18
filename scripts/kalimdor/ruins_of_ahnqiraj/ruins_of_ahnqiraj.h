@@ -38,12 +38,6 @@ enum
     SAY_OSSIRIAN_INTRO          = -1509022                  // Yelled after Kurinnax dies
 };
 
-struct SpawnLocation
-{
-    uint32 m_uiEntry;
-    float m_fX, m_fY, m_fZ, m_fO;
-};
-
 static  const SpawnLocation aAndorovSpawnLocs[MAX_HELPERS] =
 {
     {NPC_GENERAL_ANDOROV, -8660.4f,  1510.29f, 32.449f,  2.2184f},

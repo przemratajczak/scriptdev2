@@ -56,10 +56,6 @@ enum
     SAY_GANDLING_SPAWN      = -1289000,
 };
 
-struct SpawnLocation
-{
-    float m_fX, m_fY, m_fZ, m_fO;
-};
 
 static const SpawnLocation aGandlingSpawnLocs[1] =
 {
