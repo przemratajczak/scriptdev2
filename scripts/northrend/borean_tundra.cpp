@@ -323,7 +323,7 @@ bool GossipSelect_npc_iruk(Player* pPlayer, Creature* pCreature, uint32 uiSender
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->CastSpell(pPlayer,SPELL_CREATE_TOTEM,true);
+        pPlayer->CastSpell(pPlayer, SPELL_CREATE_TOTEM, true);
     }
 
     return true;
@@ -338,7 +338,7 @@ bool GossipSelect_npc_iruk(Player* pPlayer, Creature* pCreature, uint32 uiSender
 
 enum
 {
-    QUEST_CHECK_IN_WITH_BIXIE       = 11692,
+    QUEST_CHECK_IN_WITH_BIXIE       = 11692, 
     SPELL_FIZZCRANK_AIRSTRIP        = 51446
 };
 
@@ -391,14 +391,14 @@ struct MANGOS_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
 
     uint8 m_uiPhase;
     uint32 m_uiPhaseTimer;
-    ObjectGuid m_playerGuid;
+    ObjectGuid m_PlayerGuidGuid;
     ObjectGuid m_trapGuid;
 
     void Reset()
     {
         m_uiPhase = 0;
         m_uiPhaseTimer = 0;
-        m_playerGuid.Clear();
+        m_PlayerGuidGuid.Clear();
         m_trapGuid.Clear();
     }
 
@@ -406,7 +406,7 @@ struct MANGOS_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
     {
         m_uiPhase = 1;
         m_uiPhaseTimer = 3000;
-        m_playerGuid = pPlayer->GetObjectGuid();
+        m_PlayerGuidGuid = pPlayer->GetObjectGuid();
         m_trapGuid = pTrap->GetObjectGuid();
 
         switch (urand(0, 3))
@@ -436,10 +436,10 @@ struct MANGOS_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
                     case 2:
                         if (GameObject* pTrap = m_creature->GetMap()->GetGameObject(m_trapGuid))
                         {
-                            if (pTrap->isSpawned())                            
+                            if (pTrap->isSpawned())
                                 pTrap->Use(m_creature);
 
-                            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_playerGuid))
+                            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_PlayerGuidGuid))
                             {
                                 if (pPlayer->isAlive())
                                     pPlayer->KilledMonsterCredit(m_creature->GetEntry());
@@ -476,7 +476,7 @@ CreatureAI* GetAI_npc_nesingwary_trapper(Creature* pCreature)
 enum
 {
     SPELL_THROW_WOLF_BAIT           = 53326,
-    SPELL_PLACE_WOLF_BAIT           = 46072,                // doesn't appear to be used for anything
+    SPELL_PLACE_WOLF_BAIT           = 46072,         // doesn't appear to be used for anything
     SPELL_HAS_EATEN                 = 46073,
     SPELL_SUMMON_DROPPINGS          = 46075,
 
@@ -977,7 +977,7 @@ struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
                 uiHarpoonerGuid = pCaster->GetObjectGuid();
                 DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
             }
-            m_creature->Attack(pCaster,true);
+            m_creature->Attack(pCaster, true);
             bWithRedDragonBlood = true;
      }
 
@@ -1027,7 +1027,7 @@ struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
 
             if (SPELL_NETHERBREATH_Timer < uidiff)
             {
-                DoCastSpellIfCan(m_creature->getVictim(),SPELL_NETHERBREATH);
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_NETHERBREATH);
                 SPELL_NETHERBREATH_Timer = 4600;
             }
             else
@@ -1035,7 +1035,7 @@ struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
 
             if (SPELL_INTANGIBLE_PRESENCE_Timer < uidiff)
             {
-                DoCastSpellIfCan(m_creature,SPELL_INTANGIBLE_PRESENCE);
+                DoCastSpellIfCan(m_creature, SPELL_INTANGIBLE_PRESENCE);
                 SPELL_INTANGIBLE_PRESENCE_Timer = 16600;
              }
              else
@@ -1093,7 +1093,8 @@ enum eBerylSorcerer
 
 struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
 {
-    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) {
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature)
+    {
         m_uiNormalFaction = pCreature->getFaction();
         Reset();
     }
@@ -1142,7 +1143,7 @@ struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
             {
                 if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGuid))
                 {
-                    pChainer->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER,m_creature->GetObjectGuid());
+                    pChainer->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, m_creature->GetObjectGuid());
                     SetFollowComplete();
                     m_creature->ForcedDespawn(1000);
                 }
@@ -1679,7 +1680,7 @@ struct MANGOS_DLL_DECL npc_mootoo_the_youngerAI : public npc_escortAI
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                 break;
             case 20:
-                m_creature->SetPhaseMask(1,true);
+                m_creature->SetPhaseMask(1, true);
                 DoScriptText(SAY_5, m_creature);
                 m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                 if (pPlayer)
@@ -1698,8 +1699,8 @@ bool QuestAccept_npc_mootoo_the_younger(Player* pPlayer, Creature* pCreature, co
         pCreature->setFaction((pPlayer->GetTeam() == ALLIANCE) ? FACTION_ESCORT_A_PASSIVE : FACTION_ESCORT_H_PASSIVE);
         DoScriptText(SAY_1, pCreature);
 
-		if (npc_mootoo_the_youngerAI* pEscortAI = dynamic_cast<npc_mootoo_the_youngerAI*>(pCreature->AI()))
-            	pEscortAI->Start(false, pPlayer, pQuest, true);
+        if (npc_mootoo_the_youngerAI* pEscortAI = dynamic_cast<npc_mootoo_the_youngerAI*>(pCreature->AI()))
+                pEscortAI->Start(false, pPlayer, pQuest, true);
 
     }
     return true;
@@ -1721,10 +1722,10 @@ enum Bonker_Togglevolt
 };
 enum Bonker_Togglevolt_Texts
 {
-	SAY_bonker_1					= -1700001,
-    SAY_bonker_2                   	= -1700002,
+    SAY_bonker_1                    = -1700001,
+    SAY_bonker_2                    = -1700002,
     SAY_bonker_3                    = -1700003
-	
+    
 };
 
 struct MANGOS_DLL_DECL npc_bonker_togglevoltAI : public npc_escortAI
@@ -1748,14 +1749,14 @@ struct MANGOS_DLL_DECL npc_bonker_togglevoltAI : public npc_escortAI
 
             switch(uiPointId)
             {
-			case 1:
-				DoScriptText(SAY_bonker_1,m_creature);
-				break;
-			case 3:
-				DoScriptText(SAY_bonker_2,m_creature);
-				break;
+            case 1:
+                DoScriptText(SAY_bonker_1, m_creature);
+                break;
+            case 3:
+                DoScriptText(SAY_bonker_2, m_creature);
+                break;
             case 29:
-				DoScriptText(SAY_bonker_3,m_creature);
+                DoScriptText(SAY_bonker_3, m_creature);
                 if (pPlayer)
                     pPlayer->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, m_creature);
                 break;
@@ -1770,11 +1771,11 @@ bool QuestAccept_npc_bonker_togglevolt(Player* pPlayer, Creature* pCreature, con
         if (pQuest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-	        pCreature->setFaction((pPlayer->GetTeam() == ALLIANCE) ? FACTION_ESCORT_A_PASSIVE : FACTION_ESCORT_H_PASSIVE);            
-	        DoScriptText(SAY_bonker_2, pCreature, pPlayer);
+            pCreature->setFaction((pPlayer->GetTeam() == ALLIANCE) ? FACTION_ESCORT_A_PASSIVE : FACTION_ESCORT_H_PASSIVE);
+            DoScriptText(SAY_bonker_2, pCreature, pPlayer);
             
-			if (npc_bonker_togglevoltAI* pEscortAI = dynamic_cast<npc_bonker_togglevoltAI*>(pCreature->AI()))
-            		pEscortAI->Start(false, pPlayer, pQuest, true);
+            if (npc_bonker_togglevoltAI* pEscortAI = dynamic_cast<npc_bonker_togglevoltAI*>(pCreature->AI()))
+                    pEscortAI->Start(false, pPlayer, pQuest, true);
         }
         return true;
     }
@@ -1801,13 +1802,13 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
     uint32 uiExplosionTimer;
     void Reset()
     {
-        uiExplosionTimer = urand(5000,10000);
+        uiExplosionTimer = urand(5000, 10000);
     }
     void UpdateAI(const uint32 uiDiff)
     {
         if (uiExplosionTimer < uiDiff)
         {
-            DoCast(m_creature, SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);          
+            DoCast(m_creature, SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
             for(uint8 i = 0; i < 4; ++i)
             {
                 if(Creature* cCredit = GetClosestCreatureWithEntry(m_creature, 25402 + i, 10.0f))//25402-25405 credit markers
@@ -1815,8 +1816,8 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
                     if(Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
                     {
                         if(pPlayer->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
-                            pPlayer->KilledMonsterCredit(cCredit->GetEntry(),cCredit->GetObjectGuid());
-                    }                    
+                            pPlayer->KilledMonsterCredit(cCredit->GetEntry(), cCredit->GetObjectGuid());
+                    }
                 }
             }
             m_creature->ForcedDespawn(1000);
@@ -1893,9 +1894,9 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
         this->pCreature = pCreature;
         m_uiPhase = PHASE_TWO;
         m_uiStep = 0;
-        mortalStrikeTimer = urand(6000,11000); // initial spell cast
-        cleaveTimer = urand(7000,11000); 
-        whirlwindTimer = urand(4000, 9000); 
+        mortalStrikeTimer = urand(6000, 11000); // initial spell cast
+        cleaveTimer = urand(7000, 11000);
+        whirlwindTimer = urand(4000, 9000);
         teryfingRoarTimer = urand(15000, 23000);
     }
 
@@ -1919,10 +1920,10 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
         m_uiStep++;
     }
 
-	void Spacer()
-	{
-		m_uiStepTimer = 1000000; 
-	}
+    void Spacer()
+    {
+        m_uiStepTimer = 1000000; 
+    }
 
     void setPhase(PHASES phase, uint32 stepTimer = 0)
     {
@@ -1934,12 +1935,12 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         if(m_uiStepTimer < uiDiff)
-		{
-			if(m_uiPhase == PHASE_TWO)  
-			{
-				switch( m_uiStep) 
-				{
-					case 1:
+        {
+            if(m_uiPhase == PHASE_TWO)
+            {
+                switch( m_uiStep)
+                {
+                    case 1:
                         pCreature->SetWalk(true);
                         if((pPlayer->GetPositionX() > 3105 && pPlayer->GetPositionX() < 3144) && //only walk to player if he is in range else walk to getry
                            (pPlayer->GetPositionY() > 6536 && pPlayer->GetPositionY() < 6589) &&
@@ -1948,9 +1949,9 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                                 pPlayer->GetPositionZ());
                         else
                             pCreature->GetMotionMaster()->MovePoint(1, 3122.8056f, 6549.4526f, 79.422905f);
-                       
+
                         NextStep(35*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 2:
                         if(Creature* pVaridus = GetClosestCreatureWithEntry(m_creature, VARIDUS_ID, 100.0f)) 
@@ -1966,7 +1967,7 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                      //morphing to saurfang
 
                     case 4:
-                        DoScriptText(ENKILAH_NECROLORD_SAY1,m_creature); //surprise!!!
+                        DoScriptText(ENKILAH_NECROLORD_SAY1, m_creature); //surprise!!!
                         m_creature->HandleEmote(EMOTE_ONESHOT_SHOUT);
                         NextStep(2*IN_MILLISECONDS);
                         break;
@@ -1980,8 +1981,8 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                     case 6:
                         if(pPlayer)
                         {
-                            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);                      
-                            DoScriptText(ENKILAH_NECROLORD_SAY2,m_creature, pPlayer); //You were never alone %N!
+                            m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
+                            DoScriptText(ENKILAH_NECROLORD_SAY2, m_creature, pPlayer); //You were never alone %N!
                         }
                         NextStep(4*IN_MILLISECONDS);
                         break;
@@ -1994,19 +1995,19 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
 
                     case 8:
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                        DoScriptText(ENKILAH_NECROLORD_SAY3,m_creature); //This world you seek to...
+                        DoScriptText(ENKILAH_NECROLORD_SAY3, m_creature); //This world you seek to...
                         NextStep(3*IN_MILLISECONDS);
                         break;
 
                     case 9:
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-                        DoScriptText(ENKILAH_NECROLORD_SAY4,m_creature); //We will fight you...
+                        DoScriptText(ENKILAH_NECROLORD_SAY4, m_creature); //We will fight you...
                         NextStep(13*IN_MILLISECONDS);
                         break;
 
                     case 10:
                         m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
-                        DoScriptText(ENKILAH_NECROLORD_SAY5,m_creature); //A fool who is about to end you...
+                        DoScriptText(ENKILAH_NECROLORD_SAY5, m_creature); //A fool who is about to end you...
                         NextStep(6*IN_MILLISECONDS);
                         break;
 
@@ -2017,7 +2018,7 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                         break;
 
                     case 12:
-                        DoCastSpellIfCan(pCreature,SPELL_SAURFANG_RAGE,false);
+                        DoCastSpellIfCan(pCreature, SPELL_SAURFANG_RAGE, false);
                         NextStep(3.7*IN_MILLISECONDS);
                         break;
 
@@ -2029,9 +2030,9 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
 
                     case 14:
                         setPhase(PHASE_THREE);
-                        break;                    
-				}
-			}
+                        break;
+                }
+            }
             else if(m_uiPhase == PHASE_THREE)
             {
                 if(pVaridus) 
@@ -2046,20 +2047,20 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                 if(mortalStrikeTimer < uiDiff)
                 {
                     if(whirlwindTimer >= 18000) //if WW didn't end do...
-                        mortalStrikeTimer = whirlwindTimer - 18000 + urand(0,6000);
+                        mortalStrikeTimer = whirlwindTimer - 18000 + urand(0, 6000);
                     else
                     {
                         DoCastSpellIfCan(m_creature->getVictim(), SPELL_SAURFANG_MORTAL_STRIKE);
-                        mortalStrikeTimer = urand(6000, 12000);  
+                        mortalStrikeTimer = urand(6000, 12000);
                     }
                 }
                 else
-                    mortalStrikeTimer -= uiDiff; 
+                    mortalStrikeTimer -= uiDiff;
 
                 if(cleaveTimer < uiDiff)
                 {
-                    if(whirlwindTimer >= 18000) 
-                        cleaveTimer = whirlwindTimer - 18000 + urand(0,4000);
+                    if(whirlwindTimer >= 18000)
+                        cleaveTimer = whirlwindTimer - 18000 + urand(0, 4000);
                     else
                     {
                         DoCastSpellIfCan(m_creature->getVictim(), SPELL_SAURFANG_CLEAVE);
@@ -2067,24 +2068,24 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                     }
                 }
                 else
-                    cleaveTimer -= uiDiff; 
+                    cleaveTimer -= uiDiff;
                 
-                if(whirlwindTimer < uiDiff) 
+                if(whirlwindTimer < uiDiff)
                 {
                     DoCastSpellIfCan(m_creature->getVictim(), SPELL_SAURFANG_WHIRLWIND);
-                    whirlwindTimer = 33000;  
+                    whirlwindTimer = 33000;
                 }
                 else 
                     whirlwindTimer -= uiDiff;
-                                                    
+
                 /*if(teryfingRoarTimer < uiDiff) 
                 {
                     if(whirlwindTimer >= 18000) 
-                        teryfingRoarTimer = whirlwindTimer - 18000 + urand(0,6000);
+                        teryfingRoarTimer = whirlwindTimer - 18000 + urand(0, 6000);
                     else
                     {
                         DoCastSpellIfCan(m_creature->getVictim(), SPELL_SAURFANG_TERYFING_ROAR);
-                        teryfingRoarTimer = urand(18000, 24000);   
+                        teryfingRoarTimer = urand(18000, 24000);
                     }
                 }
                 else
@@ -2101,7 +2102,7 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                 switch(m_uiStep)
                 {
                     case 1: //Get back to talk with Getry
-                        pCreature->SetWalk(false);                      
+                        pCreature->SetWalk(false);
                         pCreature->GetMotionMaster()->MovePoint(2, 3122.8056f, 6549.4526f, 79.422905f);
                         Spacer();
                         break;
@@ -2118,7 +2119,7 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                         break;
 
                     case 4:
-                        pCreature->GetMotionMaster()->MovePoint(3, ENKILAH_NECROLORD_SPAWN_COORDINATES[0],
+                        pCreature->GetMotionMaster()->MovePoint(3, ENKILAH_NECROLORD_SPAWN_COORDINATES[0], 
                             ENKILAH_NECROLORD_SPAWN_COORDINATES[1], ENKILAH_NECROLORD_SPAWN_COORDINATES[2]); 
                         Spacer();
                         break;
@@ -2128,13 +2129,13 @@ struct npc_enkilah_necrolordAI : public ScriptedAI
                         break;
                 }
             }
-		}
-		else 
-		{
+        }
+        else 
+        {
             if((m_uiPhase == PHASE_TWO) || (m_uiPhase == PHASE_THREE) || (m_uiPhase == PHASE_FOUR))
-			    m_uiStepTimer -= uiDiff;
-		}
-	}
+                m_uiStepTimer -= uiDiff;
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_enkilah_necrolord(Creature* pCreature)
@@ -2175,9 +2176,9 @@ enum
 
 const float INFESTED_PRISONER_COORDINATES[INFESTED_PRISONER_COORDINATES_SIZE][3] =
 {
-    {3122.21f,6510.26f ,81.1079f },
-    {3116.76f,6524.07f ,80.9485f },
-    {3114.64f, 6501.5f ,81.7178f },
+    {3122.21f, 6510.26f , 81.1079f },
+    {3116.76f, 6524.07f , 80.9485f },
+    {3114.64f, 6501.5f , 81.7178f },
     {3105.6f, 6534.98f, 80.9596f },
     {3122.1f, 6518.81f, 80.8091f },
     {3112.07f, 6511.91f, 81.4951f},
@@ -2201,32 +2202,32 @@ const float INFESTED_PRISONER_COORDINATES[INFESTED_PRISONER_COORDINATES_SIZE][3]
 
 struct npc_varidus_the_flenserAI : public ScriptedAI
 {
-	uint8 m_uiStep;
-	uint8 m_uiPhase;
-	uint32 m_uiStepTimer;
+    uint8 m_uiStep;
+    uint8 m_uiPhase;
+    uint32 m_uiStepTimer;
     uint16 m_uiShadowNovaTimer;
     uint16 m_uiShieldOfSuferingTimer;
-	Player* pPlayer;
+    Player* pPlayer;
     Creature* pGetry;
     std::list<Creature*> abberationList;
 
     npc_varidus_the_flenserAI(Creature *pCreature) : ScriptedAI(pCreature) 
-	{
-		m_uiStep = 0;
-		m_uiPhase = 0;
-		m_uiStepTimer = 0;
+    {
+        m_uiStep = 0;
+        m_uiPhase = 0;
+        m_uiStepTimer = 0;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         pGetry = 0;
         m_uiShadowNovaTimer = 7000;
         m_uiShieldOfSuferingTimer = 12000;
-	}
+    }
 
     void Reset()
     {
         m_uiStep = 0;
-		m_uiPhase = 0;
-		m_uiStepTimer = 0;
-        pGetry = 0;   
+        m_uiPhase = 0;
+        m_uiStepTimer = 0;
+        pGetry = 0;
         abberationList.clear();
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
@@ -2236,20 +2237,20 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
         pPlayer->KilledMonsterCredit(VARIDUS_ID);
     }
 
-	void NextStep(uint32 Time = 0) // function for changing action steps and setting time between steps
+    void NextStep(uint32 Time = 0) // function for changing action steps and setting time between steps
     {
         m_uiStepTimer = Time;
         m_uiStep++;
     }
 
-	void Spacer()
-	{
-		m_uiStepTimer = 1000000; // setting large timer number this way creature will not make same action over again
-	}
+    void Spacer()
+    {
+        m_uiStepTimer = 1000000; // setting large timer number this way creature will not make same action over again
+    }
 
     void Kill(Unit* Oo)
     {
-        Oo->DealDamage(Oo, Oo->GetMaxHealth() ,NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        Oo->DealDamage(Oo, Oo->GetMaxHealth() , NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 
     void setPhase(PHASES phase, uint32 stepTimer = 0)
@@ -2261,11 +2262,11 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {        
-		if(m_uiStepTimer < uiDiff)
-		{
+        if(m_uiStepTimer < uiDiff)
+        {
             if(m_uiPhase == PHASE_ZERO)
             {
-                switch(urand(0,2))
+                switch(urand(0, 2))
                 {
                     case 0:
                         DoScriptText( VARIDUS_THE_FLENSER_SAY12, m_creature);
@@ -2283,65 +2284,65 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
                 m_uiStepTimer = 30000;
             }
 
-			if(m_uiPhase == PHASE_TWO)  // First phase action block
-			{
-				switch(m_uiStep) 
-				{
-					case 1: //"SAY: Is this it? Is this all mighty horde..."
+            if(m_uiPhase == PHASE_TWO)  // First phase action block
+            {
+                switch(m_uiStep)
+                {
+                    case 1: //"SAY: Is this it? Is this all mighty horde..."
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-					    DoScriptText(VARIDUS_THE_FLENSER_SAY1, m_creature); 
-					    NextStep(2*IN_MILLISECONDS);
-					    break;
+                        DoScriptText(VARIDUS_THE_FLENSER_SAY1, m_creature); 
+                        NextStep(2*IN_MILLISECONDS);
+                        break;
 
-					case 2:
+                    case 2:
                         if(Creature* pGetry = GetClosestCreatureWithEntry(m_creature, SHADOWSTALKER_GETRY_ID, 100.0f))
-                            m_creature->SetFacingToObject(pGetry);  
+                            m_creature->SetFacingToObject(pGetry);
                         else
                         {
                             Reset();
                             return;
                         }
-					    NextStep(1*IN_MILLISECONDS);
+                        NextStep(1*IN_MILLISECONDS);
                         break;
 
-					case 3:  //"SAY: Pathetic!!"
+                    case 3:  //"SAY: Pathetic!!"
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-					    DoScriptText(VARIDUS_THE_FLENSER_SAY2, m_creature); // Pathetic
-					    Spacer();
-					    break;
+                        DoScriptText(VARIDUS_THE_FLENSER_SAY2, m_creature); // Pathetic
+                        Spacer();
+                        break;
 
-					case 4:
-					    m_creature->HandleEmote(EMOTE_ONESHOT_SPELLCAST);
-					    NextStep(10*IN_MILLISECONDS);
-					    break;
+                    case 4:
+                        m_creature->HandleEmote(EMOTE_ONESHOT_SPELLCAST);
+                        NextStep(10*IN_MILLISECONDS);
+                        break;
 
-					case 5:  //SAY: i've never understood your type the hero
+                    case 5:  //SAY: i've never understood your type the hero
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-					    DoScriptText(VARIDUS_THE_FLENSER_SAY3, m_creature);
+                        DoScriptText(VARIDUS_THE_FLENSER_SAY3, m_creature);
                         NextStep(5*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 6: //SAY: why don't you let go?
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
-					    DoScriptText(VARIDUS_THE_FLENSER_SAY4, m_creature); 
+                        DoScriptText(VARIDUS_THE_FLENSER_SAY4, m_creature); 
                         NextStep(4*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 7: //SAY: Arthas can not be stoped accept it 
                         m_creature->HandleEmote(EMOTE_ONESHOT_NO);
-					    DoScriptText(VARIDUS_THE_FLENSER_SAY5, m_creature); 
+                        DoScriptText(VARIDUS_THE_FLENSER_SAY5, m_creature); 
                         NextStep(3*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 8: //SAY: This world is coming to an end, let it burn
                         m_creature->HandleEmote(EMOTE_ONESHOT_POINT );
                         DoScriptText(VARIDUS_THE_FLENSER_SAY6, m_creature); 
                         NextStep(6*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 9:
                         if(Creature* pNecroLord = GetClosestCreatureWithEntry(m_creature, ENKILAH_NECROLORD_ID, 100.0f))
-                            m_creature->SetFacingToObject(pNecroLord);                                                                              
+                            m_creature->SetFacingToObject(pNecroLord);
                         NextStep(1*IN_MILLISECONDS);
                         break;
 
@@ -2349,7 +2350,7 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
                         DoScriptText(VARIDUS_THE_FLENSER_SAY7, m_creature); 
                         NextStep(8*IN_MILLISECONDS);
-					    break;
+                        break;
 
                     case 11: // SAY: Whats this now
                         m_creature->HandleEmote(EMOTE_ONESHOT_TALK);
@@ -2391,8 +2392,8 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
 
                         for(int i=0; i<INFESTED_PRISONER_COORDINATES_SIZE; i++)
                         { //Summon lots of aberations  
-                            abberationList.push_back(m_creature->SummonCreature(WARSONG_ABERATION_ID,INFESTED_PRISONER_COORDINATES[i][0],
-                                INFESTED_PRISONER_COORDINATES[i][1], INFESTED_PRISONER_COORDINATES[i][2],0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000));
+                            abberationList.push_back(m_creature->SummonCreature(WARSONG_ABERATION_ID, INFESTED_PRISONER_COORDINATES[i][0], 
+                                INFESTED_PRISONER_COORDINATES[i][1], INFESTED_PRISONER_COORDINATES[i][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 80000));
                         }
 
                         NextStep(2*IN_MILLISECONDS);
@@ -2403,7 +2404,7 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
                         if(Creature* pNecroLord = GetClosestCreatureWithEntry(m_creature, ENKILAH_NECROLORD_ID, 100.0f))
                         {   
                             std::list<Creature*>::iterator it;
-                    
+
                             for(it = abberationList.begin(); it != abberationList.end(); it++)
                             {
                                 (*it)->SetWalk(false);
@@ -2420,25 +2421,25 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
                             setPhase(PHASE_THREE);  
                         }
                         break;
-		        }
-			}
+                }
+            }
             else if(m_uiPhase == PHASE_THREE)
             {
                 if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
                     return;
 
-                if(m_uiShadowNovaTimer < uiDiff) 
+                if(m_uiShadowNovaTimer < uiDiff)
                 {                    
                     DoCastSpellIfCan(m_creature, SPEL_SHADOW_NOVA);
-                    m_uiShadowNovaTimer = 12000;                    
+                    m_uiShadowNovaTimer = 12000;
                 }
                 else
                     m_uiShadowNovaTimer -= uiDiff;
 
-                if(m_uiShieldOfSuferingTimer < uiDiff) 
+                if(m_uiShieldOfSuferingTimer < uiDiff)
                 {                    
                     DoCastSpellIfCan(m_creature, SPEL_SHIELD_OF_SUFFERING);
-                    m_uiShieldOfSuferingTimer = 28000;                    
+                    m_uiShieldOfSuferingTimer = 28000;
                 }
                 else
                     m_uiShieldOfSuferingTimer -= uiDiff;
@@ -2446,13 +2447,13 @@ struct npc_varidus_the_flenserAI : public ScriptedAI
                 DoMeleeAttackIfReady(); //TODO: What if Varidus would be taunted and taken away from battlefield?? :/
                 //TODO: Varidus sometimes get's buged in a battle
             }
-		}
-		else 
-		{
+        }
+        else
+        {
             if((m_uiPhase == PHASE_ZERO) || (m_uiPhase == PHASE_TWO) || (m_uiPhase == PHASE_THREE))
-			    m_uiStepTimer -= uiDiff;
-		}
-	}
+                m_uiStepTimer -= uiDiff;
+        }
+    }
 };
 
 CreatureAI* GetAI_npc_varidus_the_flenser(Creature* pCreature)
@@ -2466,7 +2467,7 @@ CreatureAI* GetAI_npc_varidus_the_flenser(Creature* pCreature)
 enum
 {
     QUEST_FOOLISH_ENDEAVORS = 11705,
-	WAYPOINT_QUANTITY = 11,
+    WAYPOINT_QUANTITY = 11,
     GESTRYS_DAGGERS_ID = 428,
 
     SHADOWSTALKER_GETRY_SAY1 = -1999940,
@@ -2482,69 +2483,69 @@ const float GETRY_WAYPOINTS[WAYPOINT_QUANTITY][3] =
     {3120.1799f, 6574.9199f, 97.868599f},
     {3115.7080f, 6575.7163f, 97.977615f},
     {3108.7746f, 6586.3958f, 91.500740f},
-	{3114.2470f, 6596.2807f, 91.339890f},
-	{3124.5117f, 6590.1328f, 91.379028f},
-	{3125.5366f, 6582.6499f, 88.812263f},
-	{3117.5932f, 6582.4340f, 86.207214f},
-	{3117.2939f, 6590.1330f, 83.417160f},
-	{3126.9267f, 6590.5400f, 79.770805f}, 
-	{3126.1733f, 6578.5327f, 77.960869f},
-	{3112.8618f, 6555.6508f, 79.744034f}
+    {3114.2470f, 6596.2807f, 91.339890f},
+    {3124.5117f, 6590.1328f, 91.379028f},
+    {3125.5366f, 6582.6499f, 88.812263f},
+    {3117.5932f, 6582.4340f, 86.207214f},
+    {3117.2939f, 6590.1330f, 83.417160f},
+    {3126.9267f, 6590.5400f, 79.770805f},
+    {3126.1733f, 6578.5327f, 77.960869f},
+    {3112.8618f, 6555.6508f, 79.744034f}
 };
 
 struct npc_shadowstalker_getryAI : public ScriptedAI
-{	
-	uint8 m_uiStep;
-	uint8 m_uiPhase;
-	uint32 m_uiStepTimer;
+{    
+    uint8 m_uiStep;
+    uint8 m_uiPhase;
+    uint32 m_uiStepTimer;
     bool eventStarted;
-	Player* pPlayer;
-	Creature* Enkilah_Necrolord;
+    Player* pPlayer;
+    Creature* Enkilah_Necrolord;
     Creature* pVaridus;
 
     npc_shadowstalker_getryAI(Creature *pCreature) : ScriptedAI(pCreature) 
-	{
-		m_uiStep = 1;
-		m_uiPhase = 0;
-		uint32 m_uiStepTimer = 0;
+    {
+        m_uiStep = 1;
+        m_uiPhase = 0;
+        uint32 m_uiStepTimer = 0;
         eventStarted = false;
         Enkilah_Necrolord = 0;
         pPlayer = 0;
         pVaridus = 0;
-	}
+    }
     
     void Reset()
     {
         m_creature->SetWalk(true);
         m_uiStep = 1;
-		m_uiPhase = 0;
-		m_uiStepTimer = 0;
-        Enkilah_Necrolord = 0;   
+        m_uiPhase = 0;
+        m_uiStepTimer = 0;
+        Enkilah_Necrolord = 0;
         pVaridus = 0;
         eventStarted = false;
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
     
-	void MovementInform(uint32 uiType, uint32 uiPointId) // function called at the end of some walk
+    void MovementInform(uint32 uiType, uint32 uiPointId) // function called at the end of some walk
     {
         NextStep();
     }
 
-	 void NextStep(uint32 Time = 0) // function for changing action steps and setting time between steps
+     void NextStep(uint32 Time = 0) // function for changing action steps and setting time between steps
     {
         m_uiStepTimer = Time;
         m_uiStep++;
     }
 
-	void Spacer()
-	{
-		m_uiStepTimer = 1000000; // setting large timer number this way creature will not maek same action... 
-								// ...over and over again ... little bit ugly i know 
-	}
+    void Spacer()
+    {
+        m_uiStepTimer = 1000000; // setting large timer number this way creature will not maek same action...
+                                // ...over and over again ... little bit ugly i know
+    }
 
     void setPhase(PHASES phase, uint32 stepTimer = 0)
     {
-        m_uiStepTimer = stepTimer; 
+        m_uiStepTimer = stepTimer;
         m_uiStep = 1;
         m_uiPhase = phase;
     }
@@ -2562,109 +2563,109 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-		if(m_uiStepTimer < uiDiff)
-		{
-			if(m_uiPhase == PHASE_ONE)  // First phase action block
-			{
-				switch( m_uiStep) 
-				{
-					case 1:   //SAY: "lets go"
-					    DoScriptText(SHADOWSTALKER_GETRY_SAY1, m_creature); 
-					    NextStep(5*IN_MILLISECONDS);
-					    break;
+        if(m_uiStepTimer < uiDiff)
+        {
+            if(m_uiPhase == PHASE_ONE)  // First phase action block
+            {
+                switch( m_uiStep)
+                {
+                    case 1:   //SAY: "lets go"
+                        DoScriptText(SHADOWSTALKER_GETRY_SAY1, m_creature); 
+                        NextStep(5*IN_MILLISECONDS);
+                        break;
 
-					case 2:  
-					    m_creature->GetMotionMaster()->MovePoint(1, GETRY_WAYPOINTS[1][0], GETRY_WAYPOINTS[1][1], GETRY_WAYPOINTS[1][2]);
-					    Spacer();
-					    break;
+                    case 2:  
+                        m_creature->GetMotionMaster()->MovePoint(1, GETRY_WAYPOINTS[1][0], GETRY_WAYPOINTS[1][1], GETRY_WAYPOINTS[1][2]);
+                        Spacer();
+                        break;
 
-					case 3: 
-					    m_creature->GetMotionMaster()->MovePoint(2, GETRY_WAYPOINTS[2][0], GETRY_WAYPOINTS[2][1], GETRY_WAYPOINTS[2][2]);
-					    Spacer();
-					    break;
+                    case 3: 
+                        m_creature->GetMotionMaster()->MovePoint(2, GETRY_WAYPOINTS[2][0], GETRY_WAYPOINTS[2][1], GETRY_WAYPOINTS[2][2]);
+                        Spacer();
+                        break;
 
-					case 4: 
+                    case 4: 
                         if(pPlayer)
-					        DoScriptText(SHADOWSTALKER_GETRY_SAY2, m_creature, pPlayer);
+                            DoScriptText(SHADOWSTALKER_GETRY_SAY2, m_creature, pPlayer);
 
-					    m_creature->GetMotionMaster()->MovePoint(3, GETRY_WAYPOINTS[3][0], GETRY_WAYPOINTS[3][1], GETRY_WAYPOINTS[3][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(3, GETRY_WAYPOINTS[3][0], GETRY_WAYPOINTS[3][1], GETRY_WAYPOINTS[3][2]);
+                        Spacer();
+                        break;
 
-					case 5:
-					    m_creature->GetMotionMaster()->MovePoint(4, GETRY_WAYPOINTS[4][0], GETRY_WAYPOINTS[4][1], GETRY_WAYPOINTS[4][2]);
-					    Spacer();
-					    break;
+                    case 5:
+                        m_creature->GetMotionMaster()->MovePoint(4, GETRY_WAYPOINTS[4][0], GETRY_WAYPOINTS[4][1], GETRY_WAYPOINTS[4][2]);
+                        Spacer();
+                        break;
 
-					case 6:
-					    m_creature->GetMotionMaster()->MovePoint(5, GETRY_WAYPOINTS[5][0], GETRY_WAYPOINTS[5][1], GETRY_WAYPOINTS[5][2]);
-					    Spacer();
-					    break;
+                    case 6:
+                        m_creature->GetMotionMaster()->MovePoint(5, GETRY_WAYPOINTS[5][0], GETRY_WAYPOINTS[5][1], GETRY_WAYPOINTS[5][2]);
+                        Spacer();
+                        break;
 
-					case 7:
-					    m_creature->GetMotionMaster()->MovePoint(6, GETRY_WAYPOINTS[6][0], GETRY_WAYPOINTS[6][1], GETRY_WAYPOINTS[6][2]);
-					    Spacer();
-					    break;
+                    case 7:
+                        m_creature->GetMotionMaster()->MovePoint(6, GETRY_WAYPOINTS[6][0], GETRY_WAYPOINTS[6][1], GETRY_WAYPOINTS[6][2]);
+                        Spacer();
+                        break;
 
-					case 8:
-					    m_creature->GetMotionMaster()->MovePoint(7, GETRY_WAYPOINTS[7][0], GETRY_WAYPOINTS[7][1], GETRY_WAYPOINTS[7][2]);
-					    Spacer();
-					    break;
+                    case 8:
+                        m_creature->GetMotionMaster()->MovePoint(7, GETRY_WAYPOINTS[7][0], GETRY_WAYPOINTS[7][1], GETRY_WAYPOINTS[7][2]);
+                        Spacer();
+                        break;
 
-					case 9:
-					    m_creature->GetMotionMaster()->MovePoint(8, GETRY_WAYPOINTS[8][0], GETRY_WAYPOINTS[8][1], GETRY_WAYPOINTS[8][2]);
-					    Spacer();
-					    break;
+                    case 9:
+                        m_creature->GetMotionMaster()->MovePoint(8, GETRY_WAYPOINTS[8][0], GETRY_WAYPOINTS[8][1], GETRY_WAYPOINTS[8][2]);
+                        Spacer();
+                        break;
 
-					case 10:
-					    m_creature->GetMotionMaster()->MovePoint(9, GETRY_WAYPOINTS[9][0], GETRY_WAYPOINTS[9][1], GETRY_WAYPOINTS[9][2]);
-					    Spacer();
-					    break;
+                    case 10:
+                        m_creature->GetMotionMaster()->MovePoint(9, GETRY_WAYPOINTS[9][0], GETRY_WAYPOINTS[9][1], GETRY_WAYPOINTS[9][2]);
+                        Spacer();
+                        break;
 
-					case 11:  // Getry is turning on stealth
-					    DoCast(m_creature,34189);
-					    NextStep(0.1*IN_MILLISECONDS);
-					    break;       
+                    case 11:  // Getry is turning on stealth
+                        DoCast(m_creature, 34189);
+                        NextStep(0.1*IN_MILLISECONDS);
+                        break;
 
-					case 12: // Getry is sneaking up to attack Varidus here 
-					    m_creature->GetMotionMaster()->MovePoint(10, GETRY_WAYPOINTS[10][0], GETRY_WAYPOINTS[10][1], GETRY_WAYPOINTS[10][2]);
-					    if(pVaridus = GetClosestCreatureWithEntry(m_creature, 25618, 200.0f)) 
-					    {  
-						    npc_varidus_the_flenserAI* pVaridusAI = dynamic_cast<npc_varidus_the_flenserAI*>(pVaridus->AI()); // need pointer to start second phase 
-							
+                    case 12: // Getry is sneaking up to attack Varidus here 
+                        m_creature->GetMotionMaster()->MovePoint(10, GETRY_WAYPOINTS[10][0], GETRY_WAYPOINTS[10][1], GETRY_WAYPOINTS[10][2]);
+                        if(pVaridus = GetClosestCreatureWithEntry(m_creature, 25618, 200.0f)) 
+                        {  
+                            npc_varidus_the_flenserAI* pVaridusAI = dynamic_cast<npc_varidus_the_flenserAI*>(pVaridus->AI()); // need pointer to start second phase 
+                            
                             pVaridusAI->setPhase(PHASE_TWO, 6*IN_MILLISECONDS);
 
-						    pVaridusAI->pPlayer = pPlayer;
+                            pVaridusAI->pPlayer = pPlayer;
                             pVaridusAI->pGetry = m_creature;
 
                             Spacer();
-					    }
+                        }
                         else
                             setPhase(PHASE_FIVE);
                         
-					    break;
+                        break;
 
-					
-					case 13: 
+                    
+                    case 13: 
                         setPhase(PHASE_TWO);
-					    break;
-				} 
-			}
+                        break;
+                } 
+            }
 
-			else if(m_uiPhase == PHASE_TWO)
-			{
-				switch(m_uiStep)
-				{
-					case 1:
-					    if(pVaridus) 
-					    {
-						    npc_varidus_the_flenserAI* pVaridusAI = dynamic_cast<npc_varidus_the_flenserAI*>(pVaridus->AI()); 
-						    pVaridusAI->NextStep();
-					    }
+            else if(m_uiPhase == PHASE_TWO)
+            {
+                switch(m_uiStep)
+                {
+                    case 1:
+                        if(pVaridus) 
+                        {
+                            npc_varidus_the_flenserAI* pVaridusAI = dynamic_cast<npc_varidus_the_flenserAI*>(pVaridus->AI());
+                            pVaridusAI->NextStep();
+                        }
                         // Summon enk'ilah Necrolord
-					    Enkilah_Necrolord =  m_creature->SummonCreature(ENKILAH_NECROLORD_ID, 
-					    ENKILAH_NECROLORD_SPAWN_COORDINATES[0], ENKILAH_NECROLORD_SPAWN_COORDINATES[1],
-					    ENKILAH_NECROLORD_SPAWN_COORDINATES[2], 0, TEMPSUMMON_TIMED_DESPAWN, 10000000);
+                        Enkilah_Necrolord =  m_creature->SummonCreature(ENKILAH_NECROLORD_ID,
+                        ENKILAH_NECROLORD_SPAWN_COORDINATES[0], ENKILAH_NECROLORD_SPAWN_COORDINATES[1],
+                        ENKILAH_NECROLORD_SPAWN_COORDINATES[2], 0, TEMPSUMMON_TIMED_DESPAWN, 10000000);
 
                         if(Enkilah_Necrolord)
                         {
@@ -2673,19 +2674,19 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
                             pNecrolordAI->NextStep(1*IN_MILLISECONDS);
                         }
                     
-					    NextStep(0.6*IN_MILLISECONDS);
-					    break;
+                        NextStep(0.6*IN_MILLISECONDS);
+                        break;
 
-					case 2:
-					    DoCast(m_creature, 45922);			// since shadow prison is only self cast, player and 
-					    m_creature->RemoveAllAuras();		// Getry must cast it on them selfs
+                    case 2:
+                        DoCast(m_creature, 45922);            // since shadow prison is only self cast, player and 
+                        m_creature->RemoveAllAuras();        // Getry must cast it on them selfs
                         if(pPlayer)
-					        pPlayer->CastSpell(pPlayer, 45922, false);
-				        NextStep(2*IN_MILLISECONDS);
-					    break;	
+                            pPlayer->CastSpell(pPlayer, 45922, false);
+                        NextStep(2*IN_MILLISECONDS);
+                        break;
 
                     case 3:
-                        if(!m_creature->HasAura(45922)) 
+                        if(!m_creature->HasAura(45922))
                         {
                             m_creature->LoadEquipment(GESTRYS_DAGGERS_ID);
                             
@@ -2697,13 +2698,13 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
                         else
                         {
                             m_uiStepTimer = 1000;
-                        }                   
+                        }
                     break;
-		        }
-    
-			} 
+                }
+
+            }
             else if(m_uiPhase == PHASE_THREE)
-			{
+            {
                 if(GetClosestCreatureWithEntry(m_creature, VARIDUS_ID, 200.0f) == 0)
                 {
                     setPhase(PHASE_FOUR);
@@ -2728,7 +2729,7 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
                         break;
 
                     case 3:
-                        if(Creature* pNecroLord = GetClosestCreatureWithEntry(m_creature,ENKILAH_NECROLORD_ID , 200.0f)) 
+                        if(Creature* pNecroLord = GetClosestCreatureWithEntry(m_creature, ENKILAH_NECROLORD_ID , 200.0f)) 
                         {
                             m_creature->SetFacingToObject(pNecroLord);
                         }
@@ -2759,7 +2760,7 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
 
                     case 7:
                         setPhase(PHASE_FIVE);
-                        break;                   
+                        break;
                 }
             }
             else if(m_uiPhase == PHASE_FIVE)
@@ -2768,49 +2769,49 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
                 {
                     case 1:
                         m_creature->SetWalk(false);
-					    m_creature->GetMotionMaster()->MovePoint(11, GETRY_WAYPOINTS[9][0], GETRY_WAYPOINTS[9][1], GETRY_WAYPOINTS[9][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(11, GETRY_WAYPOINTS[9][0], GETRY_WAYPOINTS[9][1], GETRY_WAYPOINTS[9][2]);
+                        Spacer();
+                        break;
 
                     case 2:
-					    m_creature->GetMotionMaster()->MovePoint(12, GETRY_WAYPOINTS[8][0], GETRY_WAYPOINTS[8][1], GETRY_WAYPOINTS[8][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(12, GETRY_WAYPOINTS[8][0], GETRY_WAYPOINTS[8][1], GETRY_WAYPOINTS[8][2]);
+                        Spacer();
+                        break;
 
                     case 3:
-					    m_creature->GetMotionMaster()->MovePoint(13, GETRY_WAYPOINTS[7][0], GETRY_WAYPOINTS[7][1], GETRY_WAYPOINTS[7][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(13, GETRY_WAYPOINTS[7][0], GETRY_WAYPOINTS[7][1], GETRY_WAYPOINTS[7][2]);
+                        Spacer();
+                        break;
 
                     case 4:
-					    m_creature->GetMotionMaster()->MovePoint(14, GETRY_WAYPOINTS[6][0], GETRY_WAYPOINTS[6][1], GETRY_WAYPOINTS[6][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(14, GETRY_WAYPOINTS[6][0], GETRY_WAYPOINTS[6][1], GETRY_WAYPOINTS[6][2]);
+                        Spacer();
+                        break;
 
                     case 5:
-					    m_creature->GetMotionMaster()->MovePoint(15, GETRY_WAYPOINTS[5][0], GETRY_WAYPOINTS[5][1], GETRY_WAYPOINTS[5][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(15, GETRY_WAYPOINTS[5][0], GETRY_WAYPOINTS[5][1], GETRY_WAYPOINTS[5][2]);
+                        Spacer();
+                        break;
 
                     case 6:
-					    m_creature->GetMotionMaster()->MovePoint(16, GETRY_WAYPOINTS[4][0], GETRY_WAYPOINTS[4][1], GETRY_WAYPOINTS[4][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(16, GETRY_WAYPOINTS[4][0], GETRY_WAYPOINTS[4][1], GETRY_WAYPOINTS[4][2]);
+                        Spacer();
+                        break;
 
                     case 7:
-					    m_creature->GetMotionMaster()->MovePoint(17, GETRY_WAYPOINTS[3][0], GETRY_WAYPOINTS[3][1], GETRY_WAYPOINTS[3][2]);
-					    Spacer();
-					    break;
+                        m_creature->GetMotionMaster()->MovePoint(17, GETRY_WAYPOINTS[3][0], GETRY_WAYPOINTS[3][1], GETRY_WAYPOINTS[3][2]);
+                        Spacer();
+                        break;
 
-                    case 8: 
-					    m_creature->GetMotionMaster()->MovePoint(18, GETRY_WAYPOINTS[2][0], GETRY_WAYPOINTS[2][1], GETRY_WAYPOINTS[2][2]);
-					    Spacer();
-					    break;
+                    case 8:
+                        m_creature->GetMotionMaster()->MovePoint(18, GETRY_WAYPOINTS[2][0], GETRY_WAYPOINTS[2][1], GETRY_WAYPOINTS[2][2]);
+                        Spacer();
+                        break;
 
-                    case 9:  
-					    m_creature->GetMotionMaster()->MovePoint(19, GETRY_WAYPOINTS[1][0], GETRY_WAYPOINTS[1][1], GETRY_WAYPOINTS[1][2]);
-					    Spacer();
-					    break;
+                    case 9:
+                        m_creature->GetMotionMaster()->MovePoint(19, GETRY_WAYPOINTS[1][0], GETRY_WAYPOINTS[1][1], GETRY_WAYPOINTS[1][2]);
+                        Spacer();
+                        break;
                         
                     case 10:
                         pVaridus->Respawn();
@@ -2818,12 +2819,12 @@ struct npc_shadowstalker_getryAI : public ScriptedAI
                         break;
                 }
             }
-		}
-		else
-		{
+        }
+        else
+        {
             if((m_uiPhase == PHASE_ONE) || (m_uiPhase == PHASE_TWO) || (m_uiPhase == PHASE_THREE) || (m_uiPhase == PHASE_FOUR) || (m_uiPhase == PHASE_FIVE))
-			    m_uiStepTimer -= uiDiff;
-		}
+                m_uiStepTimer -= uiDiff;
+        }
     }
 };
 
@@ -2836,14 +2837,14 @@ bool QuestAccept_npc_shadowstalker_getry(Player* pPlayer, Creature* pCreature, c
 {
     if (pQuest->GetQuestId() == QUEST_FOOLISH_ENDEAVORS)
     {
-		if (npc_shadowstalker_getryAI* pGetryAI = dynamic_cast<npc_shadowstalker_getryAI*>(pCreature->AI()))
-		{
+        if (npc_shadowstalker_getryAI* pGetryAI = dynamic_cast<npc_shadowstalker_getryAI*>(pCreature->AI()))
+        {
             if(Creature* pVaridus = GetClosestCreatureWithEntry(pCreature, VARIDUS_ID, 100.0f))
             {
                 if(pVaridus->isAlive())
-                    pGetryAI->StartEventForPlayer(pPlayer);                                           
+                    pGetryAI->StartEventForPlayer(pPlayer);
             }
-		}
+        }
     }
 
     return true;
@@ -2852,8 +2853,8 @@ bool QuestAccept_npc_shadowstalker_getry(Player* pPlayer, Creature* pCreature, c
 enum
 {
     QUEST_LOADER_UP     = 11881,
-    GO_PACKAGE          = 142181,   //wrong ID
-    MAX_PACKAGE_COUNT   = 10,
+    GO_PACKAGE          = 142181, //wrong ID
+    MAX_PACKAGE_COUNT   = 10, 
 
 };
 struct MANGOS_DLL_DECL npc_jennyAI : public ScriptedAI
@@ -2926,7 +2927,7 @@ enum
 
 const int32 textNotOnQuest[5] =
 {
-    -1999959, 
+    -1999959,
     -1999956,
     -1999955,
     -1999958,
@@ -2948,7 +2949,7 @@ bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, 
     {
         if (((Player*)pCaster)->GetQuestStatus(QUEST_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
-            urand(0,2) ? pCreatureTarget->MonsterSay(textOnQuest[urand(0,2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textOnQuest[4], LANG_UNIVERSAL);
+            urand(0, 2) ? pCreatureTarget->MonsterSay(textOnQuest[urand(0, 2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textOnQuest[4], LANG_UNIVERSAL);
             float x, y, z;
             pCreatureTarget->GetPosition(x, y, z);
             ((Player*)pCaster)->KilledMonsterCredit(NPC_TADPOLE, pCreatureTarget->GetObjectGuid());
@@ -2958,7 +2959,7 @@ bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, 
         }
         else
         {
-            urand(0,2) ? pCreatureTarget->MonsterSay(textNotOnQuest[urand(0, 2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textNotOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textNotOnQuest[4], LANG_UNIVERSAL);
+            urand(0, 2) ? pCreatureTarget->MonsterSay(textNotOnQuest[urand(0, 2)], LANG_UNIVERSAL) : pCaster->getGender() ? pCreatureTarget->MonsterSay(textNotOnQuest[3], LANG_UNIVERSAL) : pCreatureTarget->MonsterSay(textNotOnQuest[4], LANG_UNIVERSAL);
             pCreatureTarget->ForcedDespawn(10000);
         }
     }
@@ -3034,11 +3035,6 @@ void AddSC_borean_tundra()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_valanar";
-    pNewScript->GetAI = &GetAI_npc_valanar;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "npc_thassarian";
     pNewScript->GetAI = &GetAI_npc_thassarian;
     pNewScript->pGossipHello = &GossipHello_npc_thassarian;
@@ -3087,13 +3083,13 @@ void AddSC_borean_tundra()
     pNewScript->GetAI = &GetAI_npc_enkilah_necrolord;
     pNewScript->RegisterSelf();
 
-	pNewScript = new Script;
+    pNewScript = new Script;
     pNewScript->Name = "npc_shadowstalker_getry";
     pNewScript->GetAI = &GetAI_npc_shadowstalker_getry;
-	pNewScript->pQuestAcceptNPC = &QuestAccept_npc_shadowstalker_getry;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_shadowstalker_getry;
     pNewScript->RegisterSelf();
 
-	pNewScript = new Script;
+    pNewScript = new Script;
     pNewScript->Name = "npc_varidus_the_flenser";
     pNewScript->GetAI = &GetAI_npc_varidus_the_flenser;
     pNewScript->RegisterSelf();
