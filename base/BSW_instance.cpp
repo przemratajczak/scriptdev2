@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 - 2011 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2009 - 2013 by /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -34,6 +34,22 @@ void BSWScriptedInstance::DoCompleteAchievement(uint32 uiAchievmentId)
     }
     else
         debug_log("BSW: DoCompleteAchievement attempt set data, but no players in map.");
+}
+
+void BSWScriptedInstance::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 /*=0*/, uint32 miscvalue2 /*=0*/)
+{
+    Map::PlayerList const& lPlayers = instance->GetPlayers();
+
+    if (!lPlayers.isEmpty())
+    {
+        for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+        {
+            if (Player* pPlayer = itr->getSource())
+                pPlayer->UpdateAchievementCriteria(type, miscvalue1, miscvalue2);
+        }
+    }
+    else
+        debug_log("SD2: DoUpdateAchievementCriteria attempt set data but no players in map.");
 }
 
 void BSWScriptedInstance::DoOpenDoor(ObjectGuid guid)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 - 2011 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2009 - 2013 by /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -16,6 +16,9 @@ class MANGOS_DLL_DECL BSWScriptedInstance : public ScriptedInstance
 
         //sends completed achievments to all players in instance
         void DoCompleteAchievement(uint32 uiAchievmentId);
+        //sends achievment criteria update to all players in instance
+        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0);
+
         void DoOpenDoor(ObjectGuid guid);
         void DoCloseDoor(ObjectGuid guid);
 

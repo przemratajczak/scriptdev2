@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 - 2011 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2009 - 2013 by /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 #include "precompiled.h"
@@ -137,7 +137,7 @@ bool BSWScriptedAI::_QuerySpellPeriod(uint8 m_uiSpellIdx, uint32 diff, bool igno
     };
 };
 
-CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget, uint32 cast_flags)
+CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget)
 {
 
     BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
@@ -158,30 +158,30 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
                    break;
 
             case CAST_ON_SELF:
-                   result = _BSWCastOnTarget(m_creature, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(m_creature, m_uiSpellIdx);
                    break;
 
             case CAST_ON_SUMMONS:
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_VICTIM:
                    pTarget = m_creature->getVictim();
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_RANDOM:
                    pTarget = _doSelect(0, false, 60.0f);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_BOTTOMAGGRO:
                    pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_BOTTOMAGGRO,0);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_TARGET:
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case APPLY_AURA_SELF:
@@ -248,12 +248,12 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
 
             case CAST_ON_FRENDLY:
                    pTarget = DoSelectLowestHpFriendly(pSpell->LocData.x,0);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_FRENDLY_LOWHP:
                    pTarget = DoSelectLowestHpFriendly(pSpell->LocData.x,1);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_RANDOM_POINT:
@@ -294,7 +294,7 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
             case CAST_ON_RANDOM_PLAYER:
                    if ( pSpell->LocData.x < 1 ) pTarget = _doSelect(0, false, 60.0f);
                        else pTarget = _doSelect(0, false, (float)pSpell->LocData.x);
-                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx, cast_flags);
+                   result = _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case APPLY_AURA_ALLPLAYERS:
@@ -337,7 +337,7 @@ CanCastResult BSWScriptedAI::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget
     return result;
 };
 
-CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx, uint32 cast_flags)
+CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx)
 {
     BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
 
@@ -349,7 +349,7 @@ CanCastResult BSWScriptedAI::_BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx,
 
     debug_log("BSW: Casting (on target) spell %u type %u",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
 
-    if (!pSpell->m_IsBugged) return _DoCastSpellIfCan(pTarget, pSpell->m_uiSpellEntry[currentDifficulty], cast_flags);
+    if (!pSpell->m_IsBugged) return _DoCastSpellIfCan(pTarget, pSpell->m_uiSpellEntry[currentDifficulty]);
         else if (pSpell->m_IsBugged) return _BSWDoCast(m_uiSpellIdx, pTarget);
              else  return CAST_FAIL_OTHER;
 };
@@ -471,7 +471,7 @@ CanCastResult BSWScriptedAI::_BSWDoForceCast(uint8 m_uiSpellIdx, Unit* pTarget)
        return CAST_FAIL_OTHER;
     }
 
-    debug_log("BSW: Forced casting spell number %u ",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
+    debug_log("BSW: Forced casting spell number %u type %u",pSpell->m_uiSpellEntry[currentDifficulty], pSpell->m_CastTarget);
 
     pTarget->InterruptNonMeleeSpells(false);
 
@@ -670,7 +670,7 @@ bool BSWScriptedAI::_doRemoveFromAll(uint32 SpellID)
 
 bool BSWScriptedAI::_doAura(uint8 m_uiSpellIdx, Unit* pTarget)
 {
-    BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
+//    BSWRecord* pSpell = &m_BSWRecords[m_uiSpellIdx];
 
     if (!pTarget)
         pTarget = m_creature;
@@ -729,7 +729,7 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
     {
         if (IsSpellAppliesAura(spell, (1 << EFFECT_INDEX_0) | (1 << EFFECT_INDEX_1) | (1 << EFFECT_INDEX_2)) || IsSpellHaveEffect(spell, SPELL_EFFECT_PERSISTENT_AREA_AURA))
         {
-            int32 _basepoint = basepoint ?  basepoint - 1 : spell->EffectBasePoints[index] + 1;
+            int32 _basepoint = basepoint ?  basepoint - 1 : spell->GetSpellEffect(SpellEffectIndex(index))->EffectBasePoints + 1;
 
             bool addedToExisting = true;
 
@@ -743,8 +743,8 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
                 addedToExisting = false;
             }
 
-
-            if (aura = holder->GetAuraByEffectIndex(index))
+            aura = holder->GetAuraByEffectIndex(index);
+            if (aura)
             {
                 if (isStack)
                     holder->ModStackAmount(1);
@@ -755,17 +755,17 @@ bool BSWScriptedAI::_doAura(uint32 SpellID, Unit* pTarget, SpellEffectIndex inde
                 holder->SetAuraDuration(aura->GetAuraMaxDuration());
             }
 
-            if (addedToExisting)
+            if (aura && addedToExisting)
             {
                 pTarget->AddAuraToModList(aura);
                 holder->SetInUse(true);
                 aura->ApplyModifier(true,true);
                 holder->SetInUse(false);
             }
-            else
+            else if (holder)
                 pTarget->AddSpellAuraHolder(holder);
 
-            return true;
+            return holder ? true : false;
         }
     }
 

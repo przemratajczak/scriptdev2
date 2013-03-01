@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 - 2011 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2009 - 2013 by /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -54,12 +54,6 @@ enum BossSpellTableParameters
   SPELLTABLEPARM_NUMBER
 };
 
-struct Locations
-{
-    float x, y, z, o;
-    int32 id;
-};
-
 struct WayPoints
 {
     WayPoints(int32 _id, float _x, float _y, float _z)
@@ -83,7 +77,7 @@ struct BSWRecord
     uint32 m_uiSpellTimerMin[DIFFICULTY_LEVELS];       // The timer (min) before the next spell casting, in milliseconds
     uint32 m_uiSpellTimerMax[DIFFICULTY_LEVELS];       // The timer (max) before the next spell casting
     uint32 m_uiSpellData[DIFFICULTY_LEVELS];           // Additional data for spell casting or summon
-    Locations LocData;                                 // Float data structure for locations
+    Location LocData;                                  // Float data structure for locations
     int    varData;                                    // Additional data for spell
     uint32 StageMaskN;                                 // Stage mask for this spell (normal)
     uint32 StageMaskH;                                 // Stage mask for this spell (heroic)
@@ -121,21 +115,21 @@ struct MANGOS_DLL_DECL BSWScriptedAI : public ScriptedAI
                  return queryIndex(_findSpellIDX(SpellID)) ? _QuerySpellPeriod(_findSpellIDX(SpellID), diff, ignorecast) : false;
              };
 
-        CanCastResult timedCast(uint32 SpellID, uint32 diff, Unit* pTarget = NULL, uint32 cast_flags = 0)
+        CanCastResult timedCast(uint32 SpellID, uint32 diff, Unit* pTarget = NULL)
              {
                  if (!queryIndex(_findSpellIDX(SpellID))) return CAST_FAIL_OTHER;
-                 return _QuerySpellPeriod(_findSpellIDX(SpellID), diff) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget, cast_flags) : CAST_FAIL_STATE;
+                 return _QuerySpellPeriod(_findSpellIDX(SpellID), diff) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget) : CAST_FAIL_STATE;
              };
 
-        CanCastResult doCast(uint32 SpellID, Unit* pTarget = NULL, uint32 cast_flags = 0)
+        CanCastResult doCast(uint32 SpellID, Unit* pTarget = NULL)
              {
-                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget, cast_flags) : CAST_FAIL_OTHER;
+                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWSpellSelector(_findSpellIDX(SpellID), pTarget) : CAST_FAIL_OTHER;
              };
 
-        CanCastResult doCast(Unit* pTarget, uint32 SpellID, uint32 cast_flags = 0)
+        CanCastResult doCast(Unit* pTarget, uint32 SpellID)
              {
                   if (!pTarget) return CAST_FAIL_OTHER;
-                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWCastOnTarget(pTarget, _findSpellIDX(SpellID), cast_flags) : CAST_FAIL_OTHER;
+                  return queryIndex(_findSpellIDX(SpellID)) ? _BSWCastOnTarget(pTarget, _findSpellIDX(SpellID)) : CAST_FAIL_OTHER;
              };
 
         bool doRemove(uint32 SpellID, Unit* pTarget = NULL, uint8 index = EFFECT_INDEX_ALL)
@@ -253,9 +247,9 @@ struct MANGOS_DLL_DECL BSWScriptedAI : public ScriptedAI
 
         CanCastResult _BSWDoForceCast(uint8 m_uiSpellIdx, Unit* pTarget);
 
-        CanCastResult _BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget = NULL, uint32 cast_flags = 0);
+        CanCastResult _BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarget = NULL);
 
-        CanCastResult _BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx, uint32 cast_flags);
+        CanCastResult _BSWCastOnTarget(Unit* pTarget, uint8 m_uiSpellIdx);
 
         bool          _QuerySpellPeriod(uint8 m_uiSpellIdx, uint32 diff, bool ignorecast = false);
 
