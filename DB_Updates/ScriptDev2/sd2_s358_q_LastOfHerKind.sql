@@ -1,10 +1,15 @@
 /********************** MaNGOS DB **********************/
 -- set injured matriarch as spell_click creature, no other flags needed
-UPDATE creature_template SET npcflag = 16777216, ScriptName = 'npc_harnessed_icemaw_matriarch' WHERE entry = 29563;
+UPDATE creature_template SET npcflag = 16777216 WHERE entry = 29563;
+DELETE FROM npc_spellclick_spells WHERE npc_entry = 29563;
+INSERT INTO npc_spellclick_spells (npc_entry, spell_id, quest_start,quest_start_active,quest_end,cast_flags) VALUES
+(29563, 56795, 12983, 1, 12983, 1);
+-- corrected npc script name
+UPDATE creature_template SET ScriptName = 'npc_harnessed_icemaw_matriarch' WHERE entry = 30468;
 
 DELETE FROM npc_spellclick_spells WHERE npc_entry = 29563;
 INSERT INTO npc_spellclick_spells (npc_entry, spell_id, quest_start,quest_start_active,quest_end,cast_flags) VALUES
-(29563, 56795, 12983, 1, 12983, 1)
+(29563, 56795, 12983, 1, 12983, 1);
 
 /********************** ScriptDev2 DB ******************/
 DELETE FROM script_waypoint WHERE entry = 30468;
