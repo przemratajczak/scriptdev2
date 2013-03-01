@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: Boss_Novos
-SD%Complete: 80%
-SDComment: Summon Timers are vague, many visual spells fail (LoS)
+SD%Complete: 90%
+SDComment: Summon Timers are vague
 SDCategory: Drak'Tharon Keep
 EndScriptData */
 
@@ -105,6 +105,8 @@ struct MANGOS_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     uint8 m_uiLostCrystals;
     Phases m_uiPhase;
 
+    GuidList lSummonsGuids;
+
     void Reset()
     {
         m_uiSummonHandlerTimer = 25000;
@@ -178,13 +180,17 @@ struct MANGOS_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
 
     void JustReachedHome()
     {
+        for (GuidList::const_iterator itr = lSummonsGuids.begin(); itr != lSummonsGuids.end(); ++itr)
+            if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
+                pSummoned->ForcedDespawn();
+
         if (m_pInstance)
             m_pInstance->SetData(TYPE_NOVOS, FAIL);
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->SetInCombatWithZone();
+        lSummonsGuids.push_back(pSummoned->GetObjectGuid());
 
         switch (pSummoned->GetEntry())
         {
@@ -347,7 +353,7 @@ struct MANGOS_DLL_DECL npc_crystal_channel_targetAI : public ScriptedAI
             if (Creature* pNovos = m_pInstance->GetSingleCreatureFromStorage(NPC_NOVOS))
             {
                 m_creature->GetRandomPoint(0.70*pNovos->GetPositionX() + 0.30*pSummoned->GetPositionX(), 0.70*pNovos->GetPositionY() + 0.30*pSummoned->GetPositionY(), pNovos->GetPositionZ() + 1.5f, 4.0f, fX, fY, fZ);
-                pSummoned->GetMotionMaster()->MovePoint(1, fX, fY, fZ);
+                pSummoned->GetMotionMaster()->MovePoint(1, fX, fY, fZ, true, true);
             }
         }
     }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -13,28 +13,14 @@ enum
     TYPE_NOVOS                      = 1,
     TYPE_KING_DRED                  = 2,
     TYPE_THARONJA                   = 3,
-    TYPE_CRYSTAL_EVENT              = 4,
 
-    NPC_KING_DRED                   = 27483,
     NPC_NOVOS                       = 26631,
-
-    // crystal action
-    DEACTIVATE_ONE                  = 0,
-    RESET                           = 1,
-    ACTIVATE_BEAMS                  = 2,
-
-    CRYSTAL_NUMBER                  = 4,
-
-    GO_RITUAL_CRYSTAL_SW            = 189299,
-    GO_RITUAL_CRYSTAL_NE            = 189300,
-    GO_RITUAL_CRYSTAL_NW            = 189301,
-    GO_RITUAL_CRYSTAL_SE            = 189302,
-    NPC_CRYSTAL_CHANNEL_TARGET      = 26712,
-    SPELL_CHANNEL_BEAM              = 52106,
+    NPC_KING_DRED                   = 27483,
 
     // Adds of King Dred Encounter - deaths counted for achievement
     NPC_DRAKKARI_GUTRIPPER          = 26641,
     NPC_DRAKKARI_SCYTHECLAW         = 26628,
+    NPC_WORLD_TRIGGER               = 22515,
 
     // Novos Encounter
     SPELL_BEAM_CHANNEL              = 52106,
@@ -44,6 +30,7 @@ enum
     SPELL_CRYSTAL_HANDLER_DEATH_4   = 55805,
 
     MAX_CRYSTALS                    = 4,
+    NPC_CRYSTAL_CHANNEL_TARGET      = 26712,
     GO_CRYSTAL_SW                   = 189299,
     GO_CRYSTAL_NE                   = 189300,
     GO_CRYSTAL_NW                   = 189301,
@@ -83,11 +70,13 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
+        void GetTrollgoreOutsideTriggers(GuidVector& vTriggers) { vTriggers = m_vTriggerGuids; }
+        ObjectGuid GetTrollgoreCornerTrigger() { return m_trollgoreCornerTriggerGuid; }
+
         bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/);
 
         const char* Save() { return m_strInstData.c_str(); }
         void Load(const char* chrIn);
-        void ManageCrystals(uint32 action);
 
         Creature* GetNextCrystalTarget(Creature* pCrystalHandler, uint8& uiIndex);
         void DoHandleCrystal(uint8 uiIndex);
@@ -98,18 +87,19 @@ class MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
-        ObjectGuid m_auiRitualCrystalGUID[CRYSTAL_NUMBER];
 
         uint32 m_uiDreadAddsKilled;
         bool m_bNovosAddGrounded;
         bool m_bTrollgoreConsume;
 
         ObjectGuid m_novosChannelGuid;
+        ObjectGuid m_trollgoreCornerTriggerGuid;
 
         NovosCrystalInfo m_aNovosCrystalInfo[MAX_CRYSTALS];
 
         GuidVector m_vSummonDummyGuids;
         GuidList m_lNovosDummyGuids;
+        GuidVector m_vTriggerGuids;
 };
 
 #endif

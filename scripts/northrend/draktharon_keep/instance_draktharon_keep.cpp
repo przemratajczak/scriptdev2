@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -35,7 +35,6 @@ instance_draktharon_keep::instance_draktharon_keep(Map* pMap) : ScriptedInstance
 void instance_draktharon_keep::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-    memset(&m_auiRitualCrystalGUID, 0, sizeof(m_auiRitualCrystalGUID));
 }
 
 void instance_draktharon_keep::OnCreatureEnterCombat(Creature* pCreature)
@@ -68,6 +67,12 @@ void instance_draktharon_keep::OnCreatureCreate(Creature* pCreature)
             break;
         case NPC_CRYSTAL_CHANNEL_TARGET:
             m_lNovosDummyGuids.push_back(pCreature->GetObjectGuid());
+            break;
+        case NPC_WORLD_TRIGGER:
+            if (pCreature->GetPositionZ() > 30.0f)
+                m_vTriggerGuids.push_back(pCreature->GetObjectGuid());
+            else
+                m_trollgoreCornerTriggerGuid = pCreature->GetObjectGuid();
             break;
     }
 }
@@ -137,11 +142,10 @@ void instance_draktharon_keep::DoSortNovosDummies()
         if (pDummy->IsWithinDist2d(fNovosX, fNovosY, 5.0f))
         {
             m_novosChannelGuid = pDummy->GetObjectGuid();
-            m_lNovosDummyGuids.erase(itr);
-            break;
+            itr = m_lNovosDummyGuids.erase(itr);
         }
-
-        ++itr;
+        else
+            ++itr;
     }
 
     // Summon positions (at end of stairs)
@@ -158,7 +162,7 @@ void instance_draktharon_keep::DoSortNovosDummies()
         if (pDummy->GetPositionZ() > fNovosZ + 20.0f)
         {
             m_vSummonDummyGuids.push_back(pDummy->GetObjectGuid());
-            m_lNovosDummyGuids.erase(itr++);
+            itr = m_lNovosDummyGuids.erase(itr);
         }
         else
             ++itr;
@@ -220,7 +224,7 @@ bool instance_draktharon_keep::CheckAchievementCriteriaMeet(uint32 uiCriteriaId,
 
 void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
 {
-    switch(uiType)
+    switch (uiType)
     {
         case TYPE_TROLLGORE:
             if (uiData == IN_PROGRESS)
@@ -230,7 +234,7 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
             m_auiEncounter[uiType] = uiData;
             break;
         case TYPE_NOVOS:
-            if (uiData == IN_PROGRESS)
+            if (uiData == IN_PROGRESS && m_auiEncounter[uiType] != IN_PROGRESS)
             {
                 // Sort the dummies
                 DoSortNovosDummies();
@@ -269,9 +273,6 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
             }
             m_auiEncounter[uiType] = uiData;
             break;
-        case TYPE_CRYSTAL_EVENT:
-            ManageCrystals(uiData);
-            break;
         case TYPE_KING_DRED:
             if (uiData == IN_PROGRESS)
                 m_uiDreadAddsKilled = 0;
@@ -280,6 +281,8 @@ void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
         case TYPE_THARONJA:
             m_auiEncounter[uiType] = uiData;
             break;
+        default:
+            return;
     }
 
     if (uiData == DONE)
@@ -328,54 +331,6 @@ uint32 instance_draktharon_keep::GetData(uint32 uiType)
         case TYPE_THARONJA:  return m_auiEncounter[uiType];
         default:
             return 0;
-    }
-}
-
-void instance_draktharon_keep::ManageCrystals(uint32 action)
-{
-    switch(action)
-    {
-        case DEACTIVATE_ONE:
-            for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
-                if (GameObject* pCrystal = instance->GetGameObject(m_auiRitualCrystalGUID[i]))
-                    if (pCrystal->GetGoState() == GO_STATE_ACTIVE)
-                    {
-                        pCrystal->SetGoState(GO_STATE_READY);
-                        if (Creature* pChannelTarget = GetClosestCreatureWithEntry(pCrystal, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
-                        {
-                            // it does not work this way :(
-                            pChannelTarget->InterruptNonMeleeSpells(false);
-                            // hack
-                            pChannelTarget->SetVisibility(VISIBILITY_OFF);
-                        }
-                        break;
-                    }
-            break;
-        case RESET:
-            for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
-                if (GameObject* pCrystal = instance->GetGameObject(m_auiRitualCrystalGUID[i]))
-                {
-                    pCrystal->SetGoState(GO_STATE_ACTIVE);
-                    if (Creature* pChannelTarget = GetClosestCreatureWithEntry(pCrystal, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
-                    {
-                        // it does not work this way :( 
-                        pChannelTarget->InterruptNonMeleeSpells(false);
-                        // hack
-                        pChannelTarget->SetVisibility(VISIBILITY_OFF);
-                    }
-                }
-            break;
-        case ACTIVATE_BEAMS:
-            for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
-                if (GameObject* pCrystal = instance->GetGameObject(m_auiRitualCrystalGUID[i]))
-                    if (Creature* pChannelTarget = GetClosestCreatureWithEntry(pCrystal, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
-                    {
-                        if (Creature* pNovosChannelTarget = GetSingleCreatureFromStorage(NPC_CRYSTAL_CHANNEL_TARGET))
-                            pChannelTarget->CastSpell(pNovosChannelTarget, SPELL_CHANNEL_BEAM, true);
-                        // hack
-                        pChannelTarget->SetVisibility(VISIBILITY_ON);
-                    }
-            break;
     }
 }
 
