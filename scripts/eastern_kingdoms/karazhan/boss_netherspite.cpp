@@ -69,13 +69,8 @@ enum
     NPC_VOID_ZONE               = 16697
 };
 
-struct SpawnLocation
-{
-    float x, y, z;
-};
-
 // at first spawn portals got fixed coords, should be shuffled in subsequent beam phases
-static SpawnLocation PortalCoordinates[] =
+static StaticLocation PortalCoordinates[] =
 {
     {-11105.508789f, -1600.851685f, 279.950256f},
     {-11195.353516f, -1613.237183f, 278.237258f},

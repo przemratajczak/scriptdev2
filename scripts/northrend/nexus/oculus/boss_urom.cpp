@@ -67,7 +67,7 @@ struct Locations
     uint32 id;
 };
 */
-struct Locations Teleport[]=
+struct StaticLocation Teleport[]=
 {
     {1177.469f, 937.721f, 527.405f, 2.21f}, //first platform
     {968.5880f, 1042.58f, 527.321f, 0.13f}, //second platform

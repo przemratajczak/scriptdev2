@@ -99,7 +99,7 @@ enum
     EMOTE_NEITRAL                   = -1666113, // Halion reveal HP message
 };
 
-static Locations SpawnLoc[]=
+static StaticLocation SpawnLoc[]=
 {
     {3154.99f, 535.637f, 72.8887f},            // 0 - Halion spawn point (center)
 };

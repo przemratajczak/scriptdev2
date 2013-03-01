@@ -115,7 +115,7 @@ enum
 
 };
 
-static Locations SpawnLoc[]=
+static StaticLocation SpawnLoc[]=
 {
     {559.257996f, 90.266197f, 395.122986f},  // 0 Barrent
     {563.672974f, 139.571f, 393.837006f},    // 1 Center

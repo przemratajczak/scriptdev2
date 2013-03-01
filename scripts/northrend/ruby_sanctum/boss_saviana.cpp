@@ -45,7 +45,7 @@ enum BossSpells
     MAX_BEACON_TARGETS               = 5,
 };
 
-static Locations SpawnLoc[]=
+static StaticLocation SpawnLoc[]=
 {
     {3151.3898f, 636.8519f, 78.7396f},    // 0 Saviana start point
     {3149.635f, 668.9644f, 90.507f},    // 1 Saviana fly phase, o=4,69
