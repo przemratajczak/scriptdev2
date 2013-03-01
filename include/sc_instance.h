@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
 * This program is free software licensed under GPL version 2
 * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -21,7 +21,7 @@ enum EncounterState
 #define OUT_SAVE_INST_DATA_COMPLETE    debug_log("SD2: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA(a)          debug_log("SD2: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
 #define OUT_LOAD_INST_DATA_COMPLETE    debug_log("SD2: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        error_log("SD2: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        script_error_log("Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 {
@@ -36,24 +36,32 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
         // Change active state of doors or buttons
         void DoUseDoorOrButton(ObjectGuid guid, uint32 uiWithRestoreTime = 0, bool bUseAlternativeState = false);
         void DoUseDoorOrButton(uint32 uiEntry, uint32 uiWithRestoreTime = 0, bool bUseAlternativeState = false);
+        void DoOpenDoor(ObjectGuid guid);
+        void DoCloseDoor(ObjectGuid guid);
+        void DoOpenDoor(uint32 uiEntry);
+        void DoCloseDoor(uint32 uiEntry);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
         void DoRespawnGameObject(ObjectGuid guid, uint32 uiTimeToDespawn = MINUTE);
         void DoRespawnGameObject(uint32 uiEntry, uint32 uiTimeToDespawn = MINUTE);
 
+        // Toggle the flags of a GO
+        void DoToggleGameObjectFlags(ObjectGuid guid, uint32 uiGOflags, bool bApply);
+        void DoToggleGameObjectFlags(uint32 uiEntry, uint32 uiGOflags, bool bApply);
+
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData);
 
-        //sends completed achievments to all players in instance
+        // Sends completed achievments to all players in instance
         void DoCompleteAchievement(uint32 uiAchievmentId);
 
-        //sends achievment criteria update to all players in instance
+        // Sends achievment criteria update to all players in instance
         void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0);
 
         // Get a Player from map
         Player* GetPlayerInMap(bool bOnlyAlive = false, bool bCanBeGamemaster = true);
 
-        // destroys an item from all players in this instance (encounters like Vashj, Najentus....) 
+        // Destroys an item from all players in this instance (encounters like Vashj, Najentus....) 
         void DestroyItemFromAllPlayers(uint32 uiItemId);
 
         /// Wrapper for simulating map-wide text in this instance. It is expected that the Creature is stored in m_mNpcEntryGuidStore if loaded.
@@ -68,6 +76,7 @@ class MANGOS_DLL_DECL ScriptedInstance : public InstanceData
 
     protected:
         // Storage for GO-Guids and NPC-Guids
+        typedef std::map<uint32, ObjectGuid> EntryGuidMap;
         EntryGuidMap m_mGoEntryGuidStore;                   ///< Store unique GO-Guids by entry
         EntryGuidMap m_mNpcEntryGuidStore;                  ///< Store unique NPC-Guids by entry
 };
@@ -106,7 +115,7 @@ class DialogueHelper
         // The array MUST be terminated by {0,0,0,0,0}
         DialogueHelper(DialogueEntryTwoSide const* aDialogueTwoSide);
 
-        /// Function that MUST be called
+        /// Function to initialize the dialogue helper for instances. If not used with instances, GetSpeakerByEntry MUST be overwritten to obtain the speakers
         void InitializeDialogueHelper(ScriptedInstance* pInstance, bool bCanSimulateText = false) { m_pInstance = pInstance; m_bCanSimulate = bCanSimulateText; }
         /// Set if take first entries or second entries
         void SetDialogueSide(bool bIsFirstSide) { m_bIsFirstSide = bIsFirstSide; }
@@ -116,7 +125,10 @@ class DialogueHelper
         void DialogueUpdate(uint32 uiDiff);
 
     protected:
+        /// Will be called when a dialogue step was done
         virtual void JustDidDialogueStep(int32 iEntry) {}
+        /// Will be called to get a speaker, MUST be implemented if not used in instances
+        virtual Creature* GetSpeakerByEntry(uint32 uiEntry) { return NULL; }
 
     private:
         void DoNextDialogueStep();

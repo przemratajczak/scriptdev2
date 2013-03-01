@@ -463,7 +463,7 @@ struct MANGOS_DLL_DECL npc_harnessed_icemaw_matriarchAI : public npc_escortAI
         Reset();
     }
     
-    void UpdateEscortAI(uint32 uiDiff)
+    void UpdateEscortAI(const uint32 uiDiff)
     {
         if (!bEscortStarted)
             if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())

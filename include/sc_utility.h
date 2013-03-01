@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -106,16 +106,19 @@ struct bit_mask<-1, -1, -1, -1, -1, -1> { enum { value = 0 }; };
 
 struct StaticLocation
 {
-  float x, y, z, o;
+    float x, y, z, o;
 };
+
 struct EventLocations
 {
     float m_fX, m_fY, m_fZ, m_fO;
     uint32 m_uiEntry;
 };
+
 struct SpawnLocation
 {
     uint32 m_uiEntry;
     float m_fX, m_fY, m_fZ, m_fO;
 };
+
 #endif // SC_UTILITY_H
