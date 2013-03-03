@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,26 +17,22 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 80
-SDComment: Quest support: 9889, 10009, 10873, 10896, 10446/10447, 10852, 10887, 10922, 11096, 11093, 10051, 10052. Skettis->Ogri'la Flight
+SDComment: Quest support: 9889, 10009, 10873, 10896, 10446/10447, 10852, 10887, 10922, 11096, 11093, 10051, 10052, 10898.
 SDCategory: Terokkar Forest
 EndScriptData */
 
 /* ContentData
 mob_unkor_the_ruthless
-mob_infested_root_walker
-mob_rotting_forest_rager
 mob_netherweb_victim
 npc_akuno
-npc_floon
 npc_hungry_nether_ray
 npc_letoll
 npc_mana_bomb_exp_trigger
 go_mana_bomb
-npc_skyguard_handler_deesak
-npc_slim
 go_veil_skith_cage
 npc_captive_child
 npc_isla_starmane
+npc_skywing
 EndContentData */
 
 #include "precompiled.h"
@@ -51,12 +47,10 @@ enum
 {
     SAY_SUBMIT                  = -1000194,
 
-    FACTION_HOSTILE             = 45,
     FACTION_FRIENDLY            = 35,
-    QUEST_DONT_KILL_THE_FAT_ONE = 9889,
 
     SPELL_PULVERIZE             = 2676,
-    // SPELL_QUID9889           = 32174,                    // TODO Make use of this quest-credit spell
+    SPELL_QUID9889              = 32174,
 };
 
 struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
@@ -66,20 +60,21 @@ struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
     bool m_bCanDoQuest;
     uint32 m_uiUnfriendlyTimer;
     uint32 m_uiPulverizeTimer;
+    uint32 m_uiFriendlyTimer;
 
     void Reset()
     {
-        m_bCanDoQuest = false;
+        m_bCanDoQuest       = false;
         m_uiUnfriendlyTimer = 0;
-        m_uiPulverizeTimer = 3000;
+        m_uiFriendlyTimer   = 0;
+        m_uiPulverizeTimer  = 3000;
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        m_creature->setFaction(FACTION_HOSTILE);
     }
 
     void DoNice()
     {
         DoScriptText(SAY_SUBMIT, m_creature);
-        m_creature->setFaction(FACTION_FRIENDLY);
+        m_creature->SetFactionTemporary(FACTION_FRIENDLY, TEMPFACTION_RESTORE_REACH_HOME);
         m_creature->SetStandState(UNIT_STAND_STATE_SIT);
         m_creature->RemoveAllAuras();
         m_creature->DeleteThreatList();
@@ -87,57 +82,39 @@ struct MANGOS_DLL_DECL mob_unkor_the_ruthlessAI : public ScriptedAI
         m_uiUnfriendlyTimer = 60000;
     }
 
-    void DamageTaken(Unit* pDealer, uint32 &uiDamage)
-    {
-        if ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() >= 30)
-            return;
-
-        if (Player* pPlayer = pDealer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        {
-            if (Group* pGroup = pPlayer->GetGroup())
-            {
-                for(GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    Player* pGroupie = itr->getSource();
-                    if (pGroupie &&
-                        pGroupie->GetQuestStatus(QUEST_DONT_KILL_THE_FAT_ONE) == QUEST_STATUS_INCOMPLETE &&
-                        pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONT_KILL_THE_FAT_ONE, 18260) == 10)
-                    {
-                        pGroupie->AreaExploredOrEventHappens(QUEST_DONT_KILL_THE_FAT_ONE);
-                        if (!m_bCanDoQuest)
-                            m_bCanDoQuest = true;
-                    }
-                }
-            }
-            else if (pPlayer->GetQuestStatus(QUEST_DONT_KILL_THE_FAT_ONE) == QUEST_STATUS_INCOMPLETE &&
-                pPlayer->GetReqKillOrCastCurrentCount(QUEST_DONT_KILL_THE_FAT_ONE, 18260) == 10)
-            {
-                pPlayer->AreaExploredOrEventHappens(QUEST_DONT_KILL_THE_FAT_ONE);
-                m_bCanDoQuest = true;
-            }
-        }
-    }
-
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_bCanDoQuest)
+        // Reset npc on timer
+        if (m_uiUnfriendlyTimer)
         {
-            if (!m_uiUnfriendlyTimer)
-            {
-                //DoCastSpellIfCan(m_creature,SPELL_QUID9889);        //not using spell for now
-                DoNice();
-            }
+            if (m_uiUnfriendlyTimer <= uiDiff)
+                EnterEvadeMode();
             else
-            {
-                if (m_uiUnfriendlyTimer <= uiDiff)
-                    EnterEvadeMode();
-                else
-                    m_uiUnfriendlyTimer -= uiDiff;
-            }
+                m_uiUnfriendlyTimer -= uiDiff;
         }
 
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        // Do quest kill credit at 30%
+        if (!m_bCanDoQuest && m_creature->GetHealthPercent() < 30.0f)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_QUID9889, CAST_TRIGGERED);
+            m_uiFriendlyTimer = 1000;
+            m_bCanDoQuest = true;
+        }
+
+        // Set faction right after the spell is casted, in order to avoid any issues
+        if (m_uiFriendlyTimer)
+        {
+            if (m_uiFriendlyTimer <= uiDiff)
+            {
+                DoNice();
+                m_uiFriendlyTimer = 0;
+            }
+            else
+                m_uiFriendlyTimer -= uiDiff;
+        }
 
         if (m_uiPulverizeTimer < uiDiff)
         {
@@ -157,65 +134,6 @@ CreatureAI* GetAI_mob_unkor_the_ruthless(Creature* pCreature)
 }
 
 /*######
-## mob_infested_root_walker
-######*/
-
-enum
-{
-    SPELL_SUMMON_WOOD_MITES     = 39130,
-};
-
-struct MANGOS_DLL_DECL mob_infested_root_walkerAI : public ScriptedAI
-{
-    mob_infested_root_walkerAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-    void Reset() { }
-
-    void DamageTaken(Unit* pDealer, uint32 &uiDamage)
-    {
-        if (m_creature->GetHealth() <= uiDamage)
-            if (pDealer->IsControlledByPlayer())
-                if (urand(0, 3))
-                    //Summon Wood Mites
-                    DoCastSpellIfCan(m_creature, SPELL_SUMMON_WOOD_MITES, CAST_TRIGGERED);
-    }
-};
-
-CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
-{
-    return new mob_infested_root_walkerAI(pCreature);
-}
-
-/*######
-## mob_rotting_forest_rager
-######*/
-
-enum
-{
-    SPELL_SUMMON_LOTS_OF_WOOD_MIGHTS    = 39134,
-};
-
-struct MANGOS_DLL_DECL mob_rotting_forest_ragerAI : public ScriptedAI
-{
-    mob_rotting_forest_ragerAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-    void Reset() { }
-
-    void DamageTaken(Unit* pDealer, uint32 &uiDamage)
-    {
-        if (m_creature->GetHealth() <= uiDamage)
-            if (pDealer->IsControlledByPlayer())
-                if (urand(0, 3))
-                    //Summon Lots of Wood Mights
-                    DoCastSpellIfCan(m_creature, SPELL_SUMMON_LOTS_OF_WOOD_MIGHTS, CAST_TRIGGERED);
-    }
-};
-CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
-{
-    return new mob_rotting_forest_ragerAI(pCreature);
-}
-
-/*######
 ## mob_netherweb_victim
 ######*/
 
@@ -223,13 +141,14 @@ enum
 {
     NPC_FREED_WARRIOR       = 22459,
     QUEST_TAKEN_IN_NIGHT    = 10873
-    //SPELL_FREE_WEBBED       = 38950
+                              // SPELL_FREE_WEBBED       = 38950
 };
 
 const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
 };
+
 struct MANGOS_DLL_DECL mob_netherweb_victimAI : public ScriptedAI
 {
     mob_netherweb_victimAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -282,8 +201,8 @@ enum
     NPC_CABAL_SKIRMISHER    = 21661
 };
 
-static float m_afAmbushB1[]= {-2895.525879f, 5336.431641f, -11.800f};
-static float m_afAmbushB2[]= {-2890.604980f, 5331.938965f, -11.282f};
+static float m_afAmbushB1[] = { -2895.525879f, 5336.431641f, -11.800f};
+static float m_afAmbushB2[] = { -2890.604980f, 5331.938965f, -11.282f};
 
 struct MANGOS_DLL_DECL npc_akunoAI : public npc_escortAI
 {
@@ -298,7 +217,7 @@ struct MANGOS_DLL_DECL npc_akunoAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(uiPointId)
+        switch (uiPointId)
         {
             case 5:
                 DoScriptText(SAY_AKU_AMBUSH_A, m_creature);
@@ -354,7 +273,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
         if (npc_akunoAI* pEscortAI = dynamic_cast<npc_akunoAI*>(pCreature->AI()))
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+            pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
 
             DoScriptText(SAY_AKU_START, pCreature);
             pEscortAI->Start(false, pPlayer, pQuest);
@@ -366,135 +285,6 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
 CreatureAI* GetAI_npc_akuno(Creature* pCreature)
 {
     return new npc_akunoAI(pCreature);
-}
-
-/*######
-## npc_floon -- TODO move to EventAI and WorldDB (gossip)
-######*/
-
-enum
-{
-    SAY_FLOON_ATTACK        = -1000195,
-
-    SPELL_SILENCE           = 6726,
-    SPELL_FROSTBOLT         = 9672,
-    SPELL_FROST_NOVA        = 11831,
-
-    FACTION_HOSTILE_FL      = 1738,
-    QUEST_CRACK_SKULLS      = 10009
-};
-
-#define GOSSIP_FLOON1       "You owe Sim'salabim money. Hand them over or die!"
-#define GOSSIP_FLOON2       "Hand over the money or die...again!"
-
-struct MANGOS_DLL_DECL npc_floonAI : public ScriptedAI
-{
-    npc_floonAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_uiNormFaction = pCreature->getFaction();
-        Reset();
-    }
-
-    uint32 m_uiNormFaction;
-    uint32 m_uiSilence_Timer;
-    uint32 m_uiFrostbolt_Timer;
-    uint32 m_uiFrostNova_Timer;
-
-    void Reset()
-    {
-        m_uiSilence_Timer = 2000;
-        m_uiFrostbolt_Timer = 4000;
-        m_uiFrostNova_Timer = 9000;
-
-        if (m_creature->getFaction() != m_uiNormFaction)
-            m_creature->setFaction(m_uiNormFaction);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        if (m_uiSilence_Timer < uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SILENCE);
-            m_uiSilence_Timer = 30000;
-        }else m_uiSilence_Timer -= uiDiff;
-
-        if (m_uiFrostNova_Timer < uiDiff)
-        {
-            DoCastSpellIfCan(m_creature,SPELL_FROST_NOVA);
-            m_uiFrostNova_Timer = 20000;
-        }else m_uiFrostNova_Timer -= uiDiff;
-
-        if (m_uiFrostbolt_Timer < uiDiff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(),SPELL_FROSTBOLT);
-            m_uiFrostbolt_Timer = 5000;
-        }else m_uiFrostbolt_Timer -= uiDiff;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-CreatureAI* GetAI_npc_floon(Creature* pCreature)
-{
-    return new npc_floonAI(pCreature);
-}
-
-bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
-{
-    if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetObjectGuid());
-    return true;
-}
-
-bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetObjectGuid());
-    }
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->setFaction(FACTION_HOSTILE_FL);
-        DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
-        pCreature->AI()->AttackStart(pPlayer);
-    }
-    return true;
-}
-
-/*######
-## npc_skyguard_handler_deesak -- TODO move to WorldDB (gossip)
-######*/
-
-#define GOSSIP_SKYGUARD "Fly me to Ogri'la please"
-
-bool GossipHello_npc_skyguard_handler_deesak(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
-
-    if (pPlayer->GetReputationRank(1031) >= REP_HONORED)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SKYGUARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_skyguard_handler_deesak(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->CastSpell(pPlayer,41279,true);               //TaxiPath 705 (Taxi - Skettis to Skyguard Outpost)
-    }
-    return true;
 }
 
 /*######
@@ -569,7 +359,7 @@ enum
     MAX_RESEARCHER                  = 4
 };
 
-//Some details still missing from here, and will also have issues if followers evade for any reason.
+// Some details still missing from here, and will also have issues if followers evade for any reason.
 struct MANGOS_DLL_DECL npc_letollAI : public npc_escortAI
 {
     npc_letollAI(Creature* pCreature) : npc_escortAI(pCreature)
@@ -586,14 +376,14 @@ struct MANGOS_DLL_DECL npc_letollAI : public npc_escortAI
 
     void Reset() {}
 
-    //will make them follow, but will only work until they enter combat with any unit
+    // will make them follow, but will only work until they enter combat with any unit
     void SetFormation()
     {
         uint32 uiCount = 0;
 
-        for(std::list<Creature*>::iterator itr = m_lResearchersList.begin(); itr != m_lResearchersList.end(); ++itr)
+        for (std::list<Creature*>::iterator itr = m_lResearchersList.begin(); itr != m_lResearchersList.end(); ++itr)
         {
-            float fAngle = uiCount < MAX_RESEARCHER ? M_PI/MAX_RESEARCHER - (uiCount*2*M_PI/MAX_RESEARCHER) : 0.0f;
+            float fAngle = uiCount < MAX_RESEARCHER ? M_PI / MAX_RESEARCHER - (uiCount * 2 * M_PI / MAX_RESEARCHER) : 0.0f;
 
             if ((*itr)->isAlive() && !(*itr)->isInCombat())
                 (*itr)->GetMotionMaster()->MoveFollow(m_creature, 2.5f, fAngle);
@@ -608,7 +398,7 @@ struct MANGOS_DLL_DECL npc_letollAI : public npc_escortAI
         {
             uint8 uiNum = 1;
 
-            for(std::list<Creature*>::iterator itr = m_lResearchersList.begin(); itr != m_lResearchersList.end(); ++itr)
+            for (std::list<Creature*>::iterator itr = m_lResearchersList.begin(); itr != m_lResearchersList.end(); ++itr)
             {
                 if (uiListNum && uiListNum != uiNum)
                 {
@@ -639,7 +429,7 @@ struct MANGOS_DLL_DECL npc_letollAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(uiPointId)
+        switch (uiPointId)
         {
             case 0:
                 if (Player* pPlayer = GetPlayerForEscort())
@@ -687,7 +477,7 @@ struct MANGOS_DLL_DECL npc_letollAI : public npc_escortAI
                 {
                     m_uiEventTimer = 7000;
 
-                    switch(m_uiEventCount)
+                    switch (m_uiEventCount)
                     {
                         case 0:
                             DoScriptText(SAY_LE_ALMOST, m_creature);
@@ -774,7 +564,7 @@ bool QuestAccept_npc_letoll(Player* pPlayer, Creature* pCreature, const Quest* p
         if (npc_letollAI* pEscortAI = dynamic_cast<npc_letollAI*>(pCreature->AI()))
         {
             DoScriptText(SAY_LE_START, pCreature);
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
+            pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
 
             pEscortAI->Start(false, pPlayer, pQuest, true);
         }
@@ -844,7 +634,7 @@ struct MANGOS_DLL_DECL npc_mana_bomb_exp_triggerAI : public ScriptedAI
             if (m_uiEventCounter < 10)
                 m_creature->CastSpell(m_creature, SPELL_MANA_BOMB_LIGHTNING, false);
 
-            switch(m_uiEventCounter)
+            switch (m_uiEventCounter)
             {
                 case 5:
                     if (pManaBomb)
@@ -903,36 +693,6 @@ bool GOUse_go_mana_bomb(Player* pPlayer, GameObject* pGo)
 }
 
 /*######
-## npc_slim
-######*/
-
-enum
-{
-    FACTION_CONSORTIUM  = 933
-};
-
-bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetObjectGuid());
-    }
-    else
-        pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(pCreature->GetObjectGuid());
-
-    return true;
-}
-
-/*#####
 ## go_veil_skith_cage & npc_captive_child
 #####*/
 
@@ -952,10 +712,10 @@ bool GOUse_go_veil_skith_cage(Player* pPlayer, GameObject* pGo)
     {
         std::list<Creature*> lChildrenList;
         GetCreatureListWithEntryInGrid(lChildrenList, pGo, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
-        for(std::list<Creature*>::const_iterator itr = lChildrenList.begin(); itr != lChildrenList.end(); ++itr)
+        for (std::list<Creature*>::const_iterator itr = lChildrenList.begin(); itr != lChildrenList.end(); ++itr)
         {
             pPlayer->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetObjectGuid());
-            switch(urand(0,3))
+            switch (urand(0, 3))
             {
                 case 0: DoScriptText(SAY_THANKS_1, *itr); break;
                 case 1: DoScriptText(SAY_THANKS_2, *itr); break;
@@ -1041,7 +801,7 @@ struct MANGOS_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
     {
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
         DoScriptText(SAY_ISLA_START, m_creature);
-        if (GameObject* pCage = GetClosestGameObjectWithEntry(m_creature, GO_CAGE, 2*INTERACTION_DISTANCE))
+        if (GameObject* pCage = GetClosestGameObjectWithEntry(m_creature, GO_CAGE, 2 * INTERACTION_DISTANCE))
             pCage->Use(m_creature);
     }
 
@@ -1056,7 +816,7 @@ struct MANGOS_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(uiPointId)
+        switch (uiPointId)
         {
             case 6:
                 DoScriptText(SAY_ISLA_WAITING, m_creature);
@@ -1128,7 +888,7 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, const Q
     {
         if (npc_isla_starmaneAI* pEscortAI = dynamic_cast<npc_isla_starmaneAI*>(pCreature->AI()))
         {
-            pCreature->setFaction(pPlayer->GetTeam() == ALLIANCE ? FACTION_ESCORT_A_NEUTRAL_ACTIVE : FACTION_ESCORT_H_NEUTRAL_ACTIVE);
+            pCreature->SetFactionTemporary(pPlayer->GetTeam() == ALLIANCE ? FACTION_ESCORT_A_NEUTRAL_ACTIVE : FACTION_ESCORT_H_NEUTRAL_ACTIVE, TEMPFACTION_RESTORE_RESPAWN);
             pEscortAI->Start(false, pPlayer, pQuest);
         }
     }
@@ -1140,276 +900,132 @@ CreatureAI* GetAI_npc_isla_starmane(Creature* pCreature)
     return new npc_isla_starmaneAI(pCreature);
 }
 
-/*#####
-## npc_terokk
-#####*/
+/*######
+## npc_skywing
+######*/
 
 enum
 {
-    SPELL_ANCIENT_FLAME       = 40657,
-    SPELL_TRIGGER_SUMMON      = 45039,
-    SPELL_BLUE_FLARE_CHANNEL  = 40656,
-    SPELL_CHOSEN_ONE          = 40726,
-    SPELL_ENRAGE              = 28747,
-    //SPELL_WILL_OF_ARAKKOA_GOD = 40722,
+    SAY_SKYWING_START            = -1000797,
+    SAY_SKYWING_TREE_DOWN        = -1000798,
+    SAY_SKYWING_TREE_UP          = -1000799,
+    SAY_SKYWING_JUMP             = -1000800,
+    SAY_SKYWING_SUMMON           = -1000801,
+    SAY_SKYWING_END              = -1000802,
 
-    AURA_DIVINE_SHIELD        = 40733,
+    SPELL_FEATHERY_CYCLONE_BURST = 39166,           // triggered many times by server side spell - 39167 (channeled for 5 sec)
+    SPELL_RILAK_THE_REDEEMED     = 39179,
 
-    NPC_SKYGUARD_TRIGGER      = 23277,
-    NPC_TEROKK                = 21838,
-    NPC_SKYGUARD_ACE          = 23377,
+    NPC_LUANGA_THE_IMPRISONER    = 18533,
 
-    //Terokk's Texts
-    TEXT_SAY_TEROKK_SUMMON    = -1021839,
-    TEXT_YELL_CHOSEN_ONE      = -1021841,
-    TEXT_YELL_IMMUNE          = -1021843,
-    BOSS_EMOTE_IMMUNE_REMOVE  = -1021844,
-
-    //Skyguard Ace Texts
-    TEXT_ACE_SUMMON           = -1021840,
-    TEXT_ACE_TEROKK_AURA      = -1021842,
-    TEXT_ACE_TEROKKS_FALL     = -1021845,
+    QUEST_SKYWING                = 10898
 };
 
-float TrigerSpawnPlace[5][3] =
+static const float aLuangaSpawnCoords[3] = { -3507.203f, 4084.619f, 92.947f};
+
+struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
 {
-    {-3788.786f, 3497.929f, 287.03f},
-    {-3795.779f, 3525.744f, 287.03f},
-    {-3796.924f, 3513.652f, 287.03f},
-    {-3798.724f, 3491.453f, 287.03f},
-    {-3812.550f, 3503.534f, 287.03f}
-};
+    npc_skywingAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
 
-// There need to be SkyguardAce Waypoints but he can't cast spell when moving
-float SkyguardAceFlyWay[1][3] =
-{
-    {-3773.768f, 3538.877f, 320.0f}
-};
+    uint32 m_uiCycloneTimer;
+    uint8 m_uiCycloneCounter;
 
-struct MANGOS_DLL_DECL npc_TerokkAI : public ScriptedAI
-{
-    npc_TerokkAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
-
-    bool SpellCast;
-    bool IsAceSummoned;
-    uint32 ChosenOneTimer;
-    uint32 OOCTime;
-
-    void Reset()
+    void Reset() override
     {
-        IsAceSummoned = false;
-        SpellCast = false;
-        ChosenOneTimer = 30000;
-        OOCTime = 2000;
-
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        DoScriptText(TEXT_SAY_TEROKK_SUMMON, m_creature);
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            m_uiCycloneTimer = 0;
+            m_uiCycloneCounter = 0;
+        }
     }
 
-    void JustDied(Unit* pKiller)
+    void WaypointReached(uint32 uiPointId)
     {
-        std::list<Creature*> lTriggers;
-        GetCreatureListWithEntryInGrid(lTriggers, m_creature, NPC_SKYGUARD_TRIGGER, 150.0f);
-        for (std::list<Creature*>::const_iterator i =lTriggers.begin(); i != lTriggers.end(); i++)
+        switch (uiPointId)
         {
-            if(*i)
+            case 6:
+                DoScriptText(SAY_SKYWING_TREE_DOWN , m_creature);
+                break;
+            case 36:
+                DoScriptText(SAY_SKYWING_TREE_UP, m_creature);
+                break;
+            case 60:
+                DoScriptText(SAY_SKYWING_JUMP, m_creature);
+                m_creature->SetLevitate(true);
+                break;
+            case 61:
+                m_creature->SetLevitate(false);
+                break;
+            case 80:
+                DoScriptText(SAY_SKYWING_SUMMON, m_creature);
+                m_creature->SummonCreature(NPC_LUANGA_THE_IMPRISONER, aLuangaSpawnCoords[0], aLuangaSpawnCoords[1], aLuangaSpawnCoords[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                break;
+            case 81:
+                // Start transformation
+                m_uiCycloneTimer = 100;
+                break;
+            case 82:
+                DoScriptText(SAY_SKYWING_END, m_creature);
+
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_SKYWING, m_creature);
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        pSummoned->AI()->AttackStart(m_creature);
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff) override
+    {
+        if (m_uiCycloneTimer)
+        {
+            if (m_uiCycloneTimer <= uiDiff)
             {
-                (*i)->ForcedDespawn();
+                if (DoCastSpellIfCan(m_creature, SPELL_FEATHERY_CYCLONE_BURST) == CAST_OK)
+                {
+                    ++m_uiCycloneCounter;
+
+                    if (m_uiCycloneCounter == 30)
+                        DoCastSpellIfCan(m_creature, SPELL_RILAK_THE_REDEEMED, CAST_TRIGGERED);
+
+                    // Only cast this spell 50 times
+                    if (m_uiCycloneCounter == 50)
+                        m_uiCycloneTimer = 0;
+                    else
+                        m_uiCycloneTimer = 100;
+                }
             }
+            else
+                m_uiCycloneTimer -= uiDiff;
         }
 
-        if(Creature* pAce = GetClosestCreatureWithEntry(m_creature, NPC_SKYGUARD_ACE, 500.0f))
-        {
-            DoScriptText(TEXT_ACE_TEROKKS_FALL, pAce);
-            //pAce->Unmount();
-            pAce->ForcedDespawn();
-        }
-    }
-    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
-    {
-        if(m_creature->HasAura(AURA_DIVINE_SHIELD))
-        {
-            if(pSpell->Id == SPELL_ANCIENT_FLAME)
-            {
-                DoScriptText(BOSS_EMOTE_IMMUNE_REMOVE, m_creature);
-                m_creature->RemoveAllAuras();
-                m_creature->CastSpell(m_creature, SPELL_ENRAGE, true);
-            }
-        }
-    }
-    void UpdateAI(const uint32 Diff)
-    {
-        if(!m_creature->isAlive())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
-
-        if(!m_creature->getVictim() || !m_creature->SelectHostileTarget())
-        {
-            if(OOCTime <= Diff)
-            {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            } else OOCTime -= Diff;
-        }
-
-        if(m_creature->GetHealthPercent() > 25.1f)
-        {
-            if(ChosenOneTimer <= Diff)
-            {
-                //if (Unit* targetAggro = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 1))
-                    //This spell is bugged! It Should ignore aggro, but it aggro all creatures in 99yds range
-                    //m_creature->CastSpell(targetAggro, SPELL_WILL_OF_ARAKKOA_GOD, false);
-
-                if (Unit* targetBottom = m_creature->SelectAttackingTarget(ATTACKING_TARGET_BOTTOMAGGRO, 1))
-                {
-                    DoScriptText(TEXT_YELL_CHOSEN_ONE, m_creature, targetBottom);
-                    m_creature->CastSpell(targetBottom, SPELL_CHOSEN_ONE, false);
-                    m_creature->Attack(targetBottom, true);
-                }
-                ChosenOneTimer = 30000;
-            } else ChosenOneTimer -= Diff;
-        }
-        if((m_creature->GetHealthPercent() <= 50.0f) && m_creature->isAlive())
-        {
-            if(!IsAceSummoned)
-            {
-                //Need to be defined manualy, he should fly above Terokk
-                m_creature->SummonCreature(NPC_SKYGUARD_ACE, SkyguardAceFlyWay[0][0], SkyguardAceFlyWay[0][1], SkyguardAceFlyWay[0][2], 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 0);         
-                IsAceSummoned = true;
-            }
-        }
-        if((m_creature->GetHealthPercent() <= 25.0f) && m_creature->isAlive())
-        {
-            if(!SpellCast)
-            {
-                SpellCast = true;
-                m_creature->CastSpell(m_creature, AURA_DIVINE_SHIELD, true);
-                DoScriptText(TEXT_YELL_IMMUNE, m_creature);
-            }
-        }
-        DoMeleeAttackIfReady();
     }
 };
 
-CreatureAI* GetAI_npc_Terokk(Creature* pCreature)
+bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
 {
-    return new npc_TerokkAI(pCreature);
-}
-
-struct MANGOS_DLL_DECL npc_SkyguardAceAI : public ScriptedAI
-{
-    npc_SkyguardAceAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
-
-    bool IsTriggerSpawned;
-    bool CastingOnTrigger;
-    bool CastingOnTerokk;
-    bool WasTextYelling;
-
-    uint32 DropTime;
-    uint32 SummonTime;
-
-    void Reset()
+    if (pQuest->GetQuestId() == QUEST_SKYWING)
     {
-        CastingOnTrigger = false;
-        CastingOnTerokk  = false;
-        IsTriggerSpawned = false;
-        WasTextYelling   = false;
-
-        DropTime         = urand(10000, 25000);
-        SummonTime       = urand(5000, 10000);
-
-        if(Creature* pTerokk = GetClosestCreatureWithEntry(m_creature, NPC_TEROKK, 500.0f))
+        if (npc_skywingAI* pEscortAI = dynamic_cast<npc_skywingAI*>(pCreature->AI()))
         {
-            if(pTerokk->isAlive())
-            {
-                DoScriptText(TEXT_ACE_SUMMON, m_creature);
-            }
+            pCreature->SetFactionTemporary(FACTION_ESCORT_N_NEUTRAL_PASSIVE, TEMPFACTION_RESTORE_RESPAWN);
+            DoScriptText(SAY_SKYWING_START, pCreature);
+
+            pEscortAI->Start(false, pPlayer, pQuest);
         }
     }
-    void UpdateAI(const uint32 Diff)
-    {
-        if(Creature* pTerokk = GetClosestCreatureWithEntry(m_creature, NPC_TEROKK, 500.0f))
-        {
-            if(pTerokk->isAlive())
-            {
-                if(pTerokk->GetHealthPercent() < 25.0f)
-                {
-                    if(!WasTextYelling)
-                    {
-                        DoScriptText(TEXT_ACE_TEROKK_AURA, m_creature);
-                        WasTextYelling = true;
-                    }
-                    if(pTerokk->HasAura(AURA_DIVINE_SHIELD))
-                    {
-                        if(!IsTriggerSpawned)
-                        {
-                            if(SummonTime <= Diff)
-                            {
-                                //This work awsome! :)
-                                int i;
-                                i = urand(0,4);
-                                m_creature->CastSpell(TrigerSpawnPlace[i][0], TrigerSpawnPlace[i][1], TrigerSpawnPlace[i][2], SPELL_TRIGGER_SUMMON, true);
-                                IsTriggerSpawned = true;
-                                i = 0;
-                            }
-                            else SummonTime -= Diff;
-                        }
-                        if(IsTriggerSpawned)
-                        {
-                            if(Creature* pTrigger = GetClosestCreatureWithEntry(pTerokk, NPC_SKYGUARD_TRIGGER, 500.0f))
-                            {
-                                if(DropTime <= Diff)
-                                {
-                                    if(pTrigger->IsWithinDistInMap(pTerokk, 3.0f))
-                                    {
-                                        m_creature->CastSpell(pTerokk, SPELL_ANCIENT_FLAME, true);
-                                        //Unfortunaly we can't cast spell at 2 target in same time ;/
-                                        //pTrigger->CastSpell(pTrigger, SPELL_ANCIENT_FLAME, true);
-                                        pTrigger->ForcedDespawn(6000);
-                                    } else {
-                                        m_creature->CastSpell(pTrigger, SPELL_ANCIENT_FLAME, true);
-                                        pTrigger->ForcedDespawn(6000);
-                                    }
-
-                                    DropTime = urand(20000, 25000);
-                                    SummonTime = urand(12000, 15000);
-                                    IsTriggerSpawned = false;
-                                }
-                                else DropTime -= Diff;
-                            }
-                        }
-                    }
-                }
-            }
-        } else
-        m_creature->ForcedDespawn();
-    }
-};
-
-CreatureAI* GetAI_npc_SkyguardAce(Creature* pCreature)
-{
-    return new npc_SkyguardAceAI(pCreature);
+    return true;
 }
 
-struct MANGOS_DLL_DECL npc_SkyguardAceTargetAI : public ScriptedAI
+CreatureAI* GetAI_npc_skywing(Creature* pCreature)
 {
-    npc_SkyguardAceTargetAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
-
-    void Reset()
-    {
-        m_creature->CastSpell(m_creature, SPELL_BLUE_FLARE_CHANNEL, true);
-    }
-
-    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
-    {
-        if(pSpell->Id == SPELL_ANCIENT_FLAME)
-            if(m_creature)
-                m_creature->ForcedDespawn();
-    }
-};
-
-CreatureAI* GetAI_npc_SkyguardAceTarget(Creature* pCreature)
-{
-    return new npc_SkyguardAceTargetAI(pCreature);
+    return new npc_skywingAI(pCreature);
 }
+
 void AddSC_terokkar_forest()
 {
     Script* pNewScript;
@@ -1417,16 +1033,6 @@ void AddSC_terokkar_forest()
     pNewScript = new Script;
     pNewScript->Name = "mob_unkor_the_ruthless";
     pNewScript->GetAI = &GetAI_mob_unkor_the_ruthless;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "mob_infested_root_walker";
-    pNewScript->GetAI = &GetAI_mob_infested_root_walker;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "mob_rotting_forest_rager";
-    pNewScript->GetAI = &GetAI_mob_rotting_forest_rager;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -1438,13 +1044,6 @@ void AddSC_terokkar_forest()
     pNewScript->Name = "npc_akuno";
     pNewScript->GetAI = &GetAI_npc_akuno;
     pNewScript->pQuestAcceptNPC = &QuestAccept_npc_akuno;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_floon";
-    pNewScript->GetAI = &GetAI_npc_floon;
-    pNewScript->pGossipHello =  &GossipHello_npc_floon;
-    pNewScript->pGossipSelect = &GossipSelect_npc_floon;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -1469,18 +1068,6 @@ void AddSC_terokkar_forest()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_skyguard_handler_deesak";
-    pNewScript->pGossipHello =  &GossipHello_npc_skyguard_handler_deesak;
-    pNewScript->pGossipSelect = &GossipSelect_npc_skyguard_handler_deesak;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_slim";
-    pNewScript->pGossipHello =  &GossipHello_npc_slim;
-    pNewScript->pGossipSelect = &GossipSelect_npc_slim;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "go_veil_skith_cage";
     pNewScript->pGOUse = &GOUse_go_veil_skith_cage;
     pNewScript->RegisterSelf();
@@ -1497,17 +1084,8 @@ void AddSC_terokkar_forest()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "npc_terokk";
-    pNewScript->GetAI = &GetAI_npc_Terokk;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_SkyguardAce";
-    pNewScript->GetAI = &GetAI_npc_SkyguardAce;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_SkyguardAceTarget";
-    pNewScript->GetAI = &GetAI_npc_SkyguardAceTarget;
+    pNewScript->Name = "npc_skywing";
+    pNewScript->GetAI = &GetAI_npc_skywing;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_skywing;
     pNewScript->RegisterSelf();
 }
