@@ -61,7 +61,6 @@ add_library(mangosscriptR2 SHARED
 
 if(WIN32)
   target_link_libraries(mangosscriptR2
-    mangosd # FIXME: could this be done for unix? because unix won't generate exe.libs
     ${ACE_LIBRARIES}
     #debug ${WIN_DEBUGLIBS}
   )
