@@ -1,5 +1,5 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
-   Copyright (C) 2011 MangosR2_ScriptDev2
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
+ * Copyright (C) 2011 - 2013 MangosR2 <http://github.com/mangosR2/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,9 +15,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/* ScriptData
+SDName: Battleground_SA
+SD%Complete: %?
+SDComment: Battleground Strand of Ancients
+SDCategory: Battleground_SA
+EndScriptData */
+
 #include "precompiled.h"
-#include "Battleground/BattleGroundSA.h"
-#include "Vehicle.h"
+#include "BattleGround/BattleGroundSA.h"
+
 
 #define GOSSIP_START_EVENT_1        "Start building the Demolisher."
 #define GOSSIP_START_EVENT_2        "You have nothing to do now!"
@@ -75,14 +82,16 @@ struct MANGOS_DLL_DECL npc_sa_vendorAI : public ScriptedAI
                 build[gydId]=false;
             }
             else build_time -= diff;
-
+/* FIXME - need implement correct saying.
             switch (build_time/2)
             {
                 case 15000: m_creature->MonsterSay(SA_MESSAGE_2,LANG_UNIVERSAL,0);
                     break;
                 case 7500: m_creature->MonsterSay(SA_MESSAGE_5,LANG_UNIVERSAL,0);
                     break;
+
             }
+*/
         }
     }
 };
@@ -94,15 +103,18 @@ CreatureAI* GetAI_npc_sa_vendor(Creature* pCreature)
 
 bool GossipHello_npc_sa_vendor(Player* pPlayer, Creature* pCreature)
 {
-    uint8 gyd = NULL;
+    uint8 gyd = 0;
     if (pCreature->GetEntry() == 29260)
         gyd = 0;
     if (pCreature->GetEntry() == 29262)
         gyd = 1;
+
     if (!build[gyd])
     {
         if (pPlayer->GetMapId() == 607)
+        {
             if (BattleGround *bg = pPlayer->GetBattleGround())
+            {
                 if (bg->GetDefender() != pPlayer->GetTeam())
                 {
                     if (bg->GetDefender() != ALLIANCE && bg->GetGydController(gyd) == BG_SA_GRAVE_STATUS_ALLY_OCCUPIED)
@@ -110,6 +122,8 @@ bool GossipHello_npc_sa_vendor(Player* pPlayer, Creature* pCreature)
                     if (bg->GetDefender() != HORDE && bg->GetGydController(gyd) == BG_SA_GRAVE_STATUS_HORDE_OCCUPIED)
                         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 }
+            }
+        }
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
     }
     else
@@ -230,28 +244,9 @@ bool GOHello_go_sa_def_portal(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
-bool GOHello_go_sa_bomb(Player* pPlayer, GameObject* pGo)
-{
-    if (!pPlayer || !pGo)
-        return false;
-
-    if (pPlayer->GetMapId() == 607)
-    {
-        if (BattleGround *bg = pPlayer->GetBattleGround())
-        {
-            if (pPlayer->GetTeam() != bg->GetDefender())
-            {
-                pPlayer->CastSpell(pPlayer, 52415, false);
-                pGo->Delete();
-            }
-        }
-    }
-    return true;
-}
-
 void AddSC_battlegroundSA()
 {
-    Script *pNewScript;
+    Script* pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "npc_sa_vendor";
@@ -263,10 +258,5 @@ void AddSC_battlegroundSA()
     pNewScript = new Script;
     pNewScript->Name = "go_sa_def_portal";
     pNewScript->pGOUse = &GOHello_go_sa_def_portal;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name="go_sa_bomb";
-    pNewScript->pGOUse = &GOHello_go_sa_bomb;
     pNewScript->RegisterSelf();
 }

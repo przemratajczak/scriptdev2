@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -47,11 +47,13 @@ enum
 
 struct MANGOS_DLL_DECL npc_spirit_guideAI : public ScriptedAI
 {
-    npc_spirit_guideAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
-
-    void Reset()
+    npc_spirit_guideAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
+        pCreature->SetActiveObjectState(true);
+        Reset();
     }
+
+    void Reset() {}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -63,7 +65,7 @@ struct MANGOS_DLL_DECL npc_spirit_guideAI : public ScriptedAI
         }
     }
 
-    void CorpseRemoved(uint32 &)
+    void CorpseRemoved(uint32&)
     {
         // TODO: would be better to cast a dummy spell
         Map* pMap = m_creature->GetMap();
@@ -71,9 +73,9 @@ struct MANGOS_DLL_DECL npc_spirit_guideAI : public ScriptedAI
         if (!pMap || !pMap->IsBattleGround())
             return;
 
-        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+        Map::PlayerList const& PlayerList = pMap->GetPlayers();
 
-        for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
         {
             Player* pPlayer = itr->getSource();
             if (!pPlayer || !pPlayer->IsWithinDistInMap(m_creature, 20.0f) || !pPlayer->HasAura(SPELL_WAITING_TO_RESURRECT))
@@ -84,10 +86,10 @@ struct MANGOS_DLL_DECL npc_spirit_guideAI : public ScriptedAI
         }
     }
 
-    void SpellHitTarget (Unit* pUnit, const SpellEntry* pSpellEntry)
+    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry)
     {
         if (pSpellEntry->Id == SPELL_SPIRIT_HEAL && pUnit->GetTypeId() == TYPEID_PLAYER
-            && pUnit->HasAura(SPELL_WAITING_TO_RESURRECT))
+                && pUnit->HasAura(SPELL_WAITING_TO_RESURRECT))
             pUnit->CastSpell(pUnit, SPELL_SPIRIT_HEAL_MANA, true);
     }
 };
@@ -105,11 +107,11 @@ CreatureAI* GetAI_npc_spirit_guide(Creature* pCreature)
 
 void AddSC_battleground()
 {
-    Script* newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "npc_spirit_guide";
-    newscript->GetAI = &GetAI_npc_spirit_guide;
-    newscript->pGossipHello = &GossipHello_npc_spirit_guide;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_spirit_guide";
+    pNewScript->GetAI = &GetAI_npc_spirit_guide;
+    pNewScript->pGossipHello = &GossipHello_npc_spirit_guide;
+    pNewScript->RegisterSelf();
 }
