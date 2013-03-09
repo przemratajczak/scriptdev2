@@ -11,7 +11,7 @@ INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`)  VALUES
 ('1595','-1','819','1591'),
 ('1596','-1','820','1592');
 
-DELETE FROM gossip_menu_option WHERE menu_id IN (7559,7560),
+DELETE FROM gossip_menu_option WHERE menu_id IN (7559,7560);
 
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `action_script_id`, `box_coded`, `box_money`, `box_text`,  `condition_id`) VALUES('7559','0','0','Grant me your mark, wise ancient.','1','1','-1','0','7559','0','0',NULL,'1594'),
 ('7559','1','0','Grant me your mark, wise ancient.','1','1','-1','0','50010','0','0',NULL,'1595'),
