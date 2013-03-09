@@ -195,7 +195,7 @@ void instance_stratholme::SetData(uint32 uiType, uint32 uiData)
                 }
 
                 uint32 uiCount = m_sAbomnationGUID.size();
-                for(GUIDSet::iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end();)
+                for(GuidSet::iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end();)
                 {
                     if (Creature* pAbom = instance->GetCreature(*itr))
                     {
@@ -265,7 +265,7 @@ void instance_stratholme::SetData(uint32 uiType, uint32 uiData)
                 m_uiSlaugtherSquareTimer = 0;
 
                 // Let already moving Abomnations stop
-                for (GUIDSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
+                for (GuidSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
                 {
                     Creature* pAbom = instance->GetCreature(*itr);
                     if (pAbom && pAbom->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
@@ -747,7 +747,7 @@ void instance_stratholme::Update(uint32 uiDiff)
         if (m_uiSlaugtherSquareTimer <= uiDiff)
         {
             // Call next Abomnations
-            for (GUIDSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
+            for (GuidSet::const_iterator itr = m_sAbomnationGUID.begin(); itr != m_sAbomnationGUID.end(); ++itr)
             {
                 Creature* pAbom = instance->GetCreature(*itr);
                 // Skip killed and already walking Abomnations

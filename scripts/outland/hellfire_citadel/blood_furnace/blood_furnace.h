@@ -46,7 +46,7 @@ struct BroggokEventInfo
     ObjectGuid m_cellGuid;
     bool m_bIsCellOpened;
     uint8 m_uiKilledOrcCount;
-    GUIDSet m_sSortedOrcGuids;
+    GuidSet m_sSortedOrcGuids;
 };
 
 class MANGOS_DLL_DECL instance_blood_furnace : public ScriptedInstance

@@ -153,7 +153,7 @@ class MANGOS_DLL_DECL instance_stratholme : public ScriptedInstance
 
         std::set<uint32> m_suiCrimsonLowGuids;
         GuidList m_luiCrystalGUIDs;
-        GUIDSet m_sAbomnationGUID;
+        GuidSet m_sAbomnationGUID;
         GuidList m_luiAcolyteGUIDs;
         GuidList m_luiUndeadGUIDs;
         GuidList m_luiGuardGUIDs;

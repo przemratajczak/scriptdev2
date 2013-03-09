@@ -107,7 +107,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         GuidVector m_vStalkerTargetGuids;
         GuidList m_lEckDwellerGuids;
         GuidList m_lLivingMojoGuids;
-        GUIDSet m_lImpaledPlayers;
+        GuidSet m_lImpaledPlayers;
 };
 
 #endif
