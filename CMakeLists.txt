@@ -43,7 +43,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/framework
   ${CMAKE_SOURCE_DIR}/src/game
   ${CMAKE_SOURCE_DIR}/dep/include
-${CMAKE_SOURCE_DIR}/dep/include/g3dlite
+  ${CMAKE_SOURCE_DIR}/dep/include/g3dlite
   ${CMAKE_BINARY_DIR}
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
@@ -55,7 +55,7 @@ if(PCH)
   )
 endif()
 
-add_library(mangosscriptR2 SHARED
+add_library(mangosscriptR2 STATIC
   ${mangosscript_SRCS}
 )
 
@@ -139,6 +139,7 @@ endif()
 install(TARGETS mangosscriptR2
   LIBRARY DESTINATION ${LIBS_DIR}
   RUNTIME DESTINATION ${LIBS_DIR}
+  ARCHIVE DESTINATION ${LIBS_DIR}
 )
 
 install(FILES scriptdev2.conf.dist.in DESTINATION ${CONF_DIR} RENAME scriptdev2.conf.dist)
