@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2012 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -8,7 +8,6 @@
 #include "Common.h"
 #include "DBCStructure.h"
 #include "Database/DatabaseEnv.h"
-#include "LockedVector.h"
 
 class Player;
 class Creature;
@@ -31,12 +30,6 @@ class ObjectGuid;
 // Basic defines
 #define VISIBLE_RANGE       (166.0f)                        // MAX visible range (size of grid)
 #define DEFAULT_TEXT        "<ScriptDev2 Text Entry Missing!>"
-
-// Some typedefs for storing Guids
-typedef ACE_Based::LockedVector<ObjectGuid> GuidList;
-typedef ACE_Based::LockedVector<ObjectGuid> GuidVector;
-typedef std::set<ObjectGuid> GUIDSet;
-typedef std::map<uint32, ObjectGuid> EntryGuidMap;
 
 /* Escort Factions
  * TODO: find better namings and definitions.

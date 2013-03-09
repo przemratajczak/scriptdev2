@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+# Copyright (C) 2005-2012 MaNGOS <http://getmangos.com/>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,20 +49,22 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/config.h)
+
 if(PCH)
   include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
   )
 endif()
 
-add_library(mangosscriptR2 STATIC
+add_library(mangosscriptR2 SHARED
   ${mangosscript_SRCS}
 )
 
 if(WIN32)
   target_link_libraries(mangosscriptR2
     ${ACE_LIBRARIES}
-    #debug ${WIN_DEBUGLIBS}
+#    debug ${WIN_DEBUGLIBS}
   )
 endif()
 
@@ -139,7 +141,6 @@ endif()
 install(TARGETS mangosscriptR2
   LIBRARY DESTINATION ${LIBS_DIR}
   RUNTIME DESTINATION ${LIBS_DIR}
-  ARCHIVE DESTINATION ${LIBS_DIR}
 )
 
 install(FILES scriptdev2.conf.dist.in DESTINATION ${CONF_DIR} RENAME scriptdev2.conf.dist)

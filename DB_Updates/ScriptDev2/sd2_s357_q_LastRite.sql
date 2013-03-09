@@ -2,8 +2,9 @@
 UPDATE creature_template SET ScriptName = 'npc_thassarian' WHERE entry = 26170;
 
 -- npc_thassarian
-INSERT INTO creature (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`)
-VALUES ('850000','26170','571','1','1','0','613','3691.87','3576.49','473.322','6.06956','25','5','0','67270','0','0','2');
+DELETE FROM creature WHERE guid = 850000;
+INSERT INTO creature (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+('850000','26170','571','1','1','0','613','3691.87','3576.49','473.322','6.06956','25','5','0','67270','0','0','2');
 
 -- npc valanar
 DELETE FROM creature WHERE id = 28189;
