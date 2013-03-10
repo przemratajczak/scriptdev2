@@ -161,24 +161,6 @@ bool GOUse_go_ethereum_stasis(Player* pPlayer, GameObject* pGo)
 }
 
 /*######
-## go_field_repair_bot_74A
-######*/
-
-enum
-{
-    SPELL_ENGINEER_FIELD_REPAIR_BOT_74A = 22704,
-    SPELL_LEARN_FIELD_REPAIR_BOT_74A    = 22864
-};
-
-bool GOUse_go_field_repair_bot_74A(Player* pPlayer, GameObject* pGo)
-{
-    if (pPlayer->HasSkill(SKILL_ENGINEERING) && pPlayer->GetBaseSkillValue(SKILL_ENGINEERING) >= 300 && !pPlayer->HasSpell(SPELL_ENGINEER_FIELD_REPAIR_BOT_74A))
-        pPlayer->CastSpell(pPlayer, SPELL_LEARN_FIELD_REPAIR_BOT_74A, false);
-
-    return true;
-}
-
-/*######
 ## go_gilded_brazier
 ######*/
 
@@ -243,24 +225,6 @@ bool GOUse_go_mysterious_snow_mound(Player* pPlayer, GameObject* pGo)
     }
 
     pGo->SetLootState(GO_JUST_DEACTIVATED);
-    return true;
-}
-
-/*######
-## go_orb_of_command
-######*/
-
-enum
-{
-    QUEST_BLACKHANDS_COMMAND = 7761,
-    SPELL_TELEPORT_TO_BWL    = 23460
-};
-
-bool GOUse_go_orb_of_command(Player* pPlayer, GameObject* pGo)
-{
-    if (pPlayer->GetQuestRewardStatus(QUEST_BLACKHANDS_COMMAND))
-        pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_TO_BWL, true);
-
     return true;
 }
 
@@ -522,56 +486,6 @@ bool GOUse_go_lab_work_reagents(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
-/*######
-## go_hand_of_iruxos_crystal
-######*/
-
-/* TODO
- * Actually this script is extremely vague, but as long as there is no valid information
- * hidden in some dark places, this will be the best we can do here :(
- * Do not consider this a well proven script.
- */
-
-enum
-{
-    // QUEST_HAND_OF_IRUXOS     = 5381,
-    NPC_IRUXOS                  = 11876,
-};
-
-bool GOUse_go_hand_of_iruxos_crystal(Player* pPlayer, GameObject* pGo)
-{
-    if (Creature* pIruxos = pGo->SummonCreature(NPC_IRUXOS, 0.0f, 0.0f, 0.0f, pPlayer->GetOrientation() + M_PI_F, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000))
-        pIruxos->AI()->AttackStart(pPlayer);
-
-    return false;
-}
-
-/*######
-## go_Ethereal_Power_Pad
-######*/
-enum
-{
-	QUEST_NOT_SO_MODEST_PROPOSAL    = 10270,
-	ITEM_TELEPORTER_POWER_PACK      = 28969,
-	NPC_IMAGE_OF_WIND_TRADER_MARID  = 20518
-
-};
-bool GOUse_go_Ethereal_Teleport_pad(Player* pPlayer, GameObject* pGo)
-{
-	Creature* pMarid = GetClosestCreatureWithEntry(pPlayer, NPC_IMAGE_OF_WIND_TRADER_MARID, 30.0f);
-
-    if (pMarid)
-        return true;
-
-	if ((pPlayer->GetQuestRewardStatus(QUEST_NOT_SO_MODEST_PROPOSAL) == QUEST_STATUS_COMPLETE)|| pPlayer->GetQuestStatus(QUEST_NOT_SO_MODEST_PROPOSAL) == QUEST_STATUS_COMPLETE )
-	{
-		pPlayer->SummonCreature(NPC_IMAGE_OF_WIND_TRADER_MARID, 4007.11f, 1517.15f, -116.363f, -0.453786f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-
-	}
-	return true;
-
-}
-
 /*#####
 ## go_corkis_prison
 #####*/
@@ -634,87 +548,6 @@ bool GOUse_go_corkis_prison(Player* pPlayer, GameObject* pGo)
 };
 
 /*#####
-## go_warmaul_prison
-#####*/
-
-enum
-{
-    QUEST_FINDING_THE_SURVIVORS        = 9948,
-    NPC_MAGHAR_PRISONER                = 18428,
-    SAY_MAGHAR_THANKS_1                = -1000040,
-    SAY_MAGHAR_THANKS_2                = -1000041,
-    SAY_MAGHAR_THANKS_3                = -1000042,
-};
-
-bool GOUse_go_warmaul_prison(Player* pPlayer, GameObject* pGo) 
-{
-    if (pPlayer->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) == QUEST_STATUS_INCOMPLETE)
-    {
-
-        if (Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_MAGHAR_PRISONER, INTERACTION_DISTANCE))
-        {
-            pPlayer->CastedCreatureOrGO(NPC_MAGHAR_PRISONER, pCreature->GetObjectGuid(), 32347);
-            switch(urand(0,2))
-            {
-                case 0: DoScriptText(SAY_MAGHAR_THANKS_1, pCreature); break;
-                case 1: DoScriptText(SAY_MAGHAR_THANKS_2, pCreature); break;
-                default: DoScriptText(SAY_MAGHAR_THANKS_3, pCreature); break;
-            }
-            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
-        }
-    }
-    return false;
-};
-
-/*#####
-## go_mammoth_trap
-#####*/
-
-enum
-{
-    QUEST_HELP_THOSE_THAT    =  11876,
-    NPC_TRAPPED_MAMMOTH      =  25850
-};
-
-bool GOUse_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
-{
-    if (pPlayer->GetQuestStatus(QUEST_HELP_THOSE_THAT) == QUEST_STATUS_INCOMPLETE)
-    {
-        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_TRAPPED_MAMMOTH, INTERACTION_DISTANCE);
-        if(pCreature)
-        {
-            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetObjectGuid());
-            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
-        }
-    }
-    return false;
-};
-
-/*######
-## go_demon_portal
-######*/
-enum
-{
-    QUEST_PORTAL_LEGIONS             = 5581,
-    NPC_DEMON_PORTAL_GUARDIAN        = 11937
-
-};
-
-bool GOUse_go_demon_portal(Player* pPlayer, GameObject* pGo)
-{
-    Creature* pCreature = GetClosestCreatureWithEntry(pPlayer, NPC_DEMON_PORTAL_GUARDIAN, 5.0f);
-
-    if (pCreature)
-        return true;
-
-    if (pPlayer->GetQuestStatus(QUEST_PORTAL_LEGIONS) == QUEST_STATUS_INCOMPLETE)
-    {
-        pPlayer->SummonCreature(NPC_DEMON_PORTAL_GUARDIAN, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 99999999);
-    }
-    return true;
-};
-
-/*#####
 ## go_gjalerbron_cage
 #####*/
 
@@ -758,44 +591,6 @@ bool GOUse_go_large_gjalerbon_cage(Player* pPlayer, GameObject* pGo)
 };
 
 /*#####
-## go_black_cage
-#####*/
-
-enum
-{
-    QUEST_YOUVE_REALLY_DONE_IT_THIS_TIME_KUL_A  = 14096,
-    QUEST_YOUVE_REALLY_DONE_IT_THIS_TIME_KUL_H  = 14142,
-    NPC_CAPTIVE_ASPIRANT                        = 34716,
-    NPC_KUL_THE_RECKLESS                        = 34956,
-    SPELL_SELF_DESPAWN                          = 43014,
-    SAY_THANKS1                                = -3471601,
-    SAY_THANKS2                                = -3495601
-};
- 
-bool GOUse_go_black_cage(Player* pPlayer, GameObject* pGo)
-{
-    if(pPlayer->GetQuestStatus(QUEST_YOUVE_REALLY_DONE_IT_THIS_TIME_KUL_A) == QUEST_STATUS_INCOMPLETE 
-        || pPlayer->GetQuestStatus(QUEST_YOUVE_REALLY_DONE_IT_THIS_TIME_KUL_H) == QUEST_STATUS_INCOMPLETE)
-    {
-        if(Creature *pAspirant = GetClosestCreatureWithEntry(pPlayer, NPC_CAPTIVE_ASPIRANT, 10.0f))
-        {
-            pPlayer->KilledMonsterCredit(NPC_CAPTIVE_ASPIRANT, pAspirant->GetObjectGuid());
-            DoScriptText(SAY_THANKS1, pAspirant);
-            pAspirant->CastSpell(pAspirant, SPELL_SELF_DESPAWN, false);
-            return true;
-        }
-
-        if(Creature *pKul = GetClosestCreatureWithEntry(pPlayer, NPC_KUL_THE_RECKLESS, 10.0f))
-        {
-            pPlayer->KilledMonsterCredit(NPC_KUL_THE_RECKLESS, pKul->GetObjectGuid());
-            DoScriptText(SAY_THANKS2, pKul);
-            pKul->CastSpell(pKul, SPELL_SELF_DESPAWN, false);
-            return true;
-        }
-    }
-    return false;
-};
-/*#####
 ## go_cage_door
 #####*/
 
@@ -803,6 +598,7 @@ enum
 {
     QUEST_FREEDOM_FOR_ALL_CREATURES  = 2969,    
     NPC_CAPTURED_DARTER              = 7997,
+    SPELL_SELF_DESPAWN               = 43014
 };
  
 bool GOUse_go_cage_door(Player* pPlayer, GameObject* pGo)
@@ -870,11 +666,6 @@ void AddSC_go_scripts()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "go_field_repair_bot_74A";
-    pNewScript->pGOUse =          &GOUse_go_field_repair_bot_74A;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "go_gilded_brazier";
     pNewScript->pGOUse =          &GOUse_go_gilded_brazier;
     pNewScript->RegisterSelf();
@@ -887,11 +678,6 @@ void AddSC_go_scripts()
     pNewScript = new Script;
     pNewScript->Name = "go_mysterious_snow_mound";
     pNewScript->pGOUse =          &GOUse_go_mysterious_snow_mound;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_orb_of_command";
-    pNewScript->pGOUse =          &GOUse_go_orb_of_command;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -950,33 +736,8 @@ void AddSC_go_scripts()
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
-    pNewScript->Name = "go_hand_of_iruxos_crystal";
-    pNewScript->pGOUse =          &GOUse_go_hand_of_iruxos_crystal;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_Ethereal_Teleport_pad";
-    pNewScript->pGOUse = &GOUse_go_Ethereal_Teleport_pad;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
     pNewScript->Name = "go_corkis_prison";
     pNewScript->pGOUse = &GOUse_go_corkis_prison;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_warmaul_prison";
-    pNewScript->pGOUse = &GOUse_go_warmaul_prison;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_mammoth_trap";
-    pNewScript->pGOUse = &GOUse_go_mammoth_trap;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;	
-    pNewScript->Name = "go_demon_portal";
-    pNewScript->pGOUse = &GOUse_go_demon_portal;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
@@ -987,11 +748,6 @@ void AddSC_go_scripts()
     pNewScript = new Script;
     pNewScript->Name = "go_large_gjalerbon_cage";
     pNewScript->pGOUse = &GOUse_go_large_gjalerbon_cage;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_black_cage";
-    pNewScript->pGOUse = &GOUse_go_black_cage;
     pNewScript->RegisterSelf();
 
     pNewScript = new Script;
