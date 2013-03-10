@@ -62,7 +62,10 @@ add_library(mangosscriptR2 SHARED
 )
 
 if(WIN32)
+  SET_TARGET_PROPERTIES(mangosd PROPERTIES
+    ENABLE_EXPORTS TRUE)
   target_link_libraries(mangosscriptR2
+    mangosd
     ${ACE_LIBRARIES}
 #    debug ${WIN_DEBUGLIBS}
   )
