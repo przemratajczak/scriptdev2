@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -38,7 +38,7 @@ enum
     QUEST_MISSING_DIPLO_PT11    = 1249,
     FACTION_ENEMY               = 168,
     SPELL_STEALTH               = 1785,
-    SPELL_CALL_FRIENDS          = 16457,                    //summons 1x friend
+    SPELL_CALL_FRIENDS          = 16457,                    // summons 1x friend
     NPC_SLIMS_FRIEND            = 4971,
     NPC_TAPOKE_SLIM_JAHN        = 4962
 };
@@ -57,14 +57,14 @@ struct MANGOS_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(uiPointId)
+        switch (uiPointId)
         {
             case 2:
                 if (m_creature->HasStealthAura())
                     m_creature->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
                 SetRun();
-                m_creature->setFaction(FACTION_ENEMY);
+                m_creature->SetFactionTemporary(FACTION_ENEMY, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
                 break;
         }
     }
@@ -75,9 +75,7 @@ struct MANGOS_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
         if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_bFriendSummoned && pPlayer)
         {
-            for(uint8 i = 0; i < 3; ++i)
-                m_creature->CastSpell(m_creature, SPELL_CALL_FRIENDS, true);
-
+            DoCastSpellIfCan(m_creature, SPELL_CALL_FRIENDS);
             m_bFriendSummoned = true;
         }
     }
@@ -109,7 +107,6 @@ struct MANGOS_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
 
                 uiDamage = 0;
 
-                m_creature->setFaction(m_creature->GetCreatureInfo()->faction_A);
                 m_creature->RemoveAllAuras();
                 m_creature->DeleteThreatList();
                 m_creature->CombatStop(true);
@@ -153,15 +150,15 @@ bool QuestAccept_npc_mikhail(Player* pPlayer, Creature* pCreature, const Quest* 
 
 void AddSC_wetlands()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "npc_tapoke_slim_jahn";
-    newscript->GetAI = &GetAI_npc_tapoke_slim_jahn;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_tapoke_slim_jahn";
+    pNewScript->GetAI = &GetAI_npc_tapoke_slim_jahn;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_mikhail";
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_mikhail;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_mikhail";
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_mikhail;
+    pNewScript->RegisterSelf();
 }
