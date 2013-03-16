@@ -472,6 +472,9 @@ struct MANGOS_DLL_DECL npc_harnessed_icemaw_matriarchAI : public npc_escortAI
                     {
                         bEscortStarted = true;
                         Start(true, pPassinger);
+                        pPassinger->SetPhaseMask(7, true); // prevent dismounting on phase switch
+                        m_creature->SetPhaseMask(7, true); // 
+                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // hack - cannot find propper vehicle id to support abil. panel - than npc is defenceless
                     }
     }
 
@@ -479,11 +482,15 @@ struct MANGOS_DLL_DECL npc_harnessed_icemaw_matriarchAI : public npc_escortAI
 
     void WaypointReached(uint32 uiPointId)
     {
-        if (uiPointId == 119)
-            if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
-                if (pVehKit->GetPassenger(0))
-                    if (Player* pPassinger = m_creature->GetMap()->GetPlayer(pVehKit->GetPassenger(0)->GetObjectGuid()))
+        if (VehicleKitPtr pVehKit = m_creature->GetVehicleKit())
+            if (pVehKit->GetPassenger(0))
+                if (Player* pPassinger = m_creature->GetMap()->GetPlayer(pVehKit->GetPassenger(0)->GetObjectGuid()))
+                {
+                    // update player position to not interrupt escort
+                    pPassinger->SetPosition(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), false);                        
+                    if (uiPointId == 119)
                         pPassinger->KilledMonsterCredit(NPC_INJURED_ICEMAW_MATRIARCH, m_creature->GetObjectGuid());
+                }                       
     }
 };
 
