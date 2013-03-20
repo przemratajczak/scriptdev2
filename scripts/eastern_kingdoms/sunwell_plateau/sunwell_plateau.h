@@ -35,7 +35,12 @@ enum
     NPC_KILJAEDEN_CONTROLLER    = 25608,            // kiljaeden event controller
     NPC_ANVEENA                 = 26046,            // related to kiljaeden event
     NPC_KALECGOS                = 25319,            // related to kiljaeden event
-    NPC_MADRIGOSA               = 25160,            // Alive and flying one 
+    NPC_MADRIGOSA               = 25160,            // Alive and flying one
+    NPC_Q_LIADRIN               = 38052,
+    NPC_Q_GALIROS               = 38056,
+    NPC_Q_ROMMATH               = 37763,
+    NPC_Q_THERON                = 37764,
+    NPC_Q_AURIC                 = 37765,
 
     GO_FORCEFIELD               = 188421,           // kalecgos door + collisions
     GO_BOSS_COLLISION_1         = 188523,
@@ -47,6 +52,7 @@ enum
     GO_MURU_ENTER_GATE          = 187990,           // muru gates
     GO_MURU_EXIT_GATE           = 188118,           // muru gates
     GO_THIRD_GATE               = 187765,           // muru gates
+    GO_Q_QUEL_DALAR             = 201794,
 
     SAY_TWINS_INTRO             = -1580044,
 

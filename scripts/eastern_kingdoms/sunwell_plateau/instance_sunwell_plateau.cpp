@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
 SD%Complete: 80%
-SDComment:
+SDComment: support for Q The Purification of Quel'Delar
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
@@ -74,6 +74,11 @@ void instance_sunwell_plateau::OnCreatureCreate(Creature* pCreature)
         case NPC_KILJAEDEN_CONTROLLER:
         case NPC_ANVEENA:
         case NPC_KALECGOS:
+        case NPC_Q_LIADRIN:
+        case NPC_Q_ROMMATH:
+        case NPC_Q_GALIROS:
+        case NPC_Q_THERON:
+        case NPC_Q_AURIC:
             m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
             break;
     }
@@ -112,6 +117,9 @@ void instance_sunwell_plateau::OnObjectCreate(GameObject* pGo)
         case GO_THIRD_GATE:
             if (m_auiEncounter[TYPE_MURU] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
+        case GO_Q_QUEL_DALAR:
+            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NO_INTERACT);
             break;
 
         default:
