@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -17,51 +17,22 @@
 /* ScriptData
 SDName: Stormwind_City
 SD%Complete: 100
-SDComment: Quest support: 1640, 1447, 4185, 11223 (DB support required for spell 42711)
+SDComment: Quest support: 1640, 1447, 4185, 6402, 6403.
 SDCategory: Stormwind City
 EndScriptData */
 
 /* ContentData
-npc_archmage_malin
 npc_bartleby
 npc_dashel_stonefist
 npc_lady_katrana_prestor
 King Varian
+npc_squire_rowe
+npc_reginald_windsor
 EndContentData */
 
 #include "precompiled.h"
-#include "escort_ai.h"
 #include "../world/world_map_scripts.h"
-
-/*######
-## npc_archmage_malin
-######*/
-
-#define GOSSIP_ITEM_MALIN "Can you send me to Theramore? I have an urgent message for Lady Jaina from Highlord Bolvar."
-
-bool GossipHello_npc_archmage_malin(Player* pPlayer, Creature* pCreature)
-{
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetObjectGuid());
-
-    if (pPlayer->GetQuestStatus(11223) == QUEST_STATUS_COMPLETE && !pPlayer->GetQuestRewardStatus(11223))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MALIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetObjectGuid());
-
-    return true;
-}
-
-bool GossipSelect_npc_archmage_malin(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
-    {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->CastSpell(pPlayer, 42711, true);
-    }
-
-    return true;
-}
+#include "escort_ai.h"
 
 /*######
 ## npc_bartleby
@@ -77,17 +48,10 @@ struct MANGOS_DLL_DECL npc_bartlebyAI : public ScriptedAI
 {
     npc_bartlebyAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_uiNormalFaction = pCreature->getFaction();
         Reset();
     }
 
-    uint32 m_uiNormalFaction;
-
-    void Reset()
-    {
-        if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
-    }
+    void Reset() override {}
 
     void AttackedBy(Unit* pAttacker)
     {
@@ -100,9 +64,9 @@ struct MANGOS_DLL_DECL npc_bartlebyAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage) * 100 / m_creature->GetMaxHealth() < 15))
         {
             uiDamage = 0;
 
@@ -118,7 +82,7 @@ bool QuestAccept_npc_bartleby(Player* pPlayer, Creature* pCreature, const Quest*
 {
     if (pQuest->GetQuestId() == QUEST_BEAT)
     {
-        pCreature->setFaction(FACTION_ENEMY);
+        pCreature->SetFactionTemporary(FACTION_ENEMY, TEMPFACTION_RESTORE_RESPAWN | TEMPFACTION_RESTORE_COMBAT_STOP);
         pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
@@ -143,17 +107,10 @@ struct MANGOS_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
 {
     npc_dashel_stonefistAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_uiNormalFaction = pCreature->getFaction();
         Reset();
     }
 
-    uint32 m_uiNormalFaction;
-
-    void Reset()
-    {
-        if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
-    }
+    void Reset() override {}
 
     void AttackedBy(Unit* pAttacker)
     {
@@ -166,9 +123,9 @@ struct MANGOS_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage) * 100 / m_creature->GetMaxHealth() < 15))
         {
             uiDamage = 0;
 
@@ -184,7 +141,7 @@ bool QuestAccept_npc_dashel_stonefist(Player* pPlayer, Creature* pCreature, cons
 {
     if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
     {
-        pCreature->setFaction(FACTION_HOSTILE);
+        pCreature->SetFactionTemporary(FACTION_HOSTILE, TEMPFACTION_RESTORE_COMBAT_STOP | TEMPFACTION_RESTORE_RESPAWN);
         pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
@@ -219,7 +176,7 @@ bool GossipHello_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    switch(uiAction)
+    switch (uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -242,390 +199,8 @@ bool GossipSelect_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature,
 }
 
 /*######
-## npc_lord_gregor_lescovar
+## King Varian
 ######*/
-
-enum 
-{
-    SAY_LESCOVAR_2 = -1100008,
-    SAY_GUARD_2    = -1100009,
-    SAY_LESCOVAR_3 = -1100010,
-    SAY_MARZON_1   = -1100011,
-    SAY_LESCOVAR_4 = -1100012,
-    SAY_TYRION_2   = -1100013,
-    SAY_MARZON_2   = -1100014,
-
-    NPC_STORMWIND_ROYAL = 1756,
-    NPC_MARZON_BLADE    = 1755,
-    NPC_TYRION          = 7766,
-    NPC_LORD_GREGOR_LESCOVAR = 1754,
-    QUEST_THE_ATTACK    = 434
-};
-
-struct MANGOS_DLL_DECL npc_lord_gregor_lescovarAI : public npc_escortAI
-{
-    npc_lord_gregor_lescovarAI(Creature* pCreature) : npc_escortAI(pCreature)
-    {
-        m_uiNormalFaction = pCreature->getFaction();
-        Reset();
-    }
-    uint32 m_uiNormalFaction;
-
-    uint32 uiTimer;
-    uint32 uiPhase;
-
-    ObjectGuid MarzonGUID;
-
-    void Reset()
-    {
-            uiTimer = 0;
-            uiPhase = 0;
-
-            MarzonGUID.Clear();
-            if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
-    }
-
-    void EnterEvadeMode()
-    {
-        m_creature->ForcedDespawn(10);
-
-        if (Creature *pMarzon = GetClosestCreatureWithEntry(m_creature, NPC_MARZON_BLADE, 150.0f))
-        {
-            if (pMarzon->isAlive())
-                pMarzon->ForcedDespawn(10);
-        }
-    }
-
-    void EnterCombat(Unit* pWho)
-    {
-        if (Creature *pMarzon = GetClosestCreatureWithEntry(m_creature, NPC_MARZON_BLADE, 150.0f))
-        {
-            if (pMarzon->isAlive() && !pMarzon->isInCombat())
-               pMarzon->AI()->AttackStart(pWho); 
-           
-        }
-    }
-
-    void WaypointReached(uint32 uiPointId)
-    {
-        switch(uiPointId)
-        {
-            case 14:
-                SetEscortPaused(true);
-                DoScriptText(SAY_LESCOVAR_2, m_creature);
-                uiTimer = 3000;
-                uiPhase = 1;
-                break;
-            case 16:
-                SetEscortPaused(true);
-                if (Creature *pMarzon = m_creature->SummonCreature(NPC_MARZON_BLADE,-8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000))
-                {
-                    pMarzon->GetMotionMaster()->MovePoint(0,-8408.000977f, 468.611450f, 123.759903f);
-                   
-                }
-                uiTimer = 2000;
-                uiPhase = 4;
-                break;
-        }
-    } 
-        
-    void DoGuardsDisappearAndDie()
-    {
-        std::list<Creature*> GuardList;
-        GetCreatureListWithEntryInGrid(GuardList,m_creature,NPC_STORMWIND_ROYAL,8.0f);
-        if (!GuardList.empty())
-        {
-            for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
-            {
-                if (Creature* pGuard = *itr)
-                    pGuard->ForcedDespawn(10);
-            }
-        }
-    }
-
-    void UpdateEscortAI(const uint32 uiDiff)
-        {
-            if (uiPhase)
-            {
-                if (uiTimer <= uiDiff)
-                {
-                     switch(uiPhase)
-                    {
-                        case 1:
-                            if (Creature* pGuard = GetClosestCreatureWithEntry(m_creature,NPC_STORMWIND_ROYAL, 8.0f))
-                                DoScriptText(SAY_GUARD_2, pGuard);
-                            uiTimer = 3000;
-                            uiPhase = 2;
-                            break;
-                        case 2:
-                            DoGuardsDisappearAndDie();
-                            uiTimer = 2000;
-                            uiPhase = 3;
-                            break;
-                        case 3:
-                            SetEscortPaused(false);
-                            uiTimer = 0;
-                            uiPhase = 0;
-                            break;
-                        case 4:
-                            DoScriptText(SAY_LESCOVAR_3, m_creature);
-                            uiTimer = 0;
-                            uiPhase = 0;
-                            break;
-                        case 5:
-                            if (Creature *pMarzon = GetClosestCreatureWithEntry(m_creature,NPC_MARZON_BLADE, 150.0f))
-                                DoScriptText(SAY_MARZON_1, pMarzon);
-                            uiTimer = 3000;
-                            uiPhase = 6;
-                            break;
-                        case 6:
-                            DoScriptText(SAY_LESCOVAR_4, m_creature);
-                            if (Player* pPlayer = GetPlayerForEscort())
-                                pPlayer->AreaExploredOrEventHappens(QUEST_THE_ATTACK);
-                            uiTimer = 2000;
-                            uiPhase = 7;
-                            break; 
-                        case 7:
-                            if (Creature* pTyrion = GetClosestCreatureWithEntry(m_creature,NPC_TYRION, 20.0f))
-                                DoScriptText(SAY_TYRION_2, pTyrion);
-                            if (Creature *pMarzon = GetClosestCreatureWithEntry(m_creature,NPC_MARZON_BLADE, 150.0f))
-                                pMarzon->setFaction(14);
-                            m_creature->setFaction(14);
-                            uiTimer = 0;
-                            uiPhase = 0;
-                            break;
-                    }
-                } else uiTimer -= uiDiff;
-            }
-    }
-
-};
-CreatureAI* GetAI_npc_lord_gregor_lescovarAI(Creature* pCreature)
-{
-    return new npc_lord_gregor_lescovarAI(pCreature);
-}
-          
-/*######
-## npc_marzon_silent_blade
-######*/
-
-struct MANGOS_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
-{
-    npc_marzon_silent_bladeAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        m_uiNormalFaction = pCreature->getFaction();
-        Reset();
-    }
-    uint32 m_uiNormalFaction;
-
-    void Reset()
-        {
-            if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
-        }
-
-        void EnterCombat(Unit* pWho)
-        {
-            DoScriptText(SAY_MARZON_2, m_creature);
-        }
-
-        void EnterEvadeMode()
-        {
-            m_creature->ForcedDespawn(10);
-         }
-
-        void MovementInform(uint32 uiType, uint32 )
-        {
-            if (uiType != POINT_MOTION_TYPE)
-                return;
-
-            
-                if (Creature *pLescovar = GetClosestCreatureWithEntry(m_creature,NPC_LORD_GREGOR_LESCOVAR, 30.0f))
-                {
-                    ((npc_lord_gregor_lescovarAI*)pLescovar->AI())-> uiTimer = 2000;
-                    ((npc_lord_gregor_lescovarAI*)pLescovar->AI())-> uiPhase = 5;
-                  
-                }
-            
-        }
-        void UpdateAI(const uint32)
-        {
-            if (!m_creature->getVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-};
-CreatureAI* GetAI_npc_marzon_silent_bladeAI(Creature* pCreature)
-{
-    return new npc_marzon_silent_bladeAI(pCreature);
-}
-
-/*######
-## npc_tyrion_spybot
-######*/
-
-enum 
-{
-    SAY_QUEST_ACCEPT_ATTACK  = -1100000,
-    SAY_TYRION_1             = -1100001,
-    SAY_SPYBOT_1             = -1100002,
-    SAY_GUARD_1              = -1100003,
-    SAY_SPYBOT_2             = -1100004,
-    SAY_SPYBOT_3             = -1100005,
-    SAY_LESCOVAR_1           = -1100006,
-    SAY_SPYBOT_4             = -1100007,
-
-    NPC_PRIESTESS_TYRIONA    = 7779
-    
-};
-
-struct MANGOS_DLL_DECL npc_tyrion_spybotAI : public npc_escortAI
-{
-    npc_tyrion_spybotAI(Creature* pCreature) : npc_escortAI(pCreature) {Reset();}
-
-    uint32 uiTimer;
-        uint32 uiPhase;
-
-        void Reset()
-        {
-            uiTimer = 0;
-            uiPhase = 0;
-        }
-
-        void WaypointReached(uint32 uiPointId)
-        {
-            switch(uiPointId)
-            {
-                case 1:
-                    SetEscortPaused(true);
-                    uiTimer = 2000;
-                    uiPhase = 1;
-                    break;
-                case 5:
-                    SetEscortPaused(true);
-                    DoScriptText(SAY_SPYBOT_1, m_creature);
-                    uiTimer = 2000;
-                    uiPhase = 5;
-                    break;
-                case 17:
-                    SetEscortPaused(true);
-                    DoScriptText(SAY_SPYBOT_3, m_creature);
-                    uiTimer = 3000;
-                    uiPhase = 8;
-                    break;
-            }
-        }
-        void UpdateEscortAI(const uint32 uiDiff)
-        {
-            if (uiPhase)
-            {
-                if (uiTimer <= uiDiff)
-                {
-                     switch(uiPhase)
-                    {
-                        case 1:
-                            DoScriptText(SAY_QUEST_ACCEPT_ATTACK, m_creature);
-                            uiTimer = 3000;
-                            uiPhase = 2;
-                            break;
-                        case 2:
-                            if (Creature* pTyrion =GetClosestCreatureWithEntry(m_creature,NPC_TYRION, 30.0f))  
-                                DoScriptText(SAY_TYRION_1, pTyrion);
-                            uiTimer = 3000;
-                            uiPhase = 3;
-                            break;
-                        case 3:
-                            m_creature->UpdateEntry(NPC_PRIESTESS_TYRIONA, ALLIANCE);
-                            uiTimer = 2000;
-                            uiPhase = 4;
-                            break;
-                        case 4:
-                           SetEscortPaused(false);
-                           uiPhase = 0;
-                           uiTimer = 0;
-                           break;
-                        case 5:
-                            if (Creature* pGuard = GetClosestCreatureWithEntry(m_creature,NPC_STORMWIND_ROYAL, 10.0f)) 
-                                DoScriptText(SAY_GUARD_1, pGuard);
-                            uiTimer = 3000;
-                            uiPhase = 6;
-                            break;
-                        case 6:
-                            DoScriptText(SAY_SPYBOT_2, m_creature);
-                            uiTimer = 3000;
-                            uiPhase = 7;
-                            break;
-                        case 7:
-                            SetEscortPaused(false);
-                            uiTimer = 0;
-                            uiPhase = 0;
-                            break;
-                        case 8:
-                            if (Creature* pLescovar = GetClosestCreatureWithEntry(m_creature,NPC_LORD_GREGOR_LESCOVAR, 10.0f))  
-                                DoScriptText(SAY_LESCOVAR_1, pLescovar);
-                            uiTimer = 3000;
-                            uiPhase = 9;
-                            break;
-                        case 9:
-                            DoScriptText(SAY_SPYBOT_4, m_creature);
-                            uiTimer = 3000;
-                            uiPhase = 10;
-                            break;
-                        case 10:
-                            if (Creature* pLescovar = GetClosestCreatureWithEntry(m_creature,NPC_LORD_GREGOR_LESCOVAR, 10.0f))
-                            {
-                                if (Player* pPlayer = GetPlayerForEscort())
-                               {
-                                    if (npc_lord_gregor_lescovarAI* pEscortAI = dynamic_cast<npc_lord_gregor_lescovarAI*>(pLescovar->AI()))
-                                        pEscortAI->Start(true, pPlayer);
-                                    
-                                }
-                            }
-                            m_creature->ForcedDespawn(10);
-                            uiTimer = 0;
-                            uiPhase = 0;
-                            break;
-                    }
-                } else uiTimer -= uiDiff;
-            }
-        }
-
-};
-
-CreatureAI* GetAI_npc_tyrion_spybotAI(Creature* pCreature)
-{
-    return new npc_tyrion_spybotAI(pCreature);
-}
-/*######
-## npc_tyrion
-######*/
-
-enum 
-{
-    NPC_TYRION_SPYBOT = 8856
-};
-
-bool QuestAccept_npc_tyrion(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_THE_ATTACK)
-    {
-        if(Creature* pTyrionSpybot = GetClosestCreatureWithEntry(pCreature,NPC_TYRION_SPYBOT, 10.0f))
-        {
-            if (npc_tyrion_spybotAI* pEscortAI = dynamic_cast<npc_tyrion_spybotAI*>(pTyrionSpybot->AI()))
-             {                         
-                pEscortAI->Start(true, pPlayer, pQuest);
-            }
-            return true;
-        }
-    }
-    return true;
-};
-
-/*#####
- ## King Varian
- ######*/
 
 enum
 {
@@ -712,8 +287,8 @@ static const DialogueEntry aIntroDialogue[] =
     {0, 0, 0},
 };
 
-static const float aWindsorSpawnLoc[3] = {-9145.68f, 373.79f, 90.64f};
-static const float aWindsorMoveLoc[3] = {-9050.39f, 443.55f, 93.05f};
+static const float aWindsorSpawnLoc[3] = { -9145.68f, 373.79f, 90.64f};
+static const float aWindsorMoveLoc[3] = { -9050.39f, 443.55f, 93.05f};
 
 struct MANGOS_DLL_DECL npc_squire_roweAI : public npc_escortAI, private DialogueHelper
 {
@@ -766,7 +341,7 @@ struct MANGOS_DLL_DECL npc_squire_roweAI : public npc_escortAI, private Dialogue
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(uiPointId)
+        switch (uiPointId)
         {
             case 2:
                 m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -785,7 +360,7 @@ struct MANGOS_DLL_DECL npc_squire_roweAI : public npc_escortAI, private Dialogue
 
     void JustDidDialogueStep(int32 iEntry)
     {
-        switch(iEntry)
+        switch (iEntry)
         {
             case NPC_WINDSOR_MOUNT:
             {
@@ -854,7 +429,7 @@ bool GossipHello_npc_squire_rowe(Player* pPlayer, Creature* pCreature)
 {
     // Allow gossip if quest 6402 is completed but not yet rewarded or 6402 is rewarded but 6403 isn't yet completed
     if ((pPlayer->GetQuestStatus(QUEST_STORMWIND_RENDEZVOUS) == QUEST_STATUS_COMPLETE && !pPlayer->GetQuestRewardStatus(QUEST_STORMWIND_RENDEZVOUS)) ||
-        (pPlayer->GetQuestRewardStatus(QUEST_STORMWIND_RENDEZVOUS) && pPlayer->GetQuestStatus(QUEST_THE_GREAT_MASQUERADE) != QUEST_STATUS_COMPLETE))
+            (pPlayer->GetQuestRewardStatus(QUEST_STORMWIND_RENDEZVOUS) && pPlayer->GetQuestStatus(QUEST_THE_GREAT_MASQUERADE) != QUEST_STATUS_COMPLETE))
     {
         bool bIsEventInProgress = true;
 
@@ -867,7 +442,7 @@ bool GossipHello_npc_squire_rowe(Player* pPlayer, Creature* pCreature)
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_PROGRESS, pCreature->GetObjectGuid());
         else
         {
-            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WINDSOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WINDSOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_START, pCreature->GetObjectGuid());
         }
     }
@@ -875,11 +450,11 @@ bool GossipHello_npc_squire_rowe(Player* pPlayer, Creature* pCreature)
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_DEFAULT, pCreature->GetObjectGuid());
 
     return true;
- }
+}
 
 bool GossipSelect_npc_squire_rowe(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         if (npc_squire_roweAI* pRoweAI = dynamic_cast<npc_squire_roweAI*>(pCreature->AI()))
             pRoweAI->Start(true, pPlayer, 0, true, false);
@@ -946,7 +521,7 @@ enum
 
     GOSSIP_TEXT_ID_MASQUERADE   = 5633,
 
-    //SPELL_ONYXIA_TRANSFORM    = 20409,            // removed from DBC
+    // SPELL_ONYXIA_TRANSFORM    = 20409,            // removed from DBC
     SPELL_WINDSOR_READ          = 20358,
     SPELL_WINDSOR_DEATH         = 20465,
     SPELL_ONYXIA_DESPAWN        = 20466,
@@ -963,25 +538,25 @@ enum
 
 static const float aGuardLocations[MAX_ROYAL_GUARDS][4] =
 {
-    {-8968.510f, 512.556f, 96.352f, 3.849f},                // guard right - left
-    {-8969.780f, 515.012f, 96.593f, 3.955f},                // guard right - middle
-    {-8972.410f, 518.228f, 96.594f, 4.281f},                // guard right - right
-    {-8965.170f, 508.565f, 96.352f, 3.825f},                // guard left - right
-    {-8962.960f, 506.583f, 96.593f, 3.802f},                // guard left - middle
-    {-8961.080f, 503.828f, 96.593f, 3.465f},                // guard left - left
+    { -8968.510f, 512.556f, 96.352f, 3.849f},               // guard right - left
+    { -8969.780f, 515.012f, 96.593f, 3.955f},               // guard right - middle
+    { -8972.410f, 518.228f, 96.594f, 4.281f},               // guard right - right
+    { -8965.170f, 508.565f, 96.352f, 3.825f},               // guard left - right
+    { -8962.960f, 506.583f, 96.593f, 3.802f},               // guard left - middle
+    { -8961.080f, 503.828f, 96.593f, 3.465f},               // guard left - left
 };
 
 static const float aMoveLocations[10][3] =
- {
-    {-8967.960f, 510.008f, 96.351f},                        // Jonathan move
-    {-8959.440f, 505.424f, 96.595f},                        // Guard Left - Middle kneel
-    {-8957.670f, 507.056f, 96.595f},                        // Guard Left - Right kneel
-    {-8970.680f, 519.252f, 96.595f},                        // Guard Right - Middle kneel
-    {-8969.100f, 520.395f, 96.595f},                        // Guard Right - Left kneel
-    {-8974.590f, 516.213f, 96.590f},                        // Jonathan kneel
-    {-8505.770f, 338.312f, 120.886f},                       // Wrynn safe
-    {-8448.690f, 337.074f, 121.330f},                       // Bolvar help
-    {-8448.279f, 338.398f, 121.329f}                        // Bolvar kneel
+{
+    { -8967.960f, 510.008f, 96.351f},                       // Jonathan move
+    { -8959.440f, 505.424f, 96.595f},                       // Guard Left - Middle kneel
+    { -8957.670f, 507.056f, 96.595f},                       // Guard Left - Right kneel
+    { -8970.680f, 519.252f, 96.595f},                       // Guard Right - Middle kneel
+    { -8969.100f, 520.395f, 96.595f},                       // Guard Right - Left kneel
+    { -8974.590f, 516.213f, 96.590f},                       // Jonathan kneel
+    { -8505.770f, 338.312f, 120.886f},                      // Wrynn safe
+    { -8448.690f, 337.074f, 121.330f},                      // Bolvar help
+    { -8448.279f, 338.398f, 121.329f}                       // Bolvar kneel
 };
 
 static const DialogueEntry aMasqueradeDialogue[] =
@@ -1043,7 +618,7 @@ static const DialogueEntry aMasqueradeDialogue[] =
     {0, 0, 0},
 };
 
-static const int32 aGuardSalute[MAX_GUARD_SALUTES] = {-1000842, -1000843, -1000844, -1000845, -1000846, -1000847, -1000848};
+static const int32 aGuardSalute[MAX_GUARD_SALUTES] = { -1000842, -1000843, -1000844, -1000845, -1000846, -1000847, -1000848};
 
 struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private DialogueHelper
 {
@@ -1080,8 +655,8 @@ struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private Dia
     {
         // Note: this implementation is not the best; It should be better handled by the guard script
         if (m_bCanGuardSalute && (pWho->GetEntry() == NPC_GUARD_CITY || pWho->GetEntry() == NPC_GUARD_ROYAL ||
-            pWho->GetEntry() == NPC_GUARD_PATROLLER) && pWho->IsWithinDistInMap(m_creature, 15.0f) &&
-            m_sGuardsSalutedGuidSet.find(pWho->GetObjectGuid()) == m_sGuardsSalutedGuidSet.end() && pWho->IsWithinLOSInMap(m_creature))
+                                  pWho->GetEntry() == NPC_GUARD_PATROLLER) && pWho->IsWithinDistInMap(m_creature, 15.0f) &&
+                m_sGuardsSalutedGuidSet.find(pWho->GetObjectGuid()) == m_sGuardsSalutedGuidSet.end() && pWho->IsWithinLOSInMap(m_creature))
         {
             DoScriptText(aGuardSalute[urand(0, MAX_GUARD_SALUTES - 1)], pWho);
             m_sGuardsSalutedGuidSet.insert(pWho->GetObjectGuid());
@@ -1170,9 +745,9 @@ struct MANGOS_DLL_DECL npc_reginald_windsorAI : public npc_escortAI, private Dia
         if (!m_pScriptedMap)
             return;
 
-        switch(iEntry)
+        switch (iEntry)
         {
-            // Set orientation and prepare the npcs for the next event
+                // Set orientation and prepare the npcs for the next event
             case SAY_WINDSOR_GET_READY:
                 m_creature->SetFacingTo(0.6f);
                 break;
@@ -1457,7 +1032,6 @@ bool QuestAccept_npc_reginald_windsor(Player* pPlayer, Creature* pCreature, cons
     return true;
 }
 
-
 bool GossipHello_npc_reginald_windsor(Player* pPlayer, Creature* pCreature)
 {
     bool bIsEventReady = false;
@@ -1468,7 +1042,7 @@ bool GossipHello_npc_reginald_windsor(Player* pPlayer, Creature* pCreature)
     // Check if event is possible and also check the status of the quests
     if (bIsEventReady && pPlayer->GetQuestStatus(QUEST_THE_GREAT_MASQUERADE) != QUEST_STATUS_COMPLETE && pPlayer->GetQuestRewardStatus(QUEST_STORMWIND_RENDEZVOUS))
     {
-        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_REGINALD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_REGINALD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_MASQUERADE, pCreature->GetObjectGuid());
     }
     else
@@ -1484,7 +1058,7 @@ bool GossipHello_npc_reginald_windsor(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_reginald_windsor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
         if (npc_reginald_windsorAI* pReginaldAI = dynamic_cast<npc_reginald_windsorAI*>(pCreature->AI()))
             pReginaldAI->DoStartKeepEvent();
@@ -1494,71 +1068,46 @@ bool GossipSelect_npc_reginald_windsor(Player* pPlayer, Creature* pCreature, uin
 
     return true;
 }
+
 void AddSC_stormwind_city()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "npc_archmage_malin";
-    newscript->pGossipHello = &GossipHello_npc_archmage_malin;
-    newscript->pGossipSelect = &GossipSelect_npc_archmage_malin;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_bartleby";
+    pNewScript->GetAI = &GetAI_npc_bartleby;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_bartleby;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_bartleby";
-    newscript->GetAI = &GetAI_npc_bartleby;
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_bartleby;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_dashel_stonefist";
+    pNewScript->GetAI = &GetAI_npc_dashel_stonefist;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_dashel_stonefist;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_dashel_stonefist";
-    newscript->GetAI = &GetAI_npc_dashel_stonefist;
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_dashel_stonefist;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_lady_katrana_prestor";
+    pNewScript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
+    pNewScript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_lady_katrana_prestor";
-    newscript->pGossipHello = &GossipHello_npc_lady_katrana_prestor;
-    newscript->pGossipSelect = &GossipSelect_npc_lady_katrana_prestor;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_king_varian_wrynn";
+    pNewScript->GetAI = &GetAI_boss_king_varian_wrynn;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_lord_gregor_lescovar";
-    newscript->GetAI = &GetAI_npc_lord_gregor_lescovarAI;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_squire_rowe";
+    pNewScript->GetAI = &GetAI_npc_squire_rowe;
+    pNewScript->pGossipHello = &GossipHello_npc_squire_rowe;
+    pNewScript->pGossipSelect = &GossipSelect_npc_squire_rowe;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_marzon_silent_blade";
-    newscript->GetAI = &GetAI_npc_marzon_silent_bladeAI;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_tyrion_spybot";
-    newscript->GetAI = &GetAI_npc_tyrion_spybotAI;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_tyrion";
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_tyrion;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "boss_king_varian_wrynn";
-    newscript->GetAI = &GetAI_boss_king_varian_wrynn;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_squire_rowe";
-    newscript->GetAI = &GetAI_npc_squire_rowe;
-    newscript->pGossipHello = &GossipHello_npc_squire_rowe;
-    newscript->pGossipSelect = &GossipSelect_npc_squire_rowe;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_reginald_windsor";
-    newscript->GetAI = &GetAI_npc_reginald_windsor;
-    newscript->pQuestAcceptNPC = &QuestAccept_npc_reginald_windsor;
-    newscript->pGossipHello = &GossipHello_npc_reginald_windsor;
-    newscript->pGossipSelect = &GossipSelect_npc_reginald_windsor;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_reginald_windsor";
+    pNewScript->GetAI = &GetAI_npc_reginald_windsor;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_reginald_windsor;
+    pNewScript->pGossipHello = &GossipHello_npc_reginald_windsor;
+    pNewScript->pGossipSelect = &GossipSelect_npc_reginald_windsor;
+    pNewScript->RegisterSelf();
 }
