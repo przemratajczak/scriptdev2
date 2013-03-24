@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -84,7 +84,7 @@ struct MANGOS_DLL_DECL mob_dragonflayer_forge_masterAI : public ScriptedAI
         if (!lGOList.empty())
         {
             if (lGOList.size() != MAX_FORGE)
-                error_log("SD2: mob_dragonflayer_forge_master expected %u in lGOList, but does not match.", MAX_FORGE);
+                script_error_log("mob_dragonflayer_forge_master expected %u in lGOList, but does not match.", MAX_FORGE);
 
             lGOList.sort(ObjectDistanceOrder(m_creature));
 
@@ -149,10 +149,10 @@ CreatureAI* GetAI_mob_dragonflayer_forge_master(Creature* pCreature)
 
 void AddSC_utgarde_keep()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "mob_dragonflayer_forge_master";
-    newscript->GetAI = &GetAI_mob_dragonflayer_forge_master;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_dragonflayer_forge_master";
+    pNewScript->GetAI = &GetAI_mob_dragonflayer_forge_master;
+    pNewScript->RegisterSelf();
 }
