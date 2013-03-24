@@ -1,13 +1,13 @@
 /********************************* MaNGOS DB **********************************************/
 
 -- Set phasing for quest chain till Q:Journey To The Sunwell (A and H respectivly)
-DELETE FROM spell_area WHERE spell = 59073 AND AREA = 4092;
+DELETE FROM spell_area WHERE spell = 70193 AND AREA = 4092;
 INSERT INTO spell_area (spell,AREA,quest_start,quest_start_active,autocast) VALUES
-(59073,4092,24522,0,1),
-(59073,4092,24562,0,1);
+(70193,4092,24522,0,1),
+(70193,4092,24562,0,1);
 
 -- NPC_THALORIEN_DAWNSEEKER_CORPSE - ToDo: Yellow Aura
-UPDATE creature SET phasemask = 2 WHERE id = 37552;
+UPDATE creature SET phasemask = 2048 WHERE id = 37552;
 
 -- NPC_THALORIEN_DAWNSEEKER
 UPDATE creature_template SET npcflag = 0, ScriptName = 'npc_thalorien_dawnseeker' WHERE entry = 37205;

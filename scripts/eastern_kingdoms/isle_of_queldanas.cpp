@@ -312,7 +312,7 @@ struct MANGOS_DLL_DECL npc_thalorien_dawnseekerAI : public ScriptedAI
                     if (Creature* pMorlen = m_creature->GetMap()->GetCreature(m_MorlenGuid))
                     {
                         DoScriptText(m_iDialog[9], pMorlen, m_creature);
-                            for (uint8 i = 0; i < 5; ++i)
+                            for (uint8 i = 0; i < 3; ++i)
                             {
                                 if (Creature* pRaider = m_creature->SummonCreature(NPC_CRYPT_RAIDER, fEventRelatedPos[13+i*2][0], fEventRelatedPos[13+i*2][1], fEventRelatedPos[13+i*2][2], fEventRelatedPos[13+i*2][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 360000))
                                 {
