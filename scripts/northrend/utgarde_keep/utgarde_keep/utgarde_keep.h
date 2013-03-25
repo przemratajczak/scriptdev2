@@ -20,6 +20,7 @@ enum
     NPC_SKARVALD                = 24200,
     NPC_DALRONN                 = 24201,
     NPC_INGVAR                  = 23954,
+    NPC_ANNHYLDE                = 24068,
 
     NPC_FROST_TOMB              = 23965,
 
@@ -40,7 +41,6 @@ class MANGOS_DLL_DECL instance_utgarde_keep : public ScriptedInstance
 {
     public:
         instance_utgarde_keep(Map* pMap);
-        ~instance_utgarde_keep() {}
 
         void Initialize();
 
