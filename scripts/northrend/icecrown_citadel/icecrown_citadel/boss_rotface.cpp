@@ -70,6 +70,7 @@ enum BossSpells
     NPC_PUDDLE_STALKER          = 37013,
     NPC_LITTLE_OOZE             = 36897,
     NPC_BIG_OOZE                = 36899,
+    NPC_STICKY_OOZE             = 37006
 };
 
 static uint32 uiMutatedInfections[5] =
@@ -125,6 +126,12 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
         m_uiMutatedInfectionTimer = m_uiMutatedInfectionBeforeTimer = 60000;
         m_uiInfectionsRate = 1;
         m_uiSlimeFlowTimer = 20000;
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_STICKY_OOZE)
+            pSummoned->ForcedDespawn(45000);
     }
 
     void Aggro(Unit *pWho)
