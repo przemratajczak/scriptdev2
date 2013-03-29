@@ -1327,6 +1327,8 @@ struct MANGOS_DLL_DECL npc_hor_altar_bunnyAI : public ScriptedAI
                     if (Item* pQuelDelar = ((Player*)pWho)->GetItemByEntry(ITEM_TEMPERED_QUELDELAR))
                         ((Player*)pWho)->RemoveItem(pQuelDelar->GetBagSlot(), pQuelDelar->GetSlot(), true);
 
+                pWho->RemoveAurasDueToSpell(SPELL_QUELDELAR_COMPULSION);
+
                 if (Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid))
                 {
                     DoScriptText(iQuelDelarHoRDialog[2], pUther);
