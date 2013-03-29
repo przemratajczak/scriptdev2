@@ -16,6 +16,7 @@ enum Data
     TYPE_FROST_GENERAL      = 4,
     TYPE_LICH_KING          = 5,
     TYPE_HALLS              = 6,
+    TYPE_QUELDELAR          = 7,
     MAX_ENCOUNTERS,
 
     DATA_ESCAPE_LIDER       = 101,

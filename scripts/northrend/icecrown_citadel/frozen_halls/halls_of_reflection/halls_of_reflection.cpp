@@ -21,6 +21,7 @@ SDComment: event script!
 SDErrors: They have, but i dont know were it! :D
 SDCategory: hall_of_reflection
 SDAuthor: MaxXx2021 aka Mioka
+support for Q The Halls of Reflection
 EndScriptData */
 
 #include "precompiled.h"
@@ -142,6 +143,11 @@ enum
   SPELL_ESCAPED_FROM_ARTHAS          = 72830,
 
   FACTION                            = 2076,
+
+    /* Quest Halls of Reflection*/
+    SPELL_QUELDELAR_COMPULSION          = 70013,
+    SPELL_SUMMON_EVIL_QUELDELAR         = 69966,
+    NPC_QUELDELAR                       = 37158
 };
 
 struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
@@ -1213,9 +1219,40 @@ CreatureAI* GetAI_npc_spiritual_reflection(Creature* pCreature)
     return new npc_spiritual_reflectionAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL npc_queldelar_horAI : public ScriptedAI
+enum QuelDelarHoR
 {
-    npc_queldelar_horAI(Creature *pCreature) : ScriptedAI(pCreature)
+    /* Quest Halls of Reflection*/
+    SPELL_WRATH_OF_QUELDELAR            = 70300,
+    SPELL_QUELDELAR_MISSILE             = 70848,
+    SPELL_BLADESTORM                    = 67541, // wowhead id
+    SPELL_HEROIC_STRIKE                 = 29426, // wowhead id
+    SPELL_MORTAL_STRIKE                 = 16856, // wowhead id
+
+    NPC_UTHER_LIGHTBRINGER              = 38608, // prob should be 37225 but already used in lichking event
+
+    ITEM_QUELDELAR                      = 50046,
+    ITEM_TEMPERED_QUELDELAR             = 49766,
+
+    PH_WAITING_4_PLAYER                 = 0,    // w8 4 player to get close (<40ft)
+    PH_READY_TO_ATTACK                  = 1,
+    PH_COMBAT                           = 2,
+    PH_OUTRO1                           = 3,
+    PH_OUTRO2                           = 4,
+    PH_OUTRO3                           = 5,
+    PH_OUTRO4                           = 6
+};
+
+float fQuelDelarHoRPos [2][4] =
+{
+    {5338.54f, 1980.95f, 709.31f, 2.35f}, // Uther - final pos
+    {5302.35f, 1986.13f, 707.69f, 1.13f} // Uther - spawn pos
+};
+
+int32 iQuelDelarHoRDialog[8] = {-1574940, -1574941, -1574942, -1574943, -1574944, -1574945, -1574946, -1574947};
+
+struct MANGOS_DLL_DECL npc_hor_altar_bunnyAI : public ScriptedAI
+{
+    npc_hor_altar_bunnyAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (BSWScriptedInstance*)pCreature->GetInstanceData();
         Reset();
@@ -1226,18 +1263,105 @@ struct MANGOS_DLL_DECL npc_queldelar_horAI : public ScriptedAI
     Team team;
     uint32 newLeader;
 
+    ObjectGuid m_UtherGuid;
+    ObjectGuid m_QuelDelarGuid;
+    ObjectGuid m_PlayerGuid;
+    uint8 m_uiPH;
+    uint32 m_uiEventTimer;
+
     void Reset()
     {
         intro = false;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        /* quest The Halls of Reflection */
+        m_QuelDelarGuid.Clear();
+        m_PlayerGuid.Clear();
+        m_UtherGuid.Clear();
+        m_uiPH                  = PH_WAITING_4_PLAYER;
+        m_uiEventTimer          = 2000;
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() ==  NPC_QUELDELAR)
+        {
+            pSummoned->ForcedDespawn(360000); // SYNC WITH UTHER
+            pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_QuelDelarGuid = pSummoned->GetObjectGuid();
+        }
+    }
+
+    void SummonedCreatureJustDied(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_QUELDELAR && m_pInstance && m_pInstance->GetData(TYPE_QUELDELAR) == SPECIAL)
+        {
+            m_pInstance->SetData(TYPE_QUELDELAR, DONE);
+            m_uiPH = PH_OUTRO1;
+            m_uiEventTimer = 3000;
+
+            Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid);
+            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_PlayerGuid);
+            if (pUther && pPlayer)
+            {
+                pUther->SetStandState(UNIT_STAND_STATE_STAND);
+                float x, y, z;
+                pPlayer->GetContactPoint(pUther, x, y, z, 2.0f);
+                pUther->SetFacingToObject(pPlayer);
+                pUther->SetWalk(false);
+                pUther->GetMotionMaster()->MovePoint(0, x, y, z);
+            }
+        }
     }
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (!m_pInstance || intro)
+        if (!m_pInstance)
             return;
 
-        if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER || !pWho->IsWithinDistInMap(m_creature, 22.0f))
+        if (m_uiPH == PH_WAITING_4_PLAYER && pWho->HasAura(SPELL_QUELDELAR_COMPULSION))
+        {
+            if (m_pInstance->GetData(TYPE_QUELDELAR) == SPECIAL && m_creature->GetDistance(pWho) < 40.0f)
+            {
+                if (pWho->GetTypeId() == TYPEID_PLAYER) // if have compulsion cannot be false but who knows
+                    if (Item* pQuelDelar = ((Player*)pWho)->GetItemByEntry(ITEM_TEMPERED_QUELDELAR))
+                        ((Player*)pWho)->RemoveItem(pQuelDelar->GetBagSlot(), pQuelDelar->GetSlot(), true);
+
+                if (Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid))
+                {
+                    DoScriptText(iQuelDelarHoRDialog[2], pUther);
+                    pUther->SetFacingToObject(m_creature);
+                    pUther->SetWalk(false);
+                    pUther->SetRespawnCoord(fQuelDelarHoRPos[0][0], fQuelDelarHoRPos[0][1], fQuelDelarHoRPos[0][2], fQuelDelarHoRPos[0][3]);
+                    pUther->GetMotionMaster()->MoveTargetedHome();
+                }
+
+                if (Creature* pQuelDelar = m_creature->GetMap()->GetCreature(m_QuelDelarGuid))
+                {
+                    pQuelDelar->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, ITEM_QUELDELAR);
+                    DoScriptText(iQuelDelarHoRDialog[1], m_creature);
+                    pQuelDelar->CastSpell(pQuelDelar, SPELL_WRATH_OF_QUELDELAR, false);
+                    pQuelDelar->GetMotionMaster()->MoveRandom(50.0f);
+                    m_uiEventTimer = 15000;
+                }
+                m_PlayerGuid = pWho->GetObjectGuid();
+                m_uiPH = PH_READY_TO_ATTACK;
+            }
+            else if (m_pInstance->GetData(TYPE_QUELDELAR) == NOT_STARTED && m_creature->GetDistance(pWho) < 70.0f)
+            {
+                m_pInstance->SetData(TYPE_QUELDELAR, SPECIAL);
+                if (Creature* pUther = m_creature->SummonCreature(NPC_UTHER_LIGHTBRINGER, fQuelDelarHoRPos[1][0], fQuelDelarHoRPos[1][1], fQuelDelarHoRPos[1][2], fQuelDelarHoRPos[1][3], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 360000))
+                {
+                    pUther->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+                    pUther->ForcedDespawn(360000);
+                    DoScriptText(iQuelDelarHoRDialog[0], pUther);
+                    m_UtherGuid = pUther->GetObjectGuid();
+                }
+                DoCastSpellIfCan(m_creature, SPELL_SUMMON_EVIL_QUELDELAR);
+            }
+        }
+
+        if (intro || pWho->GetTypeId() != TYPEID_PLAYER || !pWho->IsWithinDistInMap(m_creature, 22.0f))
             return;
 
         debug_log("HOR event started");
@@ -1302,20 +1426,73 @@ struct MANGOS_DLL_DECL npc_queldelar_horAI : public ScriptedAI
 //        m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 63135);
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit* pWho)
     {
          return;
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
+        if (m_uiEventTimer < uiDiff)
+        {
+            Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid); // allowed to use PH>0
+            Creature* pQuelDelar = m_creature->GetMap()->GetCreature(m_QuelDelarGuid);
+
+            switch(m_uiPH)
+            {
+                // idle unless player in range to begin
+                case PH_WAITING_4_PLAYER:
+                    return;
+
+                case PH_READY_TO_ATTACK:
+                    pQuelDelar->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    DoScriptText(iQuelDelarHoRDialog[3], m_creature);
+                    if (pUther)
+                        pUther->SetStandState(UNIT_STAND_STATE_KNEEL);
+                    m_uiEventTimer = 1000;
+                    break;
+
+                // idle unless killed by player or despawn at evade
+                case PH_COMBAT:
+                    m_uiEventTimer = 1000;
+                    break;
+
+                case PH_OUTRO1:
+                    if (pUther)
+                        DoScriptText(iQuelDelarHoRDialog[4], pUther);
+                    m_uiEventTimer = 8000;
+                    break;
+
+                case PH_OUTRO2:
+                    if (pUther)
+                        DoScriptText(iQuelDelarHoRDialog[5], pUther);
+                    m_uiEventTimer = 8000;
+                    break;
+
+                case PH_OUTRO3:
+                    if (pUther)
+                        DoScriptText(iQuelDelarHoRDialog[6], pUther);
+                    m_uiEventTimer = 8000;
+                    break;
+
+                case PH_OUTRO4:
+                    if (pUther)
+                        DoScriptText(iQuelDelarHoRDialog[7], pUther);
+                    pUther->ForcedDespawn(59000);
+                    m_uiEventTimer = 60000;
+                    break;
+            }
+            m_uiPH == PH_COMBAT ? NULL : ++m_uiPH;
+        }
+        else
+            m_uiEventTimer -= uiDiff;
     }
 };
-CreatureAI* GetAI_npc_queldelar_hor(Creature* pCreature)
-{
-    return new npc_queldelar_horAI(pCreature);
-}
 
+CreatureAI* GetAI_npc_hor_altar_bunny(Creature* pCreature)
+{
+    return new npc_hor_altar_bunnyAI(pCreature);
+}
 
 void AddSC_halls_of_reflection()
 {
@@ -1346,7 +1523,7 @@ void AddSC_halls_of_reflection()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "npc_queldelar_hor";
-    newscript->GetAI = &GetAI_npc_queldelar_hor;
+    newscript->Name = "npc_hor_altar_bunny";
+    newscript->GetAI = &GetAI_npc_hor_altar_bunny;
     newscript->RegisterSelf();
 }

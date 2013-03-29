@@ -163,6 +163,7 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
                                                     };
                                             }
                 break;
+            case TYPE_QUELDELAR:
             case TYPE_HALLS:                m_auiEncounter[uiType] = uiData; break;
             case DATA_SUMMONS:              if (uiData == 3) m_uiSummons = 0;
                                             else if (uiData == 1) ++m_uiSummons;
@@ -217,6 +218,7 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
             case TYPE_LICH_KING:            return m_auiEncounter[uiType];
             case TYPE_FROST_GENERAL:        return m_auiEncounter[uiType];
             case TYPE_HALLS:                return m_auiEncounter[uiType];
+            case TYPE_QUELDELAR:            return m_auiEncounter[uiType];
             case DATA_SUMMONS:              return m_uiSummons;
             case DATA_ESCAPE_LIDER:         return m_auiLeader;
             default:                        return 0;
