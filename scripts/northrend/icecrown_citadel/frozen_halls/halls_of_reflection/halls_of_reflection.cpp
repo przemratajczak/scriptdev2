@@ -1323,11 +1323,11 @@ struct MANGOS_DLL_DECL npc_hor_altar_bunnyAI : public ScriptedAI
         {
             if (m_pInstance->GetData(TYPE_QUELDELAR) == SPECIAL && m_creature->GetDistance(pWho) < 40.0f)
             {
-                if (pWho->GetTypeId() == TYPEID_PLAYER) // if have compulsion cannot be false but who knows
-                    if (Item* pQuelDelar = ((Player*)pWho)->GetItemByEntry(ITEM_TEMPERED_QUELDELAR))
-                        ((Player*)pWho)->RemoveItem(pQuelDelar->GetBagSlot(), pQuelDelar->GetSlot(), true);
+                //if (pWho->GetTypeId() == TYPEID_PLAYER) // if have compulsion cannot be false but who knows
+                //    if (Item* pQuelDelar = ((Player*)pWho)->GetItemByEntry(ITEM_TEMPERED_QUELDELAR))
+                //        ((Player*)pWho)->RemoveItem(pQuelDelar->GetBagSlot(), pQuelDelar->GetSlot(), true);
 
-                pWho->RemoveAurasDueToSpell(SPELL_QUELDELAR_COMPULSION);
+                //pWho->RemoveAurasDueToSpell(SPELL_QUELDELAR_COMPULSION);
 
                 if (Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid))
                 {
