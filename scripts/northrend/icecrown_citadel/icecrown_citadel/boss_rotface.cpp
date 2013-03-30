@@ -131,7 +131,7 @@ struct MANGOS_DLL_DECL boss_rotfaceAI : public base_icc_bossAI
     void JustSummoned(Creature* pSummoned)
     {
         if (pSummoned->GetEntry() == NPC_STICKY_OOZE)
-            pSummoned->ForcedDespawn(45000);
+            pSummoned->ForcedDespawn(30000);
     }
 
     void Aggro(Unit *pWho)

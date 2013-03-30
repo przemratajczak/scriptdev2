@@ -135,9 +135,11 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
     void DamageTaken(Unit* pDealer, uint32& uiDamage)
     {
-        if (m_uiPhase == PH_B4_RESSURECTION && uiDamage >= m_creature->GetHealth())
+        // hack - sometimes he dies in 1st phase despite this condition (multithreading related?)
+        if (m_uiPhase == PH_B4_RESSURECTION && /*uiDamage >= m_creature->GetHealth()*/ m_creature->GetHealth() < 30000)
         {
             uiDamage = 0;
+            m_creature->RemoveAllAuras();
             DoScriptText(SAY_DEATH_FIRST, m_creature);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             DoCastSpellIfCan(m_creature, SPELL_FEIGN_DEATH);
