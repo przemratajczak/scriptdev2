@@ -2874,7 +2874,7 @@ const int32 textOnQuest[5] =
 
 bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, Creature* pCreatureTarget)
 {
-    if (uiSpellId == SPELL_DUMMY_TADPOLE_CAGE && pCreatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE && pCaster->GetTypeId() == TYPEID_PLAYER)
+    if (uiSpellId == SPELL_DUMMY_TADPOLE_CAGE && !pCreatureTarget->IsTemporarySummon() && pCaster->GetTypeId() == TYPEID_PLAYER)
     {
         if (((Player*)pCaster)->GetQuestStatus(QUEST_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
@@ -2893,12 +2893,17 @@ bool EffectDummyCreature_npc_winterfin_tadpole(Unit* pCaster, uint32 uiSpellId, 
         }
     }
 
-    return false;
+    return true;
 }
 
 void AddSC_borean_tundra()
 {
     Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_winterfin_tadpole";
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_winterfin_tadpole;
+    pNewScript->RegisterSelf();
 
     pNewScript = new Script;
     pNewScript->Name = "npc_taunkale_evacuee";
@@ -3026,10 +3031,5 @@ void AddSC_borean_tundra()
     pNewScript = new Script;
     pNewScript->Name = "npc_jenny";
     pNewScript->GetAI = &GetAI_npc_jenny;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "npc_winterfin_tadpole";
-    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_winterfin_tadpole;
     pNewScript->RegisterSelf();
 }
