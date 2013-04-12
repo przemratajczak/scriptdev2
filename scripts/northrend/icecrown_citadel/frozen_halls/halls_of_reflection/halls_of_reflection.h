@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 MaXx2021 && /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 MaXx2021 && /dev/rsa for ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
@@ -75,13 +75,7 @@ enum Data
     GO_CAPTAIN_CHEST_4           = 202336, //3333
 };
 
-struct _Locations
-{
-    float x, y, z, o;
-    uint32 id;
-};
-
-static _Locations SpawnLoc[]=
+static LOCATION SpawnLoc[]=
 {
     //Wing 01
     {5277.409f, 1993.161f, 707.694f, 0.05f}, //27
@@ -120,7 +114,7 @@ static _Locations SpawnLoc[]=
     {5298.198f, 2037.762f, 707.694f, 4.71f}  //0
 };
 
-static _Locations WallLoc[]=
+static LOCATION WallLoc[]=
 {
     {5540.39f, 2086.48f, 731.066f, 1.00057f},
     {5494.3f, 1978.27f, 736.689f, 1.0885f},

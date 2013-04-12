@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -202,12 +202,12 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
         }
     }
 
-    const char* Save()
+    const char* Save() const
     {
         return strSaveData.c_str();
     }
 
-    uint32 GetData(uint32 uiType)
+    uint32 GetData(uint32 uiType) const
     {
         switch(uiType)
         {

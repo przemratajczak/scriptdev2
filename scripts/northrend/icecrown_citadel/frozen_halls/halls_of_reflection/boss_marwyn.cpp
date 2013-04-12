@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 ScriptDev2 <http://www.scriptdev2.com/>
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -45,38 +45,39 @@ enum
 
 struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
 {
-   boss_marwynAI(Creature *pCreature) : BSWScriptedAI(pCreature)
-   {
+    boss_marwynAI(Creature *pCreature) : BSWScriptedAI(pCreature)
+    {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         Reset();
-   }
+    }
 
-   ScriptedInstance* m_pInstance;
-   bool m_bIsCall;
-   uint32 m_uiSummonTimer;
+    ScriptedInstance* m_pInstance;
+    bool m_bIsCall;
+    uint32 m_uiSummonTimer;
 
-   uint32 m_uiLocNo;
-   ObjectGuid m_uiSummonGUID[16];
-   uint32 m_uiCheckSummon;
+    uint32 m_uiLocNo;
+    GuidVector m_uiSummonGUID;
+    uint32 m_uiCheckSummon;
 
-   uint8 SummonCount;
+    uint8 SummonCount;
 
-   uint32 pSummon;
+    uint32 pSummon;
 
-   void Reset()
-   {
-      SummonCount = 0;
-      m_bIsCall = false;
-      m_uiSummonTimer = 15000;
-      m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-      m_creature->SetVisibility(VISIBILITY_OFF);
+    void Reset()
+    {
+        SummonCount = 0;
+        m_uiCheckSummon = 0;
+        m_bIsCall = false;
+        m_uiSummonTimer = 15000;
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetVisibility(VISIBILITY_OFF);
     }
 
     void Summon()
     {
          m_uiLocNo = 14;
 
-         for(uint8 i = 0; i < 14; i++)
+         for(uint8 i = 0; i < 16; i++)
          {
             switch(urand(0,3))
             {
@@ -118,7 +119,7 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
 
              if(Creature* Summon = m_creature->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
              {
-                m_uiSummonGUID[i] = Summon->GetObjectGuid();
+                m_uiSummonGUID.push_back(Summon->GetObjectGuid());
                 Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Summon->setFaction(974);
              }
@@ -128,16 +129,16 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
 
     void CallFallSoldier()
     {
-         for(uint8 i = 0; i < 4; i++)
-         {
-            if(Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
+        for (uint8 i = 0; i < 4 && m_uiSummonGUID.size(); i++)
+        {
+            if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID.back()))
             {
                Summon->setFaction(14);
                Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                Summon->SetInCombatWithZone();
             }
-            m_uiCheckSummon++;
-         }
+            m_uiSummonGUID.pop_back();
+        }
     }
 
     void JustDied(Unit* pKiller)
