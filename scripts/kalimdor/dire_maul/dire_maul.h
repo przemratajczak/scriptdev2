@@ -105,22 +105,22 @@ class MANGOS_DLL_DECL instance_dire_maul : public ScriptedInstance
     protected:
         bool CheckAllGeneratorsDestroyed();
         void ProcessForceFieldOpening();
-        void SortPylonGuards();
-        void PylonGuardJustDied(Creature* pCreature);
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
 
         // East
         bool m_bWallDestroyed;
+        bool m_bGeneratorsInitialized;
         GuidList m_lFelvineShardGUIDs;
 
         // West
         ObjectGuid m_aCrystalGeneratorGuid[MAX_GENERATORS];
+        GuidList m_lSortedGeneratorGuards[MAX_GENERATORS];
+        GuidList m_GeneratorGuards;
 
         GuidList m_luiHighborneSummonerGUIDs;
-        std::queue<ObjectGuid> m_lGeneratorGuardGUIDs;
-        GuidSet  m_sSortedGeneratorGuards[MAX_GENERATORS];
+
 
         // North
         bool m_bDoNorthBeforeWest;

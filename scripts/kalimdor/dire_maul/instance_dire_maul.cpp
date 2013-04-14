@@ -26,6 +26,7 @@ EndScriptData */
 
 instance_dire_maul::instance_dire_maul(Map* pMap) : ScriptedInstance(pMap),
     m_bWallDestroyed(false),
+    m_bGeneratorsInitialized(false),
     m_bDoNorthBeforeWest(false)
 {
     Initialize();
@@ -67,7 +68,7 @@ void instance_dire_maul::OnCreatureCreate(Creature* pCreature)
             break;
         case NPC_ARCANE_ABERRATION:
         case NPC_MANA_REMNANT:
-            m_lGeneratorGuardGUIDs.push(pCreature->GetObjectGuid());
+            m_GeneratorGuards.push_back(pCreature->GetObjectGuid());
             return;
         case NPC_IMMOLTHAR:
             break;
@@ -286,16 +287,30 @@ void instance_dire_maul::OnCreatureEnterCombat(Creature* pCreature)
 {
     switch (pCreature->GetEntry())
     {
-            // West
-            // - Handling of guards of generators
-        case NPC_ARCANE_ABERRATION:
-        case NPC_MANA_REMNANT:
-            SortPylonGuards();
-            break;
             // - Set InstData for ImmolThar
         case NPC_IMMOLTHAR:
             SetData(TYPE_IMMOLTHAR, IN_PROGRESS);
             break;
+        case NPC_ARCANE_ABERRATION:
+        case NPC_MANA_REMNANT:
+            // Assingn Pylons and Creatures. Hopefully at this point both are 100% created
+            if (!m_bGeneratorsInitialized)
+            {
+                m_bGeneratorsInitialized = true;
+                for (uint8 i = 0; i < MAX_GENERATORS; ++i)
+                {
+                    if (GameObject* pPylon = instance->GetGameObject(m_aCrystalGeneratorGuid[i]))
+                    {
+                        for (GuidList::iterator itr = m_GeneratorGuards.begin(); itr != m_GeneratorGuards.end(); ++itr)
+                        {
+                            if (Creature* pGuard = instance->GetCreature(*itr))
+                                if (pGuard->GetDistance(pPylon->GetPosition()) < 20.0f)
+                                    m_lSortedGeneratorGuards[i].push_back(pGuard->GetObjectGuid());
+                        }
+                    }
+                }
+            }
+                break;
     }
 }
 
@@ -316,7 +331,16 @@ void instance_dire_maul::OnCreatureDeath(Creature* pCreature)
             // - Handling of guards of generators
         case NPC_ARCANE_ABERRATION:
         case NPC_MANA_REMNANT:
-            PylonGuardJustDied(pCreature);
+            for (uint8 i = 0; i < MAX_GENERATORS; ++i)
+            {
+                if (m_lSortedGeneratorGuards[i].find(pCreature->GetObjectGuid()))
+                {
+                    m_lSortedGeneratorGuards[i].erase(pCreature->GetObjectGuid());
+                    if (m_lSortedGeneratorGuards[i].empty())
+                        SetData(TYPE_PYLON_1 + i, DONE);
+                }
+
+            }
             break;
             // - InstData settings
         case NPC_TENDRIS_WARPWOOD:
@@ -397,49 +421,6 @@ void instance_dire_maul::ProcessForceFieldOpening()
         pSummoner->AI()->AttackStart(pImmolThar);
     }
     m_luiHighborneSummonerGUIDs.clear();
-}
-
-void instance_dire_maul::SortPylonGuards()
-{
-    // Sort all remaining (alive) NPCs to unfinished generators
-    while(!m_lGeneratorGuardGUIDs.empty())
-    {
-        ObjectGuid guid = m_lGeneratorGuardGUIDs.front();
-        m_lGeneratorGuardGUIDs.pop();
-
-        Creature* pGuard = instance->GetCreature(guid);
-        if (!pGuard || pGuard->isDead())    // Remove invalid guids and dead guards
-            continue;
-
-        for (uint8 i = 0; i < MAX_GENERATORS; ++i)
-        {
-            GameObject* pGenerator = instance->GetGameObject(m_aCrystalGeneratorGuid[i]);
-            // Skip non-existing or finished generators
-            if (pGenerator && GetData(TYPE_PYLON_1 + i) != DONE &&
-                pGuard->IsWithinDistInMap(pGenerator, 20.0f))
-                m_sSortedGeneratorGuards[i].insert(guid);
-        }
-    }
-}
-
-void instance_dire_maul::PylonGuardJustDied(Creature* pCreature)
-{
-    for (uint8 i = 0; i < MAX_GENERATORS; ++i)
-    {
-        // Skip already activated generators
-        if (GetData(TYPE_PYLON_1 + i) == DONE)
-            continue;
-
-        // Only process generator where the npc is sorted in
-        if (m_sSortedGeneratorGuards[i].find(pCreature->GetObjectGuid()) != m_sSortedGeneratorGuards[i].end())
-        {
-            m_sSortedGeneratorGuards[i].erase(pCreature->GetObjectGuid());
-            if (m_sSortedGeneratorGuards[i].empty())
-                SetData(TYPE_PYLON_1 + i, DONE);
-
-            break;
-        }
-    }
 }
 
 InstanceData* GetInstanceData_instance_dire_maul(Map* pMap)
