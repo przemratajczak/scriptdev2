@@ -330,7 +330,7 @@ void DoOrSimulateScriptTextForMap(int32 iTextEntry, uint32 uiCreatureEntry, Map*
 
 void Script::RegisterSelf(bool bReportError)
 {
-    if (uint32 id = GetScriptId(Name))
+    if (uint32 id = GetScriptId(Name.c_str()))
     {
         m_scripts->at(id) = this;
         ++num_sc_scripts;
@@ -338,9 +338,9 @@ void Script::RegisterSelf(bool bReportError)
     else
     {
         if (bReportError)
-            script_error_log("Script registering but ScriptName %s is not assigned in database. Script will not be used.", Name);
+            script_error_log("Script registering but ScriptName %s is not assigned in database. Script will not be used.", Name.c_str());
 
-        m_scriptStorage->insert(std::make_pair(Name, this));
+        m_scriptStorage->insert(std::make_pair(Name.c_str(), this));
     }
 }
 
