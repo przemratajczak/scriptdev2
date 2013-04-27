@@ -160,11 +160,14 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
 
    BSWScriptedInstance* m_pInstance;
 
-   Creature* pUther;
+   ObjectGuid m_UtherGuid;
+   ObjectGuid m_LichKingGuid;
    bool Small;
 
    void Reset()
    {
+       m_UtherGuid.Clear();
+       m_LichKingGuid.Clear();
       m_creature->SetPhaseMask(65535, true);
       m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
       m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -173,6 +176,12 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
 
    void Event()
    {
+       if (!m_pInstance)
+           return;
+
+       Creature* pUther = m_creature->GetMap()->GetCreature(m_UtherGuid);
+       Creature* pLichKing = m_creature->GetMap()->GetCreature(m_LichKingGuid);
+
          switch(m_pInstance->GetEvent(m_creature->GetEntry()))
          {
             case 1:
@@ -186,7 +195,7 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
                 if(m_creature->GetEntry() == NPC_JAINA)
                 {
                     DoScriptText(SAY_JAINA_INTRO_01, m_creature);
-                    m_pInstance->SetNextEvent(3,m_creature->GetEntry(),5000);
+                    m_pInstance->SetNextEvent(3,m_creature->GetEntry(),8000);
                 }
                 else if(m_creature->GetEntry() == NPC_SYLVANA)
                 {
@@ -209,18 +218,15 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
                 m_pInstance->SetNextEvent(5,m_creature->GetEntry(),10000);
                 break;
             case 5:
-                if(Creature* pTarget = m_creature->SummonCreature(NPC_ALTAR_TARGET,5309.374f,2006.788f,711.615f,1.37f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
-                {
-                    //m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pTarget->GetObjectGuid());
-                    pTarget->SetCreatorGuid(ObjectGuid());
-                }
+                if (Creature* pAltarBunny = m_pInstance->GetSingleCreatureFromStorage(NPC_ALTAR_BUNNY))
+                    m_creature->SetFacingToObject(pAltarBunny);
                 m_pInstance->SetNextEvent(6,m_creature->GetEntry(),1000);
                 break;
             case 6:
                 if (m_creature->GetEntry() == NPC_JAINA)
                 {
                     DoScriptText(SAY_JAINA_INTRO_03, m_creature);
-                    m_pInstance->SetNextEvent(7,m_creature->GetEntry(),5000);
+                    m_pInstance->SetNextEvent(7,m_creature->GetEntry(),8000);
                 }
                 if (m_creature->GetEntry() == NPC_SYLVANA)
                 {
@@ -246,21 +252,18 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
                     m_pInstance->SetNextEvent(9,m_creature->GetEntry(),8000);
                 break;
             case 9:
-                if(Creature* Uther = m_creature->SummonCreature(NPC_UTHER,5308.228f,2003.641f,709.341f,4.17f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
+                if(Creature* pTempUther = m_creature->SummonCreature(NPC_UTHER,5308.228f,2003.641f,709.341f,4.17f,TEMPSUMMON_MANUAL_DESPAWN,360000))
                 {
-                    pUther = Uther;
-                    Uther->SetCreatorGuid(ObjectGuid());
-                    Uther->SetRespawnDelay(DAY);
-                    Uther->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetObjectGuid());
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Uther->GetObjectGuid());
+                    m_UtherGuid = pTempUther->GetObjectGuid();
+                    pTempUther->SetFacingToObject(m_creature);
                     if (m_creature->GetEntry() == NPC_JAINA)
                     {
-                        DoScriptText(SAY_UTHER_A_01, Uther);
+                        DoScriptText(SAY_UTHER_A_01, pTempUther);
                         m_pInstance->SetNextEvent(10,m_creature->GetEntry(),3000);
                     }
                     else if (m_creature->GetEntry() == NPC_SYLVANA)
                     {
-                        DoScriptText(SAY_UTHER_H_01, Uther);
+                        DoScriptText(SAY_UTHER_H_01, pTempUther);
                         m_pInstance->SetNextEvent(10,m_creature->GetEntry(),10000);
                     }
                 }
@@ -430,36 +433,142 @@ struct MANGOS_DLL_DECL npc_jaina_and_sylvana_HRintroAI : public ScriptedAI
                 }
                 break;
             case 24:
-                if (m_creature->GetEntry() == NPC_JAINA && pUther)
-                   DoScriptText(SAY_UTHER_A_16, pUther);
-                else if (m_creature->GetEntry() == NPC_SYLVANA && pUther)
-                   DoScriptText(SAY_UTHER_H_16, pUther);
-                if(Creature* LichKing = m_creature->SummonCreature(NPC_LICH_KING,5362.469f,2062.342f,707.695f,3.97f,TEMPSUMMON_MANUAL_DESPAWN,0,true))
+                if (pUther)
                 {
-                   LichKing->SetRespawnDelay(DAY);
-                   LichKing->SetCreatorGuid(ObjectGuid());
+                    if (m_creature->GetEntry() == NPC_JAINA)
+                       DoScriptText(SAY_UTHER_A_16, pUther);
+                    else if (m_creature->GetEntry() == NPC_SYLVANA)
+                       DoScriptText(SAY_UTHER_H_16, pUther);
                 }
-                m_pInstance->SetNextEvent(24,NPC_LICH_KING,2000);
+                if (Creature* pLichKing = m_creature->SummonCreature(NPC_LICH_KING,5362.469f,2062.342f,707.695f,3.97f,TEMPSUMMON_MANUAL_DESPAWN,0,true))
+                {
+                    m_LichKingGuid = pLichKing->GetObjectGuid();
+                    pLichKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    if (pUther)
+                        pUther->SetFacingToObject(pLichKing);
+                }
+                m_pInstance->DoOpenDoor(GO_IMPENETRABLE_DOOR);
+                m_pInstance->SetNextEvent(25,m_creature->GetEntry(),2000);
                 break;
             case 25:
                 if (pUther)
                    pUther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-                m_pInstance->SetNextEvent(25,NPC_LICH_KING,2000);
+                if (pLichKing)
+                    pLichKing->GetMotionMaster()->MovePoint(0, 5314.881f, 2012.496f, 709.341f);
+                m_pInstance->SetNextEvent(26,m_creature->GetEntry(),3000);
+                break;
+            case 26:
+                m_pInstance->DoCloseDoor(GO_IMPENETRABLE_DOOR);
+                m_pInstance->SetNextEvent(27,m_creature->GetEntry(),7000);
+                break;
+            case 27:
+                if (pLichKing)
+                {
+                    DoScriptText(SAY_LICH_KING_17, pLichKing);
+                    if (pUther)
+                        pUther->CastSpell(pUther, SPELL_UTHER_DESPAWN, false);
+                }
+                m_pInstance->SetNextEvent(28,m_creature->GetEntry(),1500);
+                break;
+            case 28:
+                if (pUther)
+                    pUther->ForcedDespawn();
+                m_pInstance->SetNextEvent(29,m_creature->GetEntry(),10000);
+                break;
+            case 29:
+                if (pLichKing)
+                    DoScriptText(SAY_LICH_KING_18, pLichKing);
+                m_pInstance->SetNextEvent(30,m_creature->GetEntry(),5000);
+                break;
+            case 30:
+                if (pLichKing)
+                    pLichKing->CastSpell(pLichKing, SPELL_TAKE_FROSTMOURNE, false);
+                m_pInstance->DoCloseDoor(GO_FROSTMOURNE);
+                m_pInstance->SetNextEvent(31,m_creature->GetEntry(),1500);
                 break;
             case 31:
-                m_creature->RemoveAurasDueToSpell(SPELL_FROSTMOURNE_SOUNDS);
-                m_pInstance->SetNextEvent(32,NPC_LICH_KING,4500);
+                if (GameObject* pFrostmourne = m_pInstance->GetSingleGameObjectFromStorage(GO_FROSTMOURNE))
+                    pFrostmourne->SetPhaseMask(0, true);
+                if (pLichKing)
+                {
+                    pLichKing->CastSpell(pLichKing, SPELL_FROSTMOURNE_VISUAL, false);
+                    pLichKing->RemoveAurasDueToSpell(SPELL_FROSTMOURNE_SOUNDS);
+                }
+                m_pInstance->SetNextEvent(32,m_creature->GetEntry(),4500);
                 break;
+            case 32:
+                if (pLichKing)
+                    DoScriptText(SAY_LICH_KING_19, pLichKing);
+                m_pInstance->SetNextEvent(33,m_creature->GetEntry(),9000);
+                break;
+            case 33:
+                m_pInstance->
+                if (Creature* pFalric = (m_pInstance->GetSingleCreatureFromStorage(NPC_FALRIC)))
+                {
+                    pFalric->SetVisibility(VISIBILITY_ON);
+                    pFalric->CastSpell(pFalric, SPELL_BOSS_SPAWN_AURA, false);
+                    pFalric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
+                }
+                if (Creature* pMarwyn = (m_pInstance->GetSingleCreatureFromStorage(NPC_MARWYN)))
+                {
+                    pMarwyn->SetVisibility(VISIBILITY_ON);
+                    pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, false);
+                    pMarwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
+                }
+                if (pLichKing)
+                    pLichKing->GetMotionMaster()->MovePoint(0, 5402.286f, 2104.496f, 707.695f);
+                m_pInstance->SetNextEvent(34,m_creature->GetEntry(),1000);
+                break;
+            case 34:
+                if (Creature* pFalric = (m_pInstance->GetSingleCreatureFromStorage(NPC_FALRIC)))
+                    DoScriptText(SAY_FALRIC_INTRO, pFalric);
+                if (Creature* pMarwyn = (m_pInstance->GetSingleCreatureFromStorage(NPC_MARWYN)))
+                    DoScriptText(SAY_MARWYN_INTRO, pMarwyn);
+                m_pInstance->SetData(TYPE_EVENT, 5);
+                m_pInstance->SetNextEvent(35,m_creature->GetEntry(),3000);
+                break;
+            case 35:
+                if (GameObject* pGate = m_pInstance->GetSingleGameObjectFromStorage(GO_IMPENETRABLE_DOOR))
+                     pGate->SetGoState(GO_STATE_ACTIVE);
+                if (Creature* pFalric = m_pInstance->GetSingleCreatureFromStorage(NPC_FALRIC))
+                    DoScriptText(SAY_FALRIC_INTRO2, pFalric);
+                m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
+                m_pInstance->SetNextEvent(36,m_creature->GetEntry(),4000);
+                break;
+
             case 36:
                 if (m_creature->GetEntry() == NPC_JAINA)
                    DoScriptText(SAY_JAINA_20, m_creature);
                 else if(m_creature->GetEntry() == NPC_SYLVANA)
                    DoScriptText(SAY_SYLVANA_20, m_creature);
                 m_creature->GetMotionMaster()->MovePoint(0, 5443.880f, 2147.095f, 707.695f);
-                m_pInstance->SetNextEvent(37,NPC_LICH_KING,4000);
+                m_pInstance->SetNextEvent(37,m_creature->GetEntry(),4000);
+                break;
+            case 37:
+                if (pLichKing)
+                {
+                    pLichKing->GetMotionMaster()->MovementExpired(false);
+                    pLichKing->SetWalk(false);
+                    pLichKing->GetMotionMaster()->MovePoint(0, 5443.880f, 2147.095f, 707.695f);
+                    if (m_creature->GetEntry() == NPC_JAINA)
+                        DoScriptText(SAY_LICH_KING_A_21, pLichKing);
+                    else if (m_creature->GetEntry() == NPC_SYLVANA)
+                        DoScriptText(SAY_LICH_KING_H_21, pLichKing);
+                }
+                m_pInstance->SetNextEvent(38,m_creature->GetEntry(),8000);
+                break;
+            case 38:
+                m_pInstance->DoCloseDoor(GO_IMPENETRABLE_DOOR);
+                m_pInstance->SetNextEvent(39,m_creature->GetEntry(),5000);
                 break;
             case 39:
-                m_pInstance->SetNextEvent(40,NPC_LICH_KING,1000);
+                if (pLichKing)
+                    pLichKing->ForcedDespawn();
+                m_pInstance->SetNextEvent(40,m_creature->GetEntry(),1000);
+                break;
+            case 40:
+                m_pInstance->SetData(TYPE_PHASE, 2);
+                m_pInstance->SetNextEvent(0,0);
                 m_creature->ForcedDespawn();
                 break;
             default:
@@ -1363,7 +1472,7 @@ struct MANGOS_DLL_DECL npc_hor_altar_bunnyAI : public ScriptedAI
             }
         }
 
-        if (intro || pWho->GetTypeId() != TYPEID_PLAYER || !pWho->IsWithinDistInMap(m_creature, 22.0f))
+        if (intro || pWho->GetTypeId() != TYPEID_PLAYER)
             return;
 
         debug_log("HOR event started");
@@ -1386,13 +1495,7 @@ struct MANGOS_DLL_DECL npc_hor_altar_bunnyAI : public ScriptedAI
         }
         else if (m_pInstance->GetData(TYPE_FALRIC) == DONE)
         {
-            if (Creature* pMarwyn = m_pInstance->GetSingleCreatureFromStorage(NPC_MARWYN))
-            {
-                pMarwyn->SetVisibility(VISIBILITY_ON);
-                pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, false);
-                m_pInstance->SetData(TYPE_EVENT, 7);
-                m_pInstance->SetData(TYPE_MARWYN, SPECIAL);
-            }
+            m_pInstance->SetData(TYPE_MARWYN, SPECIAL);
             return;
         }
 

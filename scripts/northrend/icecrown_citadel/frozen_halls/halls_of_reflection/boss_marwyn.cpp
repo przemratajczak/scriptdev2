@@ -48,6 +48,7 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
     boss_marwynAI(Creature *pCreature) : BSWScriptedAI(pCreature)
     {
         m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_creature->SetVisibility(VISIBILITY_OFF);
         Reset();
     }
 
@@ -56,21 +57,22 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
     uint32 m_uiSummonTimer;
 
     uint32 m_uiLocNo;
-    GuidVector m_uiSummonGUID;
+    GuidList m_uiSummonGuids;
+    GuidList m_uiWaveGuids;
     uint32 m_uiCheckSummon;
 
     uint8 SummonCount;
 
-    uint32 pSummon;
+    uint32 uiSummon;
 
     void Reset()
     {
+        m_uiWaveGuids.clear();
         SummonCount = 0;
         m_uiCheckSummon = 0;
         m_bIsCall = false;
         m_uiSummonTimer = 15000;
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetVisibility(VISIBILITY_OFF);
     }
 
     void Summon()
@@ -84,42 +86,42 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
                case 0:
                    switch(urand(1, 3))
                    {
-                     case 1: pSummon = NPC_DARK_1; break;
-                     case 2: pSummon = NPC_DARK_3; break;
-                     case 3: pSummon = NPC_DARK_6; break;
+                     case 1: uiSummon = NPC_DARK_1; break;
+                     case 2: uiSummon = NPC_DARK_3; break;
+                     case 3: uiSummon = NPC_DARK_6; break;
                    }
                    break;
                case 1:
                    switch(urand(1, 3))
                    {
-                     case 1: pSummon = NPC_DARK_2; break;
-                     case 2: pSummon = NPC_DARK_3; break;
-                     case 3: pSummon = NPC_DARK_4; break;
+                     case 1: uiSummon = NPC_DARK_2; break;
+                     case 2: uiSummon = NPC_DARK_3; break;
+                     case 3: uiSummon = NPC_DARK_4; break;
                    }
                    break;
                case 2:
                    switch(urand(1, 3))
                    {
-                     case 1: pSummon = NPC_DARK_2; break;
-                     case 2: pSummon = NPC_DARK_5; break;
-                     case 3: pSummon = NPC_DARK_6; break;
+                     case 1: uiSummon = NPC_DARK_2; break;
+                     case 2: uiSummon = NPC_DARK_5; break;
+                     case 3: uiSummon = NPC_DARK_6; break;
                    }
                    break;
                case 3:
                    switch(urand(1, 3))
                    {
-                     case 1: pSummon = NPC_DARK_1; break;
-                     case 2: pSummon = NPC_DARK_5; break;
-                     case 3: pSummon = NPC_DARK_4; break;
+                     case 1: uiSummon = NPC_DARK_1; break;
+                     case 2: uiSummon = NPC_DARK_5; break;
+                     case 3: uiSummon = NPC_DARK_4; break;
                    }
                    break;
              }
 
              m_uiCheckSummon = 0;
 
-             if(Creature* Summon = m_creature->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+             if(Creature* Summon = m_creature->SummonCreature(uiSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
              {
-                m_uiSummonGUID.push_back(Summon->GetObjectGuid());
+                m_uiSummonGuids.push_back(Summon->GetObjectGuid());
                 Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 Summon->setFaction(974);
              }
@@ -129,15 +131,15 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
 
     void CallFallSoldier()
     {
-        for (uint8 i = 0; i < 4 && m_uiSummonGUID.size(); i++)
+        for (uint8 i = 0; i < 4 && m_uiSummonGuids.size(); i++)
         {
-            if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID.back()))
+            if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGuids.back()))
             {
                Summon->setFaction(14);
                Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                Summon->SetInCombatWithZone();
             }
-            m_uiSummonGUID.pop_back();
+            m_uiSummonGuids.pop_back();
         }
     }
 
@@ -178,6 +180,18 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
+    void EnterEvadeMode()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_MARWYN, FAIL);
+        ScriptedAI::EnterEvadeMode();
+    }
+
+    void SummonedCreatureJustDied(Creature* uiSummoned)
+    {
+        m_uiWaveGuids.erase(uiSummoned->GetObjectGuid());
+    }
+
    void UpdateAI(const uint32 uiDiff)
     {
         if(!m_pInstance) return;
@@ -185,11 +199,17 @@ struct MANGOS_DLL_DECL boss_marwynAI : public BSWScriptedAI
         if (m_pInstance->GetData(TYPE_EVENT) == 6)
         {
             m_pInstance->SetData(TYPE_EVENT, 7);
+            for (GuidList::iterator itr = m_uiSummonGuids.begin(); itr != m_uiSummonGuids.end(); ++itr)
+                if (Creature* uiSummoned = m_creature->GetMap()->GetCreature(*itr))
+                    uiSummoned->ForcedDespawn();
             Summon();
         }
 
         if(m_pInstance->GetData(TYPE_MARWYN) == SPECIAL)
         {
+            if (m_uiWaveGuids.empty())
+                m_uiSummonTimer = 0;
+
            if(m_uiSummonTimer < uiDiff)
            {
                     ++SummonCount;

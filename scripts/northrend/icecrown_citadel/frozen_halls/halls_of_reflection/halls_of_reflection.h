@@ -7,6 +7,14 @@
 #include "BSW_ai.h"
 #include "BSW_instance.h"
 
+uint32 uiFalricMarwynSummonEntry[6] = { NPC_DARK_1, NPC_DARK_2, NPC_DARK_3, NPC_DARK_4, NPC_DARK_5, NPC_DARK_6 };
+
+enum SwordsRestNPCActions
+{
+    POPULATE                = 0,
+    RESET                   = 1
+}
+
 enum Data
 {
     TYPE_PHASE              = 0,
@@ -34,7 +42,7 @@ enum Data
     NPC_SYLVANA                  = 37223,
     NPC_JAINA_OUTRO              = 36955,
     NPC_SYLVANA_OUTRO            = 37554,
-    NPC_ALTAR_TARGET             = 37704,
+    NPC_ALTAR_BUNNY              = 37704,
     NPC_UTHER                    = 37225,
     NPC_LICH_KING                = 36954,
     BOSS_LICH_KING               = 37226,

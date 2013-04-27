@@ -57,12 +57,14 @@ struct MANGOS_DLL_DECL boss_falricAI : public BSWScriptedAI
 
     uint32 m_uiSummonTimer;
     uint32 m_uiLocNo;
-    GuidVector m_uiSummonGUID;
+    GuidList m_uiSummonGuids;
+    GuidList m_uiWaveGuids;
     uint8 SummonCount;
     uint32 pSummon;
 
     void Reset()
     {
+        m_uiWaveGuids.clear();
       SummonCount = 0;
       m_bIsCall = false;
       m_uiSummonTimer = 11000;
@@ -86,6 +88,13 @@ struct MANGOS_DLL_DECL boss_falricAI : public BSWScriptedAI
         }
     }
 
+    void EnterEvadeMode()
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_EVENT, 5);
+        ScriptedAI::EnterEvadeMode();
+    }
+
     void JustDied(Unit* pKiller)
     {
         if(!m_pInstance)
@@ -106,67 +115,25 @@ struct MANGOS_DLL_DECL boss_falricAI : public BSWScriptedAI
 
     void Summon()
     {
-         m_uiLocNo = 0;
+    }
 
-         for(uint8 i = 0; i < 16; i++)
-         {
-            switch(urand(0,3))
-            {
-               case 0:
-                   switch(urand(1, 3))
-                   {
-                     case 1: pSummon = NPC_DARK_1; break;
-                     case 2: pSummon = NPC_DARK_3; break;
-                     case 3: pSummon = NPC_DARK_6; break;
-                   }
-                   break;
-               case 1:
-                   switch(urand(1, 3))
-                   {
-                     case 1: pSummon = NPC_DARK_2; break;
-                     case 2: pSummon = NPC_DARK_3; break;
-                     case 3: pSummon = NPC_DARK_4; break;
-                   }
-                   break;
-               case 2:
-                   switch(urand(1, 3))
-                   {
-                     case 1: pSummon = NPC_DARK_2; break;
-                     case 2: pSummon = NPC_DARK_5; break;
-                     case 3: pSummon = NPC_DARK_6; break;
-                   }
-                   break;
-               case 3:
-                   switch(urand(1, 3))
-                   {
-                     case 1: pSummon = NPC_DARK_1; break;
-                     case 2: pSummon = NPC_DARK_5; break;
-                     case 3: pSummon = NPC_DARK_4; break;
-                   }
-                   break;
-             }
-
-             if(Creature* Summon = m_creature->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
-             {
-                m_uiSummonGUID.push_back(Summon->GetObjectGuid());
-                Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Summon->setFaction(974);
-             }
-             m_uiLocNo++;
-         }
+    void SummonedCreatureJustDied(Creature* pSummoned)
+    {
+        m_uiWaveGuids.erase(pSummoned->GetObjectGuid());
     }
 
     void CallFallSoldier()
     {
-        for (uint8 i = 0; i < 4 && m_uiSummonGUID.size(); i++)
+        for (uint8 i = 0; i < 4 && m_uiSummonGuids.size(); i++)
         {
-            if(Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID.back()))
+            if(Creature* pSummon = m_creature->GetMap()->GetCreature(m_uiSummonGuids.back()))
             {
-               Summon->setFaction(14);
-               Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-               Summon->SetInCombatWithZone();
+               pSummon->setFaction(14);
+               pSummon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+               pSummon->SetInCombatWithZone();
+               m_uiWaveGuids.push_back(pSummon->GetObjectGuid());
             }
-            m_uiSummonGUID.pop_back();
+            m_uiSummonGuids.pop_back();
         }
     }
 
@@ -178,11 +145,17 @@ struct MANGOS_DLL_DECL boss_falricAI : public BSWScriptedAI
         if (m_pInstance->GetData(TYPE_EVENT) == 5)
         {
             m_pInstance->SetData(TYPE_EVENT, 6);
+            for (GuidList::iterator itr = m_uiSummonGuids.begin(); itr != m_uiSummonGuids.end(); ++itr)
+                if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
+                    pSummoned->ForcedDespawn();
+
             Summon();
         }
 
         if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL)
         {
+            if (m_uiWaveGuids.empty())
+                m_uiSummonTimer = 0;
 
             if (m_uiSummonTimer < uiDiff)
             {

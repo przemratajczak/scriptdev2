@@ -47,6 +47,8 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
     ObjectGuid m_uiCaptainsChestHordeGUID;
     ObjectGuid m_uiCaptainsChestAllianceGUID;
 
+    GuidList m_uiSummonGuids;
+
     void Initialize()
     {
         for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
@@ -62,14 +64,14 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
             case NPC_SYLVANA:
             case NPC_JAINA_OUTRO:
             case NPC_SYLVANA_OUTRO:
-            case NPC_ALTAR_TARGET:
+            case NPC_ALTAR_BUNNY:
             case NPC_LICH_KING:
             case NPC_FALRIC:
             case NPC_MARWYN:
             case BOSS_LICH_KING:
             case NPC_FROST_GENERAL:
             case NPC_QUEL_DELAR:
-            case NPC_UTHER:
+            // case NPC_UTHER:
                    m_mNpcEntryGuidStore[pCreature->GetEntry()] = pCreature->GetObjectGuid();
                    break;
         }
@@ -106,7 +108,7 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
                                   pGo->SetPhaseMask(65535, true);
                                   break;
             case  GO_CAVE:
-                                  pGo->SetGoState(GO_STATE_ACTIVE);;
+                                  pGo->SetGoState(GO_STATE_ACTIVE);
                                   break;
         }
         m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
@@ -224,6 +226,48 @@ struct MANGOS_DLL_DECL instance_halls_of_reflection : public BSWScriptedInstance
             default:                        return 0;
         }
         return 0;
+    }
+
+    void OnCreatureEvade(Creature* pCreature)
+    {}
+
+    void ManageSwordsRestNPCs(SwordsRestNPCActions uiAction)
+    {
+        Creature* pAltarBunny = GetSingleCreatureFromStorage(NPC_ALTAR_BUNNY); // we need any creature to do this :)
+        if (!pAltarBunny)
+            return;
+
+        switch (uiAction)
+        {
+            case POPULATE:
+                for (uint8 i = 0; i < 28; ++i)
+                {
+                    if(Creature* pSummon = pAltarBunny->SummonCreature(uiFalricMarwynSummonEntry[urand(0, 5), SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, SpawnLoc[i].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+                    {
+                        m_uiSummonGuids.push_back(pSummon->GetObjectGuid());
+                        pSummon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pSummon->setFaction(974);
+                    }
+                }
+                if (Creature* pFalric = GetSingleCreatureFromStorage(NPC_FALRIC))
+                    pFalric->SetVisibility(VISIBILITY_ON);
+                if (Creature* pMarwyn = GetSingleCreatureFromStorage(NPC_MARWYN))
+                    pMarwyn->SetVisibility(VISIBILITY_ON);
+                break;
+
+            case RESET:
+                for (GuidList::iterator itr = m_uiSummonGuids.begin(); itr != m_uiSummonGuids.end(); ++itr)
+                {
+                    if (Creature* pSummon = pAltarBunny->GetMap()->GetCreature(*itr))
+                        pSummon->ForcedDespawn();
+                }
+                m_uiSummonGuids.clear();
+                if (Creature* pFalric = GetSingleCreatureFromStorage(NPC_FALRIC))
+                    if (pFalric->isAlive())
+                        pFalric->SetVisibility(VISIBILITY_OFF);
+                if (Creature* pMarwyn = GetSingleCreatureFromStorage(NPC_MARWYN))
+                    if (pMarwyn->isAlive())
+                        pMarwyn->SetVisibility(VISIBILITY_OFF);
     }
 
     void Load(const char* chrIn)

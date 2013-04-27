@@ -497,7 +497,7 @@ CreatureAI* GetAI_boss_lich_king_hr(Creature* pCreature)
     return new boss_lich_king_hrAI(pCreature);
 }
 
-struct MANGOS_DLL_DECL boss_lich_king_intro_horAI : public ScriptedAI
+/*struct MANGOS_DLL_DECL boss_lich_king_intro_horAI : public ScriptedAI
 {
     boss_lich_king_intro_horAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
@@ -648,7 +648,7 @@ struct MANGOS_DLL_DECL boss_lich_king_intro_horAI : public ScriptedAI
 CreatureAI* GetAI_boss_lich_king_intro_hor(Creature* pCreature)
 {
     return new boss_lich_king_intro_horAI(pCreature);
-}
+}*/
 
 struct MANGOS_DLL_DECL npc_undead_horAI : public BSWScriptedAI
 {
@@ -699,10 +699,10 @@ void AddSC_boss_lich_king_hr()
     newscript->GetAI = &GetAI_boss_lich_king_hr;
     newscript->RegisterSelf();
 
-    newscript = new Script;
+    /*newscript = new Script;
     newscript->Name = "boss_lich_king_intro_hor";
     newscript->GetAI = &GetAI_boss_lich_king_intro_hor;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf();*/
 
     newscript = new Script;
     newscript->Name = "npc_undead_hor";
