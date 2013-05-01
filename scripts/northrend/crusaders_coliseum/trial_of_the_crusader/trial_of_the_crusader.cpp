@@ -52,14 +52,14 @@ struct MANGOS_DLL_DECL npc_toc_announcerAI : public ScriptedAI
 {
     npc_toc_announcerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
 
     bool m_bIsHeroic;
@@ -243,8 +243,8 @@ CreatureAI* GetAI_npc_toc_announcer(Creature* pCreature)
 
 bool GossipHello_npc_toc_announcer(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance* m_pInstance;
-    m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    instance_trial_of_the_crusader* m_pInstance;
+    m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
     char const* _message;
     uint8 i;
 
@@ -297,8 +297,8 @@ bool GossipHello_npc_toc_announcer(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_toc_announcer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance* pInstance;
-    pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    instance_trial_of_the_crusader* pInstance;
+    pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
 
     if (!pInstance)
         return false;
@@ -371,12 +371,12 @@ struct MANGOS_DLL_DECL boss_lich_king_tocAI : public ScriptedAI
 {
     boss_lich_king_tocAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         WayPointList.clear();
         JustRespawned();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     uint32 UpdateTimer;
     uint32 event_state_lich_king;
     bool Event;
@@ -589,11 +589,11 @@ struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
 {
     npc_fizzlebang_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (BSWScriptedInstance*)m_creature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)m_creature->GetInstanceData();
         Reset();
     }
 
-    BSWScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     uint32 UpdateTimer;
     ObjectGuid m_uiPortalGuid;
     ObjectGuid m_uiTriggerGuid;
@@ -762,11 +762,11 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
 {
     npc_tirion_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)m_creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     uint32 UpdateTimer;
     uint32 crusader[12];
     uint8 crusaderscount;
@@ -1437,11 +1437,11 @@ struct MANGOS_DLL_DECL npc_garrosh_tocAI : public ScriptedAI
 {
     npc_garrosh_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)m_creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     uint32 UpdateTimer;
 
     void Reset()
@@ -1518,11 +1518,11 @@ struct MANGOS_DLL_DECL npc_rinn_tocAI : public ScriptedAI
 {
     npc_rinn_tocAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)m_creature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     uint32 UpdateTimer;
 
     void Reset()

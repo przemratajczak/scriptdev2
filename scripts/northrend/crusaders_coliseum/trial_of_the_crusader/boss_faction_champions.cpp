@@ -222,14 +222,14 @@ struct MANGOS_DLL_DECL boss_faction_championsAI : public BSWScriptedAI
 {
     boss_faction_championsAI(Creature* pCreature, uint32 aitype) : BSWScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroicMode = (m_uiMapDifficulty == RAID_DIFFICULTY_10MAN_HEROIC || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         mAIType = aitype;
         Init();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     bool m_bIsHeroicMode;
 
     Difficulty m_uiMapDifficulty;
@@ -457,11 +457,11 @@ struct MANGOS_DLL_DECL mob_toc_druidAI : public boss_faction_championsAI
 {
     mob_toc_druidAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_HEALER)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiBarskinTimer;
     uint32 m_uiNatureGraspTimer;
@@ -580,11 +580,11 @@ struct MANGOS_DLL_DECL mob_toc_shamanAI : public boss_faction_championsAI
 {
     mob_toc_shamanAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_HEALER)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiHeroismOrBloodlustTimer;
     uint32 m_uiHexTimer;
@@ -783,11 +783,11 @@ struct MANGOS_DLL_DECL mob_toc_paladinAI : public boss_faction_championsAI
 {
     mob_toc_paladinAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_HEALER)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     bool m_bAttack;
 
     uint32 m_uiBubbleTimer;
@@ -904,11 +904,11 @@ struct MANGOS_DLL_DECL mob_toc_priestAI : public boss_faction_championsAI
 {
     mob_toc_priestAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_HEALER)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiPeananceTimer;
     uint32 m_uiRenewTimer;
@@ -1013,11 +1013,11 @@ struct MANGOS_DLL_DECL mob_toc_shadow_priestAI : public boss_faction_championsAI
 {
     mob_toc_shadow_priestAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_RANGED)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiDispersionTimer;
     uint32 m_uiBlastTimer;
@@ -1150,11 +1150,11 @@ struct MANGOS_DLL_DECL mob_toc_warlockAI : public boss_faction_championsAI
 {
     mob_toc_warlockAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_RANGED)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiHelfireTimer;
     uint32 m_uiFearTimer;
@@ -1266,11 +1266,11 @@ struct MANGOS_DLL_DECL mob_toc_mageAI : public boss_faction_championsAI
 {
     mob_toc_mageAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_RANGED)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiBarrageTimer;
     uint32 m_uiBlastTimer;
@@ -1412,11 +1412,11 @@ struct MANGOS_DLL_DECL mob_toc_hunterAI : public boss_faction_championsAI
 {
     mob_toc_hunterAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_RANGED)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiAimedShotTimer;
     uint32 m_uiDeterenceTimer;
@@ -1549,11 +1549,11 @@ struct MANGOS_DLL_DECL mob_toc_boomkinAI : public boss_faction_championsAI
 {
     mob_toc_boomkinAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_RANGED)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiCycloneTimer;
     uint32 m_uiFearieFeralTimer;
@@ -1684,11 +1684,11 @@ struct MANGOS_DLL_DECL mob_toc_warriorAI : public boss_faction_championsAI
 {
     mob_toc_warriorAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiBladestormTimer;
     uint32 m_uiIntimidatingShoutTimer;
@@ -1881,11 +1881,11 @@ struct MANGOS_DLL_DECL  mob_toc_dkAI : public boss_faction_championsAI
 {
     mob_toc_dkAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiIceboundFortitudeTimer;
     uint32 m_uiChainsOfIceTimer;
@@ -2009,11 +2009,11 @@ struct MANGOS_DLL_DECL  mob_toc_rogueAI : public boss_faction_championsAI
 {
     mob_toc_rogueAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiFanOfKnivesTimer;
     uint32 m_uiHemorrhageTimer;
@@ -2153,10 +2153,10 @@ struct MANGOS_DLL_DECL  mob_toc_enh_shamanAI : public boss_faction_championsAI
 {
     mob_toc_enh_shamanAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiHeroismOrBloodlustTimer;
     uint32 m_uiEarthShockTimer;
@@ -2296,11 +2296,11 @@ struct MANGOS_DLL_DECL  mob_toc_retro_paladinAI : public boss_faction_championsA
 {
     mob_toc_retro_paladinAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiRepeteanceTimer;
     uint32 m_uiCrusaderStrikeTimer;
@@ -2434,7 +2434,7 @@ struct MANGOS_DLL_DECL  mob_toc_pet_warlockAI : public boss_faction_championsAI
 {
     mob_toc_pet_warlockAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 
@@ -2484,7 +2484,7 @@ struct MANGOS_DLL_DECL  mob_toc_pet_hunterAI : public boss_faction_championsAI
 {
     mob_toc_pet_hunterAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_MELEE)
     {
-        m_pInstance = (ScriptedInstance *) pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*) pCreature->GetInstanceData();
         Reset();
     }
 

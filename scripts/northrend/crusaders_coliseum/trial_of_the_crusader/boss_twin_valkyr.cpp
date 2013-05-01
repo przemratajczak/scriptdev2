@@ -206,12 +206,14 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_LIGHT_SURGE, CAST_TRIGGERED);
 
         m_pInstance->SetData(DATA_HEALTH_FJOLA, m_creature->GetMaxHealth());
-        m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
 
         m_creature->SummonCreature(NPC_LIGHT_ESSENCE, SpawnLoc[24].x, SpawnLoc[24].y, SpawnLoc[24].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
         m_creature->SummonCreature(NPC_LIGHT_ESSENCE, SpawnLoc[25].x, SpawnLoc[25].y, SpawnLoc[25].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
 
         DoScriptText(SAY_AGGRO, m_creature);
+
+        if (m_pInstance->GetData(TYPE_VALKIRIES) != DONE)
+            m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -466,12 +468,14 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
         DoCastSpellIfCan(m_creature, SPELL_DARK_SURGE, CAST_TRIGGERED);
 
         m_pInstance->SetData(DATA_HEALTH_EYDIS, m_creature->GetMaxHealth());
-        m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
 
         m_creature->SummonCreature(NPC_DARK_ESSENCE, SpawnLoc[22].x, SpawnLoc[22].y, SpawnLoc[22].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
         m_creature->SummonCreature(NPC_DARK_ESSENCE, SpawnLoc[23].x, SpawnLoc[23].y, SpawnLoc[23].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
 
         DoScriptText(SAY_AGGRO, m_creature);
+
+        if (m_pInstance->GetData(TYPE_VALKIRIES) != DONE)
+            m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
