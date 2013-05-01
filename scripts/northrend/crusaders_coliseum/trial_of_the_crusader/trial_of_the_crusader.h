@@ -1,6 +1,18 @@
-/* Copyright (C) 2009 - 2010 by /dev/rsa for ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+/* Copyright (C) 2006 - 2013 ScriptDev2 <http://www.scriptdev2.com/>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
@@ -17,8 +29,18 @@ enum
     TYPE_LICH_KING              = 5,
     TYPE_ANUBARAK               = 6,
     TYPE_COUNTER                = 7,
-    TYPE_EVENT                  = 8,
-    MAX_ENCOUNTERS              = 9,
+    TYPE_DEATHS                 = 8,
+    TYPE_EVENT                  = 9,
+    MAX_ENCOUNTERS              = 10,
+
+    TYPE_UPPER_BACK_PAIN        = 0,
+    TYPE_THREE_SIXTY_PAIN_SPIKE = 1,
+    TYPE_SKILL                  = 2,
+    TYPE_MAD_SKILL              = 3,
+    TYPE_INSANITY               = 4,
+    TYPE_DEDICATED_INSANITY     = 5,
+    TYPE_IMMORTALITY            = 6,
+    MAX_SPECIAL_ACHIEV_CRITS    = 7,
 
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
@@ -95,33 +117,69 @@ enum
 
     GO_ARGENT_COLISEUM_FLOOR    = 195527, //20943
     GO_MAIN_GATE_DOOR           = 195647,
+    GO_WEB_DOOR                 = 195485,
 
     GO_WEST_PORTCULLIS          = 195589,
     GO_SOUTH_PORTCULLIS         = 195590,
     GO_NORTH_PORTCULLIS         = 195591,
-	GO_WEB_DOOR                 = 195485,   //Anub'arak Door
 
     TYPE_DIFFICULTY             = 101,
     TYPE_EVENT_TIMER            = 102,
     TYPE_EVENT_NPC              = 103,
     TYPE_NORTHREND_BEASTS       = 104,
     TYPE_CRUSADERS_COUNT        = 105,
+    TYPE_CRUSADERS_DEAD         = 106,
+    TYPE_CRUSADERS_ACHIEV_TIMER = 107,
+    TYPE_CRUSADERS_ACHIEV_FAIL  = 108,
 
     DATA_HEALTH_EYDIS           = 201,
     DATA_HEALTH_FJOLA           = 202,
-    DATA_CASTING_VALKYRS        = 203,
 
     DESPAWN_TIME                = 300000,
 
+    CRITERIA_ACHIEV_UPPER_BACK_PAIN_10N             = 11779,
+    CRITERIA_ACHIEV_UPPER_BACK_PAIN_10H             = 11802,
+    CRITERIA_ACHIEV_UPPER_BACK_PAIN_25N             = 11780,
+    CRITERIA_ACHIEV_UPPER_BACK_PAIN_25H             = 11801,
+
+    CRITERIA_ACHIEV_THREE_SIXTY_PAIN_SPIKE_10N      = 11838,
+    CRITERIA_ACHIEV_THREE_SIXTY_PAIN_SPIKE_10H      = 11861,
+    CRITERIA_ACHIEV_THREE_SIXTY_PAIN_SPIKE_25N      = 11839,
+    CRITERIA_ACHIEV_THREE_SIXTY_PAIN_SPIKE_25H      = 11862,
+
+    CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_10_1           = 12344,
+    CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_10_2           = 12345,
+//  CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_10_3           = 12346,    // should be ignoring
+    CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_25_1           = 12338,
+    CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_25_2           = 12339,
+//  CRITERIA_ACHIEV_TRIBUTE_TO_SKILL_25_3           = 12340,    // should be ignoring
+
+    CRITERIA_ACHIEV_TRIBUTE_TO_MAD_SKILL_10_1       = 12347,
+    CRITERIA_ACHIEV_TRIBUTE_TO_MAD_SKILL_10_2       = 12348,
+    CRITERIA_ACHIEV_TRIBUTE_TO_MAD_SKILL_25_1       = 12341,
+    CRITERIA_ACHIEV_TRIBUTE_TO_MAD_SKILL_25_2       = 12342,
+
+    CRITERIA_ACHIEV_TRIBUTE_TO_INSANITY_10          = 12349,
+    CRITERIA_ACHIEV_TRIBUTE_TO_INSANITY_25          = 12343,
+
+    CRITERIA_ACHIEV_TRIBUTE_TO_IMMORTALITY_HORDE    = 12247,
+    CRITERIA_ACHIEV_TRIBUTE_TO_IMMORTALITY_ALLY     = 12359,
+    CRITERIA_ACHIEV_TRIBUTE_TO_DEDICATED_INSANITY   = 12360,
+
+    SPELL_ACHIEV_FACTION_CHAMPIONS_DEFEAT           = 68184,
+    SPELL_ACHIEV_NOT_ONE_BUT_TWO_JORMUNGARS         = 68523,
+    SPELL_ACHIEV_RESILIENCE_WILL_FIX_IT             = 68620,
+
+    TIMER_ACHIEV_SALT_AND_PEPPER                    = 21853,
 };
 
-static StaticLocation SpawnLoc[]=
+static LOCATION SpawnLoc[]=
 {
-    {559.257996f, 90.266197f, 395.122986f},  // 0 Barrent
-    {563.672974f, 139.571f, 393.837006f},    // 1 Center
+    {559.257996f, 90.266197f,  395.122986f}, // 0 Barrent
+    {563.672974f, 139.571f,    393.837006f}, // 1 Center
     {563.833008f, 187.244995f, 394.5f},      // 2 Backdoor
-    {577.347839f, 195.338888f, 395.14f},     // 3 - Right
-    {550.955933f, 195.338888f, 395.14f},     // 4 - Left
+    {577.347839f, 185.338888f, 395.14f},     // 3 - Right
+    {550.955933f, 185.338888f, 395.14f},     // 4 - Left
     {575.042358f, 195.260727f, 395.137146f}, // 5
     {552.248901f, 195.331955f, 395.132658f}, // 6
     {573.342285f, 195.515823f, 395.135956f}, // 7
@@ -134,17 +192,42 @@ static StaticLocation SpawnLoc[]=
     {567.641724f, 195.351501f, 394.659943f}, // 14
     {560.633972f, 195.391708f, 395.137543f}, // 15
     {565.816956f, 195.477921f, 395.136810f}, // 16
-    {563.549f, 152.474f, 394.393f},          // 17 - Lich king start
-    {563.547f, 141.613f, 393.908f},          // 18 - Lich king end
-    {787.932556f, 133.28978f, 142.612152f},  // 19 - Anub'arak start location
+    {563.549f,    152.474f,    394.393f},    // 17 - Lich king start
+    {563.547f,    141.613f,    393.908f},    // 18 - Lich king end
+    {787.932556f, 133.28978f,  142.612152f}, // 19 - Anub'arak start location
     {618.157898f, 132.640869f, 139.559769f}, // 20 - Anub'arak move point location
-    {508.104767f, 138.247345f, 395.128052f}, // 21 - Fizzlebang start location
+    {563.813660f, 182.842819f, 395.128052f}, // 21 - Fizzlebang start location
     {586.060242f, 117.514809f, 394.314026f}, // 22 - Dark essence 1
     {541.602112f, 161.879837f, 394.587952f}, // 23 - Dark essence 2
     {541.021118f, 117.262932f, 395.314819f}, // 24 - Light essence 1
     {586.200562f, 162.145523f, 394.626129f}, // 25 - Light essence 2
     {563.833008f, 195.244995f, 394.585561f}, // 26 - outdoor
-    {548.610596f, 139.807800f, 394.321838f}, // 27 - fizzlebang end
+    {563.938477f, 149.210571f, 394.321838f}, // 27 - Fizzlebang end
+    {563.710999f, 131.058319f, 394.321838f}, // 28 - Jaraxxus
+    {750.78f,     158.48f,     142.68f    }, // 29 - Frost Sphere 1
+    {749.69f,     129.47f,     142.68f    }, // 30 - Frost Sphere 2
+    {702.69f,     126.47f,     142.68f    }, // 31 - Frost Sphere 3
+    {702.53f,     154.69f,     142.68f    }, // 32 - Frost Sphere 4
+    {530.80f,     108.18f,     395.14f    }, // 33 - Unleashed light 1
+    {530.49f,     172.75f,     395.14f    }, // 34 - Unleashed light 2
+    {591.52f,     167.06f,     395.14f    }, // 35 - Unleashed light 3
+    {589.40f,     114.05f,     395.14f    }, // 36 - Unleashed light 4
+    {516.64f,     139.74f,     395.14f    }, // 37 - Unleashed dark 1
+    {563.88f,     169.17f,     395.14f    }, // 38 - Unleashed dark 2
+    {604.99f,     139.63f,     395.14f    }, // 39 - Unleashed dark 3
+    {563.65f,     103.28f,     395.14f    }, // 40 - Unleashed dark 4
+    {519.75f,     119.29f,     395.14f    }, // 41 - Unleashed light 1 extra (25)
+    {548.70f,     170.04f,     395.14f    }, // 42 - Unleashed light 2 extra (25)
+    {575.52f,     144.13f,     395.14f    }, // 43 - Unleashed light 3 extra (25)
+    {570.38f,     122.28f,     395.14f    }, // 44 - Unleashed light 4 extra (25)
+    {550.53f,     145.74f,     395.14f    }, // 45 - Unleashed dark 1 extra (25)
+    {577.57f,     174.08f,     395.14f    }, // 46 - Unleashed dark 2 extra (25)
+    {605.72f,     119.60f,     395.14f    }, // 47 - Unleashed dark 3 extra (25)
+    {554.94f,     123.42f,     395.14f    }, // 48 - Unleashed dark 4 extra (25)
+    {697.73f,     118.48f,     142.68f    }, // 49 - Frost Sphere 5
+    {733.33f,     153.44f,     142.68f    }, // 50 - Frost Sphere 6
+    {731.40f,     90.90f,      142.68f    }, // 51 - Frost Sphere 7
+    {794.34f,     150.48f,     142.68f    }, // 52 - Frost Sphere 8
 };
 
 enum uiWorldStates
@@ -168,12 +251,66 @@ enum NorthrendBeasts
 
 enum AnnounserMessages
 {
-    MSG_BEASTS                 = 724001,
-    MSG_JARAXXUS               = 724002,
-    MSG_CRUSADERS              = 724003,
-    MSG_VALKIRIES              = 724004,
-    MSG_LICH_KING              = 724005,
-    MSG_ANUBARAK               = 724006,
+    MSG_BEASTS                      = 724001,
+    MSG_JARAXXUS                    = 724002,
+    MSG_CRUSADERS                   = 724003,
+    MSG_VALKIRIES                   = 724004,
+    MSG_LICH_KING                   = 724005,
+    MSG_ANUBARAK                    = 724006,
+};
+
+class MANGOS_DLL_DECL instance_trial_of_the_crusader : public BSWScriptedInstance
+{
+public:
+    instance_trial_of_the_crusader(Map* pMap);
+    ~instance_trial_of_the_crusader() {}
+
+    void Initialize();
+
+    bool IsEncounterInProgress() const;
+    void OnPlayerEnter(Player *m_player);
+    void OnPlayerDeath(Player *m_player);
+
+    bool IsRaidWiped();
+    void UpdateWorldState();
+
+    void OnCreatureCreate(Creature* pCreature);
+    void OnObjectCreate(GameObject *pGo);
+
+    bool CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/) const override;
+    void SetSpecialAchievementCriteria(uint32 uiType, bool bIsMet);
+
+    void SetData(uint32 uiType, uint32 uiData);
+    uint32 GetData(uint32 uiType);
+
+    const char* Save() const { return m_strInstData.c_str(); }
+
+    void Load(const char* chrIn);
+
+private:
+
+    uint32 m_auiEncounter[MAX_ENCOUNTERS+1];
+    uint32 m_auiEventTimer;
+    uint32 m_auiEventNPCId;
+    uint32 m_auiNorthrendBeasts;
+    uint8 Difficulty;
+    std::string m_strInstData;
+    bool needsave;
+
+    bool m_bAchievCriteria[MAX_SPECIAL_ACHIEV_CRITS];
+
+    uint32 m_uiDataDamageFjola;
+    uint32 m_uiDataDamageEydis;
+
+    uint32 m_uiTributeChest1;
+    uint32 m_uiTributeChest2;
+    uint32 m_uiTributeChest3;
+    uint32 m_uiTributeChest4;
+
+    uint32 m_auiCrusadersCount;
+    uint32 m_auiCrusadersDead;
+    uint32 m_auiCrusadersAchievTimer;
+    uint32 m_auiCrusadersAchievFail;
 };
 
 #endif
