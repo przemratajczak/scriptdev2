@@ -93,7 +93,7 @@ struct MANGOS_DLL_DECL boss_anubarak_trialAI : public BSWScriptedAI
 {   
     boss_anubarak_trialAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
@@ -101,7 +101,7 @@ struct MANGOS_DLL_DECL boss_anubarak_trialAI : public BSWScriptedAI
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool intro;
     bool m_bIsHeroic;
@@ -492,7 +492,7 @@ struct MANGOS_DLL_DECL mob_swarm_scarabAI : public BSWScriptedAI
 {
     mob_swarm_scarabAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
@@ -500,7 +500,7 @@ struct MANGOS_DLL_DECL mob_swarm_scarabAI : public BSWScriptedAI
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool m_bIsHeroic;
     bool m_bIs25Man;
@@ -573,14 +573,14 @@ struct MANGOS_DLL_DECL mob_nerubian_borrowerAI : public BSWScriptedAI
 {
     mob_nerubian_borrowerAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool m_bIsSubmerged;
     bool m_bIsHeroic;
@@ -707,11 +707,11 @@ struct MANGOS_DLL_DECL mob_frost_sphereAI : public BSWScriptedAI
 {
     mob_frost_sphereAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     void Reset()
     {
@@ -758,14 +758,14 @@ struct MANGOS_DLL_DECL mob_anubarak_spikeAI : public BSWScriptedAI
 {
     mob_anubarak_spikeAI(Creature* pCreature) : BSWScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
 
     bool m_bIncreaseSpeed;

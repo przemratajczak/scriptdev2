@@ -640,11 +640,11 @@ struct MANGOS_DLL_DECL mob_light_essenceAI : public ScriptedAI
 {
     mob_light_essenceAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     void Reset() 
     {
@@ -700,11 +700,11 @@ struct MANGOS_DLL_DECL mob_dark_essenceAI : public ScriptedAI
 {
     mob_dark_essenceAI(Creature* pCreature) : ScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     void Reset() 
     {
@@ -759,11 +759,11 @@ struct MANGOS_DLL_DECL mob_unleashed_darkAI : public ScriptedAI
 {
     mob_unleashed_darkAI(Creature *pCreature) : ScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiCheckTimer;
 
@@ -832,11 +832,11 @@ struct MANGOS_DLL_DECL mob_unleashed_lightAI : public ScriptedAI
 {
     mob_unleashed_lightAI(Creature *pCreature) : ScriptedAI(pCreature) 
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiCheckTimer;
 

@@ -124,14 +124,14 @@ struct MANGOS_DLL_DECL boss_gormokAI : public ScriptedAI
 {
     boss_gormokAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     Unit* pFocus;
 
@@ -274,11 +274,11 @@ struct MANGOS_DLL_DECL mob_snobold_vassalAI : public ScriptedAI
 {
     mob_snobold_vassalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Unit *pFocus;
 
     uint32 m_uiBatterTimer;
@@ -373,11 +373,11 @@ struct MANGOS_DLL_DECL mob_fire_bombAI : public ScriptedAI
 {
     mob_fire_bombAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     void Reset()
     {
@@ -806,7 +806,7 @@ struct MANGOS_DLL_DECL mob_slime_poolAI : public ScriptedAI
 {
     mob_slime_poolAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+        m_pInstance = ((instance_trial_of_the_crusader*)pCreature->GetInstanceData());
         Reset();
     }
 

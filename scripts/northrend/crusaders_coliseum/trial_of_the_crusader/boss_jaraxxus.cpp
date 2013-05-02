@@ -285,11 +285,11 @@ struct MANGOS_DLL_DECL mob_legion_flameAI : public ScriptedAI
 {
     mob_legion_flameAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     void Reset()
     {
@@ -323,14 +323,14 @@ struct MANGOS_DLL_DECL mob_infernal_volcanoAI : public ScriptedAI
 {
     mob_infernal_volcanoAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool m_bIsHeroic;
     bool m_bIs25Man;
@@ -384,11 +384,11 @@ struct MANGOS_DLL_DECL mob_fel_infernalAI : public ScriptedAI
 {
     mob_fel_infernalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
 
     uint32 m_uiFelInfernoTimer;
     uint32 m_uiFelStreakTimer;
@@ -460,14 +460,14 @@ struct MANGOS_DLL_DECL mob_nether_portalAI : public ScriptedAI
 {
     mob_nether_portalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool m_bIsHeroic;
     bool m_bIs25Man;
@@ -517,14 +517,14 @@ struct MANGOS_DLL_DECL mob_mistress_of_painAI : public ScriptedAI
 {
     mob_mistress_of_painAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_trial_of_the_crusader*)pCreature->GetInstanceData();
         m_uiMapDifficulty = pCreature->GetMap()->GetDifficulty();
         m_bIsHeroic = m_uiMapDifficulty > RAID_DIFFICULTY_25MAN_NORMAL;
         m_bIs25Man = (m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || m_uiMapDifficulty == RAID_DIFFICULTY_25MAN_HEROIC);
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_trial_of_the_crusader* m_pInstance;
     Difficulty m_uiMapDifficulty;
     bool m_bIsHeroic;
     bool m_bIs25Man;
