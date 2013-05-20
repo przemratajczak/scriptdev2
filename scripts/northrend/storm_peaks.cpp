@@ -487,7 +487,7 @@ struct MANGOS_DLL_DECL npc_harnessed_icemaw_matriarchAI : public npc_escortAI
                 if (Player* pPassinger = m_creature->GetMap()->GetPlayer(pVehKit->GetPassenger(0)->GetObjectGuid()))
                 {
                     // update player position to not interrupt escort
-                    pPassinger->SetPosition(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), false);                        
+                    pPassinger->SetPosition(m_creature->GetPosition(), false);                        
                     if (uiPointId == 119)
                         pPassinger->KilledMonsterCredit(NPC_INJURED_ICEMAW_MATRIARCH, m_creature->GetObjectGuid());
                 }                       
