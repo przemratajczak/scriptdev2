@@ -181,6 +181,14 @@ void instance_icecrown_spire::OnObjectCreate(GameObject* pGo)
             m_mGoEntryGuidStore[pGo->GetEntry()] = pGo->GetObjectGuid();
             break;
         case GO_DEATHWHISPER_ELEVATOR:
+            if (!pGo->isSpawned() && m_auiEncounter[TYPE_DEATHWHISPER] == DONE)
+            {
+                pGo->SetRespawnTime(30);
+                pGo->Refresh();
+                pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                pGo->SetGoState(GO_STATE_READY);
+            }
+            break;
         case GO_SAURFANG_DOOR:
             if (m_auiEncounter[TYPE_SAURFANG] == DONE)
                 pGo->SetGoState(GO_STATE_ACTIVE);
@@ -330,10 +338,12 @@ void instance_icecrown_spire::SetData(uint32 uiType, uint32 uiData)
 
             if (uiData == DONE)
             {
-                if (GameObject* pGO = GetSingleGameObjectFromStorage(GO_DEATHWHISPER_ELEVATOR))
+                if (GameObject* pGo = GetSingleGameObjectFromStorage(GO_DEATHWHISPER_ELEVATOR))
                 {
-                      pGO->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                      pGO->SetGoState(GO_STATE_READY);
+                    pGo->SetRespawnTime(30);
+                    pGo->Refresh();
+                    pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                    pGo->SetGoState(GO_STATE_READY);
                 }
             }
             break;
