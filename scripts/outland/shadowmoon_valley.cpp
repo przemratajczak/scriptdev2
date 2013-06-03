@@ -2147,3 +2147,116 @@ void AddSC_shadowmoon_valley()
     newscript->pGossipSelect = &GossipSelect_npc_spawned_oronok_tornheart;
     newscript->RegisterSelf();
 }
+
+/*######
+## npc_veneratus_spawn_node
+######*/
+
+enum
+{
+    SAY_VENERATUS_SPAWN         = -1000579,
+
+    NPC_VENERATUS               = 20427,
+    NPC_SPIRIT_HUNTER           = 21332,
+};
+
+struct MANGOS_DLL_DECL npc_veneratus_spawn_nodeAI : public Scripted_NoMovementAI
+{
+    npc_veneratus_spawn_nodeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { Reset(); }
+
+    void Reset() override { }
+
+    void MoveInLineOfSight(Unit* pWho) override
+    {
+        // Check for the spirit hunter in order to spawn Veneratus; this will replace missing spells 36614 (dummy periodic spell) and 36616 (summon spell)
+        if (pWho->GetEntry() == NPC_SPIRIT_HUNTER && m_creature->IsWithinDistInMap(pWho, 40.0f) && m_creature->IsWithinLOSInMap(pWho))
+        {
+            DoScriptText(SAY_VENERATUS_SPAWN, pWho);
+            DoSpawnCreature(NPC_VENERATUS, 0, 0, 0, 0, TEMPSUMMON_TIMED_OOC_OR_DEAD_DESPAWN, 60000);
+            m_creature->ForcedDespawn();
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff) override { }
+};
+
+CreatureAI* GetAI_npc_veneratus_spawn_node(Creature* pCreature)
+{
+    return new npc_veneratus_spawn_nodeAI(pCreature);
+}
+
+void AddSC_shadowmoon_valley()
+{
+    Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "mob_mature_netherwing_drake";
+    pNewScript->GetAI = &GetAI_mob_mature_netherwing_drake;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "mob_enslaved_netherwing_drake";
+    pNewScript->GetAI = &GetAI_mob_enslaved_netherwing_drake;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_dragonmaw_peon";
+    pNewScript->GetAI = &GetAI_npc_dragonmaw_peon;
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_dragonmaw_peon;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_wilda";
+    pNewScript->GetAI = &GetAI_npc_wilda;
+    pNewScript->pQuestAcceptNPC = &QuestAccept_npc_wilda;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_lord_illidan_stormrage";
+    pNewScript->GetAI = &GetAI_npc_lord_illidan_stormrage;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "mob_torloth";
+    pNewScript->GetAI = &GetAI_mob_torloth;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_totem_of_spirits";
+    pNewScript->GetAI = &GetAI_npc_totem_of_spirits;
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_totem_of_spirits;
+    pNewScript->pEffectAuraDummy = &EffectAuraDummy_npc_totem_of_spirits;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "event_spell_soul_captured_credit";
+    pNewScript->pProcessEventId = &ProcessEventId_event_spell_soul_captured_credit;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "go_crystal_prison";
+    pNewScript->pQuestAcceptGO = &GOQuestAccept_GO_crystal_prison;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_spawned_oronok_tornheart";
+    pNewScript->GetAI = &GetAI_npc_spawned_oronok_tornheart;
+    pNewScript->pGossipHello =  &GossipHello_npc_spawned_oronok_tornheart;
+    pNewScript->pGossipSelect = &GossipSelect_npc_spawned_oronok_tornheart;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_domesticated_felboar";
+    pNewScript->GetAI = &GetAI_npc_domesticated_felboar;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_shadowmoon_tuber_node";
+    pNewScript->pEffectDummyNPC = &EffectDummyCreature_npc_shadowmoon_tuber_node;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_veneratus_spawn_node";
+    pNewScript->GetAI = &GetAI_npc_veneratus_spawn_node;
+    pNewScript->RegisterSelf();
+}
